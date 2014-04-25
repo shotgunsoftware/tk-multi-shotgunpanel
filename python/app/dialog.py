@@ -18,9 +18,9 @@ import threading
 from sgtk.platform.qt import QtCore, QtGui
 from .ui.dialog import Ui_Dialog
 
-def show_dialog(app_instance):
+def show_dialog(app_instance, entity_type, entity_ids):
     """
-    Shows the main dialog window.
+    Shows the main dialog window, using the special Shotgun multi-select mode.
     """
     # in order to handle UIs seamlessly, each toolkit engine has methods for launching
     # different types of windows. By using these methods, your windows will be correctly
@@ -28,7 +28,11 @@ def show_dialog(app_instance):
     
     # we pass the dialog class to this method and leave the actual construction
     # to be carried out by toolkit.
-    app_instance.engine.show_dialog("Starter Template App...", app_instance, AppDialog)
+    app_instance.engine.show_dialog("Starter Template App",    # window title 
+                                    app_instance,              # app instance
+                                    AppDialog,                 # window class to instantiate
+                                    entity_type,               # arguments to pass to constructor
+                                    entity_ids)
     
 
 
@@ -37,7 +41,7 @@ class AppDialog(QtGui.QWidget):
     Main application dialog window
     """
     
-    def __init__(self):
+    def __init__(self, entity_type, entity_ids):
         """
         Constructor
         """
@@ -58,6 +62,6 @@ class AppDialog(QtGui.QWidget):
         # - A tk API instance, via self._app.tk 
         
         # lastly, set up our very basic UI
-        self.ui.context.setText("Current Context: %s" % self._app.context)
+        self.ui.context.setText("Current selection type: %s, <br>Currently selected ids: %s" % (entity_type, entity_ids)) 
         
         
