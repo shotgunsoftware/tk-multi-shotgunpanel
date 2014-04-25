@@ -41,6 +41,9 @@ class StgkStarterApp(Application):
         #
         menu_callback = lambda entity_type, entity_ids: app_payload.dialog.show_dialog(self, entity_type, entity_ids)
 
+        # in order for the shotgun engine to enable multiple selection mode, we need to pass a special param flag:
+        parameters = { "supports_multiple_selection": True }
+
         # now register the command with the engine
-        self.engine.register_command("Show Starter Template App...", menu_callback)
+        self.engine.register_command("Starter Template App...", menu_callback, parameters)
         
