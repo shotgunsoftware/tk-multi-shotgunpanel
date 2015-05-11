@@ -1,5 +1,17 @@
 <RCC>
-  <qresource prefix="res">
-    <file>sg_logo.png</file>
+  <qresource prefix="tk_multi_infopanel">
+    <file>search_active.png</file>
+    <file>search.png</file>
+    <file>right_arrow_hover.png</file>
+    <file>right_arrow_pressed.png</file>
+    <file>right_arrow.png</file>
+    <file>right_arrow_disabled.png</file>
+    <file>left_arrow_hover.png</file>
+    <file>left_arrow_pressed.png</file>
+    <file>left_arrow.png</file>
+    <file>left_arrow_disabled.png</file>
+    <file>home.png</file>
+    <file>home_hover.png</file>
+    <file>home_pressed.png</file>
   </qresource>
 </RCC>

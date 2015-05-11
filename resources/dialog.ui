@@ -6,38 +6,501 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>431</width>
-    <height>392</height>
+    <width>522</width>
+    <height>778</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>The Current Sgtk Environment</string>
+   <string>Shotgun Browser</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_7">
    <item>
-    <widget class="QLabel" name="logo_example">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap resource="resources.qrc">:/res/sg_logo.png</pixmap>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QToolButton" name="navigation_home">
+       <property name="minimumSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Clicking the &lt;i&gt;home button&lt;/i&gt; will take you to the location that best matches your current work area.</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton{
+   border: none;
+   background-color: none;
+   background-repeat: no-repeat;
+   background-position: center center;
+   background-image: url(:/tk_multi_infopanel/home.png);
+}
+
+QToolButton:hover{
+background-image: url(:/tk_multi_infopanel/home_hover.png);
+}
+
+QToolButton:Pressed {
+background-image: url(:/tk_multi_infopanel/home_pressed.png);
+}
+</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="navigation_prev">
+       <property name="minimumSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>&lt;i&gt;Go back&lt;/i&gt; in the folder history.</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton{
+   border: none;
+   background-color: none;
+   background-repeat: no-repeat;
+   background-position: center center;
+   background-image: url(:/tk_multi_infopanel/left_arrow.png);
+}
+
+QToolButton:disabled{
+   background-image: url(:/tk_multi_infopanel/left_arrow_disabled.png);
+}
+
+QToolButton:hover{
+background-image: url(:/tk_multi_infopanel/left_arrow_hover.png);
+}
+
+QToolButton:Pressed {
+background-image: url(:/tk_multi_infopanel/left_arrow_pressed.png);
+}
+</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="navigation_next">
+       <property name="minimumSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>&lt;i&gt;Go forward&lt;/i&gt; in the folder history.</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton{
+   border: none;
+   background-color: none;
+   background-repeat: no-repeat;
+   background-position: center center;
+   background-image: url(:/tk_multi_infopanel/right_arrow.png);
+}
+
+QToolButton:disabled{
+   background-image: url(:/tk_multi_infopanel/right_arrow_disabled.png);
+}
+
+
+QToolButton:hover{
+background-image: url(:/tk_multi_infopanel/right_arrow_hover.png);
+}
+
+QToolButton:Pressed {
+background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
+}
+</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="current_entity">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
-    <widget class="QLabel" name="context">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <property name="text">
-      <string>Your Current Context: </string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
+     <widget class="QWidget" name="entity_page">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QWidget" name="entity_details" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="entity_thumb">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Entity</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="entity_text">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="entity_note_tab">
+          <attribute name="title">
+           <string>Notes</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QListView" name="entity_note_view">
+             <property name="toolTip">
+              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
+             </property>
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="entity_version_tab">
+          <attribute name="title">
+           <string>Versions</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="QListView" name="entity_version_view">
+             <property name="toolTip">
+              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
+             </property>
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="entity_publish_tab">
+          <attribute name="title">
+           <string>Publishes</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QListView" name="entity_publish_view">
+             <property name="toolTip">
+              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
+             </property>
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="entity_tasks_tab">
+          <attribute name="title">
+           <string>Tasks</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <widget class="QListView" name="entity_task_view">
+             <property name="toolTip">
+              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
+             </property>
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="entity_info_tab">
+          <attribute name="title">
+           <string>Info</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <item>
+            <widget class="QListView" name="entity_info_view">
+             <property name="toolTip">
+              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
+             </property>
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="note_page">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QWidget" name="note_details" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="note_thumb">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Note</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="note_text">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListView" name="note_reply_view">
+         <property name="toolTip">
+          <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
+         </property>
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="uniformItemSizes">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="publish_page">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QWidget" name="publish_details" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="publish_thumb">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Publish</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="publish_text">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListView" name="publish_publish_view">
+         <property name="toolTip">
+          <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
+         </property>
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="uniformItemSizes">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="version_page">
+      <layout class="QVBoxLayout" name="verticalLayout_10">
+       <item>
+        <widget class="QWidget" name="version_details" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="version_thumb">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Version</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="version_text">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTabWidget" name="tabWidget_2">
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <widget class="QWidget" name="version_note_tab">
+          <attribute name="title">
+           <string>Notes</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_11">
+           <item>
+            <widget class="QListView" name="version_note_view">
+             <property name="toolTip">
+              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
+             </property>
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="version_publish_tab">
+          <attribute name="title">
+           <string>Publishes</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_12">
+           <item>
+            <widget class="QListView" name="version_publish_view">
+             <property name="toolTip">
+              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
+             </property>
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
