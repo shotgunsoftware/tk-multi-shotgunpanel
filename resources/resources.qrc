@@ -13,5 +13,6 @@
     <file>home.png</file>
     <file>home_hover.png</file>
     <file>home_pressed.png</file>
+    <file>default_user.png</file>
   </qresource>
 </RCC>
