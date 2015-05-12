@@ -137,18 +137,18 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="current_entity">
+      <widget class="QLabel" name="title_label">
        <property name="text">
-        <string>TextLabel</string>
+        <string>&lt;big&gt;Shot ABC 123 456&lt;/big&gt;</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QStackedWidget" name="stackedWidget">
+    <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -449,7 +449,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        <item>
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="version_note_tab">
           <attribute name="title">
