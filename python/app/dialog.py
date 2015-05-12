@@ -72,15 +72,15 @@ class AppDialog(QtGui.QWidget):
         # entity section
         self._entity_note_model = shotgun_model.SimpleShotgunModel(self.ui.entity_note_view)
         self.ui.entity_note_view.setModel(self._entity_note_model)
-        self.ui.entity_note_view.clicked.connect(self._on_note_clicked)
+        self.ui.entity_note_view.clicked.connect(self._on_entity_clicked)
         
         self._entity_version_model = shotgun_model.SimpleShotgunModel(self.ui.entity_version_view)
         self.ui.entity_version_view.setModel(self._entity_version_model)
-        self.ui.entity_version_view.clicked.connect(self._on_version_clicked)
+        self.ui.entity_version_view.clicked.connect(self._on_entity_clicked)
         
         self._entity_publish_model = shotgun_model.SimpleShotgunModel(self.ui.entity_publish_view)
         self.ui.entity_publish_view.setModel(self._entity_publish_model)
-        self.ui.entity_publish_view.clicked.connect(self._on_publish_clicked)
+        self.ui.entity_publish_view.clicked.connect(self._on_entity_clicked)
         
         self._entity_task_model = shotgun_model.SimpleShotgunModel(self.ui.entity_task_view)
         self.ui.entity_task_view.setModel(self._entity_task_model)
@@ -98,18 +98,18 @@ class AppDialog(QtGui.QWidget):
         # publish details
         self._publish_publish_model = shotgun_model.SimpleShotgunModel(self.ui.publish_publish_view)
         self.ui.publish_publish_view.setModel(self._publish_publish_model)
-        self.ui.publish_publish_view.clicked.connect(self._on_publish_clicked)
+        self.ui.publish_publish_view.clicked.connect(self._on_entity_clicked)
 
         self._publish_model = shotgun_model.SimpleShotgunModel(self.ui.publish_details)
         
         # version details
         self._version_note_model = shotgun_model.SimpleShotgunModel(self.ui.version_note_view)
         self.ui.version_note_view.setModel(self._version_note_model)
-        self.ui.version_note_view.clicked.connect(self._on_note_clicked)
+        self.ui.version_note_view.clicked.connect(self._on_entity_clicked)
 
         self._version_publish_model = shotgun_model.SimpleShotgunModel(self.ui.version_publish_view)
         self.ui.version_publish_view.setModel(self._version_publish_model)
-        self.ui.version_publish_view.clicked.connect(self._on_publish_clicked)
+        self.ui.version_publish_view.clicked.connect(self._on_entity_clicked)
         
 
         self._version_model = shotgun_model.SimpleShotgunModel(self.ui.version_details)
@@ -220,31 +220,15 @@ class AppDialog(QtGui.QWidget):
 
 
 
-    def _on_note_clicked(self, model_index):
+    def _on_entity_clicked(self, model_index):
         """
-        Someone clicked a note
+        Someone clicked an entity
         """
         sg_item = shotgun_model.get_sg_data(model_index)
-        sg_location = ShotgunLocation("Note", sg_item["id"])
+        sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
         self._navigate_to(sg_location)
         
 
-    def _on_publish_clicked(self, model_index):
-        """
-        Someone clicked a publish
-        """
-        sg_item = shotgun_model.get_sg_data(model_index)
-        sg_location = ShotgunLocation("PublishedFile", sg_item["id"])
-        self._navigate_to(sg_location)
-
-    def _on_version_clicked(self, model_index):
-        """
-        Someone clicked a version
-        """
-        sg_item = shotgun_model.get_sg_data(model_index)
-        sg_location = ShotgunLocation("Version", sg_item["id"])
-        self._navigate_to(sg_location)
-        
         
         
     
