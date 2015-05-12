@@ -18,6 +18,8 @@ import threading
 from sgtk.platform.qt import QtCore, QtGui
 from .ui.dialog import Ui_Dialog
 
+from .shotgun_location import ShotgunLocation
+
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 
 def show_dialog(app_instance):
@@ -56,6 +58,11 @@ class AppDialog(QtGui.QWidget):
         # now load in the UI that was created in the UI designer
         self.ui = Ui_Dialog() 
         self.ui.setupUi(self)
+        
+        # track the history
+        self._history_items = []
+        self._history_index = 0
+        
         
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
@@ -107,10 +114,14 @@ class AppDialog(QtGui.QWidget):
 
         self._version_model = shotgun_model.SimpleShotgunModel(self.ui.version_details)
 
+
+        self.ui.navigation_home.clicked.connect(self._on_home_clicked)
+        self.ui.navigation_next.clicked.connect(self._on_next_clicked)
+        self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
+
         
-
-
-        self.focus_entity("Shot", 1660)
+        
+        self._on_home_clicked()
 
 
 
@@ -156,7 +167,7 @@ class AppDialog(QtGui.QWidget):
         
         # main info
         self._publish_model.load_data("Note", [["id", "is", note_id]], ["content"])
-        self.ui.title_label.setText("Note %s" % version_id)
+        self.ui.title_label.setText("Note %s" % note_id)
         
         # load data for tabs
         self._note_reply_model.load_data("Reply", [["entity", "is", {"type": "Note", "id": note_id}]], ["content"])
@@ -197,8 +208,15 @@ class AppDialog(QtGui.QWidget):
                                               ["code"])
 
         self._entity_note_model.load_data("Note", 
-                                          [["note_links", "in", {"type": "Version", "id": entity_id}]], 
+                                          [["note_links", "in", {"type": "Version", "id": version_id}]], 
                                           ["content"])
+
+
+
+
+
+
+
 
 
 
@@ -207,18 +225,68 @@ class AppDialog(QtGui.QWidget):
         Someone clicked a note
         """
         sg_item = shotgun_model.get_sg_data(model_index)
-        self.focus_note(sg_item["id"])
+        sg_location = ShotgunLocation("Note", sg_item["id"])
+        self._navigate_to(sg_location)
+        
 
     def _on_publish_clicked(self, model_index):
         """
         Someone clicked a publish
         """
         sg_item = shotgun_model.get_sg_data(model_index)
-        self.focus_publish(sg_item["id"])
+        sg_location = ShotgunLocation("PublishedFile", sg_item["id"])
+        self._navigate_to(sg_location)
 
     def _on_version_clicked(self, model_index):
         """
         Someone clicked a version
         """
         sg_item = shotgun_model.get_sg_data(model_index)
-        self.focus_version(sg_item["id"])
+        sg_location = ShotgunLocation("Version", sg_item["id"])
+        self._navigate_to(sg_location)
+        
+        
+        
+    
+    
+    def _navigate_to(self, shotgun_location):
+        
+        
+        # chop off history at the point we are currently
+        self._history_items = self._history_items[:self._history_index]
+        # add new record
+        self._history_index += 1
+        self._history_items.append(shotgun_location)
+        self._compute_history_button_visibility()
+        shotgun_location.set_up_ui(self)
+    
+        
+    def _compute_history_button_visibility(self):        
+        self.ui.navigation_next.setEnabled(True)
+        self.ui.navigation_prev.setEnabled(True)
+        if self._history_index == len(self._history_items):
+            self.ui.navigation_next.setEnabled(False)
+        if self._history_index == 1:
+            self.ui.navigation_prev.setEnabled(False)
+        
+    def _on_home_clicked(self):
+        sg_location = ShotgunLocation("Shot", 1660)
+        self._navigate_to(sg_location)
+        
+    def _on_next_clicked(self):
+        self._app.log_debug("Next")
+        self._history_index += 1
+        # get the data for this guy (note: index are one based)
+        sg_location = self._history_items[self._history_index-1]
+        self._compute_history_button_visibility()
+        sg_location.set_up_ui(self)
+        
+    def _on_prev_clicked(self):
+        self._app.log_debug("Prev")
+        self._history_index += -1
+        # get the data for this guy (note: index are one based)
+        sg_location = self._history_items[self._history_index-1]
+        self._compute_history_button_visibility()
+        sg_location.set_up_ui(self)
+        
+
