@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="tk_multi_infopanel">
+    <file>loading_512x400.png</file>
     <file>status_icons/icon_arrow_right2.png</file>
     <file>search_active.png</file>
     <file>search.png</file>
@@ -14,7 +15,7 @@
     <file>home.png</file>
     <file>home_hover.png</file>
     <file>home_pressed.png</file>
-    <file>default_user.png</file>    
+    <file>default_user.png</file>
     <file>status_icons/icon_airplane.png</file>
     <file>status_icons/icon_alert.png</file>
     <file>status_icons/icon_announcement.png</file>
@@ -166,6 +167,6 @@
     <file>status_icons/icon_walk.png</file>
     <file>status_icons/icon_weather.png</file>
     <file>status_icons/icon_wtg.png</file>
-    <file>status_icons/icon_yellow_circle_line.png</file>    
+    <file>status_icons/icon_yellow_circle_line.png</file>
   </qresource>
 </RCC>

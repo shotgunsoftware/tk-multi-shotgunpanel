@@ -20,6 +20,12 @@ from .ui.dialog import Ui_Dialog
 
 from .shotgun_location import ShotgunLocation
 
+from .delegate_rect import RectDelegate
+from .delegate_round import RoundDelegate
+
+from .model_rounduser import SgRoundUserModel
+
+
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 
 def show_dialog(app_instance):
@@ -70,27 +76,37 @@ class AppDialog(QtGui.QWidget):
         
         
         # entity section
-        self._entity_note_model = shotgun_model.SimpleShotgunModel(self.ui.entity_note_view)
+        self._entity_note_model = SgRoundUserModel(self.ui.entity_note_view)
         self.ui.entity_note_view.setModel(self._entity_note_model)
         self.ui.entity_note_view.clicked.connect(self._on_entity_clicked)
-        
+        self._entity_note_delegate = RoundDelegate(self.ui.entity_note_view)
+        self.ui.entity_note_view.setItemDelegate(self._entity_note_delegate)
+                
         self._entity_version_model = shotgun_model.SimpleShotgunModel(self.ui.entity_version_view)
         self.ui.entity_version_view.setModel(self._entity_version_model)
         self.ui.entity_version_view.clicked.connect(self._on_entity_clicked)
+        self._entity_version_delegate = RectDelegate(self.ui.entity_version_view)
+        self.ui.entity_version_view.setItemDelegate(self._entity_version_delegate)
         
         self._entity_publish_model = shotgun_model.SimpleShotgunModel(self.ui.entity_publish_view)
         self.ui.entity_publish_view.setModel(self._entity_publish_model)
         self.ui.entity_publish_view.clicked.connect(self._on_entity_clicked)
+        self._entity_publish_delegate = RectDelegate(self.ui.entity_publish_view)
+        self.ui.entity_publish_view.setItemDelegate(self._entity_publish_delegate)
         
-        self._entity_task_model = shotgun_model.SimpleShotgunModel(self.ui.entity_task_view)
+        self._entity_task_model = SgRoundUserModel(self.ui.entity_task_view)
         self.ui.entity_task_view.setModel(self._entity_task_model)
+        self._entity_task_delegate = RoundDelegate(self.ui.entity_task_view)
+        self.ui.entity_task_view.setItemDelegate(self._entity_task_delegate)
         
         self._entity_model = shotgun_model.SimpleShotgunModel(self.ui.entity_details)
 
 
         # note section
-        self._note_reply_model = shotgun_model.SimpleShotgunModel(self.ui.note_reply_view)
+        self._note_reply_model = SgRoundUserModel(self.ui.note_reply_view)
         self.ui.note_reply_view.setModel(self._note_reply_model)
+        self._note_reply_delegate = RoundDelegate(self.ui.note_reply_view)
+        self.ui.note_reply_view.setItemDelegate(self._note_reply_delegate)
 
         self._note_model = shotgun_model.SimpleShotgunModel(self.ui.note_details)
 
@@ -99,20 +115,26 @@ class AppDialog(QtGui.QWidget):
         self._publish_publish_model = shotgun_model.SimpleShotgunModel(self.ui.publish_publish_view)
         self.ui.publish_publish_view.setModel(self._publish_publish_model)
         self.ui.publish_publish_view.clicked.connect(self._on_entity_clicked)
+        self._publish_publish_delegate = RectDelegate(self.ui.publish_publish_view)
+        self.ui.publish_publish_view.setItemDelegate(self._publish_publish_delegate)
 
         self._publish_model = shotgun_model.SimpleShotgunModel(self.ui.publish_details)
         
         # version details
-        self._version_note_model = shotgun_model.SimpleShotgunModel(self.ui.version_note_view)
+        self._version_note_model = SgRoundUserModel(self.ui.version_note_view)
         self.ui.version_note_view.setModel(self._version_note_model)
         self.ui.version_note_view.clicked.connect(self._on_entity_clicked)
+        self._version_note_delegate = RoundDelegate(self.ui.version_note_view)
+        self.ui.version_note_view.setItemDelegate(self._version_note_delegate)
 
         self._version_publish_model = shotgun_model.SimpleShotgunModel(self.ui.version_publish_view)
         self.ui.version_publish_view.setModel(self._version_publish_model)
         self.ui.version_publish_view.clicked.connect(self._on_entity_clicked)
-        
+        self._version_publish_delegate = RectDelegate(self.ui.version_publish_view)
+        self.ui.version_publish_view.setItemDelegate(self._version_publish_delegate)
 
         self._version_model = shotgun_model.SimpleShotgunModel(self.ui.version_details)
+
 
 
         self.ui.navigation_home.clicked.connect(self._on_home_clicked)
@@ -120,7 +142,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
 
         
-        
+        # kick off
         self._on_home_clicked()
 
 
@@ -217,7 +239,7 @@ class AppDialog(QtGui.QWidget):
 
 
 
-
+    
 
 
     def _on_entity_clicked(self, model_index):
@@ -230,11 +252,13 @@ class AppDialog(QtGui.QWidget):
         
 
         
-        
-    
+    ###################################################################################################
+    # navigation
     
     def _navigate_to(self, shotgun_location):
-        
+        """
+        Update the UI to point at the given shotgun location object
+        """
         
         # chop off history at the point we are currently
         self._history_items = self._history_items[:self._history_index]
@@ -244,8 +268,10 @@ class AppDialog(QtGui.QWidget):
         self._compute_history_button_visibility()
         shotgun_location.set_up_ui(self)
     
-        
-    def _compute_history_button_visibility(self):        
+    def _compute_history_button_visibility(self):
+        """
+        Helper method which ensures history buttons are rendered correctly
+        """        
         self.ui.navigation_next.setEnabled(True)
         self.ui.navigation_prev.setEnabled(True)
         if self._history_index == len(self._history_items):
@@ -254,11 +280,16 @@ class AppDialog(QtGui.QWidget):
             self.ui.navigation_prev.setEnabled(False)
         
     def _on_home_clicked(self):
+        """
+        Navigates home
+        """
         sg_location = ShotgunLocation("Shot", 1660)
         self._navigate_to(sg_location)
         
     def _on_next_clicked(self):
-        self._app.log_debug("Next")
+        """
+        Navigates to the next item in the history
+        """
         self._history_index += 1
         # get the data for this guy (note: index are one based)
         sg_location = self._history_items[self._history_index-1]
@@ -266,7 +297,9 @@ class AppDialog(QtGui.QWidget):
         sg_location.set_up_ui(self)
         
     def _on_prev_clicked(self):
-        self._app.log_debug("Prev")
+        """
+        Navigates back in history
+        """
         self._history_index += -1
         # get the data for this guy (note: index are one based)
         sg_location = self._history_items[self._history_index-1]
