@@ -20,10 +20,11 @@ from .ui.dialog import Ui_Dialog
 
 from .shotgun_location import ShotgunLocation
 
-from .delegate_rect import RectDelegate
 from .delegate_task import TaskDelegate
 from .delegate_note import NoteDelegate
 from .delegate_reply import ReplyDelegate
+from .delegate_publish import PublishDelegate
+from .delegate_version import VersionDelegate
 
 from .model_note import SgNoteModel
 from .model_reply import SgReplyModel
@@ -89,13 +90,13 @@ class AppDialog(QtGui.QWidget):
         self._entity_version_model = shotgun_model.SimpleShotgunModel(self.ui.entity_version_view)
         self.ui.entity_version_view.setModel(self._entity_version_model)
         self.ui.entity_version_view.clicked.connect(self._on_entity_clicked)
-        self._entity_version_delegate = RectDelegate(self.ui.entity_version_view)
+        self._entity_version_delegate = VersionDelegate(self.ui.entity_version_view)
         self.ui.entity_version_view.setItemDelegate(self._entity_version_delegate)
         
         self._entity_publish_model = shotgun_model.SimpleShotgunModel(self.ui.entity_publish_view)
         self.ui.entity_publish_view.setModel(self._entity_publish_model)
         self.ui.entity_publish_view.clicked.connect(self._on_entity_clicked)
-        self._entity_publish_delegate = RectDelegate(self.ui.entity_publish_view)
+        self._entity_publish_delegate = PublishDelegate(self.ui.entity_publish_view)
         self.ui.entity_publish_view.setItemDelegate(self._entity_publish_delegate)
         
         self._entity_task_model = SgTaskModel(self.ui.entity_task_view)
@@ -119,7 +120,7 @@ class AppDialog(QtGui.QWidget):
         self._publish_publish_model = shotgun_model.SimpleShotgunModel(self.ui.publish_publish_view)
         self.ui.publish_publish_view.setModel(self._publish_publish_model)
         self.ui.publish_publish_view.clicked.connect(self._on_entity_clicked)
-        self._publish_publish_delegate = RectDelegate(self.ui.publish_publish_view)
+        self._publish_publish_delegate = PublishDelegate(self.ui.publish_publish_view)
         self.ui.publish_publish_view.setItemDelegate(self._publish_publish_delegate)
 
         self._publish_model = shotgun_model.SimpleShotgunModel(self.ui.publish_details)
@@ -134,7 +135,7 @@ class AppDialog(QtGui.QWidget):
         self._version_publish_model = shotgun_model.SimpleShotgunModel(self.ui.version_publish_view)
         self.ui.version_publish_view.setModel(self._version_publish_model)
         self.ui.version_publish_view.clicked.connect(self._on_entity_clicked)
-        self._version_publish_delegate = RectDelegate(self.ui.version_publish_view)
+        self._version_publish_delegate = PublishDelegate(self.ui.version_publish_view)
         self.ui.version_publish_view.setItemDelegate(self._version_publish_delegate)
 
         self._version_model = shotgun_model.SimpleShotgunModel(self.ui.version_details)
