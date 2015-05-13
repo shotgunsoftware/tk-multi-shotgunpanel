@@ -18,16 +18,13 @@ from . import utils
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
 
-class SgRoundUserModel(ShotgunOverlayModel):
+class SgReplyModel(ShotgunOverlayModel):
 
     """
     Model which sets a thumbnail to be a round user icon
     """
 
-    CREATED_BY_THUMB_FIELDS = ["created_by.HumanUser.image",
-                               "created_by.ApiUser.image",
-                               "user.HumanUser.image", # for the Reply entity type
-                               "user.ApiUser.image"]   # for the Reply entity type
+    CREATED_BY_THUMB_FIELDS = ["user.HumanUser.image", "user.ApiUser.image"]
 
     def __init__(self, parent):
         """
@@ -46,7 +43,7 @@ class SgRoundUserModel(ShotgunOverlayModel):
     # public interface
 
 
-    def load_data(self, entity_type, filters, fields):
+    def load_data(self, entity):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
@@ -59,11 +56,16 @@ class SgRoundUserModel(ShotgunOverlayModel):
                                'below' the selected item in Shotgun and hides any folders items.
         :param additional_sg_filters: List of shotgun filters to add to the shotgun query when retrieving publishes.
         """
-        fields = fields or ["code"]
+        fields = ["content", "created_at", "user"]
         fields.extend(self.CREATED_BY_THUMB_FIELDS)
-        
-        hierarchy = [fields[0]]
-        ShotgunOverlayModel._load_data(self, entity_type, filters, hierarchy, fields, [{"field_name":"created_at", "direction":"asc"}])
+        filters = [["entity", "is", entity]]
+        hierarchy = ["content"]
+        ShotgunOverlayModel._load_data(self, 
+                                       "Reply", 
+                                       filters, 
+                                       hierarchy, 
+                                       fields, 
+                                       [{"field_name": "created_at", "direction": "asc"}])
         self._refresh_data()
 
 

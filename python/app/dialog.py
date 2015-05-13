@@ -24,8 +24,10 @@ from .delegate_rect import RectDelegate
 from .delegate_round import RoundDelegate
 from .delegate_task import TaskDelegate
 from .delegate_note import NoteDelegate
+from .delegate_reply import ReplyDelegate
 
-from .model_rounduser import SgRoundUserModel
+from .model_note import SgNoteModel
+from .model_reply import SgReplyModel
 from .model_task import SgTaskModel
 
 
@@ -79,7 +81,7 @@ class AppDialog(QtGui.QWidget):
         
         
         # entity section
-        self._entity_note_model = SgRoundUserModel(self.ui.entity_note_view)
+        self._entity_note_model = SgNoteModel(self.ui.entity_note_view)
         self.ui.entity_note_view.setModel(self._entity_note_model)
         self.ui.entity_note_view.clicked.connect(self._on_entity_clicked)
         self._entity_note_delegate = NoteDelegate(self.ui.entity_note_view)
@@ -106,9 +108,9 @@ class AppDialog(QtGui.QWidget):
 
 
         # note section
-        self._note_reply_model = SgRoundUserModel(self.ui.note_reply_view)
+        self._note_reply_model = SgReplyModel(self.ui.note_reply_view)
         self.ui.note_reply_view.setModel(self._note_reply_model)
-        self._note_reply_delegate = RoundDelegate(self.ui.note_reply_view)
+        self._note_reply_delegate = ReplyDelegate(self.ui.note_reply_view)
         self.ui.note_reply_view.setItemDelegate(self._note_reply_delegate)
 
         self._note_model = shotgun_model.SimpleShotgunModel(self.ui.note_details)
@@ -124,10 +126,10 @@ class AppDialog(QtGui.QWidget):
         self._publish_model = shotgun_model.SimpleShotgunModel(self.ui.publish_details)
         
         # version details
-        self._version_note_model = SgRoundUserModel(self.ui.version_note_view)
+        self._version_note_model = SgNoteModel(self.ui.version_note_view)
         self.ui.version_note_view.setModel(self._version_note_model)
         self.ui.version_note_view.clicked.connect(self._on_entity_clicked)
-        self._version_note_delegate = RoundDelegate(self.ui.version_note_view)
+        self._version_note_delegate = NoteDelegate(self.ui.version_note_view)
         self.ui.version_note_view.setItemDelegate(self._version_note_delegate)
 
         self._version_publish_model = shotgun_model.SimpleShotgunModel(self.ui.version_publish_view)
@@ -163,9 +165,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.title_label.setText("%s %s" % (entity_type, entity_id))
         
         # load data for tabs
-        self._entity_note_model.load_data("Note", 
-                                          [["note_links", "in", {"type": entity_type, "id": entity_id}]], 
-                                          ["content"])
+        self._entity_note_model.load_data({"type": entity_type, "id": entity_id})
         
         self._entity_version_model.load_data("Version", 
                                              [["entity", "is", {"type": entity_type, "id": entity_id}]],
@@ -193,7 +193,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.title_label.setText("Note %s" % note_id)
         
         # load data for tabs
-        self._note_reply_model.load_data("Reply", [["entity", "is", {"type": "Note", "id": note_id}]], ["content"])
+        self._note_reply_model.load_data({"type": "Note", "id": note_id})
         
         
 
@@ -230,9 +230,7 @@ class AppDialog(QtGui.QWidget):
                                               [["version", "is",{"type": "Version", "id":version_id}]], 
                                               ["code"])
 
-        self._entity_note_model.load_data("Note", 
-                                          [["note_links", "in", {"type": "Version", "id": version_id}]], 
-                                          ["content"])
+        self._entity_note_model.load_data({"type": "Version", "id": version_id})
 
 
 
