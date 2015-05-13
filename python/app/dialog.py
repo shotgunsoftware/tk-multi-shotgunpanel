@@ -21,7 +21,6 @@ from .ui.dialog import Ui_Dialog
 from .shotgun_location import ShotgunLocation
 
 from .delegate_rect import RectDelegate
-from .delegate_round import RoundDelegate
 from .delegate_task import TaskDelegate
 from .delegate_note import NoteDelegate
 from .delegate_reply import ReplyDelegate
