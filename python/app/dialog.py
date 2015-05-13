@@ -24,6 +24,7 @@ from .delegate_rect import RectDelegate
 from .delegate_round import RoundDelegate
 
 from .model_rounduser import SgRoundUserModel
+from .model_task import SgTaskModel
 
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
@@ -94,7 +95,7 @@ class AppDialog(QtGui.QWidget):
         self._entity_publish_delegate = RectDelegate(self.ui.entity_publish_view)
         self.ui.entity_publish_view.setItemDelegate(self._entity_publish_delegate)
         
-        self._entity_task_model = SgRoundUserModel(self.ui.entity_task_view)
+        self._entity_task_model = SgTaskModel(self.ui.entity_task_view)
         self.ui.entity_task_view.setModel(self._entity_task_model)
         self._entity_task_delegate = RoundDelegate(self.ui.entity_task_view)
         self.ui.entity_task_view.setItemDelegate(self._entity_task_delegate)
@@ -172,9 +173,7 @@ class AppDialog(QtGui.QWidget):
                                              [["entity", "is", {"type": entity_type, "id": entity_id}]],
                                              ["code"])
         
-        self._entity_task_model.load_data("Task", 
-                                          [["entity", "is", {"type": entity_type, "id": entity_id}]],
-                                          ["content"])
+        self._entity_task_model.load_data({"type": entity_type, "id": entity_id})
         
         
         
