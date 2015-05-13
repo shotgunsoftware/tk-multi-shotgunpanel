@@ -109,37 +109,5 @@ class SgReplyModel(ShotgunOverlayModel):
             # ignore and not display.
             return
         
-        CANVAS_SIZE = 200
-    
-        # get the 512 base image
-        base_image = QtGui.QPixmap(CANVAS_SIZE, CANVAS_SIZE)
-        base_image.fill(QtCore.Qt.transparent)
-        
-        # now attempt to load the image
-        # pixmap will be a null pixmap if load fails    
-        thumb = QtGui.QPixmap(path)
-        
-        if not thumb.isNull():
-                
-            # scale it down to fit inside a frame of maximum 512x512
-            thumb_scaled = thumb.scaled(CANVAS_SIZE, 
-                                        CANVAS_SIZE, 
-                                        QtCore.Qt.KeepAspectRatio, 
-                                        QtCore.Qt.SmoothTransformation)  
-    
-            # now composite the thumbnail on top of the base image
-            # bottom align it to make it look nice
-            thumb_img = thumb_scaled.toImage()
-            brush = QtGui.QBrush(thumb_img)
-            painter = QtGui.QPainter(base_image)
-            painter.setRenderHint(QtGui.QPainter.Antialiasing)
-            painter.setBrush(brush)
-            painter.drawEllipse(0, 0, thumb_scaled.width(), thumb_scaled.height())             
-            painter.end()
-        
-        item.setIcon(QtGui.QIcon(base_image))
-
-
-
-
-
+        icon = utils.create_round_thumbnail(path)
+        item.setIcon(QtGui.QIcon(icon))

@@ -29,6 +29,8 @@ from .delegate_version import VersionDelegate
 from .model_note import SgNoteModel
 from .model_reply import SgReplyModel
 from .model_task import SgTaskModel
+from .model_version import SgVersionModel
+from .model_publish import SgPublishModel
 
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
@@ -87,13 +89,13 @@ class AppDialog(QtGui.QWidget):
         self._entity_note_delegate = NoteDelegate(self.ui.entity_note_view)
         self.ui.entity_note_view.setItemDelegate(self._entity_note_delegate)
                 
-        self._entity_version_model = shotgun_model.SimpleShotgunModel(self.ui.entity_version_view)
+        self._entity_version_model = SgVersionModel(self.ui.entity_version_view)
         self.ui.entity_version_view.setModel(self._entity_version_model)
         self.ui.entity_version_view.clicked.connect(self._on_entity_clicked)
         self._entity_version_delegate = VersionDelegate(self.ui.entity_version_view)
         self.ui.entity_version_view.setItemDelegate(self._entity_version_delegate)
         
-        self._entity_publish_model = shotgun_model.SimpleShotgunModel(self.ui.entity_publish_view)
+        self._entity_publish_model = SgPublishModel(self.ui.entity_publish_view)
         self.ui.entity_publish_view.setModel(self._entity_publish_model)
         self.ui.entity_publish_view.clicked.connect(self._on_entity_clicked)
         self._entity_publish_delegate = PublishDelegate(self.ui.entity_publish_view)
@@ -117,7 +119,7 @@ class AppDialog(QtGui.QWidget):
 
 
         # publish details
-        self._publish_publish_model = shotgun_model.SimpleShotgunModel(self.ui.publish_publish_view)
+        self._publish_publish_model = SgPublishModel(self.ui.publish_publish_view)
         self.ui.publish_publish_view.setModel(self._publish_publish_model)
         self.ui.publish_publish_view.clicked.connect(self._on_entity_clicked)
         self._publish_publish_delegate = PublishDelegate(self.ui.publish_publish_view)
@@ -132,7 +134,7 @@ class AppDialog(QtGui.QWidget):
         self._version_note_delegate = NoteDelegate(self.ui.version_note_view)
         self.ui.version_note_view.setItemDelegate(self._version_note_delegate)
 
-        self._version_publish_model = shotgun_model.SimpleShotgunModel(self.ui.version_publish_view)
+        self._version_publish_model = SgPublishModel(self.ui.version_publish_view)
         self.ui.version_publish_view.setModel(self._version_publish_model)
         self.ui.version_publish_view.clicked.connect(self._on_entity_clicked)
         self._version_publish_delegate = PublishDelegate(self.ui.version_publish_view)
@@ -157,8 +159,7 @@ class AppDialog(QtGui.QWidget):
         Move UI to entity mode. Load up tabs.
         """
         
-        self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)
-        
+        self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)        
         
         # main info
         self._entity_model.load_data(entity_type, [["id", "is", entity_id]], ["code", "description"])
@@ -166,19 +167,9 @@ class AppDialog(QtGui.QWidget):
         
         # load data for tabs
         self._entity_note_model.load_data({"type": entity_type, "id": entity_id})
-        
-        self._entity_version_model.load_data("Version", 
-                                             [["entity", "is", {"type": entity_type, "id": entity_id}]],
-                                             ["code"])
-        
-        self._entity_publish_model.load_data("PublishedFile", 
-                                             [["entity", "is", {"type": entity_type, "id": entity_id}]],
-                                             ["code"])
-        
+        self._entity_version_model.load_data({"type": entity_type, "id": entity_id})
+        self._entity_publish_model.load_data({"type": entity_type, "id": entity_id})
         self._entity_task_model.load_data({"type": entity_type, "id": entity_id})
-        
-        
-        
         
 
     def focus_note(self, note_id):
@@ -209,9 +200,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.title_label.setText("Publish %s" % publish_id)
         
         # load data for tabs
-        self._publish_publish_model.load_data("PublishedFile", 
-                                              [["upstream_published_files", "is", {"type": "PublishedFile", "id": publish_id}]], 
-                                              ["code"])
+        self._publish_publish_model.load_data({"type": "PublishedFile", "id": publish_id})
 
 
     def focus_version(self, version_id):
@@ -226,10 +215,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.title_label.setText("Version %s" % version_id)
         
         # load data for tabs
-        self._version_publish_model.load_data("PublishedFile", 
-                                              [["version", "is",{"type": "Version", "id":version_id}]], 
-                                              ["code"])
-
+        self._version_publish_model.load_data({"type": "Version", "id": version_id})
         self._entity_note_model.load_data({"type": "Version", "id": version_id})
 
 

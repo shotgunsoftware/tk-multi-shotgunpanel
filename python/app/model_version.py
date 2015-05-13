@@ -18,19 +18,17 @@ from . import utils
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
 
-class SgNoteModel(ShotgunOverlayModel):
+class SgVersionModel(ShotgunOverlayModel):
 
     """
     Model which sets a thumbnail to be a round user icon
     """
 
-    CREATED_BY_THUMB_FIELDS = ["created_by.HumanUser.image", "created_by.ApiUser.image"]
-
     def __init__(self, parent):
         """
         Model which represents the latest publishes for an entity
         """
-        self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/default_user.png")
+        self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png")
 
         # init base class
         ShotgunOverlayModel.__init__(self,
@@ -48,19 +46,18 @@ class SgNoteModel(ShotgunOverlayModel):
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
         """        
-        fields = ["content", 
-                  "attachments", 
-                  "user", 
-                  "client_note", 
-                  "sg_status_list", 
-                  "subject",
-                  "created_at", 
-                  "addressings_to"]
-        fields.extend(self.CREATED_BY_THUMB_FIELDS)
-        hierarchy = ["content"]
-        filters = [["note_links", "in", entity]]
+        fields = ["artist", 
+                  "sg_department", 
+                  "description", 
+                  "open_notes_count", 
+                  "sg_status_list",
+                  "image",
+                  "code", 
+                  "updated_by"]
+        hierarchy = ["code"]
+        filters = [["entity", "is", entity]]
         ShotgunOverlayModel._load_data(self, 
-                                       "Note", 
+                                       "Version", 
                                        filters, 
                                        hierarchy, 
                                        fields, 
@@ -102,16 +99,11 @@ class SgNoteModel(ShotgunOverlayModel):
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
         
-        if field not in self.CREATED_BY_THUMB_FIELDS: 
+        if field != "image": 
             # there may be other thumbnails being loaded in as part of the data flow
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.
             return
         
-        icon = utils.create_round_thumbnail(path)
+        icon = utils.create_overlayed_publish_thumbnail(path)
         item.setIcon(QtGui.QIcon(icon))
-
-
-
-
-
