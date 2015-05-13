@@ -24,6 +24,11 @@ class SgRoundUserModel(ShotgunOverlayModel):
     Model which sets a thumbnail to be a round user icon
     """
 
+    CREATED_BY_THUMB_FIELDS = ["created_by.HumanUser.image",
+                               "created_by.ApiUser.image",
+                               "user.HumanUser.image", # for the Reply entity type
+                               "user.ApiUser.image"]   # for the Reply entity type
+
     def __init__(self, parent):
         """
         Model which represents the latest publishes for an entity
@@ -54,11 +59,8 @@ class SgRoundUserModel(ShotgunOverlayModel):
                                'below' the selected item in Shotgun and hides any folders items.
         :param additional_sg_filters: List of shotgun filters to add to the shotgun query when retrieving publishes.
         """
-
-        
         fields = fields or ["code"]
-        fields.append("created_by.HumanUser.image")
-        fields.append("created_by.ApiUser.image")
+        fields.extend(self.CREATED_BY_THUMB_FIELDS)
         
         hierarchy = [fields[0]]
         ShotgunOverlayModel._load_data(self, entity_type, filters, hierarchy, fields, [{"field_name":"created_at", "direction":"asc"}])
@@ -99,7 +101,7 @@ class SgRoundUserModel(ShotgunOverlayModel):
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
         
-        if field not in ["created_by.HumanUser.image", "created_by.ApiUser.image"]: 
+        if field not in self.CREATED_BY_THUMB_FIELDS: 
             # there may be other thumbnails being loaded in as part of the data flow
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.

@@ -27,6 +27,7 @@ class Ui_RectWidget(object):
         self.thumbnail = QtGui.QLabel(self.box)
         self.thumbnail.setMinimumSize(QtCore.QSize(128, 100))
         self.thumbnail.setMaximumSize(QtCore.QSize(128, 100))
+        self.thumbnail.setStyleSheet("margin: 10px")
         self.thumbnail.setText("")
         self.thumbnail.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png"))
         self.thumbnail.setScaledContents(True)
