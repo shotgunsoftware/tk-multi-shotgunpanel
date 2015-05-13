@@ -20,7 +20,7 @@ shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun
 from .widget_round import RoundWidget
 
 
-class TaskDelegate(shotgun_view.WidgetDelegate):
+class NoteDelegate(shotgun_view.WidgetDelegate):
     """
     Delegate which 'glues up' the Details Widget with a QT View.
     """
@@ -81,15 +81,6 @@ class TaskDelegate(shotgun_view.WidgetDelegate):
         
         sg_item = shotgun_model.get_sg_data(model_index)
         
-        # sg_data: {'content': 'Light',
-        #  'due_date': None,
-        #  'id': 4713,
-        #  'image': '',
-        #  'sg_status_list': 'wtg',
-        #  'start_date': None,
-        #  'step': {'id': 7, 'name': 'Light', 'type': 'Step'},
-        #  'task_assignees': [],
-        #  'type': 'Task'}
         
         
         import pprint

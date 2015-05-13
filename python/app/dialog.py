@@ -23,6 +23,7 @@ from .shotgun_location import ShotgunLocation
 from .delegate_rect import RectDelegate
 from .delegate_round import RoundDelegate
 from .delegate_task import TaskDelegate
+from .delegate_note import NoteDelegate
 
 from .model_rounduser import SgRoundUserModel
 from .model_task import SgTaskModel
@@ -81,7 +82,7 @@ class AppDialog(QtGui.QWidget):
         self._entity_note_model = SgRoundUserModel(self.ui.entity_note_view)
         self.ui.entity_note_view.setModel(self._entity_note_model)
         self.ui.entity_note_view.clicked.connect(self._on_entity_clicked)
-        self._entity_note_delegate = RoundDelegate(self.ui.entity_note_view)
+        self._entity_note_delegate = NoteDelegate(self.ui.entity_note_view)
         self.ui.entity_note_view.setItemDelegate(self._entity_note_delegate)
                 
         self._entity_version_model = shotgun_model.SimpleShotgunModel(self.ui.entity_version_view)
