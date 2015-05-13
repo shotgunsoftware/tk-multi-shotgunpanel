@@ -20,7 +20,7 @@ shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun
 from .widget_round import RoundWidget
 
 
-class RoundDelegate(shotgun_view.WidgetDelegate):
+class TaskDelegate(shotgun_view.WidgetDelegate):
     """
     Delegate which 'glues up' the Details Widget with a QT View.
     """
