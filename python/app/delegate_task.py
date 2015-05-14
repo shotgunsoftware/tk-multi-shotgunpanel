@@ -74,11 +74,6 @@ class TaskDelegate(shotgun_view.WidgetDelegate):
             thumb = icon.pixmap(512)
             widget.set_thumbnail(thumb)
         
-        # fill in the rest of the widget based on the raw sg data
-        # this is not totally clean separation of concerns, but
-        # introduces a coupling between the delegate and the model.
-        # but I guess that's inevitable here...
-        
         sg_item = shotgun_model.get_sg_data(model_index)
         
         # sg_data: {'content': 'Light',
@@ -91,14 +86,29 @@ class TaskDelegate(shotgun_view.WidgetDelegate):
         #  'task_assignees': [],
         #  'type': 'Task'}
         
-        
-        import pprint
-        print "sg_data: %s" % pprint.pformat(sg_item)
+        task_name = sg_item.get("content") or "Unnamed Task"
+        header = "<b>%s</b>" % task_name
 
-        # First do the header - this is on the form
-        # v004 (2014-02-21 12:34)
+        assignees = [x.get("name") or "No name" for x in sg_item.get("task_assignees")]
 
-        widget.set_text("foo", "bar")
+        if len(assignees) > 1:
+            body = "Assigned to: %s" % ", ".join(assignees)
+        else:
+            body = "Unassigned" 
+            
+        body += "<br>Status: %s" % sg_item.get("sg_status_list")
+
+
+        if sg_item.get("due_date") and sg_item.get("start_date"):
+            body += "<br>%s - %s" % (sg_item.get("start_date"), sg_item.get("due_date"))  
+
+        elif sg_item.get("start_date"):
+            body += "<br>Start: %s" % sg_item.get("start_date")
+            
+        elif sg_item.get("due_date"):
+            body += "<br>Due: %s" % sg_item.get("start_date")
+
+        widget.set_text(header, body)
         
         
     def sizeHint(self, style_options, model_index):
