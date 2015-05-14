@@ -64,7 +64,7 @@ class SgNoteModel(ShotgunOverlayModel):
                                        filters, 
                                        hierarchy, 
                                        fields, 
-                                       [{"field_name":"updated_at", "direction":"asc"}])
+                                       [{"field_name":"updated_at", "direction":"desc"}])
         self._refresh_data()
 
 

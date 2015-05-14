@@ -65,7 +65,7 @@ class SgReplyModel(ShotgunOverlayModel):
                                        filters, 
                                        hierarchy, 
                                        fields, 
-                                       [{"field_name": "created_at", "direction": "asc"}])
+                                       [{"field_name": "created_at", "direction": "desc"}])
         self._refresh_data()
 
 

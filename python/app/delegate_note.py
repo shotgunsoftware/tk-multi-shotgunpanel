@@ -11,6 +11,8 @@
 import sgtk
 import datetime
 
+from . import utils
+
 from sgtk.platform.qt import QtCore, QtGui
  
 # import the shotgun_model and view modules from the shotgun utils framework
@@ -73,23 +75,19 @@ class NoteDelegate(shotgun_view.WidgetDelegate):
         if icon:
             thumb = icon.pixmap(512)
             widget.set_thumbnail(thumb)
-        
-        # fill in the rest of the widget based on the raw sg data
-        # this is not totally clean separation of concerns, but
-        # introduces a coupling between the delegate and the model.
-        # but I guess that's inevitable here...
-        
+                
         sg_item = shotgun_model.get_sg_data(model_index)
-        
-        
-        
-        import pprint
-        print "sg_data: %s" % pprint.pformat(sg_item)
+        created_unixtime = sg_item.get("created_at")
+        created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
+        (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
 
-        # First do the header - this is on the form
-        # v004 (2014-02-21 12:34)
-
-        widget.set_text("foo", "bar")
+        user_name = (sg_item.get("user") or {}).get("name") or "Unknown User"        
+        
+        title = "<b>%s</b> %s" % (user_name, human_str)
+        
+        content = sg_item.get("content") or ""
+        
+        widget.set_text(title, content)
         
         
     def sizeHint(self, style_options, model_index):

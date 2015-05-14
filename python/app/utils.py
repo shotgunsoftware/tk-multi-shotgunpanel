@@ -10,7 +10,7 @@
 
 import sgtk
 from sgtk.platform.qt import QtCore, QtGui
-
+from datetime import datetime , timedelta
 
 def create_round_thumbnail(path):
     """
@@ -108,3 +108,58 @@ def create_overlayed_publish_thumbnail(path):
     
     return base_image
     
+
+
+
+def create_human_readable_timestamp(datetime_obj):
+    """
+    
+    Based on http://code.activestate.com/recipes/578113-human-readable-format-for-a-given-time-delta/
+    
+    Returns (human_readable_timestamp_str, full_timestamp_str)
+    """
+    
+    from_date = datetime.now()
+
+    # standard format 
+    std_format = datetime_obj.strftime('%Y-%m-%d %H:%M')
+
+
+    if datetime_obj > datetime.now():
+        # future times are reported precisely
+        return ("on %s" % std_format, std_format)
+    
+    # get the delta and components
+    delta = datetime.now() - datetime_obj
+
+    # the timedelta structure does not have all units; bigger units are converted
+    # into given smaller ones (hours -> seconds, minutes -> seconds, weeks > days, ...)
+    # but we need all units:
+    delta_minutes      = delta.seconds // 60
+    delta_hours        = delta.seconds // 3600
+    delta_weeks        = delta.days // 7
+    delta_days         = delta.days
+
+    # for larger differences, return std format
+    if delta_weeks > 2:
+        return ("on %s" % std_format, std_format)
+
+    # for dates less than 3 weeks, use human readable time stamps 
+    if delta_weeks > 0:
+        # 3 weeks ago
+        human_time_str = "%d weeks ago" % delta_weeks
+     
+    elif delta_days > 0:
+        # 2 days ago
+        human_time_str = "%d days ago" % delta_days
+
+    elif delta_hours > 0:
+        human_time_str = "%d hours ago" % delta_hours
+    
+    elif delta_minutes > 0:
+        human_time_str = "%d minutes ago" % delta_minutes
+    
+    else:
+        human_time_str = "on %s" % std_format
+    
+    return (human_time_str, std_format)
