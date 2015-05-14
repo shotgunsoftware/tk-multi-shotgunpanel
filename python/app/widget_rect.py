@@ -91,6 +91,6 @@ class RectWidget(QtGui.QWidget):
         
         :returns: Size of the widget
         """        
-        return QtCore.QSize(300, 110)
+        return QtCore.QSize(300, 90)
 
 

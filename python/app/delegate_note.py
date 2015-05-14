@@ -83,11 +83,11 @@ class NoteDelegate(shotgun_view.WidgetDelegate):
 
         user_name = (sg_item.get("user") or {}).get("name") or "Unknown User"        
         
-        title = "<b>%s</b> %s" % (user_name, human_str)
+        body = "<b>%s</b> %s<br>" % (user_name, human_str)
         
-        content = sg_item.get("content") or ""
+        body += sg_item.get("content") or ""
         
-        widget.set_text(title, content)
+        widget.set_text(body)
         
         
     def sizeHint(self, style_options, model_index):

@@ -73,15 +73,12 @@ class RoundWidget(QtGui.QWidget):
         """
         self.ui.thumbnail.setPixmap(pixmap)
             
-    def set_text(self, header, body):
+    def set_text(self, body):
         """
         Populate the lines of text in the widget
         
-        :param header: Header text as string
         :param body: Body text as string
         """
-        self.setToolTip("%s<br>%s" % (header, body))        
-        self.ui.header_label.setText(header)
         self.ui.body_label.setText(body)
 
     @staticmethod

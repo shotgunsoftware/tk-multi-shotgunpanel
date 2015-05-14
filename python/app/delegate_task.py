@@ -87,14 +87,14 @@ class TaskDelegate(shotgun_view.WidgetDelegate):
         #  'type': 'Task'}
         
         task_name = sg_item.get("content") or "Unnamed Task"
-        header = "<b>%s</b>" % task_name
+        body = "<b>%s</b>" % task_name
 
         assignees = [x.get("name") or "No name" for x in sg_item.get("task_assignees")]
 
         if len(assignees) > 1:
-            body = "Assigned to: %s" % ", ".join(assignees)
+            body += "<br>Assigned to: %s" % ", ".join(assignees)
         else:
-            body = "Unassigned" 
+            body += "<br>Unassigned" 
             
         body += "<br>Status: %s" % sg_item.get("sg_status_list")
 
@@ -108,7 +108,7 @@ class TaskDelegate(shotgun_view.WidgetDelegate):
         elif sg_item.get("due_date"):
             body += "<br>Due: %s" % sg_item.get("start_date")
 
-        widget.set_text(header, body)
+        widget.set_text(body)
         
         
     def sizeHint(self, style_options, model_index):
