@@ -52,7 +52,8 @@ class SgVersionModel(ShotgunOverlayModel):
                   "open_notes_count", 
                   "sg_status_list",
                   "image",
-                  "code", 
+                  "code",
+                  "created_at", 
                   "updated_by"]
         hierarchy = ["code"]
         filters = [["entity", "is", entity]]
