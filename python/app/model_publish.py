@@ -52,7 +52,8 @@ class SgPublishModel(ShotgunOverlayModel):
                   "published_file_type", 
                   "image",
                   "code", 
-                  "updated_by"]
+                  "created_by",
+                  "created_at"]
         hierarchy = ["code"]
         filters = [["entity", "is", entity]]
         ShotgunOverlayModel._load_data(self, 
@@ -60,7 +61,7 @@ class SgPublishModel(ShotgunOverlayModel):
                                        filters, 
                                        hierarchy, 
                                        fields, 
-                                       [{"field_name":"updated_at", "direction":"asc"}])
+                                       [{"field_name":"created_at", "direction":"desc"}])
         self._refresh_data()
 
 

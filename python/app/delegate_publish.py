@@ -11,6 +11,8 @@
 import sgtk
 import datetime
 
+from . import utils
+
 from sgtk.platform.qt import QtCore, QtGui
  
 # import the shotgun_model and view modules from the shotgun utils framework
@@ -72,21 +74,22 @@ class PublishDelegate(shotgun_view.WidgetDelegate):
             thumb = icon.pixmap(512)
             widget.set_thumbnail(thumb)
         
-        # fill in the rest of the widget based on the raw sg data
-        # this is not totally clean separation of concerns, but
-        # introduces a coupling between the delegate and the model.
-        # but I guess that's inevitable here...
-        
         sg_item = shotgun_model.get_sg_data(model_index)
 
+        created_unixtime = sg_item.get("created_at")
+        created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
+        (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
 
-        import pprint
-        print "sg_data: %s" % pprint.pformat(sg_item)
+        user_name = (sg_item.get("created_by") or {}).get("name") or "Unknown User"        
+        description = sg_item.get("description") or ""
+        file_type = (sg_item.get("published_file_type") or {}).get("name") or "Undefined type"
+        content = "By %s %s<br>%s<br><i>%s</i>" % (user_name, human_str, file_type, description)
 
-        # First do the header - this is on the form
-        # v004 (2014-02-21 12:34)
+        pub_name = sg_item.get("name") or "Untitled Version"
+        version_str = "v%03d" % (sg_item.get("version") or 0)
+        title = "<b>%s %s</b>" % (pub_name, version_str) 
 
-        widget.set_text("foo", "bar")
+        widget.set_text(title, content)
         
         
     def sizeHint(self, style_options, model_index):

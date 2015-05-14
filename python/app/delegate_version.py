@@ -80,7 +80,7 @@ class VersionDelegate(shotgun_view.WidgetDelegate):
         created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
         (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
 
-        user_name = (sg_item.get("artist") or {}).get("artist") or "Unknown User"        
+        user_name = (sg_item.get("artist") or {}).get("name") or "Unknown User"        
         description = sg_item.get("description") or ""
         content = "By %s %s<br><i>%s</i>" % (user_name, human_str, description)
 
