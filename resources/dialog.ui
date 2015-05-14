@@ -196,9 +196,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
             <widget class="QListView" name="entity_note_view">
-             <property name="toolTip">
-              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
-             </property>
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
@@ -282,9 +279,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
             <widget class="QListView" name="entity_version_view">
-             <property name="toolTip">
-              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
-             </property>
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
@@ -305,9 +299,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <widget class="QListView" name="entity_publish_view">
-             <property name="toolTip">
-              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
-             </property>
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
@@ -338,9 +329,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <layout class="QVBoxLayout" name="verticalLayout_8">
            <item>
             <widget class="QListView" name="entity_task_view">
-             <property name="toolTip">
-              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
-             </property>
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
@@ -361,9 +349,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
             <widget class="QListView" name="entity_info_view">
-             <property name="toolTip">
-              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
-             </property>
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
@@ -417,9 +402,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        </item>
        <item>
         <widget class="QListView" name="note_reply_view">
-         <property name="toolTip">
-          <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
-         </property>
          <property name="verticalScrollMode">
           <enum>QAbstractItemView::ScrollPerPixel</enum>
          </property>
@@ -532,9 +514,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        </item>
        <item>
         <widget class="QListView" name="publish_publish_view">
-         <property name="toolTip">
-          <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
-         </property>
          <property name="verticalScrollMode">
           <enum>QAbstractItemView::ScrollPerPixel</enum>
          </property>
@@ -594,9 +573,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <layout class="QVBoxLayout" name="verticalLayout_11">
            <item>
             <widget class="QListView" name="version_note_view">
-             <property name="toolTip">
-              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
-             </property>
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
@@ -680,9 +656,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <layout class="QVBoxLayout" name="verticalLayout_12">
            <item>
             <widget class="QListView" name="version_publish_view">
-             <property name="toolTip">
-              <string>If you select a publish in the main view, this list shows &lt;i&gt;the complete history for that publish&lt;/i&gt;, who created each publish, the description and the publish date. If you select an item, an action menu will appear, allowing you to load historical versions into your scene.</string>
-             </property>
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
