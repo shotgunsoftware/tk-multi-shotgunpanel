@@ -159,13 +159,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            <widget class="QLabel" name="entity_thumb">
             <property name="minimumSize">
              <size>
-              <width>150</width>
+              <width>128</width>
               <height>100</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>150</width>
+              <width>128</width>
               <height>100</height>
              </size>
             </property>
@@ -183,10 +183,35 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <item>
            <widget class="QLabel" name="entity_text">
             <property name="text">
-             <string>TextLabel</string>
+             <string>ENTITY MODE</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="entity_actions_btn">
+            <property name="minimumSize">
+             <size>
+              <width>55</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>55</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Actions</string>
+            </property>
+            <property name="popupMode">
+             <enum>QToolButton::InstantPopup</enum>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextOnly</enum>
             </property>
            </widget>
           </item>
@@ -408,7 +433,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <item>
            <widget class="QLabel" name="note_text">
             <property name="text">
-             <string>TextLabel</string>
+             <string>NOTE MODE</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -505,13 +530,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            <widget class="QLabel" name="publish_thumb">
             <property name="minimumSize">
              <size>
-              <width>150</width>
+              <width>128</width>
               <height>100</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>150</width>
+              <width>128</width>
               <height>100</height>
              </size>
             </property>
@@ -529,10 +554,35 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <item>
            <widget class="QLabel" name="publish_text">
             <property name="text">
-             <string>TextLabel</string>
+             <string>PUBLISHES MODE</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="publish_actions_btn">
+            <property name="minimumSize">
+             <size>
+              <width>55</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>55</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Actions</string>
+            </property>
+            <property name="popupMode">
+             <enum>QToolButton::InstantPopup</enum>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextOnly</enum>
             </property>
            </widget>
           </item>
@@ -540,16 +590,70 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
         </widget>
        </item>
        <item>
-        <widget class="QListView" name="publish_publish_view">
-         <property name="verticalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
+        <widget class="QTabWidget" name="tabWidget_3">
+         <property name="currentIndex">
+          <number>0</number>
          </property>
-         <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
-         </property>
-         <property name="uniformItemSizes">
-          <bool>true</bool>
-         </property>
+         <widget class="QWidget" name="tab_3">
+          <attribute name="title">
+           <string>Version History</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_15">
+           <item>
+            <widget class="QListView" name="publish_publish_view_3">
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>Contains</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_13">
+           <item>
+            <widget class="QListView" name="publish_publish_view">
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_2">
+          <attribute name="title">
+           <string>Used In</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_14">
+           <item>
+            <widget class="QListView" name="publish_publish_view_2">
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -563,13 +667,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            <widget class="QLabel" name="version_thumb">
             <property name="minimumSize">
              <size>
-              <width>150</width>
+              <width>128</width>
               <height>100</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>150</width>
+              <width>128</width>
               <height>100</height>
              </size>
             </property>
@@ -587,10 +691,38 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           <item>
            <widget class="QLabel" name="version_text">
             <property name="text">
-             <string>TextLabel</string>
+             <string>VERSIONS MODE</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="version_actions_btn">
+            <property name="minimumSize">
+             <size>
+              <width>55</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>55</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Actions</string>
+            </property>
+            <property name="popupMode">
+             <enum>QToolButton::InstantPopup</enum>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextOnly</enum>
             </property>
            </widget>
           </item>
@@ -677,7 +809,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
              <item>
               <widget class="QPushButton" name="pushButton_3">
                <property name="text">
-                <string>Reply</string>
+                <string>Create Note</string>
                </property>
               </widget>
              </item>

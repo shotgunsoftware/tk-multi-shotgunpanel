@@ -302,9 +302,14 @@ class AppDialog(QtGui.QWidget):
             self.ui.title_label.setText("")
         else:
             name = sg_data.get("code") or "Unnamed"
-            title = "<b>%s %s</b><br><br>" % (sg_data.get("type"), name)
+            title = "<b style='margin: 10px; border-color: white; border-style: solid; border-width: 1px;'>%s %s</b><br><br>" % (sg_data.get("type"), name)
             title += sg_data.get("description") or "No Description"            
+            
+            title += " --- <a href='foo' style='padding: 100px; margin: 100px; border-color: white; border-style: solid; border-width: 1px; text-decoration: none; background-color: #2C93E2; color: white; '>Shot ABC123</a>"
+            
+            
             self.ui.entity_text.setText(title)
+            
             self.ui.title_label.setText("<big>%s %s</big>" % (sg_data.get("type"), name))
         
     def _refresh_note_details(self):
