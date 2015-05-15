@@ -112,8 +112,8 @@ class AppDialog(QtGui.QWidget):
         self.ui.entity_task_view.setItemDelegate(self._entity_task_delegate)
         
         self._entity_model = SgCurrentEntityModel(self.ui.entity_details)
-        self._entity_model.data_refreshed.connect(self._on_current_entity_data)
-        self._entity_model.thumbnail_updated.connect(self._on_entity_thumb_changed)
+        self._entity_model.data_updated.connect(self._refresh_entity_details)
+        self._entity_model.thumbnail_updated.connect(self._refresh_entity_thumbnail)
 
 
         # note section
@@ -122,7 +122,10 @@ class AppDialog(QtGui.QWidget):
         self._note_reply_delegate = ReplyDelegate(self.ui.note_reply_view)
         self.ui.note_reply_view.setItemDelegate(self._note_reply_delegate)
 
-        self._note_model = shotgun_model.SimpleShotgunModel(self.ui.note_details)
+        self._note_model = SgCurrentEntityModel(self.ui.note_details)
+        self._note_model.data_updated.connect(self._refresh_note_details)
+        self._note_model.thumbnail_updated.connect(self._refresh_note_thumbnail)
+
 
 
         # publish details
@@ -132,7 +135,10 @@ class AppDialog(QtGui.QWidget):
         self._publish_publish_delegate = PublishDelegate(self.ui.publish_publish_view)
         self.ui.publish_publish_view.setItemDelegate(self._publish_publish_delegate)
 
-        self._publish_model = shotgun_model.SimpleShotgunModel(self.ui.publish_details)
+        self._publish_model = SgCurrentEntityModel(self.ui.publish_details)
+        self._publish_model.data_updated.connect(self._refresh_publish_details)
+        self._publish_model.thumbnail_updated.connect(self._refresh_publish_thumbnail)
+
         
         # version details
         self._version_note_model = SgNoteModel(self.ui.version_note_view)
@@ -147,7 +153,9 @@ class AppDialog(QtGui.QWidget):
         self._version_publish_delegate = PublishDelegate(self.ui.version_publish_view)
         self.ui.version_publish_view.setItemDelegate(self._version_publish_delegate)
 
-        self._version_model = shotgun_model.SimpleShotgunModel(self.ui.version_details)
+        self._version_model = SgCurrentEntityModel(self.ui.version_details)
+        self._version_model.data_updated.connect(self._refresh_version_details)
+        self._version_model.thumbnail_updated.connect(self._refresh_version_thumbnail)
 
 
 
@@ -169,8 +177,12 @@ class AppDialog(QtGui.QWidget):
         self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)        
         
         # main info
-        self._entity_model.load_data(entity_type, entity_id)
-        self.refresh_current_entity()
+        fields = ["code", 
+                  "description", 
+                  "sg_status_list", 
+                  "image"]
+        
+        self._entity_model.load_data(entity_type, entity_id, fields)
         
         # load data for tabs
         self._entity_note_model.load_data({"type": entity_type, "id": entity_id})
@@ -187,8 +199,16 @@ class AppDialog(QtGui.QWidget):
         self.ui.page_stack.setCurrentIndex(self.NOTE_PAGE_IDX)
         
         # main info
-        self._publish_model.load_data("Note", [["id", "is", note_id]], ["content"])
-        self.ui.title_label.setText("Note %s" % note_id)
+        fields = ["content", 
+                  "attachments", 
+                  "user", 
+                  "client_note", 
+                  "sg_status_list", 
+                  "subject",
+                  "created_at", 
+                  "addressings_to"]
+        
+        self._note_model.load_data("Note", note_id, fields)
         
         # load data for tabs
         self._note_reply_model.load_data({"type": "Note", "id": note_id})
@@ -203,8 +223,16 @@ class AppDialog(QtGui.QWidget):
         self.ui.page_stack.setCurrentIndex(self.PUBLISH_PAGE_IDX)
 
         # main info
-        self._publish_model.load_data("PublishedFile", [["id", "is", publish_id]], ["code", "description"])
-        self.ui.title_label.setText("Publish %s" % publish_id)
+        fields = ["code", 
+                  "version_number", 
+                  "description", 
+                  "published_file_type", 
+                  "image",
+                  "name", 
+                  "created_by",
+                  "created_at"]
+        
+        self._publish_model.load_data("PublishedFile", publish_id, fields)
         
         # load data for tabs
         self._publish_publish_model.load_data({"type": "PublishedFile", "id": publish_id})
@@ -218,39 +246,23 @@ class AppDialog(QtGui.QWidget):
         self.ui.page_stack.setCurrentIndex(self.VERSION_PAGE_IDX)
 
         # main info
-        self._version_model.load_data("Version", [["id", "is", version_id]], ["code", "description"])
-        self.ui.title_label.setText("Version %s" % version_id)
+        fields = ["code", 
+                  "sg_department", 
+                  "description", 
+                  "open_notes_count", 
+                  "sg_status_list",
+                  "image",
+                  "artist",
+                  "created_at", 
+                  "updated_by"]
+
+        self._version_model.load_data("Version", version_id, fields)        
         
         # load data for tabs
         self._version_publish_model.load_data({"type": "Version", "id": version_id})
         self._entity_note_model.load_data({"type": "Version", "id": version_id})
 
 
-    def _on_current_entity_data(self, changed):
-        self._app.log_debug("Current model data retrieval done. Changes: %s" % changed)
-        if changed:
-            self.refresh_current_entity()
-            
-    def _on_entity_thumb_changed(self):
-        """
-        when the thumbnail in the entity model changes
-        """
-        self.ui.entity_thumb.setPixmap(self._entity_model.get_pixmap())
-        
-    def refresh_current_entity(self):
-        self._app.log_debug("refreshing current entity")
-        
-        sg_data = self._entity_model.get_sg_data()
-        
-        if sg_data is None:
-            self.ui.entity_text.setText("no sg data")
-            self.ui.title_label.setText("")
-        else:
-            name = sg_data.get("code") or "Unnamed"
-            title = "<b>%s %s</b><br><br>" % (sg_data.get("type"), name)
-            title += sg_data.get("description") or "No Description"            
-            self.ui.entity_text.setText(title)
-            self.ui.title_label.setText("<big>%s %s</big>" % (sg_data.get("type"), name))
 
 
     def _on_entity_clicked(self, model_index):
@@ -260,7 +272,51 @@ class AppDialog(QtGui.QWidget):
         sg_item = shotgun_model.get_sg_data(model_index)
         sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
         self._navigate_to(sg_location)
+
+
+
+
+
+    ###################################################################################################
+    # top detail area callbacks
+
+
+    def _refresh_entity_thumbnail(self):
+        self.ui.entity_thumb.setPixmap(self._entity_model.get_pixmap())
+
+    def _refresh_note_thumbnail(self):
+        self.ui.note_thumb.setPixmap(self._note_model.get_pixmap())
+
+    def _refresh_version_thumbnail(self):
+        self.ui.version_thumb.setPixmap(self._version_model.get_pixmap())
+
+    def _refresh_publish_thumbnail(self):
+        self.ui.publish_thumb.setPixmap(self._publish_model.get_pixmap())
+
         
+    def _refresh_entity_details(self):
+        sg_data = self._entity_model.get_sg_data()
+        
+        if sg_data is None:
+            self.ui.entity_text.setText("")
+            self.ui.title_label.setText("")
+        else:
+            name = sg_data.get("code") or "Unnamed"
+            title = "<b>%s %s</b><br><br>" % (sg_data.get("type"), name)
+            title += sg_data.get("description") or "No Description"            
+            self.ui.entity_text.setText(title)
+            self.ui.title_label.setText("<big>%s %s</big>" % (sg_data.get("type"), name))
+        
+    def _refresh_note_details(self):
+        sg_data = self._note_model.get_sg_data()
+        
+
+    def _refresh_publish_details(self):
+        sg_data = self._publish_model.get_sg_data()
+
+    def _refresh_version_details(self):
+        sg_data = self._version_model.get_sg_data()
+
 
         
     ###################################################################################################

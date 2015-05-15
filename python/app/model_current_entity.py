@@ -21,16 +21,13 @@ ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
 class SgCurrentEntityModel(ShotgunOverlayModel):
 
     thumbnail_updated = QtCore.Signal()
+    data_updated = QtCore.Signal()
 
 
     def __init__(self, parent):
         """
         Model which represents the latest publishes for an entity
         """
-        self._default_thumb_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png")
-
-        self._current_pixmap = self._default_thumb_pixmap
-
         # init base class
         ShotgunOverlayModel.__init__(self,
                                      parent,
@@ -38,28 +35,31 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
                                      download_thumbs=True,
                                      schema_generation=3)
 
+        self._default_thumb_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png")
+        self._current_pixmap = self._default_thumb_pixmap
+        self.data_refreshed.connect(self._on_data_refreshed)
+
     ############################################################################################
     # public interface
 
 
-    def load_data(self, entity_type, entity_id):
+    def load_data(self, entity_type, entity_id, fields):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
         """        
-        
-        
-        fields = ["code", 
-                  "description", 
-                  "image"]
-        hierarchy = ["code"]
+        hierarchy = [fields[0]]
         loaded_cache = ShotgunOverlayModel._load_data(self, 
                                                       entity_type, 
                                                       [["id", "is", entity_id]], 
                                                       hierarchy, 
                                                       fields)
+        # model data
+        self.data_updated.emit()
         self._refresh_data()
-        return loaded_cache
+
+    def _on_data_refreshed(self):
+        self.data_updated.emit()
 
     def get_sg_data(self):
         
