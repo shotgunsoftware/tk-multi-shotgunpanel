@@ -170,7 +170,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
              </size>
             </property>
             <property name="text">
-             <string>Entity</string>
+             <string/>
+            </property>
+            <property name="pixmap">
+             <pixmap resource="resources.qrc">:/tk_multi_infopanel/loading_512x400.png</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -178,6 +184,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            <widget class="QLabel" name="entity_text">
             <property name="text">
              <string>TextLabel</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -375,18 +384,24 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            <widget class="QLabel" name="note_thumb">
             <property name="minimumSize">
              <size>
-              <width>100</width>
-              <height>100</height>
+              <width>70</width>
+              <height>70</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>100</height>
+              <width>70</width>
+              <height>70</height>
              </size>
             </property>
             <property name="text">
-             <string>Note</string>
+             <string/>
+            </property>
+            <property name="pixmap">
+             <pixmap resource="resources.qrc">:/tk_multi_infopanel/default_user.png</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -394,6 +409,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            <widget class="QLabel" name="note_text">
             <property name="text">
              <string>TextLabel</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -498,7 +516,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
              </size>
             </property>
             <property name="text">
-             <string>Publish</string>
+             <string/>
+            </property>
+            <property name="pixmap">
+             <pixmap resource="resources.qrc">:/tk_multi_infopanel/loading_512x400.png</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -506,6 +530,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            <widget class="QLabel" name="publish_text">
             <property name="text">
              <string>TextLabel</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -547,7 +574,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
              </size>
             </property>
             <property name="text">
-             <string>Version</string>
+             <string/>
+            </property>
+            <property name="pixmap">
+             <pixmap resource="resources.qrc">:/tk_multi_infopanel/loading_512x400.png</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -555,6 +588,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            <widget class="QLabel" name="version_text">
             <property name="text">
              <string>TextLabel</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

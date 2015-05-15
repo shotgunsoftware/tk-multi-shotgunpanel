@@ -18,6 +18,8 @@ import threading
 from sgtk.platform.qt import QtCore, QtGui
 from .ui.dialog import Ui_Dialog
 
+from . import utils
+
 from .shotgun_location import ShotgunLocation
 
 from .delegate_task import TaskDelegate
@@ -31,6 +33,7 @@ from .model_reply import SgReplyModel
 from .model_task import SgTaskModel
 from .model_version import SgVersionModel
 from .model_publish import SgPublishModel
+from .model_current_entity import SgCurrentEntityModel
 
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
@@ -77,6 +80,8 @@ class AppDialog(QtGui.QWidget):
         self._history_index = 0
         
         
+        self._default_thumb = QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png")
+        
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
@@ -106,7 +111,9 @@ class AppDialog(QtGui.QWidget):
         self._entity_task_delegate = TaskDelegate(self.ui.entity_task_view)
         self.ui.entity_task_view.setItemDelegate(self._entity_task_delegate)
         
-        self._entity_model = shotgun_model.SimpleShotgunModel(self.ui.entity_details)
+        self._entity_model = SgCurrentEntityModel(self.ui.entity_details)
+        self._entity_model.data_refreshed.connect(self._on_current_entity_data)
+        self._entity_model.thumbnail_updated.connect(self._on_entity_thumb_changed)
 
 
         # note section
@@ -162,8 +169,8 @@ class AppDialog(QtGui.QWidget):
         self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)        
         
         # main info
-        self._entity_model.load_data(entity_type, [["id", "is", entity_id]], ["code", "description"])
-        self.ui.title_label.setText("%s %s" % (entity_type, entity_id))
+        self._entity_model.load_data(entity_type, entity_id)
+        self.refresh_current_entity()
         
         # load data for tabs
         self._entity_note_model.load_data({"type": entity_type, "id": entity_id})
@@ -219,12 +226,31 @@ class AppDialog(QtGui.QWidget):
         self._entity_note_model.load_data({"type": "Version", "id": version_id})
 
 
-
-
-
-
-
-    
+    def _on_current_entity_data(self, changed):
+        self._app.log_debug("Current model data retrieval done. Changes: %s" % changed)
+        if changed:
+            self.refresh_current_entity()
+            
+    def _on_entity_thumb_changed(self):
+        """
+        when the thumbnail in the entity model changes
+        """
+        self.ui.entity_thumb.setPixmap(self._entity_model.get_pixmap())
+        
+    def refresh_current_entity(self):
+        self._app.log_debug("refreshing current entity")
+        
+        sg_data = self._entity_model.get_sg_data()
+        
+        if sg_data is None:
+            self.ui.entity_text.setText("no sg data")
+            self.ui.title_label.setText("")
+        else:
+            name = sg_data.get("code") or "Unnamed"
+            title = "<b>%s %s</b><br><br>" % (sg_data.get("type"), name)
+            title += sg_data.get("description") or "No Description"            
+            self.ui.entity_text.setText(title)
+            self.ui.title_label.setText("<big>%s %s</big>" % (sg_data.get("type"), name))
 
 
     def _on_entity_clicked(self, model_index):
