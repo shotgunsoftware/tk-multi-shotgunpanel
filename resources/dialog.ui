@@ -192,26 +192,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </item>
           <item>
            <widget class="QToolButton" name="entity_actions_btn">
-            <property name="minimumSize">
-             <size>
-              <width>55</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>55</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Actions</string>
-            </property>
-            <property name="popupMode">
-             <enum>QToolButton::InstantPopup</enum>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextOnly</enum>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/tk_multi_infopanel/down_arrow.png</normaloff>:/tk_multi_infopanel/down_arrow.png</iconset>
             </property>
            </widget>
           </item>
@@ -563,26 +546,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </item>
           <item>
            <widget class="QToolButton" name="publish_actions_btn">
-            <property name="minimumSize">
-             <size>
-              <width>55</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>55</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Actions</string>
-            </property>
-            <property name="popupMode">
-             <enum>QToolButton::InstantPopup</enum>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextOnly</enum>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/tk_multi_infopanel/down_arrow.png</normaloff>:/tk_multi_infopanel/down_arrow.png</iconset>
             </property>
            </widget>
           </item>
@@ -664,17 +630,17 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
         <widget class="QWidget" name="version_details" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QLabel" name="version_thumb">
+           <widget class="VersionLabel" name="version_thumb">
             <property name="minimumSize">
              <size>
-              <width>128</width>
-              <height>100</height>
+              <width>256</width>
+              <height>200</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>128</width>
-              <height>100</height>
+              <width>256</width>
+              <height>200</height>
              </size>
             </property>
             <property name="text">
@@ -703,26 +669,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </item>
           <item>
            <widget class="QToolButton" name="version_actions_btn">
-            <property name="minimumSize">
-             <size>
-              <width>55</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>55</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Actions</string>
-            </property>
-            <property name="popupMode">
-             <enum>QToolButton::InstantPopup</enum>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextOnly</enum>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/tk_multi_infopanel/down_arrow.png</normaloff>:/tk_multi_infopanel/down_arrow.png</iconset>
             </property>
            </widget>
           </item>
@@ -845,6 +794,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VersionLabel</class>
+   <extends>QLabel</extends>
+   <header>..version_label</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>
