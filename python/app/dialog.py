@@ -63,6 +63,12 @@ class AppDialog(QtGui.QWidget):
     PUBLISH_PAGE_IDX = 2
     VERSION_PAGE_IDX = 3
     
+    @property
+    def hide_tk_title_bar(self):
+        """
+        Tell the system to not show the std toolbar
+        """
+        return True    
     
     def __init__(self):
         """
@@ -318,17 +324,11 @@ class AppDialog(QtGui.QWidget):
     def _refresh_entity_details(self):
         sg_data = self._entity_model.get_sg_data()
         
-        if sg_data is None:
-            self.ui.entity_text.setText("")
-            self.ui.title_label.setText("")
-        else:
+        if sg_data:
             name = sg_data.get("code") or "Unnamed"
-            title = "<b style='margin: 10px; border-color: white; border-style: solid; border-width: 1px;'>%s %s</b><br><br>" % (sg_data.get("type"), name)
-            title += sg_data.get("description") or "No Description"                        
-            
-            self.ui.entity_text.setText(title)
-            
-            self.ui.title_label.setText("<big>%s %s</big>" % (sg_data.get("type"), name))
+            title = "%s %s" % (sg_data.get("type"), name)
+            self.ui.entity_text_header.setText(title)
+            self.ui.entity_text_bottom.setText(sg_data.get("description") or "No Description")
         
     def _refresh_note_details(self):
         sg_data = self._note_model.get_sg_data()

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>511</width>
+    <width>451</width>
     <height>847</height>
    </rect>
   </property>
@@ -16,6 +16,9 @@
   <layout class="QVBoxLayout" name="verticalLayout_7">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="spacing">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QToolButton" name="navigation_home">
        <property name="minimumSize">
@@ -137,13 +140,26 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="title_label">
-       <property name="text">
-        <string>&lt;big&gt;Shot ABC 123 456&lt;/big&gt;</string>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QStackedWidget" name="page_stack">
@@ -154,19 +170,19 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QWidget" name="entity_details" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="2" column="0" rowspan="2">
            <widget class="QLabel" name="entity_thumb">
             <property name="minimumSize">
              <size>
-              <width>128</width>
-              <height>100</height>
+              <width>192</width>
+              <height>150</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>128</width>
-              <height>100</height>
+              <width>192</width>
+              <height>150</height>
              </size>
             </property>
             <property name="text">
@@ -180,8 +196,8 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QLabel" name="entity_text">
+          <item row="4" column="0" colspan="3">
+           <widget class="QLabel" name="entity_text_bottom">
             <property name="text">
              <string>ENTITY MODE</string>
             </property>
@@ -190,11 +206,34 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="entity_text_header">
+            <property name="styleSheet">
+             <string notr="true">font-size: 16px; color: #2C93E2</string>
+            </property>
+            <property name="text">
+             <string>Shot abc123</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
            <widget class="QToolButton" name="entity_actions_btn">
             <property name="icon">
              <iconset resource="resources.qrc">
               <normaloff>:/tk_multi_infopanel/down_arrow.png</normaloff>:/tk_multi_infopanel/down_arrow.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" rowspan="2" colspan="2">
+           <widget class="QLabel" name="entity_text_middle">
+            <property name="text">
+             <string>ENTITY MODE</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -509,18 +548,18 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        <item>
         <widget class="QWidget" name="publish_details" native="true">
          <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
+          <item row="2" column="0">
            <widget class="QLabel" name="publish_thumb">
             <property name="minimumSize">
              <size>
-              <width>128</width>
-              <height>100</height>
+              <width>192</width>
+              <height>150</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>128</width>
-              <height>100</height>
+              <width>192</width>
+              <height>150</height>
              </size>
             </property>
             <property name="text">
@@ -534,17 +573,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="publish_text">
-            <property name="text">
-             <string>PUBLISHES MODE</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
+          <item row="1" column="2">
            <widget class="QToolButton" name="publish_actions_btn">
             <property name="icon">
              <iconset resource="resources.qrc">
@@ -553,7 +582,30 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            </widget>
           </item>
           <item row="1" column="0" colspan="2">
-           <widget class="QLabel" name="publish_lower_text">
+           <widget class="QLabel" name="publish_text_header">
+            <property name="styleSheet">
+             <string notr="true">font-size: 16px; color: #2C93E2</string>
+            </property>
+            <property name="text">
+             <string>Publish Scene1.nk, Version 3</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="QLabel" name="publish_text_middle">
+            <property name="text">
+             <string>PUBLISHES MODE</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="3">
+           <widget class="QLabel" name="publish_text_bottom">
             <property name="text">
              <string>TextLabel</string>
             </property>
@@ -636,18 +688,18 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        <item>
         <widget class="QWidget" name="version_details" native="true">
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
+          <item row="3" column="0">
            <widget class="VersionLabel" name="version_thumb">
             <property name="minimumSize">
              <size>
-              <width>256</width>
-              <height>200</height>
+              <width>192</width>
+              <height>150</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>256</width>
-              <height>200</height>
+              <width>192</width>
+              <height>150</height>
              </size>
             </property>
             <property name="text">
@@ -661,10 +713,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="version_text">
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="version_text_header">
+            <property name="styleSheet">
+             <string notr="true">font-size: 16px; color: #2C93E2</string>
+            </property>
             <property name="text">
-             <string>VERSIONS MODE</string>
+             <string>Version car_chase_foo_v003</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -682,8 +737,21 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </property>
            </widget>
           </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QLabel" name="version_lower_text">
+          <item row="3" column="1" colspan="2">
+           <widget class="QLabel" name="version_text_middle">
+            <property name="text">
+             <string>VERSIONS MODE</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="3">
+           <widget class="QLabel" name="version_lower_bottom">
             <property name="text">
              <string>Description and version info</string>
             </property>
