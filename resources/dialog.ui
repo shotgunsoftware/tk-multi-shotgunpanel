@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>511</width>
-    <height>794</height>
+    <height>847</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -148,7 +148,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    <item>
     <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -508,8 +508,8 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
         <widget class="QWidget" name="publish_details" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
            <widget class="QLabel" name="publish_thumb">
             <property name="minimumSize">
              <size>
@@ -534,7 +534,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="1">
            <widget class="QLabel" name="publish_text">
             <property name="text">
              <string>PUBLISHES MODE</string>
@@ -544,11 +544,18 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="2">
            <widget class="QToolButton" name="publish_actions_btn">
             <property name="icon">
              <iconset resource="resources.qrc">
               <normaloff>:/tk_multi_infopanel/down_arrow.png</normaloff>:/tk_multi_infopanel/down_arrow.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QLabel" name="publish_lower_text">
+            <property name="text">
+             <string>TextLabel</string>
             </property>
            </widget>
           </item>
@@ -628,8 +635,8 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
       <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
         <widget class="QWidget" name="version_details" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
            <widget class="VersionLabel" name="version_thumb">
             <property name="minimumSize">
              <size>
@@ -654,7 +661,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="1">
            <widget class="QLabel" name="version_text">
             <property name="text">
              <string>VERSIONS MODE</string>
@@ -667,11 +674,24 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="2">
            <widget class="QToolButton" name="version_actions_btn">
             <property name="icon">
              <iconset resource="resources.qrc">
               <normaloff>:/tk_multi_infopanel/down_arrow.png</normaloff>:/tk_multi_infopanel/down_arrow.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QLabel" name="version_lower_text">
+            <property name="text">
+             <string>Description and version info</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
             </property>
            </widget>
           </item>
