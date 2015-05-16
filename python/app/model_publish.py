@@ -41,7 +41,7 @@ class SgPublishModel(ShotgunOverlayModel):
     # public interface
 
 
-    def load_data(self, entity):
+    def load_data(self, filters):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
@@ -55,7 +55,6 @@ class SgPublishModel(ShotgunOverlayModel):
                   "created_by",
                   "created_at"]
         hierarchy = ["code"]
-        filters = [["entity", "is", entity]]
         ShotgunOverlayModel._load_data(self, 
                                        "PublishedFile", 
                                        filters, 

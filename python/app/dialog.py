@@ -88,39 +88,31 @@ class AppDialog(QtGui.QWidget):
         
         
         # entity section
-        self._entity_note_model = SgNoteModel(self.ui.entity_note_view)
-        self.ui.entity_note_view.setModel(self._entity_note_model)
-        self.ui.entity_note_view.clicked.connect(self._on_entity_clicked)
-        self._entity_note_delegate = NoteDelegate(self.ui.entity_note_view)
-        self.ui.entity_note_view.setItemDelegate(self._entity_note_delegate)
+        (model, delegate) = self._make_model(SgNoteModel, NoteDelegate, self.ui.entity_note_view)
+        self._entity_note_model = model
+        self._entity_note_delegate = delegate
                 
-        self._entity_version_model = SgVersionModel(self.ui.entity_version_view)
-        self.ui.entity_version_view.setModel(self._entity_version_model)
-        self.ui.entity_version_view.clicked.connect(self._on_entity_clicked)
-        self._entity_version_delegate = VersionDelegate(self.ui.entity_version_view)
-        self.ui.entity_version_view.setItemDelegate(self._entity_version_delegate)
+        (model, delegate) = self._make_model(SgVersionModel, VersionDelegate, self.ui.entity_version_view)
+        self._entity_version_model = model
+        self._entity_version_delegate = delegate
+
+        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.entity_publish_view)
+        self._entity_publish_model = model
+        self._entity_publish_delegate = delegate
         
-        self._entity_publish_model = SgPublishModel(self.ui.entity_publish_view)
-        self.ui.entity_publish_view.setModel(self._entity_publish_model)
-        self.ui.entity_publish_view.clicked.connect(self._on_entity_clicked)
-        self._entity_publish_delegate = PublishDelegate(self.ui.entity_publish_view)
-        self.ui.entity_publish_view.setItemDelegate(self._entity_publish_delegate)
-        
-        self._entity_task_model = SgTaskModel(self.ui.entity_task_view)
-        self.ui.entity_task_view.setModel(self._entity_task_model)
-        self._entity_task_delegate = TaskDelegate(self.ui.entity_task_view)
-        self.ui.entity_task_view.setItemDelegate(self._entity_task_delegate)
-        
+        (model, delegate) = self._make_model(SgTaskModel, TaskDelegate, self.ui.entity_task_view)
+        self._entity_task_model = model
+        self._entity_task_delegate = delegate
+
         self._entity_model = SgCurrentEntityModel(self.ui.entity_details)
         self._entity_model.data_updated.connect(self._refresh_entity_details)
         self._entity_model.thumbnail_updated.connect(self._refresh_entity_thumbnail)
 
 
         # note section
-        self._note_reply_model = SgReplyModel(self.ui.note_reply_view)
-        self.ui.note_reply_view.setModel(self._note_reply_model)
-        self._note_reply_delegate = ReplyDelegate(self.ui.note_reply_view)
-        self.ui.note_reply_view.setItemDelegate(self._note_reply_delegate)
+        (model, delegate) = self._make_model(SgReplyModel, ReplyDelegate, self.ui.note_reply_view)
+        self._note_reply_model = model
+        self._note_reply_delegate = delegate
 
         self._note_model = SgCurrentEntityModel(self.ui.note_details)
         self._note_model.data_updated.connect(self._refresh_note_details)
@@ -129,29 +121,31 @@ class AppDialog(QtGui.QWidget):
 
 
         # publish details
-        self._publish_publish_model = SgPublishModel(self.ui.publish_publish_view)
-        self.ui.publish_publish_view.setModel(self._publish_publish_model)
-        self.ui.publish_publish_view.clicked.connect(self._on_entity_clicked)
-        self._publish_publish_delegate = PublishDelegate(self.ui.publish_publish_view)
-        self.ui.publish_publish_view.setItemDelegate(self._publish_publish_delegate)
+        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.publish_history_view)
+        self._publish_history_model = model
+        self._publish_history_delegate = delegate
+        
+        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.publish_upstream_view)
+        self._publish_upstream_model = model
+        self._publish_upstream_delegate = delegate
 
+        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.publish_downstream_view)
+        self._publish_downstream_model = model
+        self._publish_downstream_delegate = delegate
+        
         self._publish_model = SgCurrentEntityModel(self.ui.publish_details)
         self._publish_model.data_updated.connect(self._refresh_publish_details)
         self._publish_model.thumbnail_updated.connect(self._refresh_publish_thumbnail)
 
         
         # version details
-        self._version_note_model = SgNoteModel(self.ui.version_note_view)
-        self.ui.version_note_view.setModel(self._version_note_model)
-        self.ui.version_note_view.clicked.connect(self._on_entity_clicked)
-        self._version_note_delegate = NoteDelegate(self.ui.version_note_view)
-        self.ui.version_note_view.setItemDelegate(self._version_note_delegate)
-
-        self._version_publish_model = SgPublishModel(self.ui.version_publish_view)
-        self.ui.version_publish_view.setModel(self._version_publish_model)
-        self.ui.version_publish_view.clicked.connect(self._on_entity_clicked)
-        self._version_publish_delegate = PublishDelegate(self.ui.version_publish_view)
-        self.ui.version_publish_view.setItemDelegate(self._version_publish_delegate)
+        (model, delegate) = self._make_model(SgNoteModel, NoteDelegate, self.ui.version_note_view)
+        self._version_note_model = model
+        self._version_note_delegate = delegate
+        
+        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.version_publish_view)
+        self._version_publish_model = model
+        self._version_publish_delegate = delegate        
 
         self._version_model = SgCurrentEntityModel(self.ui.version_details)
         self._version_model.data_updated.connect(self._refresh_version_details)
@@ -167,6 +161,18 @@ class AppDialog(QtGui.QWidget):
         # kick off
         self._on_home_clicked()
 
+    def _make_model(self, ModelClass, DelegateClass, parent_view):
+        """
+        Helper method
+        
+        :returns: (model, delegate)
+        """
+        model = ModelClass(parent_view)
+        parent_view.setModel(model)
+        parent_view.clicked.connect(self._on_entity_clicked)
+        delegate = DelegateClass(parent_view)
+        parent_view.setItemDelegate(delegate)
+        return (model, delegate)
 
 
     def focus_entity(self, entity_type, entity_id):
@@ -186,10 +192,11 @@ class AppDialog(QtGui.QWidget):
         
         # load data for tabs
         self._entity_note_model.load_data({"type": entity_type, "id": entity_id})
-        self._entity_version_model.load_data({"type": entity_type, "id": entity_id})
-        self._entity_publish_model.load_data({"type": entity_type, "id": entity_id})
+        self._entity_version_model.load_data({"type": entity_type, "id": entity_id})        
         self._entity_task_model.load_data({"type": entity_type, "id": entity_id})
         
+        publish_filter = [["entity", "is", {"type": entity_type, "id": entity_id}]]
+        self._entity_publish_model.load_data(publish_filter)
 
     def focus_note(self, note_id):
         """
@@ -235,7 +242,18 @@ class AppDialog(QtGui.QWidget):
         self._publish_model.load_data("PublishedFile", publish_id, fields)
         
         # load data for tabs
-        self._publish_publish_model.load_data({"type": "PublishedFile", "id": publish_id})
+        
+        # TODO: FIX
+        publish_filter = [["entity", "is", {"type": "PublishedFile", "id": publish_id}]]
+        self._publish_history_model.load_data(publish_filter)
+        
+        publish_filter = [["downstream_published_files", "in", [{"type": "PublishedFile", "id": publish_id}]]]
+        self._publish_upstream_model.load_data(publish_filter)
+        
+        publish_filter = [["upstream_published_files", "in", [{"type": "PublishedFile", "id": publish_id}]]]
+        self._publish_downstream_model.load_data(publish_filter)
+        
+        
 
 
     def focus_version(self, version_id):
@@ -259,7 +277,10 @@ class AppDialog(QtGui.QWidget):
         self._version_model.load_data("Version", version_id, fields)        
         
         # load data for tabs
-        self._version_publish_model.load_data({"type": "Version", "id": version_id})
+        publish_filter = [["version", "is", [{"type": "Version", "id": version_id}]]]
+        self._version_publish_model.load_data(publish_filter)
+        
+        
         self._entity_note_model.load_data({"type": "Version", "id": version_id})
 
 
@@ -303,10 +324,7 @@ class AppDialog(QtGui.QWidget):
         else:
             name = sg_data.get("code") or "Unnamed"
             title = "<b style='margin: 10px; border-color: white; border-style: solid; border-width: 1px;'>%s %s</b><br><br>" % (sg_data.get("type"), name)
-            title += sg_data.get("description") or "No Description"            
-            
-            title += " --- <a href='foo' style='padding: 100px; margin: 100px; border-color: white; border-style: solid; border-width: 1px; text-decoration: none; background-color: #2C93E2; color: white; '>Shot ABC123</a>"
-            
+            title += sg_data.get("description") or "No Description"                        
             
             self.ui.entity_text.setText(title)
             

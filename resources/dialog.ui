@@ -148,7 +148,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    <item>
     <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -566,7 +566,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_15">
            <item>
-            <widget class="QListView" name="publish_publish_view_3">
+            <widget class="QListView" name="publish_history_view">
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
@@ -586,7 +586,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_13">
            <item>
-            <widget class="QListView" name="publish_publish_view">
+            <widget class="QListView" name="publish_upstream_view">
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
@@ -606,7 +606,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_14">
            <item>
-            <widget class="QListView" name="publish_publish_view_2">
+            <widget class="QListView" name="publish_downstream_view">
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
