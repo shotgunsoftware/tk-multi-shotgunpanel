@@ -127,7 +127,7 @@ def create_human_readable_timestamp(datetime_obj):
 
     if datetime_obj > datetime.now():
         # future times are reported precisely
-        return ("On %s" % std_format, std_format)
+        return ("on %s" % std_format, std_format)
     
     # get the delta and components
     delta = datetime.now() - datetime_obj
@@ -142,7 +142,7 @@ def create_human_readable_timestamp(datetime_obj):
 
     # for larger differences, return std format
     if delta_weeks > 2:
-        return ("On %s" % std_format, std_format)
+        return ("on %s" % std_format, std_format)
 
     # for dates less than 3 weeks, use human readable time stamps 
     if delta_weeks > 0:
@@ -150,7 +150,7 @@ def create_human_readable_timestamp(datetime_obj):
         human_time_str = "%d %s ago" % (delta_weeks, "week" if delta_weeks == 1 else "weeks")
      
     elif delta_days == 1:
-        human_time_str = "Yesterday"
+        human_time_str = "yesterday"
         
     elif delta_days > 1:
         # 2 days ago
@@ -163,6 +163,6 @@ def create_human_readable_timestamp(datetime_obj):
         human_time_str = "%d %s ago" % (delta_minutes, "minute" if delta_weeks == 1 else "minutes")
     
     else:
-        human_time_str = "On %s" % std_format
+        human_time_str = "on %s" % std_format
     
     return (human_time_str, std_format)

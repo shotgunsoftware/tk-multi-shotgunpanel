@@ -11,6 +11,7 @@
 import sgtk
 import os
 import sys
+import datetime
 import threading
 
 # by importing QT from sgtk rather than directly, we ensure that
@@ -278,7 +279,7 @@ class AppDialog(QtGui.QWidget):
                   "image",
                   "artist",
                   "created_at", 
-                  "updated_by"]
+                  "created_by"]
 
         self._version_model.load_data("Version", version_id, fields)        
         
@@ -337,9 +338,51 @@ class AppDialog(QtGui.QWidget):
     def _refresh_publish_details(self):
         sg_data = self._publish_model.get_sg_data()
 
+        if sg_data:
+
+            name = sg_data.get("code") or "Unnamed"
+            title = "Publish %s" % (name)
+            self.ui.publish_text_header.setText(title)
+
+
+            created_unixtime = sg_data.get("created_at")
+            created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
+            (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
+    
+            user = sg_data.get("created_by")        
+            
+            bottom_str = "Published by <a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a> %s." % (user["type"], user["id"], user["name"], human_str)
+            bottom_str += "<br><br><i><b>Comments:</b> %s</i>" % (sg_data.get("description") or "No comments entered.")
+            
+            
+            self.ui.publish_text_bottom.setText(bottom_str)
+
+
     def _refresh_version_details(self):
         sg_data = self._version_model.get_sg_data()
 
+        print sg_data
+        if sg_data:
+
+            name = sg_data.get("code") or "Unnamed"
+            title = "Version %s" % (name)
+            self.ui.version_text_header.setText(title)
+
+
+            created_unixtime = sg_data.get("created_at")
+            created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
+            (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
+    
+            user = sg_data.get("artist")
+            if user is None:
+                # fall back on created by
+                user = sg_data.get("created_by")
+            
+            bottom_str = "Created by <a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a> %s." % (user["type"], user["id"], user["name"], human_str)
+            bottom_str += "<br><br><i><b>Comments:</b> %s</i>" % (sg_data.get("description") or "No comments entered.")
+            
+            
+            self.ui.version_text_bottom.setText(bottom_str)
 
         
     ###################################################################################################

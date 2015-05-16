@@ -164,7 +164,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    <item>
     <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -751,7 +751,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            </widget>
           </item>
           <item row="4" column="0" colspan="3">
-           <widget class="QLabel" name="version_lower_bottom">
+           <widget class="QLabel" name="version_text_bottom">
             <property name="text">
              <string>Description and version info</string>
             </property>
