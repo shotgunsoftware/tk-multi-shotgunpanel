@@ -115,6 +115,14 @@ class AppDialog(QtGui.QWidget):
         self._entity_model.data_updated.connect(self._refresh_entity_details)
         self._entity_model.thumbnail_updated.connect(self._refresh_entity_thumbnail)
 
+        # hyperlink clicking
+        self.ui.entity_text_bottom.linkActivated.connect(self._on_link_clicked)
+        self.ui.entity_text_middle.linkActivated.connect(self._on_link_clicked)
+        self.ui.publish_text_bottom.linkActivated.connect(self._on_link_clicked)
+        self.ui.publish_text_middle.linkActivated.connect(self._on_link_clicked)
+        self.ui.version_text_bottom.linkActivated.connect(self._on_link_clicked)
+        self.ui.version_text_middle.linkActivated.connect(self._on_link_clicked)
+
 
         # note section
         (model, delegate) = self._make_model(SgReplyModel, ReplyDelegate, self.ui.note_reply_view)
@@ -159,7 +167,7 @@ class AppDialog(QtGui.QWidget):
         self._version_model.thumbnail_updated.connect(self._refresh_version_thumbnail)
 
 
-
+        # navigation
         self.ui.navigation_home.clicked.connect(self._on_home_clicked)
         self.ui.navigation_next.clicked.connect(self._on_next_clicked)
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
@@ -191,6 +199,7 @@ class AppDialog(QtGui.QWidget):
         
         # main info
         fields = ["code", 
+                  "created_by",
                   "description", 
                   "sg_status_list", 
                   "image"]
@@ -302,6 +311,15 @@ class AppDialog(QtGui.QWidget):
         self._navigate_to(sg_location)
 
 
+    def _on_link_clicked(self, link):
+        """
+        When someone clicks a url
+        """
+        
+        (entity_type, entity_id) = link.split(":")
+        sg_location = ShotgunLocation(entity_type, int(entity_id))
+        self._navigate_to(sg_location)
+
 
 
 
@@ -330,6 +348,19 @@ class AppDialog(QtGui.QWidget):
             title = "%s %s" % (sg_data.get("type"), name)
             self.ui.entity_text_header.setText(title)
             self.ui.entity_text_bottom.setText(sg_data.get("description") or "No Description")
+            
+            user = sg_data.get("created_by")   
+            
+            middle = ""
+            middle += utils.create_html_link_box("%s:%s" % (user["type"], user["id"]), "Created By", user["name"])
+            middle += "<br>"
+            middle += utils.create_html_link_box("%s:%s" % (user["type"], user["id"]), "Created By", user["name"])
+            middle += "<br>"
+            middle += utils.create_html_link_box("%s:%s" % (user["type"], user["id"]), "Created By", user["name"])
+            
+            self.ui.entity_text_middle.setText(middle)
+            
+            
         
     def _refresh_note_details(self):
         sg_data = self._note_model.get_sg_data()
@@ -349,7 +380,7 @@ class AppDialog(QtGui.QWidget):
             created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
             (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
     
-            user = sg_data.get("created_by")        
+            user = sg_data.get("created_by")
             
             bottom_str = "Published by <a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a> %s." % (user["type"], user["id"], user["name"], human_str)
             bottom_str += "<br><br><i><b>Comments:</b> %s</i>" % (sg_data.get("description") or "No comments entered.")

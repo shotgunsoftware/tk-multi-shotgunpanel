@@ -166,3 +166,15 @@ def create_human_readable_timestamp(datetime_obj):
         human_time_str = "on %s" % std_format
     
     return (human_time_str, std_format)
+
+
+
+def create_html_link_box(url, title, value):
+    
+    html = """
+        <table><tr><td style='background-color: #2C93E2; padding: 4px; '>
+        <a href='%s' style='color: white; text-decoration: none;'><b>%s</b> %s</a>
+        </td></tr></table>
+        """ % (url, title, value)
+    return html
+    
