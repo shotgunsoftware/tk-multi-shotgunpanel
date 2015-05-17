@@ -34,45 +34,20 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
                                      overlay_widget=parent,
                                      download_thumbs=True,
                                      schema_generation=3)
-
+        
+        self._entity_type = None
         self._default_thumb_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png")
         self._current_pixmap = self._default_thumb_pixmap
         self.data_refreshed.connect(self._on_data_refreshed)
 
-    ############################################################################################
-    # public interface
-
-
-    def load_data(self, entity_type, entity_id, fields):
-        """
-        Clears the model and sets it up for a particular entity.
-        Loads any cached data that exists.
-        """        
-        hierarchy = [fields[0]]
-        loaded_cache = ShotgunOverlayModel._load_data(self, 
-                                                      entity_type, 
-                                                      [["id", "is", entity_id]], 
-                                                      hierarchy, 
-                                                      fields)
-        # model data
-        self.data_updated.emit()
-        self._refresh_data()
-
     def _on_data_refreshed(self):
+        """
+        helper method. dispatches the after-refresh signal
+        so that a data_updated signal is consistenntly sent
+        out both after the data has been updated and after a cache has been read in
+        """
         self.data_updated.emit()
 
-    def get_sg_data(self):
-        
-        if self.rowCount() == 0:
-            data = None
-        else:
-            data = self.item(0).get_sg_data()
-        
-        return data
-        
-    def get_pixmap(self):
-        return self._current_pixmap
-        
     def _populate_default_thumbnail(self, item):
         """
         Called whenever an item needs to get a default thumbnail attached to a node.
@@ -116,3 +91,50 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
         
         self._current_pixmap = utils.create_overlayed_publish_thumbnail(path)
         self.thumbnail_updated.emit()
+
+    ############################################################################################
+    # public interface
+
+
+    def load_data(self, entity_type, entity_id, fields):
+        """
+        Clears the model and sets it up for a particular entity.
+        Loads any cached data that exists.
+        """        
+        self._entity_type = entity_type
+        hierarchy = [fields[0]]
+        loaded_cache = ShotgunOverlayModel._load_data(self, 
+                                                      entity_type, 
+                                                      [["id", "is", entity_id]], 
+                                                      hierarchy, 
+                                                      fields)
+        
+        # signal to any views that data now may be available
+        self.data_updated.emit()
+        self._refresh_data()
+
+    def get_entity_type(self):
+        """
+        Returns the entity type associated with the query
+        """
+        return self._entity_type
+    
+    def get_sg_data(self):
+        """
+        Returns the sg data dictionary for the associated item
+        None if not available.
+        """
+        if self.rowCount() == 0:
+            data = None
+        else:
+            data = self.item(0).get_sg_data()
+        
+        return data
+        
+    def get_pixmap(self):
+        """
+        Returns the thumbnail currently associated with the item.
+        If no pixmap has been loaded for the item yet, a default icon is returned.
+        """
+        return self._current_pixmap
+        

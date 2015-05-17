@@ -168,13 +168,7 @@ def create_human_readable_timestamp(datetime_obj):
     return (human_time_str, std_format)
 
 
-
-def create_html_link_box(url, title, value):
+def generate_link(sg_link):
     
-    html = """
-        <table><tr><td style='background-color: #2C93E2; padding: 4px; '>
-        <a href='%s' style='color: white; text-decoration: none;'><b>%s</b> %s</a>
-        </td></tr></table>
-        """ % (url, title, value)
-    return html
+    return "<a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a>" % (sg_link["type"], sg_link["id"], sg_link["name"])
     

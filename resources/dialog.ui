@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>451</width>
-    <height>847</height>
+    <height>863</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -162,84 +162,81 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
     </widget>
    </item>
    <item>
+    <widget class="QWidget" name="details" native="true">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="2" column="0">
+       <widget class="VersionLabel" name="details_thumb">
+        <property name="minimumSize">
+         <size>
+          <width>192</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>192</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="resources.qrc">:/tk_multi_infopanel/loading_512x400.png</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QToolButton" name="details_action_btn">
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/tk_multi_infopanel/down_arrow.png</normaloff>:/tk_multi_infopanel/down_arrow.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QLabel" name="details_text_header">
+        <property name="styleSheet">
+         <string notr="true">font-size: 16px; color: #2C93E2</string>
+        </property>
+        <property name="text">
+         <string>Header Text</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="2">
+       <widget class="QLabel" name="details_text_middle">
+        <property name="text">
+         <string>Middle Text</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="3">
+       <widget class="QLabel" name="details_text_bottom">
+        <property name="text">
+         <string>Bottom Text</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QWidget" name="entity_details" native="true">
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="2" column="0" rowspan="2">
-           <widget class="QLabel" name="entity_thumb">
-            <property name="minimumSize">
-             <size>
-              <width>192</width>
-              <height>150</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>192</width>
-              <height>150</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap resource="resources.qrc">:/tk_multi_infopanel/loading_512x400.png</pixmap>
-            </property>
-            <property name="scaledContents">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="3">
-           <widget class="QLabel" name="entity_text_bottom">
-            <property name="text">
-             <string>ENTITY MODE</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="entity_text_header">
-            <property name="styleSheet">
-             <string notr="true">font-size: 16px; color: #2C93E2</string>
-            </property>
-            <property name="text">
-             <string>Shot abc123</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QToolButton" name="entity_actions_btn">
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/tk_multi_infopanel/down_arrow.png</normaloff>:/tk_multi_infopanel/down_arrow.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" rowspan="2" colspan="2">
-           <widget class="QLabel" name="entity_text_middle">
-            <property name="text">
-             <string>ENTITY MODE</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
@@ -422,198 +419,8 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="note_page">
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <widget class="QWidget" name="note_details" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QLabel" name="note_thumb">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>70</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>70</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap resource="resources.qrc">:/tk_multi_infopanel/default_user.png</pixmap>
-            </property>
-            <property name="scaledContents">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="note_text">
-            <property name="text">
-             <string>NOTE MODE</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListView" name="note_reply_view">
-         <property name="verticalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
-         </property>
-         <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
-         </property>
-         <property name="uniformItemSizes">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>60</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>60</height>
-            </size>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="pixmap">
-            <pixmap resource="resources.qrc">:/tk_multi_infopanel/default_user.png</pixmap>
-           </property>
-           <property name="scaledContents">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPlainTextEdit" name="plainTextEdit_2">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>60</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_2">
-           <property name="text">
-            <string>Reply</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="publish_page">
       <layout class="QVBoxLayout" name="verticalLayout_6">
-       <item>
-        <widget class="QWidget" name="publish_details" native="true">
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="2" column="0">
-           <widget class="QLabel" name="publish_thumb">
-            <property name="minimumSize">
-             <size>
-              <width>192</width>
-              <height>150</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>192</width>
-              <height>150</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap resource="resources.qrc">:/tk_multi_infopanel/loading_512x400.png</pixmap>
-            </property>
-            <property name="scaledContents">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QToolButton" name="publish_actions_btn">
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/tk_multi_infopanel/down_arrow.png</normaloff>:/tk_multi_infopanel/down_arrow.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QLabel" name="publish_text_header">
-            <property name="styleSheet">
-             <string notr="true">font-size: 16px; color: #2C93E2</string>
-            </property>
-            <property name="text">
-             <string>Publish Scene1.nk, Version 3</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QLabel" name="publish_text_middle">
-            <property name="text">
-             <string>PUBLISHES MODE</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="3">
-           <widget class="QLabel" name="publish_text_bottom">
-            <property name="text">
-             <string>TextLabel</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item>
         <widget class="QTabWidget" name="tabWidget_3">
          <property name="currentIndex">
@@ -685,87 +492,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
      </widget>
      <widget class="QWidget" name="version_page">
       <layout class="QVBoxLayout" name="verticalLayout_10">
-       <item>
-        <widget class="QWidget" name="version_details" native="true">
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="3" column="0">
-           <widget class="VersionLabel" name="version_thumb">
-            <property name="minimumSize">
-             <size>
-              <width>192</width>
-              <height>150</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>192</width>
-              <height>150</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap resource="resources.qrc">:/tk_multi_infopanel/loading_512x400.png</pixmap>
-            </property>
-            <property name="scaledContents">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="version_text_header">
-            <property name="styleSheet">
-             <string notr="true">font-size: 16px; color: #2C93E2</string>
-            </property>
-            <property name="text">
-             <string>Version car_chase_foo_v003</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QToolButton" name="version_actions_btn">
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/tk_multi_infopanel/down_arrow.png</normaloff>:/tk_multi_infopanel/down_arrow.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1" colspan="2">
-           <widget class="QLabel" name="version_text_middle">
-            <property name="text">
-             <string>VERSIONS MODE</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="3">
-           <widget class="QLabel" name="version_text_bottom">
-            <property name="text">
-             <string>Description and version info</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item>
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="currentIndex">
