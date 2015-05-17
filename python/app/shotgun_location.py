@@ -23,6 +23,9 @@ def create_shotgun_location(entity_type, entity_id):
     if entity_type == "Shot":
         return ShotgunShot(entity_type, entity_id)
     
+    elif entity_type == "Asset":
+        return ShotgunAsset(entity_type, entity_id)
+    
     elif entity_type == "PublishedFile":
         return ShotgunPublish(entity_type, entity_id)
     
@@ -80,7 +83,8 @@ class ShotgunLocationGeneral(ShotgunLocation):
         fields = ["code", 
                   "created_by",
                   "description", 
-                  "sg_status_list", 
+                  "sg_status_list",
+                  "project" 
                   "image"]
         return fields
 
@@ -116,9 +120,32 @@ class ShotgunShot(ShotgunLocationGeneral):
         """
         ShotgunLocationGeneral.render_details(self, sg_data, top_label, middle_label, bottom_label)
                 
-        middle = ""            
+        middle = "Sequence: %s" % utils.generate_link(sg_data["sg_sequence"])     
         middle_label.setText(middle)
     
+
+class ShotgunAsset(ShotgunLocationGeneral):
+    
+    def __init__(self, entity_type, entity_id):
+        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
+            
+    def get_fields(self):        
+        fields = ["sg_asset_type"]
+        fields += ShotgunLocationGeneral.get_fields(self)
+        return fields
+    
+    def render_details(self, sg_data, top_label, middle_label, bottom_label):
+        """
+        Render details
+        """
+        ShotgunLocationGeneral.render_details(self, sg_data, top_label, middle_label, bottom_label)
+                
+        middle = "Asset Type: %s" % sg_data["sg_asset_type"]
+        middle = "Asset Type: %s" % sg_data["sg_asset_type"]     
+        middle_label.setText(middle)
+
+
+
     
     
 class ShotgunPublish(ShotgunLocation):
@@ -150,7 +177,6 @@ class ShotgunPublish(ShotgunLocation):
         name = sg_data.get("code") or "Unnamed"
         title = "Publish %s" % (name)
         top_label.setText(title)
-
 
         created_unixtime = sg_data.get("created_at")
         created_datetime = datetime.datetime.fromtimestamp(created_unixtime)

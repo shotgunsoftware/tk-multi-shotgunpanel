@@ -60,9 +60,8 @@ class AppDialog(QtGui.QWidget):
     
     # page indices
     ENTITY_PAGE_IDX = 0
-    NOTE_PAGE_IDX = 1
-    PUBLISH_PAGE_IDX = 2
-    VERSION_PAGE_IDX = 3
+    PUBLISH_PAGE_IDX = 1
+    VERSION_PAGE_IDX = 2
     
     @property
     def hide_tk_title_bar(self):
@@ -244,6 +243,13 @@ class AppDialog(QtGui.QWidget):
         self.ui.details_thumb.setPixmap(self._details_model.get_pixmap())
 
     def _refresh_details(self):
+        
+        # first clear UI
+        self.ui.details_text_header.setText("")
+        self.ui.details_text_middle.setText("")
+        self.ui.details_text_bottom.setText("")
+        
+        
         sg_data = self._details_model.get_sg_data()                
         if sg_data:
             sg_loc = create_shotgun_location(sg_data["type"], sg_data["id"])
@@ -251,11 +257,6 @@ class AppDialog(QtGui.QWidget):
                                   self.ui.details_text_header, 
                                   self.ui.details_text_middle, 
                                   self.ui.details_text_bottom)
-        else:
-            # clear ui
-            self.ui.details_text_header.setText("")
-            self.ui.details_text_middle.setText("")
-            self.ui.details_text_bottom.setText("")
 
 
     ###################################################################################################
