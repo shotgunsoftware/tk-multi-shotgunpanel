@@ -24,18 +24,22 @@ class VersionLabel(QtGui.QLabel):
         self._play_icon = QtGui.QPixmap(":/tk_multi_infopanel/play_icon.png")
         self._play_icon_inactive = QtGui.QPixmap(":/tk_multi_infopanel/play_icon_inactive.png")
         self._hover = False
+        self._active = False
+
+    def set_playback_icon_active(self, status):
+        self._active = status
 
     def enterEvent(self, event):
-        
-        self._hover = True
-        self.setCursor(QtCore.Qt.PointingHandCursor)
-        self.repaint()
+        if self._active:
+            self._hover = True
+            self.setCursor(QtCore.Qt.PointingHandCursor)
+            self.repaint()
         
     def leaveEvent(self, event):
-        
-        self._hover = False
-        self.unsetCursor()
-        self.repaint()
+        if self._active:
+            self._hover = False
+            self.unsetCursor()
+            self.repaint()
 
     def paintEvent(self, event):
         """
@@ -45,22 +49,23 @@ class VersionLabel(QtGui.QLabel):
         # first render the label
         QtGui.QLabel.paintEvent(self, event)
         
-        # now render a pixmap on top
-        painter = QtGui.QPainter()
-        painter.begin(self)
-        try:
-            # set up semi transparent backdrop
-            painter.setRenderHint(QtGui.QPainter.Antialiasing)
-            
-            # draw image
-            painter.translate((painter.device().width() / 2) - (self._play_icon.width()/2), 
-                              (painter.device().height() / 2) - (self._play_icon.height()/2) )
-            
-            if self._hover:
-                painter.drawPixmap( QtCore.QPoint(0, 0), self._play_icon)
-            else:
-                painter.drawPixmap( QtCore.QPoint(0, 0), self._play_icon_inactive)
+        if self._active:
+            # now render a pixmap on top
+            painter = QtGui.QPainter()
+            painter.begin(self)
+            try:
+                # set up semi transparent backdrop
+                painter.setRenderHint(QtGui.QPainter.Antialiasing)
                 
-        finally:
-            painter.end()
+                # draw image
+                painter.translate((painter.device().width() / 2) - (self._play_icon.width()/2), 
+                                  (painter.device().height() / 2) - (self._play_icon.height()/2) )
+                
+                if self._hover:
+                    painter.drawPixmap( QtCore.QPoint(0, 0), self._play_icon)
+                else:
+                    painter.drawPixmap( QtCore.QPoint(0, 0), self._play_icon_inactive)
+                    
+            finally:
+                painter.end()
  

@@ -92,6 +92,10 @@ class ShotgunLocationGeneral(object):
         """
         dialog.focus_entity(self)
     
+    def set_up_thumbnail(self, sg_data, version_label):
+        
+        version_label.set_playback_icon_active(False)
+    
     def render_details(self, sg_data, top_label, middle_label, bottom_label):
         """
         Render details
@@ -228,6 +232,11 @@ class ShotgunVersion(ShotgunLocationGeneral):
         render the UI
         """
         dialog.focus_version(self)
+    
+    def set_up_thumbnail(self, sg_data, version_label):
+        
+        version_label.set_playback_icon_active(True)
+    
     
     def render_details(self, sg_data, top_label, middle_label, bottom_label):
         """

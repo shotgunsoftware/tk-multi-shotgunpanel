@@ -50,16 +50,16 @@ class SgStatusModel(ShotgunModel):
                         
         return None
 
-    def get_pixmap(self, code):
+    def get_icon_resource_url(self, code):
         """
-        Returns the status as a QPixMap
+        Returns the status as a resource
         """
         for idx in range(self.rowCount()):
             item = self.item(idx)
             
             if item.text() == code:
                 icon_name = item.get_sg_data().get("icon.Icon.image_map_key")
-                return QtGui.QPixmap(":/tk_multi_infopanel/%s.png" % icon_name)
+                return ":/tk_multi_infopanel/%s.png" % icon_name
                         
         return None
         

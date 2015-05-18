@@ -146,7 +146,7 @@ class AppDialog(QtGui.QWidget):
         
         (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.version_publish_view)
         self._version_publish_model = model
-        self._version_publish_delegate = delegate        
+        self._version_publish_delegate = delegate  
 
         # kick off
         self._on_home_clicked()
@@ -239,8 +239,9 @@ class AppDialog(QtGui.QWidget):
     ###################################################################################################
     # top detail area callbacks
 
-    def _refresh_details_thumbnail(self):
+    def _refresh_details_thumbnail(self):        
         self.ui.details_thumb.setPixmap(self._details_model.get_pixmap())
+
 
     def _refresh_details(self):
         
@@ -257,6 +258,7 @@ class AppDialog(QtGui.QWidget):
                                   self.ui.details_text_header, 
                                   self.ui.details_text_middle, 
                                   self.ui.details_text_bottom)
+            sg_loc.set_up_thumbnail(sg_data, self.ui.details_thumb)
 
 
     ###################################################################################################
