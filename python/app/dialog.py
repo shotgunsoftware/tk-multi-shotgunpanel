@@ -105,6 +105,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.details_text_header.linkActivated.connect(self._on_link_clicked)
         self.ui.details_text_middle.linkActivated.connect(self._on_link_clicked)
         self.ui.details_text_bottom.linkActivated.connect(self._on_link_clicked)
+        self.ui.details_thumb.playback_clicked.connect(self._on_link_clicked)
 
         
         # entity section
@@ -273,14 +274,19 @@ class AppDialog(QtGui.QWidget):
         self._navigate_to(sg_location)
 
 
-    def _on_link_clicked(self, link):
+    def _on_link_clicked(self, url):
         """
         When someone clicks a url
         """
-        
-        (entity_type, entity_id) = link.split(":")
-        sg_location = create_shotgun_location(entity_type, int(entity_id))
-        self._navigate_to(sg_location)
+        self._app.log_debug("Url clicked: '%s'" % url)
+        if url is None:
+            return
+        if url.startswith("http"):
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+        else:
+            (entity_type, entity_id) = url.split(":")
+            sg_location = create_shotgun_location(entity_type, int(entity_id))
+            self._navigate_to(sg_location)
 
 
         

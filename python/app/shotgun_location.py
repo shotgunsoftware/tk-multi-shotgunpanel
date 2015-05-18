@@ -235,7 +235,15 @@ class ShotgunVersion(ShotgunLocationGeneral):
     
     def set_up_thumbnail(self, sg_data, version_label):
         
-        version_label.set_playback_icon_active(True)
+        if sg_data.get("sg_uploaded_movie"):
+            # there is a web quicktime available!
+            version_label.set_playback_icon_active(True)
+            sg_url = sgtk.platform.current_bundle().shotgun.base_url
+            url = "%s/page/screening_room?entity_type=%s&entity_id=%d" % (sg_url, sg_data["type"], sg_data["id"])                    
+            version_label.set_plackback_url(url)
+        else:
+            version_label.set_playback_icon_active(False)
+        
     
     
     def render_details(self, sg_data, top_label, middle_label, bottom_label):

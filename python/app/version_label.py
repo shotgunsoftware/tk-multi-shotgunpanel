@@ -14,6 +14,8 @@ class VersionLabel(QtGui.QLabel):
     """
     """
     
+    playback_clicked = QtCore.Signal(str)
+    
     def __init__(self, parent):
         """
         Constructor
@@ -23,23 +25,35 @@ class VersionLabel(QtGui.QLabel):
         QtGui.QLabel.__init__(self, parent)
         self._play_icon = QtGui.QPixmap(":/tk_multi_infopanel/play_icon.png")
         self._play_icon_inactive = QtGui.QPixmap(":/tk_multi_infopanel/play_icon_inactive.png")
+        self._playback_url = None
         self._hover = False
         self._active = False
 
     def set_playback_icon_active(self, status):
         self._active = status
+        
+    def set_plackback_url(self, url):
+        self._playback_url = url
 
     def enterEvent(self, event):
+        QtGui.QLabel.enterEvent(self, event)
         if self._active:
             self._hover = True
             self.setCursor(QtCore.Qt.PointingHandCursor)
             self.repaint()
         
     def leaveEvent(self, event):
+        QtGui.QLabel.leaveEvent(self, event)
         if self._active:
             self._hover = False
             self.unsetCursor()
             self.repaint()
+
+    def mousePressEvent(self, event):
+        QtGui.QLabel.mousePressEvent(self, event)
+        if self._active and self._hover:
+            self.playback_clicked.emit(self._playback_url)
+        
 
     def paintEvent(self, event):
         """
