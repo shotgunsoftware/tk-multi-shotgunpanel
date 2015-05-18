@@ -9,6 +9,7 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
+import tank
 import os
 import sys
 import datetime
@@ -46,7 +47,7 @@ def show_dialog(app_instance):
     # in order to handle UIs seamlessly, each toolkit engine has methods for launching
     # different types of windows. By using these methods, your windows will be correctly
     # decorated and handled in a consistent fashion by the system. 
-        
+    
     # we pass the dialog class to this method and leave the actual construction
     # to be carried out by toolkit.
     app_instance.engine.show_dialog("Info Panel", app_instance, AppDialog)
@@ -233,7 +234,7 @@ class AppDialog(QtGui.QWidget):
         publish_filter = [["version", "is", [sg_location.entity_dict]]]
         self._version_publish_model.load_data(publish_filter)
         
-        self._entity_note_model.load_data(sg_location.entity_dict)
+        self._version_note_model.load_data(sg_location.entity_dict)
 
 
 
