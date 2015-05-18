@@ -31,7 +31,7 @@ def create_round_thumbnail(path):
         # scale it down to fit inside a frame of maximum 512x512
         thumb_scaled = thumb.scaled(CANVAS_SIZE, 
                                     CANVAS_SIZE, 
-                                    QtCore.Qt.KeepAspectRatio, 
+                                    QtCore.Qt.KeepAspectRatioByExpanding, 
                                     QtCore.Qt.SmoothTransformation)  
 
         # now composite the thumbnail on top of the base image
@@ -41,7 +41,7 @@ def create_round_thumbnail(path):
         painter = QtGui.QPainter(base_image)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setBrush(brush)
-        painter.drawEllipse(0, 0, thumb_scaled.width(), thumb_scaled.height())             
+        painter.drawEllipse(0, 0, CANVAS_SIZE, CANVAS_SIZE)             
         painter.end()
     
     return base_image
@@ -55,6 +55,8 @@ def create_circular_512x400_thumbnail(path):
 
     CANVAS_WIDTH = 512
     CANVAS_HEIGHT = 400
+    
+    CIRCLE_SIZE = 390
 
     # get the 512 base image
     base_image = QtGui.QPixmap(CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -66,10 +68,10 @@ def create_circular_512x400_thumbnail(path):
     
     if not thumb.isNull():
             
-        # scale it down to fit inside a frame of maximum 512x512
-        thumb_scaled = thumb.scaled(CANVAS_WIDTH, 
-                                    CANVAS_HEIGHT, 
-                                    QtCore.Qt.KeepAspectRatio, 
+        # scale it to fill a 400x400 square
+        thumb_scaled = thumb.scaled(CIRCLE_SIZE, 
+                                    CIRCLE_SIZE, 
+                                    QtCore.Qt.KeepAspectRatioByExpanding, 
                                     QtCore.Qt.SmoothTransformation)  
 
         # now composite the thumbnail on top of the base image
@@ -82,15 +84,15 @@ def create_circular_512x400_thumbnail(path):
         painter.setBrush(brush)
         
         # figure out the offset height wise in order to center the thumb
-        circle_size = min(thumb_scaled.height(), thumb_scaled.width())
+        
         
         # center it
-        inlay_offset_w = (CANVAS_HEIGHT - circle_size)/2
-        inlay_offset_h = (CANVAS_WIDTH - circle_size)/2
+        inlay_offset_h = (CANVAS_HEIGHT - CIRCLE_SIZE)/2
+        inlay_offset_w = (CANVAS_WIDTH - CIRCLE_SIZE)/2
         
         # note how we have to compensate for the corner radius
         painter.translate(inlay_offset_w, inlay_offset_h)
-        painter.drawEllipse(0, 0, circle_size, circle_size) 
+        painter.drawEllipse(0, 0, CIRCLE_SIZE, CIRCLE_SIZE) 
         
         painter.end()
     
