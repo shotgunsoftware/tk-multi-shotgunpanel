@@ -182,7 +182,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/tk_multi_infopanel/loading_512x400.png</pixmap>
+         <pixmap resource="resources.qrc">:/tk_multi_infopanel/rect_512x400.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -233,7 +233,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    <item>
     <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">

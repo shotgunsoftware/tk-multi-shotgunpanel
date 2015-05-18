@@ -36,8 +36,13 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
                                      schema_generation=3)
         
         self._entity_type = None
-        self._default_thumb_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png")
-        self._current_pixmap = self._default_thumb_pixmap
+        self._use_round_icon = False
+        
+        self._default_rect_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/rect_512x400.png")
+        self._default_round_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/round_512x400.png")
+        
+        self._current_pixmap = self._default_rect_pixmap
+            
         self.data_refreshed.connect(self._on_data_refreshed)
 
     def _on_data_refreshed(self):
@@ -57,7 +62,10 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
         can populate the real image.
         """
         # set up publishes with a "thumbnail loading" icon
-        self._current_pixmap = self._default_thumb_pixmap
+        if self._use_round_icon:
+            self._current_pixmap = self._default_round_pixmap
+        else:
+            self._current_pixmap = self._default_rect_pixmap
         self.thumbnail_updated.emit()
 
     def _populate_thumbnail(self, item, field, path):
@@ -88,20 +96,24 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.
             return
-        
-        self._current_pixmap = utils.create_overlayed_publish_thumbnail(path)
+        if self._use_round_icon:
+            self._current_pixmap = utils.create_circular_512x400_thumbnail(path)
+        else:
+            self._current_pixmap = utils.create_rectangular_512x400_thumbnail(path)
+            
         self.thumbnail_updated.emit()
 
     ############################################################################################
     # public interface
 
 
-    def load_data(self, entity_type, entity_id, fields):
+    def load_data(self, entity_type, entity_id, fields, round_icon):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
         """        
         self._entity_type = entity_type
+        self._use_round_icon = round_icon
         hierarchy = [fields[0]]
         loaded_cache = ShotgunOverlayModel._load_data(self, 
                                                       entity_type, 

@@ -3,7 +3,8 @@
     <file>play_icon.png</file>
     <file>play_icon_inactive.png</file>
     <file>down_arrow.png</file>
-    <file>loading_512x400.png</file>
+    <file>rect_512x400.png</file>
+    <file>round_512x400.png</file>
     <file>status_icons/icon_arrow_right2.png</file>
     <file>search_active.png</file>
     <file>search.png</file>

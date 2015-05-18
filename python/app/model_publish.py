@@ -28,7 +28,7 @@ class SgPublishModel(ShotgunOverlayModel):
         """
         Model which represents the latest publishes for an entity
         """
-        self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png")
+        self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/rect_512x400.png")
 
         # init base class
         ShotgunOverlayModel.__init__(self,
@@ -104,5 +104,5 @@ class SgPublishModel(ShotgunOverlayModel):
             # ignore and not display.
             return
         
-        icon = utils.create_overlayed_publish_thumbnail(path)
+        icon = utils.create_rectangular_512x400_thumbnail(path)
         item.setIcon(QtGui.QIcon(icon))

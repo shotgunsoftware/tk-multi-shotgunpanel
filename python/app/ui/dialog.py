@@ -106,7 +106,7 @@ class Ui_Dialog(object):
         self.details_thumb.setMinimumSize(QtCore.QSize(192, 150))
         self.details_thumb.setMaximumSize(QtCore.QSize(192, 150))
         self.details_thumb.setText("")
-        self.details_thumb.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png"))
+        self.details_thumb.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel/rect_512x400.png"))
         self.details_thumb.setScaledContents(True)
         self.details_thumb.setObjectName("details_thumb")
         self.gridLayout.addWidget(self.details_thumb, 2, 0, 1, 1)
@@ -318,7 +318,7 @@ class Ui_Dialog(object):
         self.verticalLayout_7.addWidget(self.page_stack)
 
         self.retranslateUi(Dialog)
-        self.page_stack.setCurrentIndex(2)
+        self.page_stack.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_3.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(0)

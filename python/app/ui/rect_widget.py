@@ -28,7 +28,7 @@ class Ui_RectWidget(object):
         self.thumbnail.setMinimumSize(QtCore.QSize(96, 75))
         self.thumbnail.setMaximumSize(QtCore.QSize(96, 75))
         self.thumbnail.setText("")
-        self.thumbnail.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png"))
+        self.thumbnail.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel/rect_512x400.png"))
         self.thumbnail.setScaledContents(True)
         self.thumbnail.setAlignment(QtCore.Qt.AlignCenter)
         self.thumbnail.setObjectName("thumbnail")

@@ -23,6 +23,9 @@ def create_shotgun_location(entity_type, entity_id):
     if entity_type == "Shot":
         return ShotgunShot(entity_type, entity_id)
     
+    elif entity_type == "HumanUser":
+        return ShotgunUser(entity_type, entity_id)
+    
     elif entity_type == "Asset":
         return ShotgunAsset(entity_type, entity_id)
     
@@ -50,7 +53,11 @@ class ShotgunLocation(object):
         """
         self._entity_type = entity_type
         self._entity_id = entity_id
-        
+    
+    @property
+    def use_round_icon(self):
+        return False
+    
     @property
     def entity_type(self):
         return self._entity_type
@@ -240,6 +247,36 @@ class ShotgunVersion(ShotgunLocation):
 
 
 
+
+class ShotgunUser(ShotgunLocationGeneral):
+    
+    def __init__(self, entity_type, entity_id):
+        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
+        
+    @property
+    def use_round_icon(self):
+        return True
+        
+    def get_fields(self):
+        fields = ["name",
+                  "email",
+                  "login", 
+                  "department", 
+                  "sg_status_list",
+                  "image"]
+        return fields
+
+    def render_details(self, sg_data, top_label, middle_label, bottom_label):
+        """
+        Render details
+        """
+        name = sg_data.get("name") or "Unnamed"
+        title = "User %s" % (name)
+        top_label.setText(title)
+
+        middle = ""
+        
+    
 
 
 

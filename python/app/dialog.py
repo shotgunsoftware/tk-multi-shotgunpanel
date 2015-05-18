@@ -84,10 +84,7 @@ class AppDialog(QtGui.QWidget):
         # track the history
         self._history_items = []
         self._history_index = 0
-        
-        
-        self._default_thumb = QtGui.QPixmap(":/tk_multi_infopanel/loading_512x400.png")
-        
+                
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
@@ -181,7 +178,8 @@ class AppDialog(QtGui.QWidget):
         # detail area info
         self._details_model.load_data(sg_location.entity_type, 
                                      sg_location.entity_id, 
-                                     sg_location.get_fields())
+                                     sg_location.get_fields(),
+                                     sg_location.use_round_icon)
         
         # load data for tabs
         self._entity_note_model.load_data(sg_location.entity_dict)
@@ -200,7 +198,8 @@ class AppDialog(QtGui.QWidget):
         # main info
         self._details_model.load_data(sg_location.entity_type, 
                                      sg_location.entity_id, 
-                                     sg_location.get_fields())
+                                     sg_location.get_fields(),
+                                     sg_location.use_round_icon)
         
         # load data for tabs
         
@@ -226,7 +225,8 @@ class AppDialog(QtGui.QWidget):
         # main info
         self._details_model.load_data(sg_location.entity_type, 
                                      sg_location.entity_id, 
-                                     sg_location.get_fields())        
+                                     sg_location.get_fields(),
+                                     sg_location.use_round_icon)        
         
         # load data for tabs
         publish_filter = [["version", "is", [sg_location.entity_dict]]]
