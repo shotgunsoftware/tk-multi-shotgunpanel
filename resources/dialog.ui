@@ -225,6 +225,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
         <property name="text">
          <string>Bottom Text</string>
         </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>

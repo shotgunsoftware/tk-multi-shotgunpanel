@@ -126,6 +126,7 @@ class Ui_Dialog(object):
         self.details_text_middle.setObjectName("details_text_middle")
         self.gridLayout.addWidget(self.details_text_middle, 2, 1, 1, 2)
         self.details_text_bottom = QtGui.QLabel(self.details)
+        self.details_text_bottom.setWordWrap(True)
         self.details_text_bottom.setObjectName("details_text_bottom")
         self.gridLayout.addWidget(self.details_text_bottom, 3, 0, 1, 3)
         self.verticalLayout_7.addWidget(self.details)
