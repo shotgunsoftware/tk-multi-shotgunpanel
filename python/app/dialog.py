@@ -283,10 +283,23 @@ class AppDialog(QtGui.QWidget):
             return
         if url.startswith("http"):
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+            
         else:
             (entity_type, entity_id) = url.split(":")
-            sg_location = create_shotgun_location(entity_type, int(entity_id))
-            self._navigate_to(sg_location)
+            entity_id = int(entity_id)
+            
+            if entity_type == "Playlist":
+                
+                sg_url = sgtk.platform.current_bundle().shotgun.base_url
+                proj_id = self._app.context.project["id"]
+                url = "%s/page/media_center?project_id=%d&entity_type=Playlist&entity_id=%d" % (sg_url, 
+                                                                                                proj_id, 
+                                                                                                entity_id)
+                QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+                                    
+            else:
+                sg_location = create_shotgun_location(entity_type, entity_id)
+                self._navigate_to(sg_location)
 
 
         

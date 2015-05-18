@@ -213,7 +213,8 @@ class ShotgunVersion(ShotgunLocationGeneral):
                   "project",
                   "sg_department", 
                   "description", 
-                  "open_notes_count", 
+                  "open_notes_count",
+                  "playlists", 
                   "sg_uploaded_movie",
                   "sg_uploaded_movie",
                   "sg_path_to_frames",
@@ -274,6 +275,9 @@ class ShotgunVersion(ShotgunLocationGeneral):
         middle += "<br>Associated with: %s" % utils.generate_link(sg_data["entity"])
         middle += "<br>Department: %s" % (sg_data.get("sg_department") or "Not set")
         middle += "<br>Task: %s" % utils.generate_link(sg_data["sg_task"])
+        playlist_urls = [ utils.generate_link(x) for x in sg_data["playlists"]]
+        middle += "<br>In playlists: %s" % ", ".join(playlist_urls)        
+ 
          
         middle_label.setText(middle)
 
