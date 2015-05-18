@@ -23,9 +23,12 @@ def create_shotgun_location(entity_type, entity_id):
     if entity_type == "Shot":
         return ShotgunShot(entity_type, entity_id)
     
-    elif entity_type == "HumanUser":
+    elif entity_type in ["HumanUser", "ClientUser", "ApiUser"]:
         return ShotgunUser(entity_type, entity_id)
     
+    elif entity_type == "Task":
+        return ShotgunTask(entity_type, entity_id)
+
     elif entity_type == "Asset":
         return ShotgunAsset(entity_type, entity_id)
     
@@ -45,7 +48,7 @@ def create_shotgun_location(entity_type, entity_id):
 
 
 
-class ShotgunLocation(object):
+class ShotgunLocationGeneral(object):
     """
     An item representing an item in the history stack
     """
@@ -73,22 +76,6 @@ class ShotgunLocation(object):
     def entity_dict(self):
         return {"type": self._entity_type, "id": self._entity_id}
 
-    def get_fields(self):
-        raise NotImplementedError
-
-    def set_up_ui(self, dialog):
-        raise NotImplementedError
-    
-    def render_details(self, sg_data, top_label, middle_label, bottom_label):
-        raise NotImplementedError
-    
-
-
-class ShotgunLocationGeneral(ShotgunLocation):
-    
-    def __init__(self, entity_type, entity_id):
-        ShotgunLocation.__init__(self, entity_type, entity_id)
-        
     def get_fields(self):        
         fields = ["code", 
                   "project",
@@ -113,6 +100,8 @@ class ShotgunLocationGeneral(ShotgunLocation):
         title = "%s %s" % (sg_data.get("type"), name)
         top_label.setText(title)
         bottom_label.setText(sg_data.get("description") or "No Description")
+    
+
     
     
 class ShotgunShot(ShotgunLocationGeneral):
@@ -162,13 +151,14 @@ class ShotgunAsset(ShotgunLocationGeneral):
 
     
     
-class ShotgunPublish(ShotgunLocation):
+class ShotgunPublish(ShotgunLocationGeneral):
     
     def __init__(self, entity_type, entity_id):
-        ShotgunLocation.__init__(self, entity_type, entity_id)
+        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
         
     def get_fields(self):
         fields = ["code", 
+                  "project",
                   "version_number", 
                   "description", 
                   "published_file_type", 
@@ -206,13 +196,14 @@ class ShotgunPublish(ShotgunLocation):
     
 
 
-class ShotgunVersion(ShotgunLocation):
+class ShotgunVersion(ShotgunLocationGeneral):
     
     def __init__(self, entity_type, entity_id):
-        ShotgunLocation.__init__(self, entity_type, entity_id)
+        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
         
     def get_fields(self):
         fields = ["code", 
+                  "project",
                   "sg_department", 
                   "description", 
                   "open_notes_count", 
@@ -257,7 +248,8 @@ class ShotgunVersion(ShotgunLocation):
         
         bottom_label.setText(bottom_str)
     
-        middle = "Status: %s" % sg_data.get("sg_status_list")
+        middle = "Project: %s" % utils.generate_link(sg_data["project"])
+        middle += "<br>Status: %s" % sg_data.get("sg_status_list")
         middle += "<br>Frame Range: %s" % (sg_data.get("frame_range") or "Not set")
         middle += "<br>Associated with: %s" % utils.generate_link(sg_data["entity"])
         middle += "<br>Department: %s" % (sg_data.get("sg_department") or "Not set")
@@ -279,8 +271,7 @@ class ShotgunUser(ShotgunLocationGeneral):
         
     def get_fields(self):
         fields = ["name",
-                  "email",
-                  "login", 
+                  "email", 
                   "department", 
                   "image"]
         return fields
@@ -335,6 +326,45 @@ class ShotgunProject(ShotgunLocationGeneral):
         
     
 
+class ShotgunTask(ShotgunLocationGeneral):
+    
+    def __init__(self, entity_type, entity_id):
+        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
+        
+    @property
+    def use_round_icon(self):
+        return True
+        
+    def get_fields(self):
+        fields = ["task_assignees",
+                  "project",
+                  "start_date",
+                  "due_date",
+                  "duration",
+                  "step", 
+                  "content", 
+                  "entity"]
+        return fields
+
+    def render_details(self, sg_data, top_label, middle_label, bottom_label):
+        """
+        Render details
+        """
+        name = sg_data.get("content") or "Unnamed"
+        title = "Task %s" % (name)
+        top_label.setText(title)
+
+        middle = "Project: %s" % utils.generate_link(sg_data["project"])
+        middle += "<br>Status: %s" % sg_data.get("sg_status_list")
+        middle += "<br>Start Date: %s" % (sg_data.get("start_date") or "Not set")
+        middle += "<br>Due Date: %s" % (sg_data.get("due_date") or "Not set")
+        middle += "<br>Associated with: %s" % utils.generate_link(sg_data["entity"])
+        middle += "<br>Pipeline Step: %s" % ((sg_data.get("step") or {}).get("name") or "Not set")
+        
+        assignee_urls = [ utils.generate_link(x) for x in sg_data["task_assignees"]]
+        middle += "<br>Assigned to: %s" % ", ".join(assignee_urls)        
+         
+        middle_label.setText(middle)
 
 
 

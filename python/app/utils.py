@@ -82,16 +82,15 @@ def create_circular_512x400_thumbnail(path):
         painter.setBrush(brush)
         
         # figure out the offset height wise in order to center the thumb
-        height_difference = CANVAS_HEIGHT - thumb_scaled.height()
-        width_difference = CANVAS_WIDTH - thumb_scaled.width()
+        circle_size = min(thumb_scaled.height(), thumb_scaled.width())
         
         # center it
-        inlay_offset_w = width_difference/2
-        inlay_offset_h = height_difference/2
+        inlay_offset_w = (CANVAS_HEIGHT - circle_size)/2
+        inlay_offset_h = (CANVAS_WIDTH - circle_size)/2
         
         # note how we have to compensate for the corner radius
         painter.translate(inlay_offset_w, inlay_offset_h)
-        painter.drawEllipse(0, 0, thumb_scaled.width(), thumb_scaled.height()) 
+        painter.drawEllipse(0, 0, circle_size, circle_size) 
         
         painter.end()
     
