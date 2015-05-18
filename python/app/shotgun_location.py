@@ -110,7 +110,7 @@ class ShotgunShot(ShotgunLocationGeneral):
         ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
             
     def get_fields(self):        
-        fields = ["sg_sequence"]
+        fields = ["sg_sequence", "sg_cut_in", "sg_cut_out", "sg_cut_duration"]
         fields += ShotgunLocationGeneral.get_fields(self)
         return fields
     
@@ -123,6 +123,9 @@ class ShotgunShot(ShotgunLocationGeneral):
         middle = "Project: %s" % utils.generate_link(sg_data["project"])
         middle += "<br>Sequence: %s" % utils.generate_link(sg_data["sg_sequence"])
         middle += "<br>Status: %s" % sg_data["sg_status_list"] 
+        middle += "<br>Cut in: %s" % (sg_data.get("sg_cut_in") or "Not set")
+        middle += "<br>Cut out: %s" % (sg_data.get("sg_cut_out") or "Not set")
+        middle += "<br>Cut duration: %s" % (sg_data.get("sg_cut_duration") or "Not set")  
         middle_label.setText(middle)
     
 
