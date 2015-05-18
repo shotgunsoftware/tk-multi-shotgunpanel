@@ -170,7 +170,10 @@ class ShotgunPublish(ShotgunLocationGeneral):
                   "description", 
                   "published_file_type", 
                   "image",
+                  "entity",
+                  "task",
                   "name", 
+                  "version",
                   "created_by",
                   "created_at"]
         return fields
@@ -199,6 +202,17 @@ class ShotgunPublish(ShotgunLocationGeneral):
         bottom_str += "<br><br><i><b>Comments:</b> %s</i>" % (sg_data.get("description") or "No comments entered.")
         
         bottom_label.setText(bottom_str)
+    
+        middle = "Project: %s" % utils.generate_link(sg_data["project"])
+        middle += "<br>Associated with: %s" % utils.generate_link(sg_data["entity"])
+        middle += "<br>Task: %s" % utils.generate_link(sg_data["task"])
+        middle += "<br>Reviewed in: %s" % utils.generate_link(sg_data["version"])
+        middle += "<br>Version Number: %s" % (sg_data.get("version_number") or "Not set")
+        middle += "<br>File Type: %s" % ((sg_data.get("published_file_type") or {}).get("name") or "Not set")
+        
+ 
+         
+        middle_label.setText(middle)
     
     
 
