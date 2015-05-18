@@ -216,6 +216,12 @@ class ShotgunVersion(ShotgunLocation):
                   "sg_department", 
                   "description", 
                   "open_notes_count", 
+                  "sg_uploaded_movie",
+                  "sg_uploaded_movie",
+                  "sg_path_to_frames",
+                  "entity",
+                  "frame_range",
+                  "sg_task",
                   "sg_status_list",
                   "image",
                   "artist",
@@ -251,6 +257,13 @@ class ShotgunVersion(ShotgunLocation):
         
         bottom_label.setText(bottom_str)
     
+        middle = "Status: %s" % sg_data.get("sg_status_list")
+        middle += "<br>Frame Range: %s" % (sg_data.get("frame_range") or "Not set")
+        middle += "<br>Associated with: %s" % utils.generate_link(sg_data["entity"])
+        middle += "<br>Department: %s" % (sg_data.get("sg_department") or "Not set")
+        middle += "<br>Task: %s" % utils.generate_link(sg_data["sg_task"])
+         
+        middle_label.setText(middle)
 
 
 
