@@ -37,7 +37,8 @@ function build_res {
 # build UI's:
 echo "building user interfaces..."
 build_ui dialog
-# add any additional .ui files you want converted here!
+build_ui round_widget
+build_ui rect_widget
 
 # build resources
 echo "building resources..."
