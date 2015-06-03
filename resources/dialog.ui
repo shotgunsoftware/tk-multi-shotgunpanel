@@ -243,7 +243,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        <item>
         <widget class="QTabWidget" name="entity_tab_widget">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="entity_note_tab">
           <attribute name="title">
@@ -404,17 +404,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
-            <widget class="QListView" name="entity_info_view">
-             <property name="verticalScrollMode">
-              <enum>QAbstractItemView::ScrollPerPixel</enum>
-             </property>
-             <property name="horizontalScrollMode">
-              <enum>QAbstractItemView::ScrollPerPixel</enum>
-             </property>
-             <property name="uniformItemSizes">
-              <bool>true</bool>
-             </property>
-            </widget>
+            <widget class="QTableView" name="entity_info_view"/>
            </item>
           </layout>
          </widget>
