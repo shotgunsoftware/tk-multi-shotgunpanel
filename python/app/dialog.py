@@ -170,7 +170,7 @@ class AppDialog(QtGui.QWidget):
         self._entity_task_delegate = delegate
         
         self._entity_details_model = SgEntityDetailsModel(self.ui.entity_info_view)        
-        self.ui.entity_info_view.setModel(self._entity_details_model)
+        self.ui.entity_info_view.setModel(self._entity_details_model.get_table_model())
 
 
         # publish details

@@ -53,6 +53,15 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
         self.__sg_data_retriever.start()
 
+        # create the coupled model
+        self._table_model = QtGui.QStandardItemModel(parent) 
+        
+    def get_table_model(self):
+        """
+        Returns the embedded table model
+        """
+        return self._table_model
+        
 
     def destroy(self):
         """
@@ -116,6 +125,7 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
         """        
+        self._table_model.clear()
         self._curr_entity_dict = sg_entity_dict
         self.__sg_data_retriever.clear()
         
@@ -151,3 +161,38 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
                                        hierarchy, 
                                        curr_entity_fields)
         self._refresh_data()
+
+
+    def _finalize_item(self, item):
+        """
+        Called whenever an item is fully constructed, either because a shotgun query returned it
+        or because it was loaded as part of a cache load from disk.
+
+        :param item: QStandardItem that is about to be added to the model. This has been primed
+                     with the standard settings that the ShotgunModel handles.
+        """
+        sg_data = item.get_sg_data()
+        
+        curr_entity_schema = self._sg_schema.get(self._curr_entity_dict["type"])
+        
+        # populate our table model based on this data
+        for field_name in sorted(sg_data.keys()):
+            
+            # get the display name
+            field_data = curr_entity_schema.get(field_name)
+            
+            if field_data:
+                display_name = field_data["name"]["value"]
+            else:
+                # something missing from metaschema. Go with default
+                display_name = field_name
+            
+            display_name_item = QtGui.QStandardItem(display_name)
+            
+            value = "%s" % sg_data[field_name]
+            display_name_value = QtGui.QStandardItem(value)
+            
+            self._table_model.appendRow([display_name_item, display_name_value])
+            
+            
+        
