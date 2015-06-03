@@ -22,6 +22,8 @@ from .ui.dialog import Ui_Dialog
 
 from . import utils
 
+from .shotgun_location import ShotgunLocation
+
 from .shotgun_location import create_shotgun_location
 
 from .delegate_task import TaskDelegate
@@ -35,10 +37,12 @@ from .model_reply import SgReplyModel
 from .model_task import SgTaskModel
 from .model_version import SgVersionModel
 from .model_publish import SgPublishModel
+from .model_publish_history import SgPublishHistoryModel
 from .model_current_entity import SgCurrentEntityModel
 
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
+settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings")
 
 def show_dialog(app_instance):
     """
@@ -64,6 +68,21 @@ class AppDialog(QtGui.QWidget):
     PUBLISH_PAGE_IDX = 1
     VERSION_PAGE_IDX = 2
     
+    # tab indices
+    ENTITY_TAB_NOTES = 0
+    ENTITY_TAB_VERSIONS = 1
+    ENTITY_TAB_PUBLISHES = 2
+    ENTITY_TAB_TASKS = 3
+    ENTITY_TAB_INFO = 4
+    
+    PUBLISH_TAB_HISTORY = 0
+    PUBLISH_TAB_CONTAINS = 1
+    PUBLISH_TAB_USED_IN = 2
+    
+    VERSION_TAB_NOTES = 0 
+    VERSION_TAB_PUBLISHES = 1
+    
+    
     @property
     def hide_tk_title_bar(self):
         """
@@ -82,19 +101,38 @@ class AppDialog(QtGui.QWidget):
         self.ui = Ui_Dialog() 
         self.ui.setupUi(self)
         
+        # our current object we are currently displaying
+        self._current_location = None
+        
         # track the history
         self._history_items = []
         self._history_index = 0
                 
+                
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
+
+        # create a settings manager where we can pull and push prefs later
+        # prefs in this manager are shared
+        self._settings_manager = settings.UserSettings(self._app)
+        
+        # set previously stored value for "show latest"
+        latest_pubs_only = self._settings_manager.retrieve("latest_publishes_only", True)
+        self.ui.latest_publishes_only.setChecked(latest_pubs_only)
         
         # navigation
         self.ui.navigation_home.clicked.connect(self._on_home_clicked)
         self.ui.navigation_next.clicked.connect(self._on_next_clicked)
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
 
+        # latest publishes only
+        self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
+        
+        # tabs
+        self.ui.entity_tab_widget.currentChanged.connect(self._load_entity_tab_data)
+        self.ui.version_tab_widget.currentChanged.connect(self._load_version_tab_data)
+        self.ui.publish_tab_widget.currentChanged.connect(self._load_publish_tab_data)
         
         # top detail section
         self._details_model = SgCurrentEntityModel(self.ui.details)
@@ -128,7 +166,7 @@ class AppDialog(QtGui.QWidget):
 
 
         # publish details
-        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.publish_history_view)
+        (model, delegate) = self._make_model(SgPublishHistoryModel, PublishDelegate, self.ui.publish_history_view)
         self._publish_history_model = model
         self._publish_history_delegate = delegate
         
@@ -169,12 +207,27 @@ class AppDialog(QtGui.QWidget):
 
     ##################################################################################################
     # load data and set up UI for a particular state
-
+    def setup_ui(self):
+        """
+        sets up the UI for the current location
+        """
+        if self._current_location.get_family() == ShotgunLocation.ENTITY_FAMILY:
+            self.focus_entity(self._current_location)
+        
+        elif self._current_location.get_family() == ShotgunLocation.VERSION_FAMILY:
+            self.focus_version(self._current_location)
+            
+        elif self._current_location.get_family() == ShotgunLocation.PUBLISH_FAMILY:
+            self.focus_publish(self._current_location)
+        
+        else:
+            self._app.log_error("Cannot set up UI for unknown item family!")
 
     def focus_entity(self, sg_location):
         """
         Move UI to entity mode. Load up tabs.
         """
+        # set the right widget to show
         self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)        
         
         # detail area info
@@ -183,13 +236,10 @@ class AppDialog(QtGui.QWidget):
                                      sg_location.get_fields(),
                                      sg_location.use_round_icon)
         
-        # load data for tabs
-        self._entity_note_model.load_data(sg_location.entity_dict)
-        self._entity_version_model.load_data(sg_location.entity_dict)
-        self._entity_task_model.load_data(sg_location.entity_dict)
-        publish_filter = [["entity", "is", sg_location.entity_dict]]
-        self._entity_publish_model.load_data(publish_filter)
-        
+        # reset to the default tab
+        self.ui.entity_tab_widget.setCurrentIndex(self.ENTITY_TAB_NOTES)
+        self._load_entity_tab_data(self.ENTITY_TAB_NOTES)
+
 
     def focus_publish(self, sg_location):
         """
@@ -203,18 +253,9 @@ class AppDialog(QtGui.QWidget):
                                      sg_location.get_fields(),
                                      sg_location.use_round_icon)
         
-        # load data for tabs
-        
-        # TODO: FIX!
-        publish_filter = [["entity", "is", sg_location.entity_dict]]
-        self._publish_history_model.load_data(publish_filter)
-        
-        publish_filter = [["downstream_published_files", "in", [sg_location.entity_dict]]]
-        self._publish_upstream_model.load_data(publish_filter)
-        
-        publish_filter = [["upstream_published_files", "in", [sg_location.entity_dict]]]
-        self._publish_downstream_model.load_data(publish_filter)
-        
+        # reset to the default tab
+        self.ui.publish_tab_widget.setCurrentIndex(self.PUBLISH_TAB_HISTORY)
+        self._load_publish_tab_data(self.PUBLISH_TAB_HISTORY)
         
 
 
@@ -230,11 +271,95 @@ class AppDialog(QtGui.QWidget):
                                      sg_location.get_fields(),
                                      sg_location.use_round_icon)        
         
-        # load data for tabs
-        publish_filter = [["version", "is", [sg_location.entity_dict]]]
-        self._version_publish_model.load_data(publish_filter)
+        # reset to the default tab
+        self.ui.version_tab_widget.setCurrentIndex(self.VERSION_TAB_NOTES)
+        self._load_version_tab_data(self.VERSION_TAB_NOTES)
         
-        self._version_note_model.load_data(sg_location.entity_dict)
+
+    ###################################################################################################
+    # tab callbacks
+
+    def _on_latest_publishes_toggled(self, checked):
+        """
+        Executed when the latest publishes checkbox is toggled
+        """
+        # store setting
+        self._settings_manager.store("latest_publishes_only", checked)
+        
+        # refresh the publishes tab
+        self._load_entity_tab_data(self.ui.entity_tab_widget.currentIndex())
+
+    def _load_entity_tab_data(self, index):
+        """
+        Loads the data for one of the UI tabs in the entity family
+        """
+        
+        self._app.log_debug("Entity tab clicked - index: %s" % index)
+
+        curr_entity_dict = self._current_location.entity_dict
+
+        if index == self.ENTITY_TAB_NOTES:        
+            self._entity_note_model.load_data(curr_entity_dict)
+            
+        elif index == self.ENTITY_TAB_VERSIONS:
+            self._entity_version_model.load_data(curr_entity_dict)
+        
+        elif index == self.ENTITY_TAB_PUBLISHES:
+            publish_filter = [["entity", "is", curr_entity_dict]]
+            show_latest_only = self.ui.latest_publishes_only.isChecked()
+            self._entity_publish_model.load_data(publish_filter, show_latest_only)
+            
+        elif index == self.ENTITY_TAB_TASKS:
+            self._entity_task_model.load_data(curr_entity_dict)
+        
+        elif index == self.ENTITY_TAB_INFO:
+            pass
+        
+        else:
+            self._app.log_error("Cannot load data for unknown entity tab.")
+        
+        
+    def _load_version_tab_data(self, index):
+        """
+        Load the data for one of the tabs in the version family
+        """
+        self._app.log_debug("Version tab clicked - index: %s" % index)
+
+        curr_entity_dict = self._current_location.entity_dict
+
+        if index == self.VERSION_TAB_NOTES:
+            publish_filter = [["version", "is", [curr_entity_dict]]]
+            self._version_publish_model.load_data(publish_filter, show_latest_only=False)
+
+        elif index == self.VERSION_TAB_PUBLISHES:        
+            self._version_note_model.load_data(curr_entity_dict)
+            
+        else:
+            self._app.log_error("Cannot load data for unknown version tab.")
+    
+    
+    def _load_publish_tab_data(self, index):
+        """
+        Load the data for one of the tabs in the publish family.
+        """
+        self._app.log_debug("Publish tab clicked - index: %s" % index)
+        
+        curr_entity_dict = self._current_location.entity_dict
+        
+        if index == self.PUBLISH_TAB_HISTORY:
+            self._publish_history_model.load_data(curr_entity_dict)
+
+        elif index == self.PUBLISH_TAB_CONTAINS:        
+            publish_filter = [["downstream_published_files", "in", [curr_entity_dict]]]
+            self._publish_upstream_model.load_data(publish_filter, show_latest_only=False)
+        
+        elif index == self.PUBLISH_TAB_USED_IN:
+            publish_filter = [["upstream_published_files", "in", [curr_entity_dict]]]
+            self._publish_downstream_model.load_data(publish_filter, show_latest_only=False)
+        
+        else:
+            self._app.log_error("Cannot load data for unknown publish tab.")
+        
 
 
 
@@ -318,7 +443,12 @@ class AppDialog(QtGui.QWidget):
         self._history_index += 1
         self._history_items.append(shotgun_location)
         self._compute_history_button_visibility()
-        shotgun_location.set_up_ui(self)
+        
+        # set the current location
+        self._current_location = shotgun_location 
+        
+        # and set up the UI for this new location
+        self.setup_ui()
     
     def _compute_history_button_visibility(self):
         """
@@ -351,9 +481,12 @@ class AppDialog(QtGui.QWidget):
         """
         self._history_index += 1
         # get the data for this guy (note: index are one based)
-        sg_location = self._history_items[self._history_index-1]
+        self._current_location = self._history_items[self._history_index-1]
         self._compute_history_button_visibility()
-        sg_location.set_up_ui(self)
+
+        # and set up the UI for this new location
+        self.setup_ui()
+
         
     def _on_prev_clicked(self):
         """
@@ -361,8 +494,10 @@ class AppDialog(QtGui.QWidget):
         """
         self._history_index += -1
         # get the data for this guy (note: index are one based)
-        sg_location = self._history_items[self._history_index-1]
+        self._current_location = self._history_items[self._history_index-1]
         self._compute_history_button_visibility()
-        sg_location.set_up_ui(self)
+
+        # and set up the UI for this new location
+        self.setup_ui()
         
 

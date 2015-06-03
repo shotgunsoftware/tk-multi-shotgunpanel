@@ -19,6 +19,8 @@ from sgtk.platform.qt import QtCore, QtGui
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun_view")
 
+from .model_publish_history import SgPublishHistoryModel
+
 from .widget_rect import RectWidget
 
 class PublishDelegate(shotgun_view.WidgetDelegate):
@@ -74,6 +76,7 @@ class PublishDelegate(shotgun_view.WidgetDelegate):
             thumb = icon.pixmap(512)
             widget.set_thumbnail(thumb)
         
+        
         sg_item = shotgun_model.get_sg_data(model_index)
 
         created_unixtime = sg_item.get("created_at")
@@ -85,9 +88,20 @@ class PublishDelegate(shotgun_view.WidgetDelegate):
         file_type = (sg_item.get("published_file_type") or {}).get("name") or "Undefined type"
         content = "By %s %s<br>%s<br><i>%s</i>" % (user_name, human_str, file_type, description)
 
+        
+
         pub_name = sg_item.get("name") or "Untitled Version"
         version_str = "v%03d" % (sg_item.get("version") or 0)
         title = "<b>%s %s</b>" % (pub_name, version_str) 
+
+        # see if the model tracks a concept of a current version.
+        # this is used for version histories, when we want to highlight 
+        # a particular item in a history
+        model_curr_ver = model_index.model().get_current_version()
+        if model_curr_ver and sg_item.get("version_number") == model_curr_ver:
+            widget.set_highlighted(True)
+        else:
+            widget.set_highlighted(False)
 
         widget.set_text(title, content)
         

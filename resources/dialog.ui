@@ -241,9 +241,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QTabWidget" name="tabWidget">
+        <widget class="QTabWidget" name="entity_tab_widget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="entity_note_tab">
           <attribute name="title">
@@ -367,7 +367,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBox">
+            <widget class="QCheckBox" name="latest_publishes_only">
              <property name="text">
               <string>Only show latest versions</string>
              </property>
@@ -425,7 +425,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
      <widget class="QWidget" name="publish_page">
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <widget class="QTabWidget" name="tabWidget_3">
+        <widget class="QTabWidget" name="publish_tab_widget">
          <property name="currentIndex">
           <number>0</number>
          </property>
@@ -496,7 +496,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
      <widget class="QWidget" name="version_page">
       <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
-        <widget class="QTabWidget" name="tabWidget_2">
+        <widget class="QTabWidget" name="version_tab_widget">
          <property name="currentIndex">
           <number>0</number>
          </property>

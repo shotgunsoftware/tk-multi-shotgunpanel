@@ -42,16 +42,21 @@ def create_shotgun_location(entity_type, entity_id):
         return ShotgunVersion(entity_type, entity_id)
 
     else:
-        return ShotgunLocationGeneral(entity_type, entity_id)
+        return ShotgunLocation(entity_type, entity_id)
 
 
 
 
 
-class ShotgunLocationGeneral(object):
+class ShotgunLocation(object):
     """
     An item representing an item in the history stack
     """
+    
+    # define the various families of items that the location
+    # supports. These corresponds to the different layouts
+    # in the UI
+    (PUBLISH_FAMILY, VERSION_FAMILY, ENTITY_FAMILY) = range(3)
     
     def __init__(self, entity_type, entity_id):
         """
@@ -86,12 +91,12 @@ class ShotgunLocationGeneral(object):
                   "image"]
         return fields
 
-    def set_up_ui(self, dialog):
+    def get_family(self):
         """
-        render the UI
+        Returns the family that this item belongs to
         """
-        dialog.focus_entity(self)
-    
+        return self.ENTITY_FAMILY
+
     def set_up_thumbnail(self, sg_data, version_label):
         
         version_label.set_playback_icon_active(False)
@@ -108,21 +113,21 @@ class ShotgunLocationGeneral(object):
 
     
     
-class ShotgunShot(ShotgunLocationGeneral):
+class ShotgunShot(ShotgunLocation):
     
     def __init__(self, entity_type, entity_id):
-        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
+        ShotgunLocation.__init__(self, entity_type, entity_id)
             
     def get_fields(self):        
         fields = ["sg_sequence", "sg_cut_in", "sg_cut_out", "sg_cut_duration"]
-        fields += ShotgunLocationGeneral.get_fields(self)
+        fields += ShotgunLocation.get_fields(self)
         return fields
     
     def render_details(self, sg_data, top_label, middle_label, bottom_label):
         """
         Render details
         """
-        ShotgunLocationGeneral.render_details(self, sg_data, top_label, middle_label, bottom_label)
+        ShotgunLocation.render_details(self, sg_data, top_label, middle_label, bottom_label)
                 
         middle = "Project: %s" % utils.generate_link(sg_data["project"])
         middle += "<br>Sequence: %s" % utils.generate_link(sg_data["sg_sequence"])
@@ -133,21 +138,21 @@ class ShotgunShot(ShotgunLocationGeneral):
         middle_label.setText(middle)
     
 
-class ShotgunAsset(ShotgunLocationGeneral):
+class ShotgunAsset(ShotgunLocation):
     
     def __init__(self, entity_type, entity_id):
-        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
+        ShotgunLocation.__init__(self, entity_type, entity_id)
             
     def get_fields(self):        
         fields = ["sg_asset_type"]
-        fields += ShotgunLocationGeneral.get_fields(self)
+        fields += ShotgunLocation.get_fields(self)
         return fields
     
     def render_details(self, sg_data, top_label, middle_label, bottom_label):
         """
         Render details
         """
-        ShotgunLocationGeneral.render_details(self, sg_data, top_label, middle_label, bottom_label)
+        ShotgunLocation.render_details(self, sg_data, top_label, middle_label, bottom_label)
                 
         middle = "Project: %s" % utils.generate_link(sg_data["project"])
         middle += "<br>Asset Type: %s" % sg_data["sg_asset_type"]
@@ -158,10 +163,10 @@ class ShotgunAsset(ShotgunLocationGeneral):
 
     
     
-class ShotgunPublish(ShotgunLocationGeneral):
+class ShotgunPublish(ShotgunLocation):
     
     def __init__(self, entity_type, entity_id):
-        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
+        ShotgunLocation.__init__(self, entity_type, entity_id)
         
     def get_fields(self):
         fields = ["code", 
@@ -178,12 +183,12 @@ class ShotgunPublish(ShotgunLocationGeneral):
                   "created_at"]
         return fields
 
-    def set_up_ui(self, dialog):
+    def get_family(self):
         """
-        render the UI
+        Returns the family that this item belongs to
         """
-        dialog.focus_publish(self)
-    
+        return self.PUBLISH_FAMILY
+
     def render_details(self, sg_data, top_label, middle_label, bottom_label):
         """
         Render details
@@ -217,10 +222,10 @@ class ShotgunPublish(ShotgunLocationGeneral):
     
 
 
-class ShotgunVersion(ShotgunLocationGeneral):
+class ShotgunVersion(ShotgunLocation):
     
     def __init__(self, entity_type, entity_id):
-        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
+        ShotgunLocation.__init__(self, entity_type, entity_id)
         
     def get_fields(self):
         fields = ["code", 
@@ -241,13 +246,13 @@ class ShotgunVersion(ShotgunLocationGeneral):
                   "created_at", 
                   "created_by"]
         return fields
-
-    def set_up_ui(self, dialog):
-        """
-        render the UI
-        """
-        dialog.focus_version(self)
     
+    def get_family(self):
+        """
+        Returns the family that this item belongs to
+        """
+        return self.VERSION_FAMILY    
+
     def set_up_thumbnail(self, sg_data, version_label):
         
         if sg_data.get("sg_uploaded_movie"):
@@ -298,10 +303,10 @@ class ShotgunVersion(ShotgunLocationGeneral):
 
 
 
-class ShotgunUser(ShotgunLocationGeneral):
+class ShotgunUser(ShotgunLocation):
     
     def __init__(self, entity_type, entity_id):
-        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
+        ShotgunLocation.__init__(self, entity_type, entity_id)
         
     @property
     def use_round_icon(self):
@@ -330,10 +335,10 @@ class ShotgunUser(ShotgunLocationGeneral):
         
     
 
-class ShotgunProject(ShotgunLocationGeneral):
+class ShotgunProject(ShotgunLocation):
     
     def __init__(self, entity_type, entity_id):
-        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
+        ShotgunLocation.__init__(self, entity_type, entity_id)
         
     def get_fields(self):
         fields = ["name",
@@ -364,10 +369,10 @@ class ShotgunProject(ShotgunLocationGeneral):
         
     
 
-class ShotgunTask(ShotgunLocationGeneral):
+class ShotgunTask(ShotgunLocation):
     
     def __init__(self, entity_type, entity_id):
-        ShotgunLocationGeneral.__init__(self, entity_type, entity_id)
+        ShotgunLocation.__init__(self, entity_type, entity_id)
         
     @property
     def use_round_icon(self):
