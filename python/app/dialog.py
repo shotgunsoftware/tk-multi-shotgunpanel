@@ -447,11 +447,8 @@ class AppDialog(QtGui.QWidget):
         """
         self._history_index += 1
         # get the data for this guy (note: index are one based)
-        sg_location = self._history_items[self._history_index-1]
+        self._current_location = self._history_items[self._history_index-1]
         self._compute_history_button_visibility()
-
-        # set the current location
-        self._current_location = shotgun_location 
 
         # and set up the UI for this new location
         self.setup_ui()
@@ -463,11 +460,8 @@ class AppDialog(QtGui.QWidget):
         """
         self._history_index += -1
         # get the data for this guy (note: index are one based)
-        sg_location = self._history_items[self._history_index-1]
+        self._current_location = self._history_items[self._history_index-1]
         self._compute_history_button_visibility()
-
-        # set the current location
-        self._current_location = shotgun_location 
 
         # and set up the UI for this new location
         self.setup_ui()
