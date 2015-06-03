@@ -164,6 +164,26 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    <item>
     <widget class="QWidget" name="details" native="true">
      <layout class="QGridLayout" name="gridLayout">
+      <item row="2" column="1" colspan="2">
+       <widget class="QLabel" name="details_text_middle">
+        <property name="text">
+         <string>Middle Text</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="3">
+       <widget class="QLabel" name="details_text_bottom">
+        <property name="text">
+         <string>Bottom Text</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="0">
        <widget class="VersionLabel" name="details_thumb">
         <property name="minimumSize">
@@ -210,33 +230,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
         </property>
        </widget>
       </item>
-      <item row="2" column="1" colspan="2">
-       <widget class="QLabel" name="details_text_middle">
-        <property name="text">
-         <string>Middle Text</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="3">
-       <widget class="QLabel" name="details_text_bottom">
-        <property name="text">
-         <string>Bottom Text</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
    <item>
     <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -603,6 +603,45 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
               <bool>true</bool>
              </property>
             </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="note_page">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QScrollArea" name="reply_scroll_area">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>401</width>
+            <height>502</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_17">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_16"/>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>

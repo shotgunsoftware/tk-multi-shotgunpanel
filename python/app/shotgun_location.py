@@ -35,6 +35,9 @@ def create_shotgun_location(entity_type, entity_id):
     elif entity_type == "Project":
         return ShotgunProject(entity_type, entity_id)
 
+    elif entity_type == "Note":
+        return ShotgunNote(entity_type, entity_id)
+
     elif entity_type == "PublishedFile":
         return ShotgunPublish(entity_type, entity_id)
     
@@ -56,7 +59,7 @@ class ShotgunLocation(object):
     # define the various families of items that the location
     # supports. These corresponds to the different layouts
     # in the UI
-    (PUBLISH_FAMILY, VERSION_FAMILY, ENTITY_FAMILY) = range(3)
+    (PUBLISH_FAMILY, VERSION_FAMILY, ENTITY_FAMILY, NOTE_FAMILY) = range(4)
     
     def __init__(self, entity_type, entity_id):
         """
@@ -301,6 +304,49 @@ class ShotgunVersion(ShotgunLocation):
         middle_label.setText(middle)
 
 
+
+
+
+
+
+class ShotgunNote(ShotgunLocation):
+    
+    def __init__(self, entity_type, entity_id):
+        ShotgunLocation.__init__(self, entity_type, entity_id)
+        
+    @property
+    def use_round_icon(self):
+        return True
+        
+    def get_fields(self):
+        fields = ["attachments", 
+                  "user",
+                  "content", 
+                  "addressings_cc", 
+                  "client_note",
+                  "note_links", 
+                  "project",
+                  "sg_status_list",
+                  "subject",
+                  "tasks",
+                  "addressings_to",
+                  "sg_note_type"]
+        return fields
+    
+    def get_family(self):
+        """
+        Returns the family that this item belongs to
+        """
+        return self.NOTE_FAMILY
+    
+    def render_details(self, sg_data, top_label, middle_label, bottom_label):
+        """
+        Render details
+        """        
+        user = sg_data.get("artist")
+        bottom_str = "Created by %s." % utils.generate_link(user)
+        bottom_label.setText(bottom_str)
+        middle_label.setText("asdasd")
 
 
 class ShotgunUser(ShotgunLocation):
