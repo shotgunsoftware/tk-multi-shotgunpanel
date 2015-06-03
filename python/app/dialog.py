@@ -22,6 +22,8 @@ from .ui.dialog import Ui_Dialog
 
 from . import utils
 
+from .shotgun_location import ShotgunLocation
+
 from .shotgun_location import create_shotgun_location
 
 from .delegate_task import TaskDelegate
@@ -192,7 +194,21 @@ class AppDialog(QtGui.QWidget):
 
     ##################################################################################################
     # load data and set up UI for a particular state
-
+    def setup_ui(self):
+        """
+        sets up the UI for the current location
+        """
+        if self._current_location.get_family() == ShotgunLocation.ENTITY_FAMILY:
+            self.focus_entity(self._current_location)
+        
+        elif self._current_location.get_family() == ShotgunLocation.VERSION_FAMILY:
+            self.focus_version(self._current_location)
+            
+        elif self._current_location.get_family() == ShotgunLocation.PUBLISH_FAMILY:
+            self.focus_publish(self._current_location)
+        
+        else:
+            self._app.log_error("Cannot set up UI for unknown item family!")
 
     def focus_entity(self, sg_location):
         """
@@ -397,8 +413,8 @@ class AppDialog(QtGui.QWidget):
         # set the current location
         self._current_location = shotgun_location 
         
-        # ask the location to render itself out
-        self._current_location.set_up_ui(self)
+        # and set up the UI for this new location
+        self.setup_ui()
     
     def _compute_history_button_visibility(self):
         """
@@ -433,7 +449,13 @@ class AppDialog(QtGui.QWidget):
         # get the data for this guy (note: index are one based)
         sg_location = self._history_items[self._history_index-1]
         self._compute_history_button_visibility()
-        sg_location.set_up_ui(self)
+
+        # set the current location
+        self._current_location = shotgun_location 
+
+        # and set up the UI for this new location
+        self.setup_ui()
+
         
     def _on_prev_clicked(self):
         """
@@ -443,6 +465,11 @@ class AppDialog(QtGui.QWidget):
         # get the data for this guy (note: index are one based)
         sg_location = self._history_items[self._history_index-1]
         self._compute_history_button_visibility()
-        sg_location.set_up_ui(self)
+
+        # set the current location
+        self._current_location = shotgun_location 
+
+        # and set up the UI for this new location
+        self.setup_ui()
         
 
