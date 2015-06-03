@@ -37,6 +37,7 @@ from .model_reply import SgReplyModel
 from .model_task import SgTaskModel
 from .model_version import SgVersionModel
 from .model_publish import SgPublishModel
+from .model_entity_detail import SgEntityDetailsModel
 from .model_publish_history import SgPublishHistoryModel
 from .model_current_entity import SgCurrentEntityModel
 
@@ -163,6 +164,13 @@ class AppDialog(QtGui.QWidget):
         (model, delegate) = self._make_model(SgTaskModel, TaskDelegate, self.ui.entity_task_view)
         self._entity_task_model = model
         self._entity_task_delegate = delegate
+        
+        (model, delegate) = self._make_model(SgTaskModel, TaskDelegate, self.ui.entity_task_view)
+        self._entity_task_model = model
+        self._entity_task_delegate = delegate
+        
+        self._entity_details_model = SgEntityDetailsModel(self.ui.entity_info_view)        
+        self.ui.entity_info_view.setModel(self._entity_details_model)
 
 
         # publish details
@@ -313,7 +321,7 @@ class AppDialog(QtGui.QWidget):
             self._entity_task_model.load_data(curr_entity_dict)
         
         elif index == self.ENTITY_TAB_INFO:
-            pass
+            self._entity_details_model.load_data(curr_entity_dict)
         
         else:
             self._app.log_error("Cannot load data for unknown entity tab.")

@@ -143,8 +143,6 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
 
             self._current_version = sg_data["version_number"]
 
-            # note how we have to seed the model with the current version in order to ensure
-            # that the data is baked out and cached correctly for all 
             ShotgunOverlayModel._load_data(self, 
                                            sg_data["type"], 
                                            filters, 
