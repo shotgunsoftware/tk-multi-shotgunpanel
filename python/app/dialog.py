@@ -35,6 +35,7 @@ from .model_reply import SgReplyModel
 from .model_task import SgTaskModel
 from .model_version import SgVersionModel
 from .model_publish import SgPublishModel
+from .model_publish_history import SgPublishHistoryModel
 from .model_current_entity import SgCurrentEntityModel
 
 
@@ -128,7 +129,7 @@ class AppDialog(QtGui.QWidget):
 
 
         # publish details
-        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.publish_history_view)
+        (model, delegate) = self._make_model(SgPublishHistoryModel, PublishDelegate, self.ui.publish_history_view)
         self._publish_history_model = model
         self._publish_history_delegate = delegate
         
@@ -203,11 +204,8 @@ class AppDialog(QtGui.QWidget):
                                      sg_location.get_fields(),
                                      sg_location.use_round_icon)
         
-        # load data for tabs
-        
-        # TODO: FIX!
-        publish_filter = [["entity", "is", sg_location.entity_dict]]
-        self._publish_history_model.load_data(publish_filter)
+        # load data for tabs        
+        self._publish_history_model.load_data(sg_location.entity_id)
         
         publish_filter = [["downstream_published_files", "in", [sg_location.entity_dict]]]
         self._publish_upstream_model.load_data(publish_filter)
