@@ -68,6 +68,7 @@ class AppDialog(QtGui.QWidget):
     ENTITY_PAGE_IDX = 0
     PUBLISH_PAGE_IDX = 1
     VERSION_PAGE_IDX = 2
+    NOTE_PAGE_IDX = 3
     
     # tab indices
     ENTITY_TAB_NOTES = 0
@@ -231,6 +232,9 @@ class AppDialog(QtGui.QWidget):
         elif self._current_location.get_family() == ShotgunLocation.PUBLISH_FAMILY:
             self.focus_publish(self._current_location)
         
+        elif self._current_location.get_family() == ShotgunLocation.NOTE_FAMILY:
+            self.focus_note(self._current_location)
+
         else:
             self._app.log_error("Cannot set up UI for unknown item family!")
 
@@ -285,6 +289,17 @@ class AppDialog(QtGui.QWidget):
         # reset to the default tab
         self.ui.version_tab_widget.setCurrentIndex(self.VERSION_TAB_NOTES)
         self._load_version_tab_data(self.VERSION_TAB_NOTES)
+        
+    def focus_note(self, sg_location):
+        """
+        Move UI to note mode. Load up tabs.
+        """
+        self.ui.page_stack.setCurrentIndex(self.NOTE_PAGE_IDX)
+        
+        self._details_model.load_data(sg_location.entity_type, 
+                                     sg_location.entity_id, 
+                                     sg_location.get_fields(),
+                                     sg_location.use_round_icon)        
         
 
     ###################################################################################################
