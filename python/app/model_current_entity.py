@@ -91,7 +91,7 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
         
-        if field != "image": 
+        if field != self._icon_field: 
             # there may be other thumbnails being loaded in as part of the data flow
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.
@@ -107,11 +107,13 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
     # public interface
 
 
-    def load_data(self, entity_type, entity_id, fields, round_icon):
+    def load_data(self, entity_type, entity_id, fields, round_icon, icon_field):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
         """        
+        self._icon_field = icon_field
+        fields = fields + [self._icon_field]
         self._entity_type = entity_type
         self._use_round_icon = round_icon
         hierarchy = [fields[0]]

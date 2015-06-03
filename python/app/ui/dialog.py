@@ -340,7 +340,7 @@ class Ui_Dialog(object):
         self.verticalLayout_7.addWidget(self.page_stack)
 
         self.retranslateUi(Dialog)
-        self.page_stack.setCurrentIndex(0)
+        self.page_stack.setCurrentIndex(3)
         self.entity_tab_widget.setCurrentIndex(4)
         self.publish_tab_widget.setCurrentIndex(0)
         self.version_tab_widget.setCurrentIndex(0)

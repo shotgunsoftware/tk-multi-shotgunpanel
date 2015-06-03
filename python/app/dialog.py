@@ -249,7 +249,8 @@ class AppDialog(QtGui.QWidget):
         self._details_model.load_data(sg_location.entity_type, 
                                      sg_location.entity_id, 
                                      sg_location.get_fields(),
-                                     sg_location.use_round_icon)
+                                     sg_location.use_round_icon,
+                                     sg_location.thumbnail_field)
         
         # reset to the default tab
         self.ui.entity_tab_widget.setCurrentIndex(self.ENTITY_TAB_NOTES)
@@ -266,7 +267,8 @@ class AppDialog(QtGui.QWidget):
         self._details_model.load_data(sg_location.entity_type, 
                                      sg_location.entity_id, 
                                      sg_location.get_fields(),
-                                     sg_location.use_round_icon)
+                                     sg_location.use_round_icon,
+                                     sg_location.thumbnail_field)
         
         # reset to the default tab
         self.ui.publish_tab_widget.setCurrentIndex(self.PUBLISH_TAB_HISTORY)
@@ -284,7 +286,8 @@ class AppDialog(QtGui.QWidget):
         self._details_model.load_data(sg_location.entity_type, 
                                      sg_location.entity_id, 
                                      sg_location.get_fields(),
-                                     sg_location.use_round_icon)        
+                                     sg_location.use_round_icon,
+                                     sg_location.thumbnail_field)        
         
         # reset to the default tab
         self.ui.version_tab_widget.setCurrentIndex(self.VERSION_TAB_NOTES)
@@ -299,7 +302,8 @@ class AppDialog(QtGui.QWidget):
         self._details_model.load_data(sg_location.entity_type, 
                                      sg_location.entity_id, 
                                      sg_location.get_fields(),
-                                     sg_location.use_round_icon)        
+                                     sg_location.use_round_icon,
+                                     sg_location.thumbnail_field)        
         
 
     ###################################################################################################

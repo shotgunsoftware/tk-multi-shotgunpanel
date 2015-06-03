@@ -73,6 +73,10 @@ class ShotgunLocation(object):
         return False
     
     @property
+    def thumbnail_field(self):
+        return "image"
+    
+    @property
     def entity_type(self):
         return self._entity_type
     
@@ -318,6 +322,10 @@ class ShotgunNote(ShotgunLocation):
     def use_round_icon(self):
         return True
         
+    @property
+    def thumbnail_field(self):
+        return "user.HumanUser.image"
+        
     def get_fields(self):
         fields = ["attachments", 
                   "user",
@@ -423,7 +431,7 @@ class ShotgunTask(ShotgunLocation):
     @property
     def use_round_icon(self):
         return True
-        
+
     def get_fields(self):
         fields = ["task_assignees",
                   "project",
