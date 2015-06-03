@@ -313,7 +313,7 @@ class AppDialog(QtGui.QWidget):
         curr_entity_dict = self._current_location.entity_dict
         
         if index == self.PUBLISH_TAB_HISTORY:
-            self._publish_history_model.load_data(sg_location.entity_id)
+            self._publish_history_model.load_data(curr_entity_dict)
 
         elif index == self.PUBLISH_TAB_CONTAINS:        
             publish_filter = [["downstream_published_files", "in", [curr_entity_dict]]]

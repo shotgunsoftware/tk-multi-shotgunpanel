@@ -30,6 +30,12 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
         """
         Model which represents the latest publishes for an entity
         """
+        
+        # current publish we have loaded
+        self._curr_publish_dict = None
+        
+        self._sg_query_id = None
+        
         # init base class
         ShotgunOverlayModel.__init__(self,
                                      parent,
@@ -74,11 +80,11 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
         uid = shotgun_model.sanitize_qt(uid) # qstring on pyqt, str on pyside
         msg = shotgun_model.sanitize_qt(msg)
 
-        self._app.log_debug("History Model worker failure!")
+        self._app.log_warning("History model query error: %s" % msg)
         
-        #full_msg = "Error retrieving data from Shotgun: %s" % msg
-        #self.data_refresh_fail.emit(full_msg)
-        #self.__log_warning(full_msg)
+        full_msg = "Error retrieving data from Shotgun: %s" % msg        
+        self._show_overlay_error_message(full_msg)
+        
 
     def __on_worker_signal(self, uid, request_type, data):
         """
@@ -86,18 +92,59 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
         This method will dispatch the work to different methods
         depending on what async task has completed.
         """
+        
+        # hide spinner
+        self._hide_overlay_info()        
+        
         uid = shotgun_model.sanitize_qt(uid) # qstring on pyqt, str on pyside
         data = shotgun_model.sanitize_qt(data)
 
-        self._app.log_debug("History Model worker success!")
+        if self._sg_query_id == uid:
+            # process the data
+            sg_records = data["sg"]
+            
+            if len(sg_records) != 1:
+                self._show_overlay_error_message("Publish could not be found!")
+            
+            sg_data = sg_records[0]
 
-#         if self.__current_work_id == uid:
-#             # our publish data has arrived from sg!
-# 
-#             # process the data
-#             sg_data = data["sg"]
-#             self.__on_sg_data_arrived(sg_data)
+            # figure out which publish type we are after
+            if sg_data["type"] == "PublishedFile":
+                publish_type_field = "published_file_type"
+            else:
+                publish_type_field = "tank_type"
 
+            # when we filter out which other publishes are associated with this one,
+            # to effectively get the "version history", we look for items
+            # which have the same project, same entity assocation, same name, same type 
+            # and the same task.
+            filters = [ ["project", "is", sg_data["project"] ],
+                        ["name", "is", sg_data["name"] ],
+                        ["task", "is", sg_data["task"] ],
+                        ["entity", "is", sg_data["entity"] ],
+                        [publish_type_field, "is", sg_data[publish_type_field] ],
+                      ]
+
+            fields = ["name", 
+                      "version_number",
+                      "project",
+                      "task", 
+                      "description", 
+                      "published_file_type", 
+                      "image",
+                      "code", 
+                      "created_by",
+                      "created_at"]
+
+            hierarchy = ["code"]
+
+            ShotgunOverlayModel._load_data(self, 
+                                           sg_data["type"], 
+                                           filters, 
+                                           hierarchy, 
+                                           fields, 
+                                           [{"field_name":"created_at", "direction":"asc"}])
+            self._refresh_data()
 
 
 
@@ -105,36 +152,38 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
     # public interface
 
 
-    def load_data(self, publish_id):
+    def load_data(self, sg_publish_dict):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
         """        
-        
+        self._curr_publish_dict = sg_publish_dict
         self.__sg_data_retriever.clear()
         
-        filters = [["entity", "is", {"type": "PublishedFile", "id": publish_id}]]
+        # figure out which publish type we are after
+        if sg_publish_dict["type"] == "PublishedFile":
+            publish_type_field = "published_file_type"
+        else:
+            publish_type_field = "tank_type"
+        
+        filters = [["id", "is", sg_publish_dict["id"]]]
         fields = ["name", 
-                  "version_number", 
-                  "description", 
-                  "published_file_type", 
-                  "image",
-                  "code", 
-                  "created_by",
-                  "created_at"]
+                  "version_number",
+                  "task", 
+                  "entity",
+                  "project",
+                  publish_type_field]
         hierarchy = ["code"]
         
-        self.__sg_data_retriever.execute_find("PublishedFile", filters, fields)
+        # start spinning
+        self._show_overlay_spinner()
+        
+        # get publish details async
+        self._sg_query_id = self.__sg_data_retriever.execute_find(self._curr_publish_dict["type"], 
+                                                                  filters, 
+                                                                  fields)
         
 
-        
-        ShotgunOverlayModel._load_data(self, 
-                                       "PublishedFile", 
-                                       filters, 
-                                       hierarchy, 
-                                       fields, 
-                                       [{"field_name":"created_at", "direction":"desc"}])
-        self._refresh_data()
 
 
     def _populate_default_thumbnail(self, item):
