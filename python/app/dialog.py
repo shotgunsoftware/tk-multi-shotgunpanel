@@ -116,6 +116,9 @@ class AppDialog(QtGui.QWidget):
         self.ui.navigation_next.clicked.connect(self._on_next_clicked)
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
 
+        # latest publishes only
+        self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
+        
         # tabs
         self.ui.entity_tab_widget.currentChanged.connect(self._on_entity_tab_changed)
         self.ui.version_tab_widget.currentChanged.connect(self._on_version_tab_changed)
@@ -265,6 +268,13 @@ class AppDialog(QtGui.QWidget):
 
     ###################################################################################################
     # tab callbacks
+
+    def _on_latest_publishes_toggled(self):
+        """
+        Executed when the latest publishes checkbox is toggled
+        """
+        # refresh the publishes tab
+        self._on_entity_tab_changed(self.ui.entity_tab_widget.currentIndex())
 
     def _on_entity_tab_changed(self, index):
         self._app.log_debug("Entity tab clicked - index: %s" % index)
