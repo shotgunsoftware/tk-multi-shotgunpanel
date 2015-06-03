@@ -16,7 +16,10 @@ from . import utils
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
+shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
+
 ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
+ShotgunDataRetriever = shotgun_data.ShotgunDataRetriever 
 
 class SgPublishHistoryModel(ShotgunOverlayModel):
     """
@@ -27,14 +30,76 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
         """
         Model which represents the latest publishes for an entity
         """
-        self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/rect_512x400.png")
-
         # init base class
         ShotgunOverlayModel.__init__(self,
                                      parent,
                                      overlay_widget=parent,
                                      download_thumbs=True,
                                      schema_generation=3)
+
+        self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/rect_512x400.png")
+
+        self._app = sgtk.platform.current_bundle()
+        
+        # create a separate sg data fetcher for this model so that we can read in separate 
+        # shotgun data asynchronously
+        self.__sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)
+        self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
+        self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
+        self.__sg_data_retriever.start()
+
+
+    def destroy(self):
+        """
+        Call this method prior to destroying this object.
+        This will ensure all worker threads etc are stopped.
+        """
+        # first disconnect our worker completely
+        self.__sg_data_retriever.work_completed.disconnect(self.__on_worker_signal)
+        self.__sg_data_retriever.work_failure.disconnect(self.__on_worker_failure)
+        # gracefully stop thread
+        self.__sg_data_retriever.stop()
+        # call base class
+        ShotgunOverlayModel.destroy(self)
+
+
+    ############################################################################################
+    # slots
+
+
+    def __on_worker_failure(self, uid, msg):
+        """
+        Asynchronous callback - the worker thread errored.
+        """
+        uid = shotgun_model.sanitize_qt(uid) # qstring on pyqt, str on pyside
+        msg = shotgun_model.sanitize_qt(msg)
+
+        self._app.log_debug("History Model worker failure!")
+        
+        #full_msg = "Error retrieving data from Shotgun: %s" % msg
+        #self.data_refresh_fail.emit(full_msg)
+        #self.__log_warning(full_msg)
+
+    def __on_worker_signal(self, uid, request_type, data):
+        """
+        Signaled whenever the worker completes something.
+        This method will dispatch the work to different methods
+        depending on what async task has completed.
+        """
+        uid = shotgun_model.sanitize_qt(uid) # qstring on pyqt, str on pyside
+        data = shotgun_model.sanitize_qt(data)
+
+        self._app.log_debug("History Model worker success!")
+
+#         if self.__current_work_id == uid:
+#             # our publish data has arrived from sg!
+# 
+#             # process the data
+#             sg_data = data["sg"]
+#             self.__on_sg_data_arrived(sg_data)
+
+
+
 
     ############################################################################################
     # public interface
@@ -45,6 +110,10 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
         """        
+        
+        self.__sg_data_retriever.clear()
+        
+        filters = [["entity", "is", {"type": "PublishedFile", "id": publish_id}]]
         fields = ["name", 
                   "version_number", 
                   "description", 
@@ -54,7 +123,11 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
                   "created_by",
                   "created_at"]
         hierarchy = ["code"]
-        filters = [["entity", "is", {"type": "PublishedFile", "id": publish_id}]]
+        
+        self.__sg_data_retriever.execute_find("PublishedFile", filters, fields)
+        
+
+        
         ShotgunOverlayModel._load_data(self, 
                                        "PublishedFile", 
                                        filters, 
