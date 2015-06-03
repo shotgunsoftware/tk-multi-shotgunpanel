@@ -42,6 +42,7 @@ from .model_current_entity import SgCurrentEntityModel
 
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
+settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings")
 
 def show_dialog(app_instance):
     """
@@ -107,9 +108,18 @@ class AppDialog(QtGui.QWidget):
         self._history_items = []
         self._history_index = 0
                 
+                
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
+
+        # create a settings manager where we can pull and push prefs later
+        # prefs in this manager are shared
+        self._settings_manager = settings.UserSettings(self._app)
+        
+        # set previously stored value for "show latest"
+        latest_pubs_only = self._settings_manager.retrieve("latest_publishes_only", True)
+        self.ui.latest_publishes_only.setChecked(latest_pubs_only)
         
         # navigation
         self.ui.navigation_home.clicked.connect(self._on_home_clicked)
@@ -269,10 +279,13 @@ class AppDialog(QtGui.QWidget):
     ###################################################################################################
     # tab callbacks
 
-    def _on_latest_publishes_toggled(self):
+    def _on_latest_publishes_toggled(self, checked):
         """
         Executed when the latest publishes checkbox is toggled
         """
+        # store setting
+        self._settings_manager.store("latest_publishes_only", checked)
+        
         # refresh the publishes tab
         self._load_entity_tab_data(self.ui.entity_tab_widget.currentIndex())
 
