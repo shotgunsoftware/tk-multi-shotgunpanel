@@ -64,6 +64,21 @@ class RectWidget(QtGui.QWidget):
         else:
             self.ui.box.setStyleSheet("")
     
+    def set_highlighted(self, highlighted):
+        """
+        Adjust the style sheet to indicate that an object is highlighted
+        
+        :param selected: True if selected, false if not
+        """
+        if highlighted:
+            self.ui.box.setStyleSheet("""#box {border-width: 1px; 
+                                                 border-color: %s; 
+                                                 border-style: solid}
+                                      """ % self._highlight_str)
+
+        else:
+            self.ui.box.setStyleSheet("")
+
     def set_thumbnail(self, pixmap):
         """
         Set a thumbnail given the current pixmap.

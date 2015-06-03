@@ -34,6 +34,9 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
         # current publish we have loaded
         self._curr_publish_dict = None
         
+        # the version number for the current publish
+        self._current_version = None
+        
         self._sg_query_id = None
         
         # init base class
@@ -41,7 +44,7 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
                                      parent,
                                      overlay_widget=parent,
                                      download_thumbs=True,
-                                     schema_generation=3)
+                                     schema_generation=5)
 
         self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/rect_512x400.png")
 
@@ -138,12 +141,16 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
 
             hierarchy = ["code"]
 
+            self._current_version = sg_data["version_number"]
+
+            # note how we have to seed the model with the current version in order to ensure
+            # that the data is baked out and cached correctly for all 
             ShotgunOverlayModel._load_data(self, 
                                            sg_data["type"], 
                                            filters, 
                                            hierarchy, 
                                            fields, 
-                                           [{"field_name":"created_at", "direction":"asc"}])
+                                           [{"field_name":"created_at", "direction":"desc"}])
             self._refresh_data()
 
 
@@ -151,6 +158,11 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
     ############################################################################################
     # public interface
 
+    def get_current_version(self):
+        """
+        Returns the current version
+        """
+        return self._current_version
 
     def load_data(self, sg_publish_dict):
         """
@@ -158,6 +170,8 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
         Loads any cached data that exists.
         """        
         self._curr_publish_dict = sg_publish_dict
+        self._current_version = None
+        
         self.__sg_data_retriever.clear()
         
         # figure out which publish type we are after
@@ -228,3 +242,4 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
         
         icon = utils.create_rectangular_512x400_thumbnail(path)
         item.setIcon(QtGui.QIcon(icon))
+

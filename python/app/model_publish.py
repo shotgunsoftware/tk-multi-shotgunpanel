@@ -40,6 +40,11 @@ class SgPublishModel(ShotgunOverlayModel):
     ############################################################################################
     # public interface
 
+    def get_current_version(self):
+        """
+        Returns the current version
+        """
+        return None
 
     def load_data(self, filters):
         """
