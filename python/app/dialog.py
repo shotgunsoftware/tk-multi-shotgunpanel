@@ -279,7 +279,8 @@ class AppDialog(QtGui.QWidget):
         
         elif index == self.ENTITY_TAB_PUBLISHES:
             publish_filter = [["entity", "is", curr_entity_dict]]
-            self._entity_publish_model.load_data(publish_filter)
+            show_latest_only = self.ui.latest_publishes_only.isChecked()
+            self._entity_publish_model.load_data(publish_filter, show_latest_only)
             
         elif index == self.ENTITY_TAB_TASKS:
             self._entity_task_model.load_data(curr_entity_dict)
@@ -298,7 +299,7 @@ class AppDialog(QtGui.QWidget):
 
         if index == self.VERSION_TAB_NOTES:
             publish_filter = [["version", "is", [curr_entity_dict]]]
-            self._version_publish_model.load_data(publish_filter)
+            self._version_publish_model.load_data(publish_filter, show_latest_only=False)
 
         elif index == self.VERSION_TAB_PUBLISHES:        
             self._version_note_model.load_data(curr_entity_dict)
@@ -317,11 +318,11 @@ class AppDialog(QtGui.QWidget):
 
         elif index == self.PUBLISH_TAB_CONTAINS:        
             publish_filter = [["downstream_published_files", "in", [curr_entity_dict]]]
-            self._publish_upstream_model.load_data(publish_filter)
+            self._publish_upstream_model.load_data(publish_filter, show_latest_only=False)
         
         elif index == self.PUBLISH_TAB_USED_IN:
             publish_filter = [["upstream_published_files", "in", [curr_entity_dict]]]
-            self._publish_downstream_model.load_data(publish_filter)
+            self._publish_downstream_model.load_data(publish_filter, show_latest_only=False)
         
         else:
             self._app.log_error("Cannot load data for unknown publish tab.")

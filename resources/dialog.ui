@@ -236,14 +236,14 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    <item>
     <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QTabWidget" name="entity_tab_widget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="entity_note_tab">
           <attribute name="title">
@@ -367,7 +367,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBox">
+            <widget class="QCheckBox" name="latest_publishes_only">
              <property name="text">
               <string>Only show latest versions</string>
              </property>
