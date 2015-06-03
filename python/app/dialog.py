@@ -120,9 +120,9 @@ class AppDialog(QtGui.QWidget):
         self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
         
         # tabs
-        self.ui.entity_tab_widget.currentChanged.connect(self._on_entity_tab_changed)
-        self.ui.version_tab_widget.currentChanged.connect(self._on_version_tab_changed)
-        self.ui.publish_tab_widget.currentChanged.connect(self._on_publish_tab_changed)
+        self.ui.entity_tab_widget.currentChanged.connect(self._load_entity_tab_data)
+        self.ui.version_tab_widget.currentChanged.connect(self._load_version_tab_data)
+        self.ui.publish_tab_widget.currentChanged.connect(self._load_publish_tab_data)
         
         # top detail section
         self._details_model = SgCurrentEntityModel(self.ui.details)
@@ -228,7 +228,7 @@ class AppDialog(QtGui.QWidget):
         
         # reset to the default tab
         self.ui.entity_tab_widget.setCurrentIndex(self.ENTITY_TAB_NOTES)
-        self._on_entity_tab_changed(self.ENTITY_TAB_NOTES)
+        self._load_entity_tab_data(self.ENTITY_TAB_NOTES)
 
 
     def focus_publish(self, sg_location):
@@ -245,7 +245,7 @@ class AppDialog(QtGui.QWidget):
         
         # reset to the default tab
         self.ui.publish_tab_widget.setCurrentIndex(self.PUBLISH_TAB_HISTORY)
-        self._on_publish_tab_changed(self.PUBLISH_TAB_HISTORY)
+        self._load_publish_tab_data(self.PUBLISH_TAB_HISTORY)
         
 
 
@@ -263,7 +263,7 @@ class AppDialog(QtGui.QWidget):
         
         # reset to the default tab
         self.ui.version_tab_widget.setCurrentIndex(self.VERSION_TAB_NOTES)
-        self._on_version_tab_changed(self.VERSION_TAB_NOTES)
+        self._load_version_tab_data(self.VERSION_TAB_NOTES)
         
 
     ###################################################################################################
@@ -274,9 +274,13 @@ class AppDialog(QtGui.QWidget):
         Executed when the latest publishes checkbox is toggled
         """
         # refresh the publishes tab
-        self._on_entity_tab_changed(self.ui.entity_tab_widget.currentIndex())
+        self._load_entity_tab_data(self.ui.entity_tab_widget.currentIndex())
 
-    def _on_entity_tab_changed(self, index):
+    def _load_entity_tab_data(self, index):
+        """
+        Loads the data for one of the UI tabs in the entity family
+        """
+        
         self._app.log_debug("Entity tab clicked - index: %s" % index)
 
         curr_entity_dict = self._current_location.entity_dict
@@ -302,7 +306,10 @@ class AppDialog(QtGui.QWidget):
             self._app.log_error("Cannot load data for unknown entity tab.")
         
         
-    def _on_version_tab_changed(self, index):
+    def _load_version_tab_data(self, index):
+        """
+        Load the data for one of the tabs in the version family
+        """
         self._app.log_debug("Version tab clicked - index: %s" % index)
 
         curr_entity_dict = self._current_location.entity_dict
@@ -318,7 +325,10 @@ class AppDialog(QtGui.QWidget):
             self._app.log_error("Cannot load data for unknown version tab.")
     
     
-    def _on_publish_tab_changed(self, index):
+    def _load_publish_tab_data(self, index):
+        """
+        Load the data for one of the tabs in the publish family.
+        """
         self._app.log_debug("Publish tab clicked - index: %s" % index)
         
         curr_entity_dict = self._current_location.entity_dict
