@@ -54,7 +54,8 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         self.__sg_data_retriever.start()
 
         # create the coupled model
-        self._table_model = QtGui.QStandardItemModel(parent) 
+        self._table_model = QtGui.QStandardItemModel(parent)
+        
         
     def get_table_model(self):
         """

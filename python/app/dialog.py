@@ -172,6 +172,9 @@ class AppDialog(QtGui.QWidget):
         self._entity_details_model = SgEntityDetailsModel(self.ui.entity_info_view)        
         self.ui.entity_info_view.setModel(self._entity_details_model.get_table_model())
 
+        self.ui.entity_info_view.verticalHeader().hide()
+        self.ui.entity_info_view.horizontalHeader().hide()
+
 
         # publish details
         (model, delegate) = self._make_model(SgPublishHistoryModel, PublishDelegate, self.ui.publish_history_view)
