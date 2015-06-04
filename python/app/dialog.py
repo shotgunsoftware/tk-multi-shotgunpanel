@@ -273,8 +273,6 @@ class AppDialog(QtGui.QWidget):
         # reset to the default tab
         self.ui.publish_tab_widget.setCurrentIndex(self.PUBLISH_TAB_HISTORY)
         self._load_publish_tab_data(self.PUBLISH_TAB_HISTORY)
-        
-
 
     def focus_version(self, sg_location):
         """

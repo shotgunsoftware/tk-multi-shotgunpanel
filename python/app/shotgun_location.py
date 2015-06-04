@@ -336,6 +336,7 @@ class ShotgunNote(ShotgunLocation):
                   "project",
                   "sg_status_list",
                   "subject",
+                  "created_at",
                   "tasks",
                   "addressings_to",
                   "sg_note_type"]
@@ -351,11 +352,38 @@ class ShotgunNote(ShotgunLocation):
         """
         Render details
         """        
-        user = sg_data.get("artist")
-        bottom_str = "Created by %s." % utils.generate_link(user)
-        bottom_label.setText(bottom_str)
-        middle_label.setText("asdasd")
+        
+        subject = sg_data.get("subject") or "Untitled Note"
+        top_label.setText(subject)
 
+        created_unixtime = sg_data.get("created_at")
+        created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
+        (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
+
+        user = sg_data.get("user")
+        
+        bottom_str = "Created by %s %s." % (utils.generate_link(user), human_str)
+        bottom_str += "<br><br>%s" % (sg_data.get("content") or "There is no content for this note.")
+        bottom_label.setText(bottom_str)
+    
+        middle = "Project: %s" % utils.generate_link(sg_data["project"])
+        middle += "<br>Status: %s" % sg_data.get("sg_status_list")
+
+        to_urls = [ utils.generate_link(x) for x in sg_data["addressings_to"]]
+        middle += "<br>To: %s" % ", ".join(to_urls)        
+
+        task_urls = [ utils.generate_link(x) for x in sg_data["tasks"]]
+        middle += "<br>Tasks: %s" % ", ".join(task_urls)        
+
+        cc_urls = [ utils.generate_link(x) for x in sg_data["addressings_cc"]]
+        middle += "<br>CC: %s" % ", ".join(cc_urls)        
+
+        
+        link_urls = [ utils.generate_link(x) for x in sg_data["note_links"]]
+        middle += "<br>Linked to: %s" % ", ".join(link_urls)        
+ 
+         
+        middle_label.setText(middle)
 
 class ShotgunUser(ShotgunLocation):
     
