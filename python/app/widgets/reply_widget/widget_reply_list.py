@@ -12,6 +12,8 @@ from sgtk.platform.qt import QtCore, QtGui
 
 from ...ui.note_reply_widget import Ui_NoteReplyWidget
  
+from .widget_reply import ReplyWidget 
+ 
 class ReplyListWidget(QtGui.QWidget):
     """
     Note Reply Widget! 
@@ -34,6 +36,9 @@ class ReplyListWidget(QtGui.QWidget):
         print " init!"
 
 
-    def load_content(self, sg_entity_dict):
+        w = ReplyWidget(self)
+        self.ui.reply_layout.addWidget(w)
         
-        pass
+        w = ReplyWidget(self)
+        self.ui.reply_layout.addWidget(w)
+        

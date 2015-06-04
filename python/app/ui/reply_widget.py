@@ -11,7 +11,7 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_ReplyWidget(object):
     def setupUi(self, ReplyWidget):
         ReplyWidget.setObjectName("ReplyWidget")
-        ReplyWidget.resize(563, 449)
+        ReplyWidget.resize(502, 803)
         self.horizontalLayout_2 = QtGui.QHBoxLayout(ReplyWidget)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout_2 = QtGui.QVBoxLayout()
@@ -82,7 +82,7 @@ class Ui_ReplyWidget(object):
         self.attachment_scrollarea.setWidgetResizable(True)
         self.attachment_scrollarea.setObjectName("attachment_scrollarea")
         self.attachment_scrollarea_contents = QtGui.QWidget()
-        self.attachment_scrollarea_contents.setGeometry(QtCore.QRect(0, 0, 465, 120))
+        self.attachment_scrollarea_contents.setGeometry(QtCore.QRect(0, 0, 404, 120))
         self.attachment_scrollarea_contents.setObjectName("attachment_scrollarea_contents")
         self.horizontalLayout_3 = QtGui.QHBoxLayout(self.attachment_scrollarea_contents)
         self.horizontalLayout_3.setSpacing(1)

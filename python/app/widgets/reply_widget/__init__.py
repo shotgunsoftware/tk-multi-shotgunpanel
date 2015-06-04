@@ -10,5 +10,4 @@
 
 
 from .widget_reply_list import ReplyListWidget
-from .widget_reply import ReplyWidget
 
