@@ -28,7 +28,6 @@ from .shotgun_location import create_shotgun_location
 
 from .delegate_task import TaskDelegate
 from .delegate_note import NoteDelegate
-from .delegate_reply import ReplyDelegate
 from .delegate_publish import PublishDelegate
 from .delegate_version import VersionDelegate
 
