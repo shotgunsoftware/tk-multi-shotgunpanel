@@ -33,7 +33,6 @@ from .delegate_publish import PublishDelegate
 from .delegate_version import VersionDelegate
 
 from .model_note import SgNoteModel
-from .model_reply import SgReplyModel
 from .model_task import SgTaskModel
 from .model_version import SgVersionModel
 from .model_publish import SgPublishModel

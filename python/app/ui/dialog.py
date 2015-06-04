@@ -11,7 +11,7 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(451, 863)
+        Dialog.resize(451, 859)
         self.verticalLayout_7 = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
@@ -321,21 +321,9 @@ class Ui_Dialog(object):
         self.note_page.setObjectName("note_page")
         self.verticalLayout_5 = QtGui.QVBoxLayout(self.note_page)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
-        self.reply_scroll_area = QtGui.QScrollArea(self.note_page)
-        self.reply_scroll_area.setWidgetResizable(True)
-        self.reply_scroll_area.setObjectName("reply_scroll_area")
-        self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 401, 502))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.verticalLayout_17 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
-        self.verticalLayout_17.setObjectName("verticalLayout_17")
-        self.verticalLayout_16 = QtGui.QVBoxLayout()
-        self.verticalLayout_16.setObjectName("verticalLayout_16")
-        self.verticalLayout_17.addLayout(self.verticalLayout_16)
-        spacerItem3 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout_17.addItem(spacerItem3)
-        self.reply_scroll_area.setWidget(self.scrollAreaWidgetContents)
-        self.verticalLayout_5.addWidget(self.reply_scroll_area)
+        self.note_reply_widget = ReplyListWidget(self.note_page)
+        self.note_reply_widget.setObjectName("note_reply_widget")
+        self.verticalLayout_5.addWidget(self.note_reply_widget)
         self.page_stack.addWidget(self.note_page)
         self.verticalLayout_7.addWidget(self.page_stack)
 
@@ -368,5 +356,6 @@ class Ui_Dialog(object):
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_note_tab), QtGui.QApplication.translate("Dialog", "Notes", None, QtGui.QApplication.UnicodeUTF8))
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_publish_tab), QtGui.QApplication.translate("Dialog", "Publishes", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..version_label import VersionLabel
+from ..widgets.reply_widget import ReplyListWidget
+from ..widgets.version_label import VersionLabel
 from . import resources_rc

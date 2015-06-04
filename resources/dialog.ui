@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>451</width>
-    <height>863</height>
+    <height>859</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -613,39 +613,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
      <widget class="QWidget" name="note_page">
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QScrollArea" name="reply_scroll_area">
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>401</width>
-            <height>502</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_17">
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_16"/>
-           </item>
-           <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-        </widget>
+        <widget class="ReplyListWidget" name="note_reply_widget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -657,7 +625,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
   <customwidget>
    <class>VersionLabel</class>
    <extends>QLabel</extends>
-   <header>..version_label</header>
+   <header>..widgets.version_label</header>
+  </customwidget>
+  <customwidget>
+   <class>ReplyListWidget</class>
+   <extends>QWidget</extends>
+   <header>..widgets.reply_widget</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

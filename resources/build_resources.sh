@@ -40,6 +40,9 @@ build_ui dialog
 build_ui round_widget
 build_ui rect_widget
 
+build_ui reply_list_widget
+build_ui reply_widget
+
 # build resources
 echo "building resources..."
 build_res resources
