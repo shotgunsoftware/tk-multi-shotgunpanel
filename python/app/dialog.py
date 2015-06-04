@@ -26,10 +26,8 @@ from .shotgun_location import ShotgunLocation
 
 from .shotgun_location import create_shotgun_location
 
-from .delegate_task import TaskDelegate
-from .delegate_note import NoteDelegate
-from .delegate_publish import PublishDelegate
-from .delegate_version import VersionDelegate
+from .delegate_list_item import ListItemDelegate
+
 
 from .model_note import SgNoteModel
 from .model_task import SgTaskModel
@@ -148,23 +146,23 @@ class AppDialog(QtGui.QWidget):
 
         
         # entity section
-        (model, delegate) = self._make_model(SgNoteModel, NoteDelegate, self.ui.entity_note_view)
+        (model, delegate) = self._make_model(SgNoteModel, ListItemDelegate, self.ui.entity_note_view)
         self._entity_note_model = model
         self._entity_note_delegate = delegate
                 
-        (model, delegate) = self._make_model(SgVersionModel, VersionDelegate, self.ui.entity_version_view)
+        (model, delegate) = self._make_model(SgVersionModel, ListItemDelegate, self.ui.entity_version_view)
         self._entity_version_model = model
         self._entity_version_delegate = delegate
 
-        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.entity_publish_view)
+        (model, delegate) = self._make_model(SgPublishModel, ListItemDelegate, self.ui.entity_publish_view)
         self._entity_publish_model = model
         self._entity_publish_delegate = delegate
         
-        (model, delegate) = self._make_model(SgTaskModel, TaskDelegate, self.ui.entity_task_view)
+        (model, delegate) = self._make_model(SgTaskModel, ListItemDelegate, self.ui.entity_task_view)
         self._entity_task_model = model
         self._entity_task_delegate = delegate
         
-        (model, delegate) = self._make_model(SgTaskModel, TaskDelegate, self.ui.entity_task_view)
+        (model, delegate) = self._make_model(SgTaskModel, ListItemDelegate, self.ui.entity_task_view)
         self._entity_task_model = model
         self._entity_task_delegate = delegate
         
@@ -176,25 +174,25 @@ class AppDialog(QtGui.QWidget):
 
 
         # publish details
-        (model, delegate) = self._make_model(SgPublishHistoryModel, PublishDelegate, self.ui.publish_history_view)
+        (model, delegate) = self._make_model(SgPublishHistoryModel, ListItemDelegate, self.ui.publish_history_view)
         self._publish_history_model = model
         self._publish_history_delegate = delegate
         
-        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.publish_upstream_view)
+        (model, delegate) = self._make_model(SgPublishModel, ListItemDelegate, self.ui.publish_upstream_view)
         self._publish_upstream_model = model
         self._publish_upstream_delegate = delegate
 
-        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.publish_downstream_view)
+        (model, delegate) = self._make_model(SgPublishModel, ListItemDelegate, self.ui.publish_downstream_view)
         self._publish_downstream_model = model
         self._publish_downstream_delegate = delegate
         
         
         # version details
-        (model, delegate) = self._make_model(SgNoteModel, NoteDelegate, self.ui.version_note_view)
+        (model, delegate) = self._make_model(SgNoteModel, ListItemDelegate, self.ui.version_note_view)
         self._version_note_model = model
         self._version_note_delegate = delegate
         
-        (model, delegate) = self._make_model(SgPublishModel, PublishDelegate, self.ui.version_publish_view)
+        (model, delegate) = self._make_model(SgPublishModel, ListItemDelegate, self.ui.version_publish_view)
         self._version_publish_model = model
         self._version_publish_delegate = delegate  
 

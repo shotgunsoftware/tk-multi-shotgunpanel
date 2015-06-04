@@ -11,16 +11,17 @@
 import sgtk
 import datetime
 
+from . import utils
+
 from sgtk.platform.qt import QtCore, QtGui
  
 # import the shotgun_model and view modules from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun_view")
 
-from .widget_round import RoundWidget
+from .widget_list_item import ListItemWidget
 
-
-class TaskDelegate(shotgun_view.WidgetDelegate):
+class ListItemDelegate(shotgun_view.WidgetDelegate):
     """
     Delegate which 'glues up' the Details Widget with a QT View.
     """
@@ -41,7 +42,7 @@ class TaskDelegate(shotgun_view.WidgetDelegate):
         
         :param parent: Parent object for the widget
         """
-        return RoundWidget(parent)
+        return ListItemWidget(parent)
     
     def _on_before_selection(self, widget, model_index, style_options):
         """
@@ -57,7 +58,6 @@ class TaskDelegate(shotgun_view.WidgetDelegate):
         self._on_before_paint(widget, model_index, style_options)        
         widget.set_selected(True)
         
-    
     
     def _on_before_paint(self, widget, model_index, style_options):
         """
@@ -75,40 +75,18 @@ class TaskDelegate(shotgun_view.WidgetDelegate):
             widget.set_thumbnail(thumb)
         
         sg_item = shotgun_model.get_sg_data(model_index)
-        
-        # sg_data: {'content': 'Light',
-        #  'due_date': None,
-        #  'id': 4713,
-        #  'image': '',
-        #  'sg_status_list': 'wtg',
-        #  'start_date': None,
-        #  'step': {'id': 7, 'name': 'Light', 'type': 'Step'},
-        #  'task_assignees': [],
-        #  'type': 'Task'}
-        
-        task_name = sg_item.get("content") or "Unnamed Task"
-        body = "<b>%s</b>" % task_name
 
-        assignees = [x.get("name") or "No name" for x in sg_item.get("task_assignees")]
+        created_unixtime = sg_item.get("created_at")
+        created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
+        (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
 
-        if len(assignees) > 1:
-            body += "<br>Assigned to: %s" % ", ".join(assignees)
-        else:
-            body += "<br>Unassigned" 
-            
-        body += "<br>Status: %s" % sg_item.get("sg_status_list")
+        user_name = (sg_item.get("artist") or {}).get("name") or "Unknown User"        
+        description = sg_item.get("description") or ""
+        content = "By %s %s<br><i>%s</i>" % (user_name, human_str, description)
 
+        title = "<b>%s</b>" % sg_item.get("code") or "Untitled Version"
 
-        if sg_item.get("due_date") and sg_item.get("start_date"):
-            body += "<br>%s - %s" % (sg_item.get("start_date"), sg_item.get("due_date"))  
-
-        elif sg_item.get("start_date"):
-            body += "<br>Start: %s" % sg_item.get("start_date")
-            
-        elif sg_item.get("due_date"):
-            body += "<br>Due: %s" % sg_item.get("start_date")
-
-        widget.set_text(body)
+        widget.set_text(title, content)
         
         
     def sizeHint(self, style_options, model_index):
@@ -118,5 +96,5 @@ class TaskDelegate(shotgun_view.WidgetDelegate):
         :param style_options: QT style options
         :param model_index: Model item to operate on
         """
-        return RoundWidget.calculate_size()
+        return ListItemWidget.calculate_size()
              

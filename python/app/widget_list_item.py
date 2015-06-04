@@ -17,9 +17,9 @@ from sgtk.platform.qt import QtCore, QtGui
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun_view")
 
-from .ui.round_widget import Ui_RoundWidget
+from .ui.list_item_widget import Ui_ListItemWidget
 
-class RoundWidget(QtGui.QWidget):
+class ListItemWidget(QtGui.QWidget):
     """
     """
     
@@ -35,7 +35,7 @@ class RoundWidget(QtGui.QWidget):
         self.setVisible(False)
         
         # set up the UI
-        self.ui = Ui_RoundWidget() 
+        self.ui = Ui_ListItemWidget() 
         self.ui.setupUi(self)
                 
         # compute highlight colors
@@ -64,6 +64,21 @@ class RoundWidget(QtGui.QWidget):
         else:
             self.ui.box.setStyleSheet("")
     
+    def set_highlighted(self, highlighted):
+        """
+        Adjust the style sheet to indicate that an object is highlighted
+        
+        :param selected: True if selected, false if not
+        """
+        if highlighted:
+            self.ui.box.setStyleSheet("""#box {border-width: 1px; 
+                                                 border-color: %s; 
+                                                 border-style: solid}
+                                      """ % self._highlight_str)
+
+        else:
+            self.ui.box.setStyleSheet("")
+
     def set_thumbnail(self, pixmap):
         """
         Set a thumbnail given the current pixmap.
@@ -73,13 +88,16 @@ class RoundWidget(QtGui.QWidget):
         """
         self.ui.thumbnail.setPixmap(pixmap)
             
-    def set_text(self, body):
+    def set_text(self, header, body):
         """
         Populate the lines of text in the widget
         
+        :param header: Header text as string
         :param body: Body text as string
         """
-        self.ui.body_label.setText(body)
+        self.setToolTip("%s<br>%s" % (header, body))        
+        self.ui.top_left.setText(header)
+        self.ui.body.setText(body)
 
     @staticmethod
     def calculate_size():
@@ -88,6 +106,6 @@ class RoundWidget(QtGui.QWidget):
         
         :returns: Size of the widget
         """        
-        return QtCore.QSize(200, 90)
+        return QtCore.QSize(300, 90)
 
 
