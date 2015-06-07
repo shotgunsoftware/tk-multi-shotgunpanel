@@ -18,11 +18,13 @@ from . import utils
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
 
-class SgCurrentEntityModel(ShotgunOverlayModel):
-
+class SgEntityDetailsModel(ShotgunOverlayModel):
+    """
+    Model that represents the details data that is 
+    displayed in the main section of the UI.
+    """
     thumbnail_updated = QtCore.Signal()
     data_updated = QtCore.Signal()
-
 
     def __init__(self, parent):
         """
@@ -35,14 +37,8 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
                                      download_thumbs=True,
                                      schema_generation=3)
         
-        self._entity_type = None
-        self._use_round_icon = False
-        
-        self._default_rect_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/rect_512x400.png")
-        self._default_round_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/round_512x400.png")
-        
-        self._current_pixmap = self._default_rect_pixmap
-            
+        self._sg_location = None
+                
         self.data_refreshed.connect(self._on_data_refreshed)
 
     def _on_data_refreshed(self):
@@ -62,10 +58,6 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
         can populate the real image.
         """
         # set up publishes with a "thumbnail loading" icon
-        if self._use_round_icon:
-            self._current_pixmap = self._default_round_pixmap
-        else:
-            self._current_pixmap = self._default_rect_pixmap
         self.thumbnail_updated.emit()
 
     def _populate_thumbnail(self, item, field, path):
@@ -91,15 +83,11 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
         
-        if field != self._icon_field: 
+        if field != self._sg_location.thumbnail_field: 
             # there may be other thumbnails being loaded in as part of the data flow
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.
             return
-        if self._use_round_icon:
-            self._current_pixmap = utils.create_circular_512x400_thumbnail(path)
-        else:
-            self._current_pixmap = utils.create_rectangular_512x400_thumbnail(path)
             
         self.thumbnail_updated.emit()
 
@@ -107,31 +95,28 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
     # public interface
 
 
-    def load_data(self, entity_type, entity_id, fields, round_icon, icon_field):
+    def load_data(self, sg_location):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
-        """        
-        self._icon_field = icon_field
-        fields = fields + [self._icon_field]
-        self._entity_type = entity_type
-        self._use_round_icon = round_icon
-        hierarchy = [fields[0]]
+        """
+        # set the current location to represent
+        self._sg_location = sg_location
+          
+        fields = sg_location.sg_fields + [sg_location.thumbnail_field]
+
+        hierarchy = ["id"]
+        
         loaded_cache = ShotgunOverlayModel._load_data(self, 
-                                                      entity_type, 
-                                                      [["id", "is", entity_id]], 
-                                                      hierarchy, 
+                                                      sg_location.entity_type, 
+                                                      [["id", "is", sg_location.entity_type.entity_id]], 
+                                                      hierarchy,
                                                       fields)
         
         # signal to any views that data now may be available
         self.data_updated.emit()
         self._refresh_data()
 
-    def get_entity_type(self):
-        """
-        Returns the entity type associated with the query
-        """
-        return self._entity_type
     
     def get_sg_data(self):
         """
@@ -150,5 +135,5 @@ class SgCurrentEntityModel(ShotgunOverlayModel):
         Returns the thumbnail currently associated with the item.
         If no pixmap has been loaded for the item yet, a default icon is returned.
         """
-        return self._current_pixmap
+        return self._sg_location.get_default_pixmap()
         

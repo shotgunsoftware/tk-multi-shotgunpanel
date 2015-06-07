@@ -57,7 +57,6 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
         # do std drawing first
         self._on_before_paint(widget, model_index, style_options)        
         widget.set_selected(True)
-        
     
     def _on_before_paint(self, widget, model_index, style_options):
         """

@@ -22,6 +22,27 @@ HookBaseClass = sgtk.get_hook_baseclass()
 class ShotgunConfiguration(HookBaseClass):
     
     
+    def get_thumbnail_data(self, entity_type):
+        
+        values = {
+            "style": "rect",
+            "sg_field": "image",
+            } 
+        
+                
+        if entity_type == "Note":
+            values["style"] = "round"
+            values["sg_field"] = "created_by.HumanUser.image"
+            
+        elif entity_type == "Task":
+            values["style"] = "round"
+        
+        elif entity_type in ["HumanUser", "ApiUser", "ClientUser"]:
+            values["style"] = "round"
+
+    
+        return value
+    
     def get_item_details(self, entity_type):
         """
         Controls the rendering of items in the listings.
@@ -29,8 +50,6 @@ class ShotgunConfiguration(HookBaseClass):
         
         # define a set of defaults
         values = {
-            "icon_style": "rect",
-            "thumbnail": "image",
             "top_left": "{code}",
             "top_right": "{created_at}",
             "body": "By {created_by} %s<br><i>{description}</i>"            
@@ -49,13 +68,11 @@ class ShotgunConfiguration(HookBaseClass):
             
         elif entity_type == "Note":
             
-            values["icon_style"] = "round"
             values["top_left"] = "{created_by}"
             values["body"] = "{content}"            
     
         elif entity_type == "Task":
             
-            values["icon_style"] = "round"
             values["top_left"] = "{content}"
             values["body"] = "Assigned to: {task_assignees}<br>Status: {sg_status_list}<br>Start: {start_date}<br>Due: {due_date}"            
 
@@ -87,8 +104,6 @@ class ShotgunConfiguration(HookBaseClass):
         """
         
         values = {
-            "thumbnail": "image",
-            "icon_style": "rect",
             "play_url": None,
             "title": "{type} {code}",
             "body": "Project: {project}<br>Created by: {created_by}",
@@ -142,6 +157,9 @@ class ShotgunConfiguration(HookBaseClass):
                 Pipeline Step: {step}<br>
                 Assigned to: {task_assignees}
                 """
+                
+            values["tasks_tab"] = False 
+                
             
             
         elif entity_type == "Asset":
@@ -162,7 +180,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Start Date: {start_date}<br>
                 End Date: {end_date}<br>
                 Status: {sg_status}<br>
-                """
+                """                
             
     
         elif entity_type == "Note":
@@ -201,7 +219,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Reviewed in: {version}<br>
                 Version number: {version_number}<br>
                 File Type: {published_file_type}<br>
-                """                
+                """
             
         elif entity_type == "TankPublishedFile":
             values["title"] = "Publish {code}"

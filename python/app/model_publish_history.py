@@ -23,16 +23,21 @@ ShotgunDataRetriever = shotgun_data.ShotgunDataRetriever
 
 class SgPublishHistoryModel(ShotgunOverlayModel):
     """
-    Model which shows the publish history
+    Model that shows the version history for a publish.
+    
+    The data fetching pass in this model has a two-pass 
+    setup: First, the list of publishes that are part of the 
+    history for a given publish are fetched. Then, in a second 
+    pass
     """
 
     def __init__(self, parent):
         """
-        Model which represents the latest publishes for an entity
+        constructor
         """
         
         # current publish we have loaded
-        self._curr_publish_dict = None
+        self._sg_location = None
         
         # the version number for the current publish
         self._current_version = None
@@ -45,8 +50,6 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
                                      overlay_widget=parent,
                                      download_thumbs=True,
                                      schema_generation=5)
-
-        self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/rect_512x400.png")
 
         self._app = sgtk.platform.current_bundle()
         
@@ -112,7 +115,7 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
             sg_data = sg_records[0]
 
             # figure out which publish type we are after
-            if sg_data["type"] == "PublishedFile":
+            if sg_location.entity_type == "PublishedFile":
                 publish_type_field = "published_file_type"
             else:
                 publish_type_field = "tank_type"
@@ -128,24 +131,14 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
                         [publish_type_field, "is", sg_data[publish_type_field] ],
                       ]
 
-            fields = ["name", 
-                      "version_number",
-                      "project",
-                      "task", 
-                      "description", 
-                      "published_file_type", 
-                      "image",
-                      "code", 
-                      "created_by",
-                      "created_at"]
 
-            hierarchy = ["code"]
+            hierarchy = ["name"]
 
             self._current_version = sg_data["version_number"]
 
             ShotgunOverlayModel._load_data(self, 
-                                           sg_data["type"], 
-                                           filters, 
+                                           sg_location.entity_type, 
+                                           self._sg_location.sg_fields, 
                                            hierarchy, 
                                            fields, 
                                            [{"field_name":"created_at", "direction":"desc"}])
@@ -156,48 +149,38 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
     ############################################################################################
     # public interface
 
-    def get_current_version(self):
-        """
-        Returns the current version
-        """
-        return self._current_version
-
-    def load_data(self, sg_publish_dict):
+    def load_data(self, sg_location):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
         """        
-        self._curr_publish_dict = sg_publish_dict
+        self._sg_location = sg_location
         self._current_version = None
-        
         self.__sg_data_retriever.clear()
         
         # figure out which publish type we are after
-        if sg_publish_dict["type"] == "PublishedFile":
+        if sg_location.entity_type == "PublishedFile":
             publish_type_field = "published_file_type"
         else:
             publish_type_field = "tank_type"
         
-        filters = [["id", "is", sg_publish_dict["id"]]]
+        filters = [["id", "is", sg_location.entity_id]]
+        
         fields = ["name", 
                   "version_number",
                   "task", 
                   "entity",
                   "project",
                   publish_type_field]
+        
         hierarchy = ["code"]
         
         # start spinning
         self._show_overlay_spinner()
         
         # get publish details async
-        self._sg_query_id = self.__sg_data_retriever.execute_find(self._curr_publish_dict["type"], 
-                                                                  filters, 
-                                                                  fields)
+        self._sg_query_id = self.__sg_data_retriever.execute_find(sg_location.entity_type, filters, fields)
         
-
-
-
     def _populate_default_thumbnail(self, item):
         """
         Called whenever an item needs to get a default thumbnail attached to a node.
@@ -207,7 +190,7 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
         can populate the real image.
         """
         # set up publishes with a "thumbnail loading" icon
-        item.setIcon(self._default_user_pixmap)
+        item.setIcon(self._sg_location.get_default_pixmap())
 
     def _populate_thumbnail(self, item, field, path):
         """
@@ -232,12 +215,12 @@ class SgPublishHistoryModel(ShotgunOverlayModel):
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
         
-        if field != "image": 
+        if field != self._sg_location.thumbnail_field: 
             # there may be other thumbnails being loaded in as part of the data flow
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.
             return
         
-        icon = utils.create_rectangular_512x400_thumbnail(path)
+        icon = self._sg_location.create_thumbnail(path)
         item.setIcon(QtGui.QIcon(icon))
 
