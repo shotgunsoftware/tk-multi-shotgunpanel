@@ -44,9 +44,30 @@ def show_dialog(app_instance):
     # different types of windows. By using these methods, your windows will be correctly
     # decorated and handled in a consistent fashion by the system. 
     
-    # we pass the dialog class to this method and leave the actual construction
-    # to be carried out by toolkit.
+    
+    
+    # Create and display the splash screen
+    splash_pix = QtGui.QPixmap(":/res/splash.png") 
+    splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
+    splash.setMask(splash_pix.mask())
+    splash.show()
+    QtCore.QCoreApplication.processEvents()
+
+    # start the UI
     app_instance.engine.show_dialog("Info Panel", app_instance, AppDialog)
+    
+    # attach splash screen to the main window to help GC
+    w.__splash_screen = splash
+    
+    # hide splash screen after loader UI show
+    splash.finish(w.window())
+        
+    
+    
+    
+    
+    
+    
     
 
 
@@ -101,6 +122,10 @@ class AppDialog(QtGui.QWidget):
         self._history_items = []
         self._history_index = 0
                 
+                
+        # track all model instances so that we can shut
+        # them down easily later on
+        self._model_instances = []
                 
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
@@ -157,7 +182,8 @@ class AppDialog(QtGui.QWidget):
         self._entity_task_model = model
         self._entity_task_delegate = delegate
         
-        self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_view)        
+        self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_view)
+        self._model_instances.append(self._entity_details_model)        
         self.ui.entity_info_view.setModel(self._entity_details_model.get_table_model())
 
         self.ui.entity_info_view.verticalHeader().hide()
@@ -190,6 +216,7 @@ class AppDialog(QtGui.QWidget):
         # kick off
         self._on_home_clicked()
 
+
     def _make_model(self, ModelClass, DelegateClass, parent_view):
         """
         Helper method
@@ -201,7 +228,45 @@ class AppDialog(QtGui.QWidget):
         parent_view.clicked.connect(self._on_entity_clicked)
         delegate = DelegateClass(parent_view)
         parent_view.setItemDelegate(delegate)
+        self._model_instances.append(model)
         return (model, delegate)
+
+
+
+    def closeEvent(self, event):
+        """
+        Executed when the main dialog is closed.
+        All worker threads and other things which need a proper shutdown
+        need to be called here.
+        """        
+        # display exit splash screen
+        splash_pix = QtGui.QPixmap(":/res/exit_splash.png")
+        splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
+        splash.setMask(splash_pix.mask())
+        splash.show()
+        QtCore.QCoreApplication.processEvents()
+
+        try:
+            # clear the selection in the main views. 
+            # this is to avoid re-triggering selection
+            # as items are being removed in the models
+            #
+            # TODO: might have to clear selection models here
+            
+            # gracefully close all connections
+            for m in self._model_instances:
+                m.destroy()
+
+        except:
+            self._app.log_exception("Error running Info panel App closeEvent()")
+
+        # close splash
+        splash.close()
+
+        # okay to close dialog
+        event.accept()
+
+
 
 
     ##################################################################################################
@@ -210,28 +275,26 @@ class AppDialog(QtGui.QWidget):
         """
         sets up the UI for the current location
         """
-        sg_location = self._current_location
-        
         if sg_location.get_family() == ShotgunLocation.ENTITY_FAMILY:
-            self.focus_entity(sg_location)
+            self.focus_entity()
         
         elif sg_location.get_family() == ShotgunLocation.VERSION_FAMILY:
-            self.focus_version(sg_location)
+            self.focus_version()
             
         elif sg_location.get_family() == ShotgunLocation.PUBLISH_FAMILY:
-            self.focus_publish(sg_location)
+            self.focus_publish()
         
         elif sg_location.get_family() == ShotgunLocation.NOTE_FAMILY:
-            self.focus_note(sg_location)
+            self.focus_note()
 
         else:
             self._app.log_error("Cannot set up UI for unknown item family!")
 
         # update the details area
-        self._details_model.load_data(sg_location)
+        self._details_model.load_data(self._current_location)
 
 
-    def focus_entity(self, sg_location):
+    def focus_entity(self):
         """
         Move UI to entity mode. Load up tabs.
         """
@@ -245,7 +308,7 @@ class AppDialog(QtGui.QWidget):
         self._load_entity_tab_data(self.ENTITY_TAB_NOTES)
 
 
-    def focus_publish(self, sg_location):
+    def focus_publish(self):
         """
         Move UI to entity mode. Load up tabs.
         """
@@ -258,7 +321,7 @@ class AppDialog(QtGui.QWidget):
         # load up tab data
         self._load_publish_tab_data(self.PUBLISH_TAB_HISTORY)
 
-    def focus_version(self, sg_location):
+    def focus_version(self):
         """
         Move UI to entity mode. Load up tabs.
         """
@@ -271,7 +334,7 @@ class AppDialog(QtGui.QWidget):
         # load up tab data
         self._load_version_tab_data(self.VERSION_TAB_NOTES)
         
-    def focus_note(self, sg_location):
+    def focus_note(self):
         """
         Move UI to note mode. Load up tabs.
         """
@@ -360,20 +423,29 @@ class AppDialog(QtGui.QWidget):
 
     def _refresh_details(self):
         
-        # first clear UI
-        self.ui.details_text_header.setText("")
-        self.ui.details_text_middle.setText("")
-        self.ui.details_text_bottom.setText("")
-        
-        
         sg_data = self._details_model.get_sg_data()                
         if sg_data:
-            sg_loc = create_shotgun_location(sg_data["type"], sg_data["id"])
-            sg_loc.render_details(sg_data, 
-                                  self.ui.details_text_header, 
-                                  self.ui.details_text_middle, 
-                                  self.ui.details_text_bottom)
-            sg_loc.set_up_thumbnail(sg_data, self.ui.details_thumb)
+
+            (header, body, footer) = self._current_location.format_entity_details(sg_data) 
+
+            self.ui.details_text_header.setText(header)
+            self.ui.details_text_middle.setText(body)
+            self.ui.details_text_bottom.setText(footer)
+            
+        else:
+            self.ui.details_text_header.setText("")
+            self.ui.details_text_middle.setText("")
+            self.ui.details_text_bottom.setText("")        
+            
+        playback_url = self._current_location.get_playback_url(sg_data)
+        if playback_url:
+            self.ui.details_thumb.set_playback_icon_active(True)
+            self.ui.details_thumb.set_plackback_url(playback_url)
+        else:
+            self.ui.details_thumb.set_playback_icon_active(False)
+            
+            
+
 
 
     ###################################################################################################

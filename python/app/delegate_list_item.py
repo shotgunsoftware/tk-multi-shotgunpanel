@@ -72,20 +72,18 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
         if icon:
             thumb = icon.pixmap(512)
             widget.set_thumbnail(thumb)
-        
+
+        # get the shotgun data
         sg_item = shotgun_model.get_sg_data(model_index)
+        
+        # get the location object which defines how this object is 
+        # to be presented
+        sg_location = model_index.model().get_location()
+        
+        # ask to format the data
+        (header, body) = sg_location.format_list_item_details(sg_item)
 
-        created_unixtime = sg_item.get("created_at")
-        created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
-        (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
-
-        user_name = (sg_item.get("artist") or {}).get("name") or "Unknown User"        
-        description = sg_item.get("description") or ""
-        content = "By %s %s<br><i>%s</i>" % (user_name, human_str, description)
-
-        title = "<b>%s</b>" % sg_item.get("code") or "Untitled Version"
-
-        widget.set_text(title, content)
+        widget.set_text(header, body)
         
         
     def sizeHint(self, style_options, model_index):

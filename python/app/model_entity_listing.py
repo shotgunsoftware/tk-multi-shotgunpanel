@@ -22,6 +22,8 @@ class SgEntityListingModel(ShotgunOverlayModel):
 
     """
     Model used to display long listings of data in the tabs.
+    
+    
     """
 
     def __init__(self, parent):
@@ -39,6 +41,13 @@ class SgEntityListingModel(ShotgunOverlayModel):
 
     ############################################################################################
     # public interface
+
+    def get_location(self):
+        """
+        Returns the shotgun location associated with this model
+        """
+        return self._sg_location
+        
 
 
     def load_data(self, sg_location, override_filters=None, additional_fields=None):

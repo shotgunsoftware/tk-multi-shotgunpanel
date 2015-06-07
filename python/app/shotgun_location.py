@@ -59,6 +59,18 @@ class ShotgunLocation(object):
         """
         return utils.create_rectangular_512x400_thumbnail(path)
         
+    def get_playback_url(self, sg_data):
+        """
+        returns a url to be used for playback
+        """
+        url = None
+        if sg_data.get("sg_uploaded_movie"):
+            # there is a web quicktime available!
+            sg_url = sgtk.platform.current_bundle().shotgun.base_url
+            url = "%s/page/screening_room?entity_type=%s&entity_id=%d" % (sg_url, sg_data["type"], sg_data["id"])                    
+            
+        return url
+        
     
     @property
     def thumbnail_field(self):
@@ -106,9 +118,11 @@ class ShotgunLocation(object):
         
         version_label.set_playback_icon_active(False)
     
-    def render_details(self, sg_data, top_label, middle_label, bottom_label):
+    def format_entity_details(self, sg_data):
         """
         Render details
+        
+        returns (header, body, footer)
         """
         name = sg_data.get("code") or "Unnamed"
         title = "%s %s" % (sg_data.get("type"), name)
@@ -116,5 +130,21 @@ class ShotgunLocation(object):
         bottom_label.setText(sg_data.get("description") or "No Description")
     
 
-    
+    def format_list_item_details(self, sg_data):
+        """
+        Render details
+        
+        returns (header, body) strings
+        """
+        created_unixtime = sg_data.get("created_at")
+        created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
+        (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
+
+        user_name = (sg_data.get("artist") or {}).get("name") or "Unknown User"        
+        description = sg_data.get("description") or ""
+        content = "By %s %s<br><i>%s</i>" % (user_name, human_str, description)
+
+        title = "<b>%s</b>" % sg_data.get("code") or "Untitled Version"
+
+        return (title, content)
     

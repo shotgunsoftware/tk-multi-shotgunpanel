@@ -14,10 +14,6 @@ from sgtk.platform.qt import QtCore, QtGui
 import sgtk
 from . import utils
 
-# import the shotgun_model module from the shotgun utils framework
-shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
-
 from .model_entity_listing import SgEntityListingModel
 
 class SgLatestPublishListingModel(SgEntityListingModel):
