@@ -44,8 +44,6 @@ def show_dialog(app_instance):
     # different types of windows. By using these methods, your windows will be correctly
     # decorated and handled in a consistent fashion by the system. 
     
-    
-    
     # Create and display the splash screen
     splash_pix = QtGui.QPixmap(":/res/splash.png") 
     splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
@@ -122,7 +120,6 @@ class AppDialog(QtGui.QWidget):
         self._history_items = []
         self._history_index = 0
                 
-                
         # track all model instances so that we can shut
         # them down easily later on
         self._model_instances = []
@@ -156,7 +153,6 @@ class AppDialog(QtGui.QWidget):
         self._details_model = SgEntityDetailsModel(self.ui.details)
         self._details_model.data_updated.connect(self._refresh_details)
         self._details_model.thumbnail_updated.connect(self._refresh_details_thumbnail)
-
 
         # hyperlink clicking
         self.ui.details_text_header.linkActivated.connect(self._on_link_clicked)
@@ -464,9 +460,9 @@ class AppDialog(QtGui.QWidget):
         """
         When someone clicks a url
         """
-        self._app.log_debug("Url clicked: '%s'" % url)
         if url is None:
             return
+        
         if url.startswith("http"):
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
             
@@ -474,17 +470,12 @@ class AppDialog(QtGui.QWidget):
             (entity_type, entity_id) = url.split(":")
             entity_id = int(entity_id)
             
-            if entity_type == "Playlist":
-                
-                sg_url = sgtk.platform.current_bundle().shotgun.base_url
-                proj_id = self._app.context.project["id"]
-                url = "%s/page/media_center?project_id=%d&entity_type=Playlist&entity_id=%d" % (sg_url, 
-                                                                                                proj_id, 
-                                                                                                entity_id)
+            sg_location = create_shotgun_location(entity_type, entity_id)
+            if sg_location.should_open_in_shotgun_web:
+                sg_url = location.get_external_url()
                 QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
-                                    
+                                                
             else:
-                sg_location = create_shotgun_location(entity_type, entity_id)
                 self._navigate_to(sg_location)
 
     ###################################################################################################

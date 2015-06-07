@@ -71,6 +71,23 @@ class ShotgunLocation(object):
             
         return url
         
+    def get_external_url(self):
+        """
+        returns the sg url for this entity
+        """
+        sg_url = sgtk.platform.current_bundle().shotgun.base_url
+        
+        if self._entity_type == "Playlist":
+            proj_id = self._app.context.project["id"]
+            url = "%s/page/media_center?project_id=%d&entity_type=%s&entity_id=%d" % (sg_url, 
+                                                                                      proj_id,
+                                                                                      self._entity_type, 
+                                                                                      self._entity_id)
+        
+        else:
+            url = "%s/detail/%s/%s" % (self._entity_type, self._entity_id)
+    
+        return url
     
     @property
     def thumbnail_field(self):
@@ -79,6 +96,14 @@ class ShotgunLocation(object):
     @property
     def entity_type(self):
         return self._entity_type
+    
+    @property
+    def should_open_in_shotgun_web(self):
+        
+        if self._entity_type == "Playlist":
+            return True
+        else:
+            return False
     
     @property
     def entity_id(self):
