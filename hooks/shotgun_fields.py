@@ -27,8 +27,7 @@ class ShotgunConfiguration(HookBaseClass):
         values = {
             "style": "rect",
             "sg_field": "image",
-            } 
-        
+            }
                 
         if entity_type == "Note":
             values["style"] = "round"

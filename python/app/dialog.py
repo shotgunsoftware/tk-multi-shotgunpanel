@@ -276,20 +276,17 @@ class AppDialog(QtGui.QWidget):
         """
         sets up the UI for the current location
         """
-        if sg_location.family == ShotgunLocation.ENTITY_FAMILY:
-            self.focus_entity()
-        
-        elif sg_location.family == ShotgunLocation.VERSION_FAMILY:
+        if sg_location.entity_type == "Version":
             self.focus_version()
             
-        elif sg_location.family == ShotgunLocation.PUBLISH_FAMILY:
+        elif "publish" in sg_location.entity_type.lower():
             self.focus_publish()
         
-        elif sg_location.family == ShotgunLocation.NOTE_FAMILY:
+        elif sg_location.entity_type == "Note":
             self.focus_note()
-
+        
         else:
-            self._app.log_error("Cannot set up UI for unknown item family!")
+            self.focus_entity()
 
         # update the details area
         self._details_model.load_data(self._current_location)

@@ -22,11 +22,6 @@ class ShotgunLocation(object):
     An item representing an item in the history stack
     """
     
-    # define the various families of items that the location
-    # supports. These corresponds to the different layouts
-    # in the UI
-    (PUBLISH_FAMILY, VERSION_FAMILY, ENTITY_FAMILY, NOTE_FAMILY) = range(4)
-    
     def __init__(self, entity_type, entity_id):
         """
         Constructor
@@ -121,12 +116,6 @@ class ShotgunLocation(object):
                   "image"]
         return fields
 
-    @property
-    def family(self):
-        """
-        Returns the family that this item belongs to
-        """
-        return self.ENTITY_FAMILY
 
     def set_up_thumbnail(self, sg_data, version_label):
         
