@@ -32,6 +32,7 @@ from .model_note_listing import SgNoteListingModel
 from .model_publish_history import SgPublishHistoryListingModel
 from .model_publish_dependency_down import SgPublishDependencyDownstreamListingModel
 from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
+from .model_current_user import SgCurrentUserModel
 
 from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
@@ -247,6 +248,10 @@ class AppDialog(QtGui.QWidget):
         self.ui.entity_info_view.verticalHeader().hide()
         self.ui.entity_info_view.horizontalHeader().hide()
 
+        # current user
+        self._current_user_model = SgCurrentUserModel(self)
+        self._current_user_model.thumbnail_updated.connect(self._on_current_user_thumbnail)
+        self._current_user_model.load()
 
         # kick off
         self._on_home_clicked()
@@ -274,6 +279,8 @@ class AppDialog(QtGui.QWidget):
             
             # shut down main details model
             self._details_model.destroy()
+            
+            self._current_user_model.destroy()
             
             # and the all fields model
             self._entity_details_model.destroy()
@@ -468,6 +475,9 @@ class AppDialog(QtGui.QWidget):
             
     ###################################################################################################
     # UI callbacks
+    def _on_current_user_thumbnail(self):
+        self.ui.current_user_icon.setPixmap(self._current_user_model.get_pixmap())
+        self.ui.current_user_icon_2.setPixmap(self._current_user_model.get_pixmap())
 
     def _on_entity_clicked(self, model_index):
         """

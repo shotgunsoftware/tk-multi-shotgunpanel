@@ -236,14 +236,14 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    <item>
     <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QTabWidget" name="entity_tab_widget">
          <property name="currentIndex">
-          <number>4</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="entity_note_tab">
           <attribute name="title">
@@ -266,7 +266,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <widget class="QLabel" name="label">
+              <widget class="QLabel" name="current_user_icon">
                <property name="minimumSize">
                 <size>
                  <width>65</width>
@@ -524,7 +524,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_11">
              <item>
-              <widget class="QLabel" name="label_3">
+              <widget class="QLabel" name="current_user_icon_2">
                <property name="minimumSize">
                 <size>
                  <width>60</width>

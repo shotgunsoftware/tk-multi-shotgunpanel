@@ -56,7 +56,7 @@ def create_circular_512x400_thumbnail(path):
     CANVAS_WIDTH = 512
     CANVAS_HEIGHT = 400
     
-    CIRCLE_SIZE = 390
+    CIRCLE_SIZE = 398
 
     # get the 512 base image
     base_image = QtGui.QPixmap(CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -125,7 +125,7 @@ def create_rectangular_512x400_thumbnail(path):
         # scale it down to fit inside a frame of maximum 512x512
         thumb_scaled = thumb.scaled(CANVAS_WIDTH, 
                                     CANVAS_HEIGHT, 
-                                    QtCore.Qt.KeepAspectRatio, 
+                                    QtCore.Qt.KeepAspectRatioByExpanding, 
                                     QtCore.Qt.SmoothTransformation)  
 
         # now composite the thumbnail on top of the base image
