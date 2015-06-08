@@ -73,20 +73,13 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
             thumb = icon.pixmap(512)
             widget.set_thumbnail(thumb)
 
+        if model_index.model().is_highlighted(model_index):
+            widget.set_highlighted(True)
+        else:
+            widget.set_highlighted(False)
+
         # get the shotgun data
         sg_item = shotgun_model.get_sg_data(model_index)
-        
-
-#         # see if the model tracks a concept of a current version.
-#         # this is used for version histories, when we want to highlight 
-#         # a particular item in a history
-#         model_curr_ver = model_index.model().get_current_version()
-#         if model_curr_ver and sg_item.get("version_number") == model_curr_ver:
-#             widget.set_highlighted(True)
-#         else:
-#             widget.set_highlighted(False)
-
-        
         
         # get the location object which defines how this object is 
         # to be presented

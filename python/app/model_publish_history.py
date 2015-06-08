@@ -179,3 +179,20 @@ class SgPublishHistoryModel(SgEntityListingModel):
         # get publish details async
         self._sg_query_id = self.__sg_data_retriever.execute_find(sg_location.entity_type, filters, fields)
         
+
+    def is_highlighted(self, model_index):
+        """
+        Compute if a model index belonging to this model 
+        should be highlighted.
+        
+        In the case of this model, the current version is highlighted
+        """
+        # see if the model tracks a concept of a current version.
+        # this is used for version histories, when we want to highlight 
+        # a particular item in a history
+        sg_data = self.get_sg_data(model_index)
+        
+        if sg_data.get("version_number") == self._current_version:
+            return True
+        else:
+            return False

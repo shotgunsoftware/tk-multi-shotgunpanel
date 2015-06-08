@@ -48,6 +48,13 @@ class SgEntityListingModel(ShotgunOverlayModel):
         """
         return self._sg_location
 
+    def is_highlighted(self, model_index):
+        """
+        Compute if a model index belonging to this model 
+        should be highlighted
+        """
+        return False
+
     def load_data(self, sg_location, additional_fields=None):
         """
         Clears the model and sets it up for a particular entity.
