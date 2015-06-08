@@ -85,9 +85,9 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
         sg_formatter = model_index.model().get_formatter()
         
         # ask to format the data
-        (header, body) = sg_formatter.format_list_item_details(sg_item)
+        (header_left, header_right, body) = sg_formatter.format_list_item_details(sg_item)
 
-        widget.set_text(header, body)
+        widget.set_text(header_left, header_right, body)
         
         
     def sizeHint(self, style_options, model_index):

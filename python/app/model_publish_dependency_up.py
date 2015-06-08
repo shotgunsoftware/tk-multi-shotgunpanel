@@ -24,7 +24,7 @@ class SgPublishDependencyUpstreamListingModel(SgEntityListingModel):
     rest are culled out.
     """
     
-    def __init__(self, entity_type, parent, direction):
+    def __init__(self, entity_type, parent):
         """
         Model which represents the latest publishes for an entity
         """

@@ -136,9 +136,9 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
 
             ShotgunOverlayModel._load_data(self, 
                                            self._sg_formatter.entity_type, 
-                                           self._sg_formatter.fields, 
+                                           filters, 
                                            hierarchy, 
-                                           fields, 
+                                           self._sg_formatter.fields, 
                                            [{"field_name":"created_at", "direction":"desc"}])
             self._refresh_data()
 
@@ -170,8 +170,6 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
                   "entity",
                   "project",
                   publish_type_field]
-        
-        hierarchy = ["code"]
         
         # start spinning
         self._show_overlay_spinner()

@@ -39,7 +39,7 @@ class ShotgunConfiguration(HookBaseClass):
             values["style"] = "round"
 
     
-        return value
+        return values
     
     def get_list_item_definition(self, entity_type):
         """
@@ -141,7 +141,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Department: {department}
                 """
 
-            values["footer"] = None            
+            values["footer"] = ""         
             
 
         elif entity_type == "Shot":

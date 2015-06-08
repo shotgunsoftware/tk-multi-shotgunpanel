@@ -91,9 +91,7 @@ class SgAllFieldsModel(ShotgunOverlayModel):
         for field_name in sorted(sg_data.keys()):
             
             # todo: add human readable entity types
-            field_data = curr_entity_schema.get(field_name)
-            
-            display_name_item = QtGui.QStandardItem(display_name)
+            display_name_item = QtGui.QStandardItem(field_name)
             
             # todo: add formatting
             value = "%s" % sg_data[field_name]

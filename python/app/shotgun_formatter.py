@@ -10,6 +10,7 @@
 
 import sgtk
 from sgtk import TankError
+from sgtk.platform.qt import QtCore, QtGui
 import os
 import re
 import sys
@@ -28,8 +29,8 @@ class ShotgunFormatter(object):
         Constructor
         """
         self._entity_type = entity_type
-        self._round_default_icon = utils.create_circular_512x400_thumbnail(path)
-        self._rect_default_icon = utils.create_rectangular_512x400_thumbnail(path)
+        self._round_default_icon = QtGui.QPixmap(":/tk_multi_infopanel/round_512x400.png")
+        self._rect_default_icon = QtGui.QPixmap(":/tk_multi_infopanel/rect_512x400.png")
         
         self._app = sgtk.platform.current_bundle()
         
@@ -86,7 +87,7 @@ class ShotgunFormatter(object):
         """
         
         if method_name not in self._hook_data:
-            raise TankError("Unknown shotgun_fields hook method %s" % hook_name)
+            raise TankError("Unknown shotgun_fields hook method %s" % method_name)
         
         data = self._hook_data[method_name]
 
@@ -96,6 +97,11 @@ class ShotgunFormatter(object):
         
         return data[hook_key]
     
+    def _sg_field_to_str(self, sg_field, value):
+        """
+        Convert to string
+        """
+        return str(value)
     
     ####################################################################################################
     # properties
@@ -196,11 +202,12 @@ class ShotgunFormatter(object):
         # run replacements of the strings
         for (field_name, value) in sg_data.iteritems():
             token = "{%s}" % field_name
-            title = title.replace(token, value)
-            body = body.replace(token, value)
-            footer = footer.replace(token, value)
+            str_value = self._sg_field_to_str(field_name, value)
+            title = title.replace(token, str_value)
+            body = body.replace(token, str_value)
+            footer = footer.replace(token, str_value)
         
-        return (header, body, footer)
+        return (title, body, footer)
         
 #         name = sg_data.get("code") or "Unnamed"
 #         title = "%s %s" % (sg_data.get("type"), name)
@@ -221,9 +228,10 @@ class ShotgunFormatter(object):
         # run replacements of the strings
         for (field_name, value) in sg_data.iteritems():
             token = "{%s}" % field_name
-            top_left = top_left.replace(token, value)
-            top_right = top_right.replace(token, value)
-            body = body.replace(token, value)
+            str_value = self._sg_field_to_str(field_name, value)
+            top_left = top_left.replace(token, str_value)
+            top_right = top_right.replace(token, str_value)
+            body = body.replace(token, str_value)
         
         
 #         created_unixtime = sg_data.get("created_at")

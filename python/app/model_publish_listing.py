@@ -53,7 +53,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         
         SgEntityListingModel.load_data(self, 
                                        sg_location, 
-                                       additional_fields=["version", "task"])
+                                       additional_fields=["version", "task", self._publish_type_field])
 
 
 

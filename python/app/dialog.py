@@ -54,7 +54,7 @@ def show_dialog(app_instance):
     QtCore.QCoreApplication.processEvents()
 
     # start the UI
-    app_instance.engine.show_dialog("Info Panel", app_instance, AppDialog)
+    w = app_instance.engine.show_dialog("Info Panel", app_instance, AppDialog)
     
     # attach splash screen to the main window to help GC
     w.__splash_screen = splash
@@ -103,10 +103,7 @@ class AppDialog(QtGui.QWidget):
         """
         # first, call the base class and let it do its thing.
         QtGui.QWidget.__init__(self)
-        
-        # figure out which type of publish this toolkit project is using
-        self._publish_entity_type = sgtk.util.get_published_file_entity_type(self.sgtk)
-        
+                
         # now load in the UI that was created in the UI designer
         self.ui = Ui_Dialog() 
         self.ui.setupUi(self)
@@ -121,6 +118,9 @@ class AppDialog(QtGui.QWidget):
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
+
+        # figure out which type of publish this toolkit project is using
+        self._publish_entity_type = sgtk.util.get_published_file_entity_type(self._app.sgtk)
 
         # create a settings manager where we can pull and push prefs later
         # prefs in this manager are shared
@@ -225,8 +225,10 @@ class AppDialog(QtGui.QWidget):
             ModelClass = tab_dict["model_class"]
             DelegateClass = tab_dict["delegate_class"] 
             
+            self._app.log_debug("Creating %r..." % ModelClass)
+            
             # create model 
-            tab_dict["model"] = ModelClass(tab_dict["entity_type"], tab_dict["view"], **tab_dict["kwargs"])
+            tab_dict["model"] = ModelClass(tab_dict["entity_type"], tab_dict["view"])
             # set up model
             tab_dict["view"].setModel(tab_dict["model"])            
             # set up a global on-click handler for
@@ -380,17 +382,17 @@ class AppDialog(QtGui.QWidget):
         """        
         
         if index == self.ENTITY_TAB_NOTES:        
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)].load_data(self._current_location)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
             
         elif index == self.ENTITY_TAB_VERSIONS:
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)].load_data(self._current_location)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
         
         elif index == self.ENTITY_TAB_PUBLISHES:
             show_latest_only = self.ui.latest_publishes_only.isChecked()
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)].load_data(self._current_location, show_latest_only)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location, show_latest_only)
             
         elif index == self.ENTITY_TAB_TASKS:
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)].load_data(self._current_location)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
         
         elif index == self.ENTITY_TAB_INFO:
             self._entity_details_model.load_data(self._current_location)
@@ -404,10 +406,10 @@ class AppDialog(QtGui.QWidget):
         """
 
         if index == self.VERSION_TAB_NOTES:
-            self._detail_tabs[(self.VERSION_PAGE_IDX, index)].load_data(self._current_location, show_latest_only=False)
+            self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location)
 
         elif index == self.VERSION_TAB_PUBLISHES:        
-            self._detail_tabs[(self.VERSION_PAGE_IDX, index)].load_data(self._current_location)
+            self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location, show_latest_only=False)
             
         else:
             self._app.log_error("Cannot load data for unknown version tab.")
@@ -417,13 +419,13 @@ class AppDialog(QtGui.QWidget):
         Load the data for one of the tabs in the publish family.
         """
         if index == self.PUBLISH_TAB_HISTORY:
-            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)].load_data(self._current_location)
+            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(self._current_location)
 
         elif index == self.PUBLISH_TAB_CONTAINS:        
-            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)].load_data(self._current_location)
+            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(self._current_location)
         
         elif index == self.PUBLISH_TAB_USED_IN:
-            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)].load_data(self._current_location)
+            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(self._current_location)
         
         else:
             self._app.log_error("Cannot load data for unknown publish tab.")

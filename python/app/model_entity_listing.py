@@ -76,7 +76,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
             
         hierarchy = ["id"]
         ShotgunOverlayModel._load_data(self, 
-                                       "Version", 
+                                       self._sg_formatter.entity_type, 
                                        self._get_filters(), 
                                        hierarchy, 
                                        fields, 
@@ -90,7 +90,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
         """
         Return the filter to be used for the current query
         """
-        return [["entity", "is", self._sg_location.link_field]]
+        return [[self._sg_formatter.link_field, "is", self._sg_location.entity_dict]]
 
     def _populate_default_thumbnail(self, item):
         """

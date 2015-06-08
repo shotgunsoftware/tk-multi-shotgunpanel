@@ -88,15 +88,16 @@ class ListItemWidget(QtGui.QWidget):
         """
         self.ui.thumbnail.setPixmap(pixmap)
             
-    def set_text(self, header, body):
+    def set_text(self, header_left, header_right, body):
         """
         Populate the lines of text in the widget
         
         :param header: Header text as string
         :param body: Body text as string
         """
-        self.setToolTip("%s<br>%s" % (header, body))        
-        self.ui.top_left.setText(header)
+        #self.setToolTip("%s<br>%s" % (header_left, body))        
+        self.ui.top_left.setText(header_left)
+        self.ui.top_right.setText(header_right)
         self.ui.body.setText(body)
 
     @staticmethod
