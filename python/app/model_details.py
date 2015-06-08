@@ -38,6 +38,8 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
                                      schema_generation=3)
         
         self._sg_location = None
+        
+        self._current_pixmap = None
                 
         self.data_refreshed.connect(self._on_data_refreshed)
 
@@ -57,7 +59,7 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         on a call to _populate_thumbnail will follow where the subclassing implementation
         can populate the real image.
         """
-        # set up publishes with a "thumbnail loading" icon
+        self._current_pixmap = self._sg_location.sg_formatter.default_pixmap
         self.thumbnail_updated.emit()
 
     def _populate_thumbnail(self, item, field, path):
@@ -83,12 +85,13 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
         
-        if field != self._sg_location.thumbnail_field: 
+        if field != self._sg_location.sg_formatter.thumbnail_field: 
             # there may be other thumbnails being loaded in as part of the data flow
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.
             return
             
+        self._current_pixmap = self._sg_location.sg_formatter.create_thumbnail(path)
         self.thumbnail_updated.emit()
 
     ############################################################################################
@@ -103,13 +106,13 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         # set the current location to represent
         self._sg_location = sg_location
           
-        fields = sg_location.sg_fields + [sg_location.thumbnail_field]
+        fields = sg_location.sg_formatter.fields + [sg_location.sg_formatter.thumbnail_field]
 
         hierarchy = ["id"]
         
         loaded_cache = ShotgunOverlayModel._load_data(self, 
                                                       sg_location.entity_type, 
-                                                      [["id", "is", sg_location.entity_type.entity_id]], 
+                                                      [["id", "is", sg_location.entity_id]], 
                                                       hierarchy,
                                                       fields)
         
@@ -135,5 +138,5 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         Returns the thumbnail currently associated with the item.
         If no pixmap has been loaded for the item yet, a default icon is returned.
         """
-        return self._sg_location.default_pixmap
+        return self._current_pixmap
         

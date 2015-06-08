@@ -81,12 +81,11 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
         # get the shotgun data
         sg_item = shotgun_model.get_sg_data(model_index)
         
-        # get the location object which defines how this object is 
-        # to be presented
-        sg_location = model_index.model().get_location()
+        # get the formatter object which defines how this object is to be presented
+        sg_formatter = model_index.model().get_formatter()
         
         # ask to format the data
-        (header, body) = sg_location.format_list_item_details(sg_item)
+        (header, body) = sg_formatter.format_list_item_details(sg_item)
 
         widget.set_text(header, body)
         

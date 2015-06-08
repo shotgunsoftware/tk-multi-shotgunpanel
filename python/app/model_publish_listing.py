@@ -44,7 +44,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         Loads any cached data that exists.
         """
         # figure out our current entity type
-        if sg_location.entity_type == "PublishedFile":
+        if self._sg_formatter.entity_type == "PublishedFile":
             self._publish_type_field = "published_file_type"
         else:
             self._publish_type_field = "tank_type"

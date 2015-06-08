@@ -113,7 +113,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
             sg_data = sg_records[0]
 
             # figure out which publish type we are after
-            if sg_location.entity_type == "PublishedFile":
+            if self._sg_formatter.entity_type == "PublishedFile":
                 publish_type_field = "published_file_type"
             else:
                 publish_type_field = "tank_type"
@@ -135,8 +135,8 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
             self._current_version = sg_data["version_number"]
 
             ShotgunOverlayModel._load_data(self, 
-                                           sg_location.entity_type, 
-                                           self._sg_location.sg_fields, 
+                                           self._sg_formatter.entity_type, 
+                                           self._sg_formatter.fields, 
                                            hierarchy, 
                                            fields, 
                                            [{"field_name":"created_at", "direction":"desc"}])
@@ -157,7 +157,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         self.__sg_data_retriever.clear()
         
         # figure out which publish type we are after
-        if sg_location.entity_type == "PublishedFile":
+        if self._sg_formatter.entity_type == "PublishedFile":
             publish_type_field = "published_file_type"
         else:
             publish_type_field = "tank_type"
@@ -177,7 +177,9 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         self._show_overlay_spinner()
         
         # get publish details async
-        self._sg_query_id = self.__sg_data_retriever.execute_find(sg_location.entity_type, filters, fields)
+        self._sg_query_id = self.__sg_data_retriever.execute_find(self._sg_formatter.entity_type, 
+                                                                  filters, 
+                                                                  fields)
         
 
     def is_highlighted(self, model_index):

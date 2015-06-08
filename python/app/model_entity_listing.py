@@ -33,8 +33,6 @@ class SgEntityListingModel(ShotgunOverlayModel):
     shotgun formatter
     """
     
-    
-
     def __init__(self, entity_type, parent):
         """
         Model which represents the latest publishes for an entity
@@ -52,11 +50,11 @@ class SgEntityListingModel(ShotgunOverlayModel):
     ############################################################################################
     # public interface
 
-    def get_location(self):
+    def get_formatter(self):
         """
         Returns the shotgun location associated with this model
         """
-        return self._sg_location
+        return self._sg_formatter
 
     def is_highlighted(self, model_index):
         """
@@ -72,7 +70,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
         """
         self._sg_location = sg_location
         
-        fields = self._sg_location.sg_fields
+        fields = self._sg_formatter.fields
         if additional_fields:
             fields += additional_fields
             
@@ -103,7 +101,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
         can populate the real image.
         """
         # set up publishes with a "thumbnail loading" icon
-        item.setIcon(self._sg_location.sg_fields)
+        item.setIcon(self._sg_formatter.default_pixmap)
 
     def _populate_thumbnail(self, item, field, path):
         """
@@ -128,11 +126,11 @@ class SgEntityListingModel(ShotgunOverlayModel):
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
         
-        if field != self._sg_location.thumbnail_field: 
+        if field != self._sg_formatter.thumbnail_field: 
             # there may be other thumbnails being loaded in as part of the data flow
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.
             return
         
-        icon = self._sg_location.create_thumbnail(path)
+        icon = self._sg_formatter.create_thumbnail(path)
         item.setIcon(QtGui.QIcon(icon))

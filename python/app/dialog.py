@@ -297,13 +297,13 @@ class AppDialog(QtGui.QWidget):
         """
         sets up the UI for the current location
         """
-        if sg_location.entity_type == "Version":
+        if self._current_location.entity_type == "Version":
             self.focus_version()
             
-        elif "publish" in sg_location.entity_type.lower():
+        elif "publish" in self._current_location.entity_type.lower():
             self.focus_publish()
         
-        elif sg_location.entity_type == "Note":
+        elif self._current_location.entity_type == "Note":
             self.focus_note()
         
         else:
@@ -440,7 +440,7 @@ class AppDialog(QtGui.QWidget):
         sg_data = self._details_model.get_sg_data()                
         if sg_data:
 
-            (header, body, footer) = self._current_location.format_entity_details(sg_data) 
+            (header, body, footer) = self._current_location.sg_formatter.format_entity_details(sg_data) 
 
             self.ui.details_text_header.setText(header)
             self.ui.details_text_middle.setText(body)
@@ -451,7 +451,7 @@ class AppDialog(QtGui.QWidget):
             self.ui.details_text_middle.setText("")
             self.ui.details_text_bottom.setText("")        
             
-        playback_url = self._current_location.get_playback_url(sg_data)
+        playback_url = self._current_location.sg_formatter.get_playback_url(sg_data)
         if playback_url:
             self.ui.details_thumb.set_playback_icon_active(True)
             self.ui.details_thumb.set_plackback_url(playback_url)
@@ -485,7 +485,7 @@ class AppDialog(QtGui.QWidget):
             entity_id = int(entity_id)
             
             sg_location = ShotgunLocation(entity_type, entity_id)
-            if sg_location.should_open_in_shotgun_web:
+            if sg_location.sg_formatter.should_open_in_shotgun_web:
                 sg_url = location.get_external_url()
                 QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
                                                 

@@ -58,9 +58,16 @@ class ShotgunFormatter(object):
         return "entity"
 
     @property
-    def sg_fields(self): 
+    def all_fields(self):
         """
-        todo: read from hook
+        All fields listing
+        """
+
+
+    @property
+    def fields(self): 
+        """
+        fields needed to render list or main details
         """
         fields = ["code", 
                   "project",

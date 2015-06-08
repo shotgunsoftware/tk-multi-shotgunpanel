@@ -70,10 +70,10 @@ class SgAllFieldsModel(ShotgunOverlayModel):
         hierarchy = ["id"]
 
         ShotgunOverlayModel._load_data(self, 
-                                       sg_location.entity_type, 
+                                       sg_location.sg_formatter.entity_type, 
                                        filters,
                                        hierarchy, 
-                                       sg_location.sg_fields)
+                                       sg_location.sg_formatter.all_fields)
         self._refresh_data()
 
 
