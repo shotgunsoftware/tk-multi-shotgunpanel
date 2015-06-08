@@ -23,7 +23,6 @@ from .ui.dialog import Ui_Dialog
 from . import utils
 
 from .shotgun_location import ShotgunLocation
-from .shotgun_location import create_shotgun_location
 
 from .delegate_list_item import ListItemDelegate
 
@@ -191,11 +190,17 @@ class AppDialog(QtGui.QWidget):
         self._publish_history_model = model
         self._publish_history_delegate = delegate
         
-        (model, delegate) = self._make_model(SgEntityListingModel, ListItemDelegate, self.ui.publish_upstream_view)
+        (model, delegate) = self._make_model(SgPublishDependencyListingModel, 
+                                             ListItemDelegate, 
+                                             self.ui.publish_upstream_view,
+                                             direction=SgPublishDependencyListingModel.UPSTREAM)
         self._publish_upstream_model = model
         self._publish_upstream_delegate = delegate
 
-        (model, delegate) = self._make_model(SgEntityListingModel, ListItemDelegate, self.ui.publish_downstream_view)
+        (model, delegate) = self._make_model(SgPublishDependencyListingModel, 
+                                             ListItemDelegate, 
+                                             self.ui.publish_downstream_view,
+                                             direction=SgPublishDependencyListingModel.DOWNSTREAM)
         self._publish_downstream_model = model
         self._publish_downstream_delegate = delegate
         
@@ -213,13 +218,13 @@ class AppDialog(QtGui.QWidget):
         self._on_home_clicked()
 
 
-    def _make_model(self, ModelClass, DelegateClass, parent_view):
+    def _make_model(self, ModelClass, DelegateClass, parent_view, **kwargs):
         """
         Helper method
         
         :returns: (model, delegate)
         """
-        model = ModelClass(parent_view)
+        model = ModelClass(parent_view, **kwargs)
         parent_view.setModel(model)
         parent_view.clicked.connect(self._on_entity_clicked)
         delegate = DelegateClass(parent_view)
@@ -271,16 +276,16 @@ class AppDialog(QtGui.QWidget):
         """
         sets up the UI for the current location
         """
-        if sg_location.get_family() == ShotgunLocation.ENTITY_FAMILY:
+        if sg_location.family == ShotgunLocation.ENTITY_FAMILY:
             self.focus_entity()
         
-        elif sg_location.get_family() == ShotgunLocation.VERSION_FAMILY:
+        elif sg_location.family == ShotgunLocation.VERSION_FAMILY:
             self.focus_version()
             
-        elif sg_location.get_family() == ShotgunLocation.PUBLISH_FAMILY:
+        elif sg_location.family == ShotgunLocation.PUBLISH_FAMILY:
             self.focus_publish()
         
-        elif sg_location.get_family() == ShotgunLocation.NOTE_FAMILY:
+        elif sg_location.family == ShotgunLocation.NOTE_FAMILY:
             self.focus_note()
 
         else:
@@ -399,12 +404,10 @@ class AppDialog(QtGui.QWidget):
             self._publish_history_model.load_data(self._current_location)
 
         elif index == self.PUBLISH_TAB_CONTAINS:        
-            publish_filter = [["downstream_published_files", "in", [self._current_location]]]
-            self._publish_upstream_model.load_data(self._current_location, override_filters=publish_filter)
+            self._publish_upstream_model.load_data(self._current_location)
         
         elif index == self.PUBLISH_TAB_USED_IN:
-            publish_filter = [["upstream_published_files", "in", [curr_entity_dict]]]
-            self._publish_downstream_model.load_data(self._current_location, override_filters=publish_filter)
+            self._publish_downstream_model.load_data(self._current_location)
         
         else:
             self._app.log_error("Cannot load data for unknown publish tab.")
@@ -415,7 +418,6 @@ class AppDialog(QtGui.QWidget):
 
     def _refresh_details_thumbnail(self):        
         self.ui.details_thumb.setPixmap(self._details_model.get_pixmap())
-
 
     def _refresh_details(self):
         
@@ -441,9 +443,6 @@ class AppDialog(QtGui.QWidget):
             self.ui.details_thumb.set_playback_icon_active(False)
             
             
-
-
-
     ###################################################################################################
     # UI callbacks
 
@@ -452,7 +451,7 @@ class AppDialog(QtGui.QWidget):
         Someone clicked an entity
         """
         sg_item = shotgun_model.get_sg_data(model_index)
-        sg_location = create_shotgun_location(sg_item["type"], sg_item["id"])
+        sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
         self._navigate_to(sg_location)
 
 
@@ -470,7 +469,7 @@ class AppDialog(QtGui.QWidget):
             (entity_type, entity_id) = url.split(":")
             entity_id = int(entity_id)
             
-            sg_location = create_shotgun_location(entity_type, entity_id)
+            sg_location = ShotgunLocation(entity_type, entity_id)
             if sg_location.should_open_in_shotgun_web:
                 sg_url = location.get_external_url()
                 QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
@@ -517,10 +516,10 @@ class AppDialog(QtGui.QWidget):
         # get entity portion of context
         ctx = self._app.context
         if ctx.entity:
-            sg_location = create_shotgun_location(ctx.entity["type"], ctx.entity["id"])
+            sg_location = ShotgunLocation(ctx.entity["type"], ctx.entity["id"])
                     
         else:
-            sg_location = create_shotgun_location(ctx.project["type"], ctx.project["id"])
+            sg_location = ShotgunLocation(ctx.project["type"], ctx.project["id"])
             
         self._navigate_to(sg_location)
         

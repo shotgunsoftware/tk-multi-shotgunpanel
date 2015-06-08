@@ -82,7 +82,7 @@ class ShotgunConfiguration(HookBaseClass):
             values["body"] = "By {created_by} %s<br><i>{description}</i>"
         
         return values
-            
+        
     
     def get_info_fields(self, entity_type):
         """

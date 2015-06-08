@@ -16,15 +16,6 @@ import datetime
 from . import utils
 
 
-def create_shotgun_location(entity_type, entity_id):
-    """
-    factory method.
-    """
-    return ShotgunLocation(entity_type, entity_id)
-
-
-
-
 
 class ShotgunLocation(object):
     """
@@ -45,7 +36,6 @@ class ShotgunLocation(object):
     
         self._round_default_icon = utils.create_circular_512x400_thumbnail(path)
         self._rect_default_icon = utils.create_rectangular_512x400_thumbnail(path)
-
     
     def get_default_pixmap(self):
         """
@@ -58,7 +48,7 @@ class ShotgunLocation(object):
         Given a path, create a suitable thumbnail and return a pixmap
         """
         return utils.create_rectangular_512x400_thumbnail(path)
-        
+    
     def get_playback_url(self, sg_data):
         """
         returns a url to be used for playback
@@ -99,7 +89,6 @@ class ShotgunLocation(object):
     
     @property
     def should_open_in_shotgun_web(self):
-        
         if self._entity_type == "Playlist":
             return True
         else:
@@ -115,7 +104,6 @@ class ShotgunLocation(object):
 
     @property
     def link_field(self):
-        
         return "entity"
 
     @property
@@ -133,7 +121,8 @@ class ShotgunLocation(object):
                   "image"]
         return fields
 
-    def get_family(self):
+    @property
+    def family(self):
         """
         Returns the family that this item belongs to
         """

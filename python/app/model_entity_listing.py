@@ -47,10 +47,8 @@ class SgEntityListingModel(ShotgunOverlayModel):
         Returns the shotgun location associated with this model
         """
         return self._sg_location
-        
 
-
-    def load_data(self, sg_location, override_filters=None, additional_fields=None):
+    def load_data(self, sg_location, additional_fields=None):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
@@ -61,16 +59,23 @@ class SgEntityListingModel(ShotgunOverlayModel):
         if additional_fields:
             fields += additional_fields
             
-        hierarchy = [fields[0]]
-        filters = override_filters or [["entity", "is", self._sg_location.link_field]] 
+        hierarchy = ["id"]
         ShotgunOverlayModel._load_data(self, 
                                        "Version", 
-                                       filters, 
+                                       self._get_filters(), 
                                        hierarchy, 
                                        fields, 
                                        [{"field_name":"updated_at", "direction":"asc"}])
         self._refresh_data()
 
+    ############################################################################################
+    # protected methods
+    
+    def _get_filters(self):
+        """
+        Return the filter to be used for the current query
+        """
+        return [["entity", "is", self._sg_location.link_field]]
 
     def _populate_default_thumbnail(self, item):
         """
