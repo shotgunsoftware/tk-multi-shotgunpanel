@@ -24,7 +24,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
     rest are culled out.
     """
 
-    def __init__(self, parent):
+    def __init__(self, entity_type, parent):
         """
         Model which represents the latest publishes for an entity
         """
@@ -33,7 +33,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         self._publish_type_field = None
 
         # init base class
-        SgEntityListingModel.__init__(self, parent)
+        SgEntityListingModel.__init__(self, entity_type, parent)
         
     ############################################################################################
     # public interface

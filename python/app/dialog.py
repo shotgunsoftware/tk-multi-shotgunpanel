@@ -28,7 +28,10 @@ from .delegate_list_item import ListItemDelegate
 
 from .model_entity_listing import SgEntityListingModel
 from .model_publish_listing import SgLatestPublishListingModel
-from .model_publish_history import SgPublishHistoryModel
+from .model_publish_history import SgPublishHistoryListingModel
+from .model_publish_dependency_down import SgPublishDependencyDownstreamListingModel
+from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
+
 from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
 
@@ -59,13 +62,6 @@ def show_dialog(app_instance):
     # hide splash screen after loader UI show
     splash.finish(w.window())
         
-    
-    
-    
-    
-    
-    
-    
 
 
 class AppDialog(QtGui.QWidget):
@@ -108,6 +104,9 @@ class AppDialog(QtGui.QWidget):
         # first, call the base class and let it do its thing.
         QtGui.QWidget.__init__(self)
         
+        # figure out which type of publish this toolkit project is using
+        self._publish_entity_type = sgtk.util.get_published_file_entity_type(self.sgtk)
+        
         # now load in the UI that was created in the UI designer
         self.ui = Ui_Dialog() 
         self.ui.setupUi(self)
@@ -118,11 +117,7 @@ class AppDialog(QtGui.QWidget):
         # track the history
         self._history_items = []
         self._history_index = 0
-                
-        # track all model instances so that we can shut
-        # them down easily later on
-        self._model_instances = []
-                
+                                
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
@@ -158,80 +153,100 @@ class AppDialog(QtGui.QWidget):
         self.ui.details_text_middle.linkActivated.connect(self._on_link_clicked)
         self.ui.details_text_bottom.linkActivated.connect(self._on_link_clicked)
         self.ui.details_thumb.playback_clicked.connect(self._on_link_clicked)
+        
+        # set up the UI tabs. Each tab has a model, a delegate, a view and 
+        # an associated enity type
+        
+        self._detail_tabs = {}
+        
+        # tabs on entity view
+        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_NOTES)
+        self._detail_tabs[idx] = {"model_class": SgEntityListingModel,
+                                  "delegate_class": ListItemDelegate,
+                                  "view": self.ui.entity_note_view,
+                                  "entity_type": "Note"}
+        
+        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_VERSIONS)
+        self._detail_tabs[idx] = {"model_class": SgEntityListingModel,
+                                  "delegate_class": ListItemDelegate,
+                                  "view": self.ui.entity_version_view,
+                                  "entity_type": "Version"}
+
+        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_PUBLISHES)
+        self._detail_tabs[idx] = {"model_class": SgLatestPublishListingModel,
+                                  "delegate_class": ListItemDelegate,
+                                  "view": self.ui.entity_publish_view,
+                                  "entity_type": self._publish_entity_type}
+
+        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_TASKS)
+        self._detail_tabs[idx] = {"model_class": SgEntityListingModel,
+                                  "delegate_class": ListItemDelegate,
+                                  "view": self.ui.entity_task_view,
+                                  "entity_type": "Task"}
+
+        # tabs on publish view
+        idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_HISTORY)
+        self._detail_tabs[idx] = {"model_class": SgPublishHistoryListingModel,
+                                  "delegate_class": ListItemDelegate,
+                                  "view": self.ui.publish_history_view,
+                                  "entity_type": self._publish_entity_type}
+
+        idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_CONTAINS)
+        self._detail_tabs[idx] = {"model_class": SgPublishDependencyUpstreamListingModel,
+                                  "delegate_class": ListItemDelegate,
+                                  "view": self.ui.publish_upstream_view,
+                                  "entity_type": self._publish_entity_type}
+
+        idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_USED_IN)
+        self._detail_tabs[idx] = {"model_class": SgPublishDependencyDownstreamListingModel,
+                                  "delegate_class": ListItemDelegate,
+                                  "view": self.ui.publish_downstream_view,
+                                  "entity_type": self._publish_entity_type}
+
+        # tabs on version view
+        idx = (self.VERSION_PAGE_IDX, self.VERSION_TAB_NOTES)
+        self._detail_tabs[idx] = {"model_class": SgEntityListingModel,
+                                  "delegate_class": ListItemDelegate,
+                                  "view": self.ui.version_note_view,
+                                  "entity_type": "Note"}
+
+        idx = (self.VERSION_PAGE_IDX, self.VERSION_TAB_PUBLISHES)
+        self._detail_tabs[idx] = {"model_class": SgLatestPublishListingModel,
+                                  "delegate_class": ListItemDelegate,
+                                  "view": self.ui.version_publish_view,
+                                  "entity_type": self._publish_entity_type}
 
         
-        # entity section
-        (model, delegate) = self._make_model(SgEntityListingModel, ListItemDelegate, self.ui.entity_note_view)
-        self._entity_note_model = model
-        self._entity_note_delegate = delegate
-                
-        (model, delegate) = self._make_model(SgEntityListingModel, ListItemDelegate, self.ui.entity_version_view)
-        self._entity_version_model = model
-        self._entity_version_delegate = delegate
+        # now initialize all tabs. This will add two model and delegate keys
+        # to all the dicts
+        
+        for tab_dict in self._detail_tabs.values():
+            
+            ModelClass = tab_dict["model_class"]
+            DelegateClass = tab_dict["delegate_class"] 
+            
+            # create model 
+            tab_dict["model"] = ModelClass(tab_dict["entity_type"], tab_dict["view"], **tab_dict["kwargs"])
+            # set up model
+            tab_dict["view"].setModel(tab_dict["model"])            
+            # set up a global on-click handler for
+            tab_dict["view"].clicked.connect(self._on_entity_clicked)
+            # create delegate
+            tab_dict["delegate"] = DelegateClass(tab_dict["view"])
+            # hook up delegate renderer with view
+            tab_dict["view"].setItemDelegate(tab_dict["delegate"])
+        
+        
 
-        (model, delegate) = self._make_model(SgLatestPublishListingModel, ListItemDelegate, self.ui.entity_publish_view)
-        self._entity_publish_model = model
-        self._entity_publish_delegate = delegate
-        
-        (model, delegate) = self._make_model(SgEntityListingModel, ListItemDelegate, self.ui.entity_task_view)
-        self._entity_task_model = model
-        self._entity_task_delegate = delegate
-        
-        self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_view)
-        self._model_instances.append(self._entity_details_model)        
+        # set up the all fields tabs
+        self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_view)        
         self.ui.entity_info_view.setModel(self._entity_details_model.get_table_model())
-
         self.ui.entity_info_view.verticalHeader().hide()
         self.ui.entity_info_view.horizontalHeader().hide()
 
 
-        # publish details
-        (model, delegate) = self._make_model(SgPublishHistoryModel, ListItemDelegate, self.ui.publish_history_view)
-        self._publish_history_model = model
-        self._publish_history_delegate = delegate
-        
-        (model, delegate) = self._make_model(SgPublishDependencyListingModel, 
-                                             ListItemDelegate, 
-                                             self.ui.publish_upstream_view,
-                                             direction=SgPublishDependencyListingModel.UPSTREAM)
-        self._publish_upstream_model = model
-        self._publish_upstream_delegate = delegate
-
-        (model, delegate) = self._make_model(SgPublishDependencyListingModel, 
-                                             ListItemDelegate, 
-                                             self.ui.publish_downstream_view,
-                                             direction=SgPublishDependencyListingModel.DOWNSTREAM)
-        self._publish_downstream_model = model
-        self._publish_downstream_delegate = delegate
-        
-        
-        # version details
-        (model, delegate) = self._make_model(SgEntityListingModel, ListItemDelegate, self.ui.version_note_view)
-        self._version_note_model = model
-        self._version_note_delegate = delegate
-        
-        (model, delegate) = self._make_model(SgEntityListingModel, ListItemDelegate, self.ui.version_publish_view)
-        self._version_publish_model = model
-        self._version_publish_delegate = delegate  
-
         # kick off
         self._on_home_clicked()
-
-
-    def _make_model(self, ModelClass, DelegateClass, parent_view, **kwargs):
-        """
-        Helper method
-        
-        :returns: (model, delegate)
-        """
-        model = ModelClass(parent_view, **kwargs)
-        parent_view.setModel(model)
-        parent_view.clicked.connect(self._on_entity_clicked)
-        delegate = DelegateClass(parent_view)
-        parent_view.setItemDelegate(delegate)
-        self._model_instances.append(model)
-        return (model, delegate)
-
 
 
     def closeEvent(self, event):
@@ -254,9 +269,15 @@ class AppDialog(QtGui.QWidget):
             #
             # TODO: might have to clear selection models here
             
-            # gracefully close all connections
-            for m in self._model_instances:
-                m.destroy()
+            # shut down main details model
+            self._details_model.destroy()
+            
+            # and the all fields model
+            self._entity_details_model.destroy()
+            
+            # gracefully close all tab model connections
+            for tab_dict in self._detail_tabs.values():
+                tab_dict["model"].destroy()            
 
         except:
             self._app.log_exception("Error running Info panel App closeEvent()")
@@ -357,18 +378,19 @@ class AppDialog(QtGui.QWidget):
         """
         Loads the data for one of the UI tabs in the entity family
         """        
+        
         if index == self.ENTITY_TAB_NOTES:        
-            self._entity_note_model.load_data(self._current_location)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)].load_data(self._current_location)
             
         elif index == self.ENTITY_TAB_VERSIONS:
-            self._entity_version_model.load_data(self._current_location)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)].load_data(self._current_location)
         
         elif index == self.ENTITY_TAB_PUBLISHES:
             show_latest_only = self.ui.latest_publishes_only.isChecked()
-            self._entity_publish_model.load_data(self._current_location, show_latest_only)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)].load_data(self._current_location, show_latest_only)
             
         elif index == self.ENTITY_TAB_TASKS:
-            self._entity_task_model.load_data(self._current_location)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)].load_data(self._current_location)
         
         elif index == self.ENTITY_TAB_INFO:
             self._entity_details_model.load_data(self._current_location)
@@ -376,35 +398,32 @@ class AppDialog(QtGui.QWidget):
         else:
             self._app.log_error("Cannot load data for unknown entity tab.")
         
-        
     def _load_version_tab_data(self, index):
         """
         Load the data for one of the tabs in the version family
         """
-        self._app.log_debug("Version tab clicked - index: %s" % index)
 
         if index == self.VERSION_TAB_NOTES:
-            self._version_publish_model.load_data(self._current_location, show_latest_only=False)
+            self._detail_tabs[(self.VERSION_PAGE_IDX, index)].load_data(self._current_location, show_latest_only=False)
 
         elif index == self.VERSION_TAB_PUBLISHES:        
-            self._version_note_model.load_data(self._current_location)
+            self._detail_tabs[(self.VERSION_PAGE_IDX, index)].load_data(self._current_location)
             
         else:
             self._app.log_error("Cannot load data for unknown version tab.")
-    
     
     def _load_publish_tab_data(self, index):
         """
         Load the data for one of the tabs in the publish family.
         """
         if index == self.PUBLISH_TAB_HISTORY:
-            self._publish_history_model.load_data(self._current_location)
+            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)].load_data(self._current_location)
 
         elif index == self.PUBLISH_TAB_CONTAINS:        
-            self._publish_upstream_model.load_data(self._current_location)
+            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)].load_data(self._current_location)
         
         elif index == self.PUBLISH_TAB_USED_IN:
-            self._publish_downstream_model.load_data(self._current_location)
+            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)].load_data(self._current_location)
         
         else:
             self._app.log_error("Cannot load data for unknown publish tab.")
@@ -450,7 +469,6 @@ class AppDialog(QtGui.QWidget):
         sg_item = shotgun_model.get_sg_data(model_index)
         sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
         self._navigate_to(sg_location)
-
 
     def _on_link_clicked(self, url):
         """

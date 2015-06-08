@@ -13,6 +13,7 @@ from sgtk.platform.qt import QtCore, QtGui
 
 import sgtk
 from . import utils
+from .shotgun_formatter import ShotgunFormatter
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
@@ -23,14 +24,23 @@ class SgEntityListingModel(ShotgunOverlayModel):
     """
     Model used to display long listings of data in the tabs.
     
+    Each model represents for example all publishes, versions notes etc
+    that are associated with a particular object.
     
+    The associated object is defined in the shotgun location.
+    
+    The type of data that the model generates is defined via the 
+    shotgun formatter
     """
+    
+    
 
-    def __init__(self, parent):
+    def __init__(self, entity_type, parent):
         """
         Model which represents the latest publishes for an entity
         """
         self._sg_location = None
+        self._sg_formatter = ShotgunFormatter(entity_type)
         
         # init base class
         ShotgunOverlayModel.__init__(self,

@@ -23,7 +23,7 @@ ShotgunDataRetriever = shotgun_data.ShotgunDataRetriever
 
 from .model_entity_listing import SgEntityListingModel
 
-class SgPublishHistoryModel(SgEntityListingModel):
+class SgPublishHistoryListingModel(SgEntityListingModel):
     """
     Model that shows the version history for a publish.
     
@@ -33,7 +33,7 @@ class SgPublishHistoryModel(SgEntityListingModel):
     pass
     """
 
-    def __init__(self, parent):
+    def __init__(self, entity_type, parent):
         """
         constructor
         """
@@ -47,7 +47,7 @@ class SgPublishHistoryModel(SgEntityListingModel):
         self._sg_query_id = None
         
         # init base class
-        SgEntityListingModel.__init__(self, parent)
+        SgEntityListingModel.__init__(self, entity_type, parent)
 
         self._app = sgtk.platform.current_bundle()
         

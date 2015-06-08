@@ -135,5 +135,5 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         Returns the thumbnail currently associated with the item.
         If no pixmap has been loaded for the item yet, a default icon is returned.
         """
-        return self._sg_location.get_default_pixmap()
+        return self._sg_location.default_pixmap
         

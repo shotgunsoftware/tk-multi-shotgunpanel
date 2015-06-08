@@ -16,7 +16,7 @@ from . import utils
 
 from .model_entity_listing import SgEntityListingModel
 
-class SgPublishDependencyListingModel(SgEntityListingModel):
+class SgPublishDependencyUpstreamListingModel(SgEntityListingModel):
     """
     Model which is like the entity listing model
     but taylored for publishes. Also handles a mode
@@ -24,28 +24,18 @@ class SgPublishDependencyListingModel(SgEntityListingModel):
     rest are culled out.
     """
     
-    # defining the dependency direction
-    (UPSTREAM, DOWNSTREAM) = range(2)
-
-    def __init__(self, parent, direction):
+    def __init__(self, entity_type, parent, direction):
         """
         Model which represents the latest publishes for an entity
         """
-        # should the model only show latest publishes?
-        self._direction = direction
-        self._publish_type_field = None
-
         # init base class
-        SgEntityListingModel.__init__(self, parent)
+        SgEntityListingModel.__init__(self, entity_type, parent)
         
 
     def _get_filters(self):
         """
         Return the filter to be used for the current query
         """
-        if self._direction == self.UPSTREAM:
-            return [["upstream_published_files", "in", [self._sg_location.link_field]]]
-        else:
-            return [["downstream_published_files", "in", [self._sg_location.link_field]]]
+        return [["upstream_published_files", "in", [self._sg_location.link_field]]]
         
 
