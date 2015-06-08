@@ -28,6 +28,7 @@ from .delegate_list_item import ListItemDelegate
 
 from .model_entity_listing import SgEntityListingModel
 from .model_publish_listing import SgLatestPublishListingModel
+from .model_note_listing import SgNoteListingModel
 from .model_publish_history import SgPublishHistoryListingModel
 from .model_publish_dependency_down import SgPublishDependencyDownstreamListingModel
 from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
@@ -161,7 +162,7 @@ class AppDialog(QtGui.QWidget):
         
         # tabs on entity view
         idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_NOTES)
-        self._detail_tabs[idx] = {"model_class": SgEntityListingModel,
+        self._detail_tabs[idx] = {"model_class": SgNoteListingModel,
                                   "delegate_class": ListItemDelegate,
                                   "view": self.ui.entity_note_view,
                                   "entity_type": "Note"}
@@ -205,7 +206,7 @@ class AppDialog(QtGui.QWidget):
 
         # tabs on version view
         idx = (self.VERSION_PAGE_IDX, self.VERSION_TAB_NOTES)
-        self._detail_tabs[idx] = {"model_class": SgEntityListingModel,
+        self._detail_tabs[idx] = {"model_class": SgNoteListingModel,
                                   "delegate_class": ListItemDelegate,
                                   "view": self.ui.version_note_view,
                                   "entity_type": "Note"}
@@ -448,12 +449,16 @@ class AppDialog(QtGui.QWidget):
             self.ui.details_text_middle.setText(body)
             self.ui.details_text_bottom.setText(footer)
             
+            playback_url = self._current_location.sg_formatter.get_playback_url(sg_data)
+            
         else:
             self.ui.details_text_header.setText("")
             self.ui.details_text_middle.setText("")
-            self.ui.details_text_bottom.setText("")        
+            self.ui.details_text_bottom.setText("")
             
-        playback_url = self._current_location.sg_formatter.get_playback_url(sg_data)
+            playback_url = None
+            
+        
         if playback_url:
             self.ui.details_thumb.set_playback_icon_active(True)
             self.ui.details_thumb.set_plackback_url(playback_url)

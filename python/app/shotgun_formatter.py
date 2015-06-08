@@ -140,7 +140,11 @@ class ShotgunFormatter(object):
     
     @property
     def link_field(self):
-        return "entity"
+        
+        if self._entity_type == "Note":
+            return ""
+        else:
+            return "entity"
 
     @property
     def all_fields(self):
