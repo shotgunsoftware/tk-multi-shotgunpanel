@@ -9,7 +9,9 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
+from sgtk import TankError
 import os
+import re
 import sys
 import threading
 import datetime
@@ -20,6 +22,7 @@ class ShotgunFormatter(object):
     
     """
     
+    
     def __init__(self, entity_type):
         """
         Constructor
@@ -27,6 +30,72 @@ class ShotgunFormatter(object):
         self._entity_type = entity_type
         self._round_default_icon = utils.create_circular_512x400_thumbnail(path)
         self._rect_default_icon = utils.create_rectangular_512x400_thumbnail(path)
+        
+        self._app = sgtk.platform.current_bundle()
+        
+        # read in the hook data into a dict
+        self._hook_data = {}
+        
+        self._hook_data["get_thumbnail_settings"] = self._app.execute_hook_method("shotgun_fields_hook", 
+                                                                                  "get_thumbnail_settings", 
+                                                                                  entity_type=entity_type)
+
+        self._hook_data["get_list_item_definition"] = self._app.execute_hook_method("shotgun_fields_hook", 
+                                                                                  "get_list_item_definition", 
+                                                                                  entity_type=entity_type)
+        
+        self._hook_data["get_all_fields"] = self._app.execute_hook_method("shotgun_fields_hook", 
+                                                                          "get_all_fields", 
+                                                                          entity_type=entity_type)
+        
+        self._hook_data["get_tab_visibility"] = self._app.execute_hook_method("shotgun_fields_hook", 
+                                                                              "get_tab_visibility", 
+                                                                              entity_type=entity_type)
+        
+        self._hook_data["get_main_view_definition"] = self._app.execute_hook_method("shotgun_fields_hook", 
+                                                                                    "get_main_view_definition", 
+                                                                                    entity_type=entity_type)        
+        
+        # extract a list of fields given all the different {tokens} defined
+        fields = []
+        fields += self._resolve_fields( self._get_hook_value("get_list_item_definition", "top_left") )
+        fields += self._resolve_fields( self._get_hook_value("get_list_item_definition", "top_right") )
+        fields += self._resolve_fields( self._get_hook_value("get_list_item_definition", "body") )
+        fields += self._resolve_fields( self._get_hook_value("get_main_view_definition", "title") )
+        fields += self._resolve_fields( self._get_hook_value("get_main_view_definition", "body") )
+        fields += self._resolve_fields( self._get_hook_value("get_main_view_definition", "footer") )
+        self._token_fields = set(fields)
+        
+    def _resolve_fields(self, token_str):
+        """
+        given a string with {tokens} or {deep.linktokens} return a list
+        of tokens.
+        """    
+    
+        try:
+            # find all field names ["xx", "yy", "zz.xx"] from "{xx}_{yy}_{zz.xx}"
+            fields = set(re.findall('{([^}^{]*)}', token_str))
+        except Exception, error:
+            raise TankError("Could not parse '%s' - Error: %s" % (token_str, error) )
+    
+        return fields
+    
+    def _get_hook_value(self, method_name, hook_key):
+        """
+        Validate that value is correct and return it
+        """
+        
+        if method_name not in self._hook_data:
+            raise TankError("Unknown shotgun_fields hook method %s" % hook_name)
+        
+        data = self._hook_data[method_name]
+
+        if hook_key not in data:
+            raise TankError("Hook shotgun_fields.%s does not return "
+                            "required dictionary key '%s'!" % (method_name, hook_key))
+        
+        return data[hook_key]
+    
     
     ####################################################################################################
     # properties
@@ -36,11 +105,21 @@ class ShotgunFormatter(object):
         """
         Returns the default pixmap associated with this location
         """
-        return self._rect_default_icon
+        thumb_style = self._get_hook_value("get_thumbnail_settings", "style")
+        
+        if thumb_style == "rect":
+            return self._rect_default_icon
+        elif thumb_style == "round":
+            return self._round_default_icon
+        else:
+            raise TankError("Unknown thumbnail style defined in hook!")
             
     @property
     def thumbnail_field(self):
-        return "image"
+        """
+        Returns the field name to use when look for thumbnails
+        """
+        return self._get_hook_value("get_thumbnail_settings", "sg_field")
     
     @property
     def entity_type(self):
@@ -62,21 +141,14 @@ class ShotgunFormatter(object):
         """
         All fields listing
         """
-
+        return self._hook_data["get_all_fields"]
 
     @property
     def fields(self): 
         """
         fields needed to render list or main details
         """
-        fields = ["code", 
-                  "project",
-                  "created_by",
-                  "description", 
-                  "sg_status_list",
-                  "project" 
-                  "image"]
-        return fields
+        return list(self._token_fields)
 
     ####################################################################################################
     # methods
@@ -85,8 +157,15 @@ class ShotgunFormatter(object):
         """
         Given a path, create a suitable thumbnail and return a pixmap
         """
-        # pass in full sg data here?
-        return utils.create_rectangular_512x400_thumbnail(path)
+        
+        thumb_style = self._get_hook_value("get_thumbnail_settings", "style")
+        
+        if thumb_style == "rect":
+            return utils.create_rectangular_512x400_thumbnail(path)
+        elif thumb_style == "round":
+            return utils.create_circular_512x400_thumbnail(path)
+        else:
+            raise TankError("Unknown thumbnail style defined in hook!")        
 
 
     def get_playback_url(self, sg_data):
@@ -110,26 +189,52 @@ class ShotgunFormatter(object):
         
         returns (header, body, footer)
         """
-        name = sg_data.get("code") or "Unnamed"
-        title = "%s %s" % (sg_data.get("type"), name)
-        top_label.setText(title)
-        bottom_label.setText(sg_data.get("description") or "No Description")
+        title = self._get_hook_value("get_main_view_definition", "title")
+        body = self._get_hook_value("get_main_view_definition", "body")
+        footer = self._get_hook_value("get_main_view_definition", "footer")
+        
+        # run replacements of the strings
+        for (field_name, value) in sg_data.iteritems():
+            token = "{%s}" % field_name
+            title = title.replace(token, value)
+            body = body.replace(token, value)
+            footer = footer.replace(token, value)
+        
+        return (header, body, footer)
+        
+#         name = sg_data.get("code") or "Unnamed"
+#         title = "%s %s" % (sg_data.get("type"), name)
+#         top_label.setText(title)
+#         bottom_label.setText(sg_data.get("description") or "No Description")
     
     def format_list_item_details(self, sg_data):
         """
         Render details
         
-        returns (header, body) strings
+        returns (top_left, top_right, body) strings
         """
-        created_unixtime = sg_data.get("created_at")
-        created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
-        (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
 
-        user_name = (sg_data.get("artist") or {}).get("name") or "Unknown User"        
-        description = sg_data.get("description") or ""
-        content = "By %s %s<br><i>%s</i>" % (user_name, human_str, description)
+        top_left = self._get_hook_value("get_list_item_definition", "top_left")
+        top_right = self._get_hook_value("get_list_item_definition", "top_right")
+        body = self._get_hook_value("get_list_item_definition", "body")
+        
+        # run replacements of the strings
+        for (field_name, value) in sg_data.iteritems():
+            token = "{%s}" % field_name
+            top_left = top_left.replace(token, value)
+            top_right = top_right.replace(token, value)
+            body = body.replace(token, value)
+        
+        
+#         created_unixtime = sg_data.get("created_at")
+#         created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
+#         (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
+# 
+#         user_name = (sg_data.get("artist") or {}).get("name") or "Unknown User"        
+#         description = sg_data.get("description") or ""
+#         content = "By %s %s<br><i>%s</i>" % (user_name, human_str, description)
+# 
+#         title = "<b>%s</b>" % sg_data.get("code") or "Untitled Version"
 
-        title = "<b>%s</b>" % sg_data.get("code") or "Untitled Version"
-
-        return (title, content)
+        return (top_left, top_right, body)
     

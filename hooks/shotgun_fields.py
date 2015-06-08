@@ -13,17 +13,16 @@ Hook that configures which data should be displayed from Shotgun
 """
 import sgtk
 import os
-import pymel.core as pm
-import maya.cmds as cmds
-import maya.mel as mel
 
 HookBaseClass = sgtk.get_hook_baseclass()
 
 class ShotgunConfiguration(HookBaseClass):
     
     
-    def get_thumbnail_data(self, entity_type):
+    def get_thumbnail_settings(self, entity_type):
+        """
         
+        """
         values = {
             "style": "rect",
             "sg_field": "image",
@@ -42,7 +41,7 @@ class ShotgunConfiguration(HookBaseClass):
     
         return value
     
-    def get_item_details(self, entity_type):
+    def get_list_item_definition(self, entity_type):
         """
         Controls the rendering of items in the listings.
         """
@@ -83,7 +82,7 @@ class ShotgunConfiguration(HookBaseClass):
         return values
         
     
-    def get_info_fields(self, entity_type):
+    def get_all_fields(self, entity_type):
         """
         Define which fields should be displayed in the info tab
         for a given entity
@@ -97,7 +96,29 @@ class ShotgunConfiguration(HookBaseClass):
         return values
     
     
-    def get_header_details(self, entity_type):
+    def get_tab_visibility(self, entity_type):
+        """
+        Define which tabs should be visible
+        """
+        values = {
+            "tasks_tab": True,
+            "publishes_tab": True,
+            "versions_tab": True,
+            "notes_tab": True
+            }
+        
+        if entity_type in "HumanUser": 
+            values["tasks_tab"] = False
+            values["publishes_tab"] = False
+            values["versions_tab"] = False
+            values["notes_tab"] = False
+            
+        elif entity_type == "Task":
+            values["tasks_tab"] = False 
+    
+        return values
+
+    def get_main_view_definition(self, entity_type):
         """
         Define which info is shown in the detail section 
         """
@@ -106,11 +127,7 @@ class ShotgunConfiguration(HookBaseClass):
             "play_url": None,
             "title": "{type} {code}",
             "body": "Project: {project}<br>Created by: {created_by}",
-            "footer": "{description}",
-            "tasks_tab": True,
-            "publishes_tab": True,
-            "versions_tab": True,
-            "notes_tab": True
+            "footer": "{description}"
             }
         
         
@@ -124,12 +141,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Department: {department}
                 """
 
-            values["footer"] = None
-            
-            values["tasks_tab"] = False
-            values["publishes_tab"] = False
-            values["versions_tab"] = False
-            values["notes_tab"] = False
+            values["footer"] = None            
             
 
         elif entity_type == "Shot":
@@ -156,8 +168,6 @@ class ShotgunConfiguration(HookBaseClass):
                 Pipeline Step: {step}<br>
                 Assigned to: {task_assignees}
                 """
-                
-            values["tasks_tab"] = False 
                 
             
             
