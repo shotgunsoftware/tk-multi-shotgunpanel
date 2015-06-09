@@ -329,11 +329,50 @@ class AppDialog(QtGui.QWidget):
         # set the right widget to show
         self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)        
         
+        
+        formatter = self._current_location.sg_formatter
+        default_tab = None
+        
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_NOTES, formatter.show_notes_tab)
+        if not formatter.show_notes_tab:
+            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, "")
+        else:
+            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, "Notes")
+            # set this tab to be default unless another tab is already set
+            default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_NOTES
+ 
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_VERSIONS, formatter.show_versions_tab)
+        if not formatter.show_versions_tab:
+            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, "")
+        else:
+            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, "Versions")
+            # set this tab to be default unless another tab is already set
+            default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_VERSIONS
+
+ 
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_PUBLISHES, formatter.show_publishes_tab)
+        if not formatter.show_publishes_tab:
+            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, "")
+        else:
+            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, "Publishes")
+            # set this tab to be default unless another tab is already set
+            default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_PUBLISHES
+
+
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_TASKS, formatter.show_tasks_tab)
+        if not formatter.show_tasks_tab:
+            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, "")
+        else:
+            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, "Tasks")
+            # set this tab to be default unless another tab is already set
+            default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_TASKS
+        
+        
         # reset to the default tab
-        self.ui.entity_tab_widget.setCurrentIndex(self.ENTITY_TAB_NOTES)
+        self.ui.entity_tab_widget.setCurrentIndex(default_tab)
         
         # load up tab data
-        self._load_entity_tab_data(self.ENTITY_TAB_NOTES)
+        self._load_entity_tab_data(default_tab)
 
 
     def focus_publish(self):

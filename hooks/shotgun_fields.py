@@ -107,8 +107,8 @@ class ShotgunConfiguration(HookBaseClass):
             "notes_tab": True
             }
         
-        if entity_type in "HumanUser": 
-            values["tasks_tab"] = True
+        if entity_type in "Step": 
+            values["tasks_tab"] = False
             values["publishes_tab"] = False
             values["versions_tab"] = False
             values["notes_tab"] = False
@@ -167,6 +167,15 @@ class ShotgunConfiguration(HookBaseClass):
                 Assigned to: {task_assignees}
                 """
                 
+        elif entity_type == "Step":
+            
+            values["title"] = "Pipeline Step {code}"
+            
+            values["body"] = """                
+                Group: {sg_group}<br>
+                Short Code: {short_name}<br>
+                """
+
         elif entity_type == "Asset":
 
             values["body"] = """
