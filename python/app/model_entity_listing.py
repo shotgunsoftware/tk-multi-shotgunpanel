@@ -90,9 +90,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
         """
         Return the filter to be used for the current query
         """
-        filters = []
-        filters.append( self._sg_formatter.get_link_query(self._sg_location) )
-        return filters
+        return self._sg_formatter.get_link_filters(self._sg_location)
 
     def _populate_default_thumbnail(self, item):
         """

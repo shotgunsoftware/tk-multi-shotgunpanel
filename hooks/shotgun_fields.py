@@ -50,19 +50,19 @@ class ShotgunConfiguration(HookBaseClass):
         values = {
             "top_left": "{code}",
             "top_right": "{created_at}",
-            "body": "By {created_by} %s<br><i>{description}</i>"            
+            "body": "By {created_by}<br><i>{description}</i>"            
             } 
         
         # override 
         if entity_type == "PublishedFile":
             
             values["top_left"] = "{name} v{version_number}"
-            values["body"] = "By {created_by} %s<br>{published_file_type}<br><i>{description}</i>"            
+            values["body"] = "By {created_by}<br>{published_file_type}<br><i>{description}</i>"            
     
         elif entity_type == "TankPublishedFile":
                         
             values["top_left"] = "{name} v{version_number}"
-            values["body"] = "By {created_by} %s<br>{tank_type}<br><i>{description}</i>"            
+            values["body"] = "By {created_by}<br>{tank_type}<br><i>{description}</i>"            
             
         elif entity_type == "Note":
             
@@ -77,7 +77,7 @@ class ShotgunConfiguration(HookBaseClass):
         elif entity_type == "Version":
 
             values["top_left"] = "{code}"
-            values["body"] = "By {created_by} %s<br><i>{description}</i>"
+            values["body"] = "By {created_by}<br><i>{description}</i>"
         
         return values
         
@@ -124,7 +124,6 @@ class ShotgunConfiguration(HookBaseClass):
         """
         
         values = {
-            "play_url": None,
             "title": "{type} {code}",
             "body": "Project: {project}<br>Created by: {created_by}",
             "footer": "{description}"
@@ -143,7 +142,6 @@ class ShotgunConfiguration(HookBaseClass):
 
             values["footer"] = ""         
             
-
         elif entity_type == "Shot":
             
             values["body"] = """
@@ -169,8 +167,6 @@ class ShotgunConfiguration(HookBaseClass):
                 Assigned to: {task_assignees}
                 """
                 
-            
-            
         elif entity_type == "Asset":
 
             values["body"] = """
@@ -178,8 +174,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Asset Type: {sg_asset_type}<br>
                 Status: {sg_status_list}
                 """
-            
-        
+                    
         elif entity_type == "Project":
             
             values["title"] = "Project {name}"
@@ -249,8 +244,6 @@ class ShotgunConfiguration(HookBaseClass):
 
         
         elif entity_type == "Version":
-            
-            values["play_url"] = "{sg_url}/page/screening_room?entity_type={type}&entity_id={id}"
             
             values["footer"] = """
                 Created by {created_by} {created_at}<br>

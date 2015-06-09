@@ -118,9 +118,10 @@ class ShotgunFormatter(object):
         
         elif isinstance(value, list):
             # list of items
+            link_urls = []
             for list_item in value:
-                str_val = ""
-                str_val += self._sg_field_to_str(sg_field, list_item)
+                link_urls.append( self._sg_field_to_str(sg_field, list_item))
+            str_val = ", ".join(link_urls)
             
         else:
             str_val = str(value)  
@@ -157,6 +158,9 @@ class ShotgunFormatter(object):
     
     @property
     def should_open_in_shotgun_web(self):
+        
+        
+        # TODO - we might want to expose this in the hook at some point
         if self._entity_type == "Playlist":
             return True
         else:
@@ -179,17 +183,37 @@ class ShotgunFormatter(object):
     ####################################################################################################
     # methods
 
-    def get_link_query(self, sg_location):
+    def get_link_filters(self, sg_location):
         """
         Returns a filter string which links this type up to a particular 
         location
-        """        
-        if self._entity_type == "Note":
-            link_filter = ["note_links", "in", [sg_location.entity_dict]]
-        else:
-            link_filter = ["entity", "is", sg_location.entity_dict]
+        """ 
+        
+        # TODO - we might want to expose this in the hook at some point
+        link_filters = []
+        
+        if sg_location.entity_type in ["HumanUser", "ClientUser"]:
+            # the logic for users is different
+            # here we want give an overview of their work
+            # for the current project 
+            link_filters.append(["project", "is", self._app.context.project])
             
-        return link_filter
+            if self._entity_type == "Task":
+                link_filters.append(["task_assignees", "in", [sg_location.entity_dict]])
+                link_filters.append(["sg_status_list", "is_not", "final"])
+                
+            else:
+                link_filters.append(["created_by", "is", sg_location.entity_dict])
+            
+        else:
+            
+            if self._entity_type == "Note":
+                link_filters.append(["note_links", "in", [sg_location.entity_dict]])
+            else:
+                link_filters.append(["entity", "is", sg_location.entity_dict])
+            
+        print "**** link filters: %s" % link_filters
+        return link_filters     
             
         
 
@@ -212,6 +236,8 @@ class ShotgunFormatter(object):
         """
         returns a url to be used for playback
         """
+        
+        # TODO - we might want to expose this in the hook at some point
         if self._entity_type != "Version":
             return None
         
