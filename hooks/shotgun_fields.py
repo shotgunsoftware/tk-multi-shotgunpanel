@@ -30,7 +30,7 @@ class ShotgunConfiguration(HookBaseClass):
                 
         if entity_type == "Note":
             values["style"] = "round"
-            values["sg_field"] = "created_by.HumanUser.image"
+            values["sg_field"] = "user.HumanUser.image"
             
         elif entity_type == "Task":
             values["style"] = "round"

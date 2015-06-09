@@ -33,9 +33,6 @@ class ReplyListWidget(QtGui.QWidget):
         self.ui = Ui_NoteReplyWidget() 
         self.ui.setupUi(self)
         
-        print " init!"
-
-
         w = ReplyWidget(self)
         self.ui.reply_layout.addWidget(w)
         

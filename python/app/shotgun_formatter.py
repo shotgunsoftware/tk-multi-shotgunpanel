@@ -65,7 +65,14 @@ class ShotgunFormatter(object):
         fields += self._resolve_fields( self._get_hook_value("get_main_view_definition", "title") )
         fields += self._resolve_fields( self._get_hook_value("get_main_view_definition", "body") )
         fields += self._resolve_fields( self._get_hook_value("get_main_view_definition", "footer") )
+        
+        # also include the thumbnail field so that it gets retrieved as part of the general 
+        # query payload
+        fields.append(self.thumbnail_field)
         self._token_fields = set(fields)
+        
+    def __repr__(self):
+        return "<Shotgun '%s' formatter>" % self._entity_type
         
     def _resolve_fields(self, token_str):
         """

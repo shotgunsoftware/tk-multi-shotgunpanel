@@ -45,7 +45,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
                                      parent,
                                      overlay_widget=parent,
                                      download_thumbs=True,
-                                     schema_generation=4)
+                                     schema_generation=5)
 
     ############################################################################################
     # public interface
@@ -124,8 +124,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
         :param item: QStandardItem which is associated with the given thumbnail
         :param field: The Shotgun field which the thumbnail is associated with.
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
-        """
-        
+        """        
         if field != self._sg_formatter.thumbnail_field: 
             # there may be other thumbnails being loaded in as part of the data flow
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
