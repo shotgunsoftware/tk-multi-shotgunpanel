@@ -28,7 +28,6 @@ from .delegate_list_item import ListItemDelegate
 
 from .model_entity_listing import SgEntityListingModel
 from .model_publish_listing import SgLatestPublishListingModel
-from .model_note_listing import SgNoteListingModel
 from .model_publish_history import SgPublishHistoryListingModel
 from .model_publish_dependency_down import SgPublishDependencyDownstreamListingModel
 from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
@@ -163,7 +162,7 @@ class AppDialog(QtGui.QWidget):
         
         # tabs on entity view
         idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_NOTES)
-        self._detail_tabs[idx] = {"model_class": SgNoteListingModel,
+        self._detail_tabs[idx] = {"model_class": SgEntityListingModel,
                                   "delegate_class": ListItemDelegate,
                                   "view": self.ui.entity_note_view,
                                   "entity_type": "Note"}
@@ -207,7 +206,7 @@ class AppDialog(QtGui.QWidget):
 
         # tabs on version view
         idx = (self.VERSION_PAGE_IDX, self.VERSION_TAB_NOTES)
-        self._detail_tabs[idx] = {"model_class": SgNoteListingModel,
+        self._detail_tabs[idx] = {"model_class": SgEntityListingModel,
                                   "delegate_class": ListItemDelegate,
                                   "view": self.ui.version_note_view,
                                   "entity_type": "Note"}

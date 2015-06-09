@@ -36,6 +36,6 @@ class SgPublishDependencyUpstreamListingModel(SgEntityListingModel):
         """
         Return the filter to be used for the current query
         """
-        return [["upstream_published_files", "in", [self._sg_location.link_field]]]
+        return [["upstream_published_files", "in", [self._sg_location.entity_dict]]]
         
 

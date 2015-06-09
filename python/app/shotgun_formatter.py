@@ -163,14 +163,6 @@ class ShotgunFormatter(object):
             return False
     
     @property
-    def link_field(self):
-        
-        if self._entity_type == "Note":
-            return ""
-        else:
-            return "entity"
-
-    @property
     def all_fields(self):
         """
         All fields listing
@@ -186,6 +178,20 @@ class ShotgunFormatter(object):
 
     ####################################################################################################
     # methods
+
+    def get_link_query(self, sg_location):
+        """
+        Returns a filter string which links this type up to a particular 
+        location
+        """        
+        if self._entity_type == "Note":
+            link_filter = ["note_links", "in", [sg_location.entity_dict]]
+        else:
+            link_filter = ["entity", "is", sg_location.entity_dict]
+            
+        return link_filter
+            
+        
 
     def create_thumbnail(self, path):
         """

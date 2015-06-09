@@ -190,7 +190,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         # see if the model tracks a concept of a current version.
         # this is used for version histories, when we want to highlight 
         # a particular item in a history
-        sg_data = self.get_sg_data(model_index)
+        sg_data = shotgun_model.get_sg_data(model_index)
         
         if sg_data.get("version_number") == self._current_version:
             return True
