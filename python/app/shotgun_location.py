@@ -40,10 +40,11 @@ class ShotgunLocation(object):
         """
         returns the sg url for this entity
         """
-        sg_url = sgtk.platform.current_bundle().shotgun.base_url
+        app = sgtk.platform.current_bundle()
+        sg_url = app.shotgun.base_url
         
         if self._entity_type == "Playlist":
-            proj_id = self._app.context.project["id"]
+            proj_id = app.context.project["id"]
             url = "%s/page/media_center?project_id=%d&entity_type=%s&entity_id=%d" % (sg_url, 
                                                                                       proj_id,
                                                                                       self._entity_type, 

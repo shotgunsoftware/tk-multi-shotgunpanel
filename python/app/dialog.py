@@ -503,8 +503,8 @@ class AppDialog(QtGui.QWidget):
             
             sg_location = ShotgunLocation(entity_type, entity_id)
             if sg_location.sg_formatter.should_open_in_shotgun_web:
-                sg_url = location.get_external_url()
-                QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+                sg_url = sg_location.get_external_url()
+                QtGui.QDesktopServices.openUrl(QtCore.QUrl(sg_url))
                                                 
             else:
                 self._navigate_to(sg_location)
