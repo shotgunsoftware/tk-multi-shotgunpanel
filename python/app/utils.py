@@ -220,10 +220,4 @@ def create_human_readable_timestamp(datetime_obj):
     return (human_time_str, std_format)
 
 
-def generate_link(sg_link):
-    
-    if sg_link is None:
-        return ""
-    else:
-        return "<a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a>" % (sg_link["type"], sg_link["id"], sg_link["name"])
     

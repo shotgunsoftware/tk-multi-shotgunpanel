@@ -108,7 +108,24 @@ class ShotgunFormatter(object):
         """
         Convert to string
         """
-        return str(value)
+        str_val = ""
+        
+        if isinstance(value, dict) and set(["type", "id", "name"]) == set(value.keys()):
+            # entity link
+            str_val = "<a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a>" % (value["type"], 
+                                                                                             value["id"], 
+                                                                                             value["name"])
+        
+        elif isinstance(value, list):
+            # list of items
+            for list_item in value:
+                str_val = ""
+                str_val += self._sg_field_to_str(sg_field, list_item)
+            
+        else:
+            str_val = str(value)  
+            
+        return str_val
     
     ####################################################################################################
     # properties
