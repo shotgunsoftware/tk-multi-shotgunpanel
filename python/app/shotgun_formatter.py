@@ -180,6 +180,34 @@ class ShotgunFormatter(object):
         """
         return list(self._token_fields)
 
+    @property
+    def show_notes_tab(self):
+        """
+        Should the note tab be shown for this
+        """
+        return self._get_hook_value("get_tab_visibility", "notes_tab")
+
+    @property
+    def show_publishes_tab(self):
+        """
+        Should the publishes tab be shown for this
+        """
+        return self._get_hook_value("get_tab_visibility", "publishes_tab")
+
+    @property
+    def show_versions_tab(self):
+        """
+        Should the publishes tab be shown for this
+        """
+        return self._get_hook_value("get_tab_visibility", "versions_tab")
+
+    @property
+    def show_tasks_tab(self):
+        """
+        Should the tasks tab be shown for this
+        """
+        return self._get_hook_value("get_tab_visibility", "tasks_tab")
+
     ####################################################################################################
     # methods
 
@@ -212,7 +240,6 @@ class ShotgunFormatter(object):
             else:
                 link_filters.append(["entity", "is", sg_location.entity_dict])
             
-        print "**** link filters: %s" % link_filters
         return link_filters     
             
         

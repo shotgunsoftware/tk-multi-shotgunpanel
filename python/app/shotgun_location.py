@@ -23,6 +23,7 @@ class ShotgunLocation(object):
     def __init__(self, entity_type, entity_id):
         self._entity_type = entity_type
         self._entity_id = entity_id
+        self._formatter = ShotgunFormatter(self._entity_type)
         
     @property
     def entity_type(self):
@@ -57,5 +58,5 @@ class ShotgunLocation(object):
     
     @property
     def sg_formatter(self):
-        return ShotgunFormatter(self._entity_type)
+        return self._formatter
 

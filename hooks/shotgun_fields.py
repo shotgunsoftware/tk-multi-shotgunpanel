@@ -108,7 +108,7 @@ class ShotgunConfiguration(HookBaseClass):
             }
         
         if entity_type in "HumanUser": 
-            values["tasks_tab"] = False
+            values["tasks_tab"] = True
             values["publishes_tab"] = False
             values["versions_tab"] = False
             values["notes_tab"] = False
