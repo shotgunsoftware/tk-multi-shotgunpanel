@@ -592,7 +592,10 @@ class AppDialog(QtGui.QWidget):
         """
         # get entity portion of context
         ctx = self._app.context
-        if ctx.entity:
+        if ctx.task:
+            sg_location = ShotgunLocation(ctx.task["type"], ctx.task["id"])
+
+        elif ctx.entity:
             sg_location = ShotgunLocation(ctx.entity["type"], ctx.entity["id"])
                     
         else:
