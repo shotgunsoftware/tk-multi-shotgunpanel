@@ -205,7 +205,7 @@ class ShotgunConfiguration(HookBaseClass):
             values["title"] = "{subject}"
             
             values["footer"] = """
-                Created by {created_by} {created_at}<br>
+                Created by {created_by} on {created_at}<br>
                 <br>
                 {content}
                 """
@@ -224,9 +224,9 @@ class ShotgunConfiguration(HookBaseClass):
             values["title"] = "Publish {code}"
             
             values["footer"] = """
-                Published by {created_by} {created_at}<br>
+                Published by {created_by} on {created_at}<br>
                 <br>
-                <i><b>Comments:</i>{description}</i>
+                <i><b>Comments:</i> {description}</i>
                 """
                 
             values["body"] = """
@@ -242,9 +242,9 @@ class ShotgunConfiguration(HookBaseClass):
             values["title"] = "Publish {code}"
             
             values["footer"] = """
-                Published by {created_by} {created_at}<br>
+                Published by {created_by} on {created_at}<br>
                 <br>
-                <i><b>Comments:</i>{description}</i>
+                <i><b>Comments:</i> {description}</i>
                 """
 
             values["body"] = """
@@ -260,9 +260,9 @@ class ShotgunConfiguration(HookBaseClass):
         elif entity_type == "Version":
             
             values["footer"] = """
-                Created by {created_by} {created_at}<br>
+                Created by {created_by} on {created_at}<br>
                 <br>
-                <i><b>Comments:</i>{description}</i>
+                <i><b>Comments:</i> {description}</i>
                 """
 
             values["body"] = """
