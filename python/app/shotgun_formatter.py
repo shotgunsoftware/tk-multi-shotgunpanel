@@ -69,6 +69,11 @@ class ShotgunFormatter(object):
         # also include the thumbnail field so that it gets retrieved as part of the general 
         # query payload
         fields.append(self.thumbnail_field)
+        
+        # include the special quicktime field for versions
+        if entity_type == "Version":
+            fields.append("sg_uploaded_movie")
+        
         self._token_fields = set(fields)
         
     def __repr__(self):
@@ -307,7 +312,7 @@ class ShotgunFormatter(object):
             # there is a web quicktime available!
             sg_url = sgtk.platform.current_bundle().shotgun.base_url
             url = "%s/page/screening_room?entity_type=%s&entity_id=%d" % (sg_url, sg_data["type"], sg_data["id"])                    
-            
+
         return url
 
     def _convert_token_string(self, token_str, sg_data):
