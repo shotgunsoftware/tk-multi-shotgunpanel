@@ -180,15 +180,6 @@ class ShotgunConfiguration(HookBaseClass):
                 Assigned to: {task_assignees}
                 """
                 
-        elif entity_type == "Step":
-            
-            values["title"] = "Pipeline Step {code}"
-            
-            values["body"] = """                
-                Group: {sg_group}<br>
-                Short Code: {short_name}<br>
-                """
-
         elif entity_type == "Asset":
 
             values["body"] = """
@@ -244,7 +235,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Task: {task}<br>
                 Reviewed in: {version}<br>
                 Version number: {version_number}<br>
-                File Type: {published_file_type:nolink}<br>
+                File Type: {published_file_type}<br>
                 """
             
         elif entity_type == "TankPublishedFile":
@@ -261,20 +252,9 @@ class ShotgunConfiguration(HookBaseClass):
                 Associated with: {entity}<br>
                 Task: {task}<br>
                 Version number: {version_number}<br>
-                File Type: {tank_type:nolink}<br>
-                """
-
-        elif entity_type == "PublishedFileType":
-            values["title"] = "Publish Type {code}"
-            
-            values["footer"] = ""
-
-            values["body"] = """
-                Associated with: {entity}<br>
-                Task: {task}<br>
-                Version number: {version_number}<br>
                 File Type: {tank_type}<br>
                 """
+
 
         
         elif entity_type == "Version":
