@@ -70,6 +70,8 @@ class AppDialog(QtGui.QWidget):
     Main application dialog window
     """
     
+    
+    
     # page indices
     ENTITY_PAGE_IDX = 0
     PUBLISH_PAGE_IDX = 1
@@ -104,7 +106,14 @@ class AppDialog(QtGui.QWidget):
         """
         # first, call the base class and let it do its thing.
         QtGui.QWidget.__init__(self)
-                
+        
+        # most of the useful accessors are available through the Application class instance
+        # it is often handy to keep a reference to this. You can get it via the following method:
+        self._app = sgtk.platform.current_bundle()
+
+        # load style sheet        
+        self._load_css()
+        
         # now load in the UI that was created in the UI designer
         self.ui = Ui_Dialog() 
         self.ui.setupUi(self)
@@ -116,9 +125,6 @@ class AppDialog(QtGui.QWidget):
         self._history_items = []
         self._history_index = 0
                                 
-        # most of the useful accessors are available through the Application class instance
-        # it is often handy to keep a reference to this. You can get it via the following method:
-        self._app = sgtk.platform.current_bundle()
 
         # figure out which type of publish this toolkit project is using
         self._publish_entity_type = sgtk.util.get_published_file_entity_type(self._app.sgtk)
@@ -254,6 +260,27 @@ class AppDialog(QtGui.QWidget):
 
         # kick off
         self._on_home_clicked()
+
+
+    def _load_css(self):
+        """
+        Load external style sheet
+        """
+        css_file = os.path.join(self._app.disk_location, "style.css")
+
+        try:
+            # Read css file
+            f = open(css_file)
+            css_data = f.read()
+            # Append our add ons to current sytle sheet at the top widget
+            # level, children will inherit from it, without us affecting
+            # other apps for this engine
+            self.setStyleSheet(css_data)
+        except:
+            self._app.log_warning( "Unable to read style sheet %s" % css_file )
+        finally:
+            f.close()
+
 
 
     def closeEvent(self, event):

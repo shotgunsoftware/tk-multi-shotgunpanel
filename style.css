@@ -1,0 +1,27 @@
+
+QTabWidget::pane {
+    border-top: 1px solid rgb(255, 255, 255, 20);
+}
+QTabWidget::tab-bar {
+    left: 5px;
+}
+
+QListView, QTableView {
+    border: none;
+}
+
+
+/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
+QTabBar::tab {
+    min-width: 8ex;
+    padding: 10px;
+    border-bottom: none;
+}
+QTabBar::tab:hover {
+    color: #2C93E2;
+}
+QTabBar::tab:selected {
+    color: #2C93E2;
+    font-weight: bold;
+    border-bottom: 2px solid #2C93E2;
+}
