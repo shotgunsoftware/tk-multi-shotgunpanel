@@ -120,7 +120,7 @@ class ShotgunFormatter(object):
                 # links are just "ABC123"
                 link_name = value["name"]
             
-            if directive == "nolink":
+            if not self._generates_links(value["type"]):
                 str_val = link_name
             else:
                 str_val = "<a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a>" % (value["type"], 
@@ -150,6 +150,17 @@ class ShotgunFormatter(object):
             str_val = str(value)  
             
         return str_val
+    
+    def _generates_links(self, entity_type):
+        """
+        Returns true if the given entity type
+        should be hyperlinked to, false if not
+        """
+        if entity_type in ["Step", "TankType", "PublishedFileType"]:
+            return False
+        else:
+            return True
+        
     
     ####################################################################################################
     # properties
