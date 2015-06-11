@@ -104,7 +104,7 @@ class ShotgunFormatter(object):
         
         return data[hook_key]
     
-    def _sg_field_to_str(self, sg_field, value):
+    def _sg_field_to_str(self, sg_type, sg_field, value):
         """
         Convert to string
         """
@@ -120,8 +120,16 @@ class ShotgunFormatter(object):
             # list of items
             link_urls = []
             for list_item in value:
-                link_urls.append( self._sg_field_to_str(sg_field, list_item))
+                link_urls.append( self._sg_field_to_str(sg_type, sg_field, list_item))
             str_val = ", ".join(link_urls)
+            
+        elif sg_field in ["created_at", "updated_at"]:
+            created_datetime = datetime.datetime.fromtimestamp(value)
+            (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime) 
+            str_val = human_str           
+            
+        elif value is None:
+            return "No value set"
             
         else:
             str_val = str(value)  
@@ -158,7 +166,6 @@ class ShotgunFormatter(object):
     
     @property
     def should_open_in_shotgun_web(self):
-        
         
         # TODO - we might want to expose this in the hook at some point
         if self._entity_type == "Playlist":
@@ -289,18 +296,13 @@ class ShotgunFormatter(object):
         # run replacements of the strings
         for (field_name, value) in sg_data.iteritems():
             token = "{%s}" % field_name
-            str_value = self._sg_field_to_str(field_name, value)
+            str_value = self._sg_field_to_str(sg_data["type"], field_name, value)
             title = title.replace(token, str_value)
             body = body.replace(token, str_value)
             footer = footer.replace(token, str_value)
         
         return (title, body, footer)
         
-#         name = sg_data.get("code") or "Unnamed"
-#         title = "%s %s" % (sg_data.get("type"), name)
-#         top_label.setText(title)
-#         bottom_label.setText(sg_data.get("description") or "No Description")
-    
     def format_list_item_details(self, sg_data):
         """
         Render details
@@ -315,21 +317,10 @@ class ShotgunFormatter(object):
         # run replacements of the strings
         for (field_name, value) in sg_data.iteritems():
             token = "{%s}" % field_name
-            str_value = self._sg_field_to_str(field_name, value)
+            str_value = self._sg_field_to_str(sg_data["type"], field_name, value)
             top_left = top_left.replace(token, str_value)
             top_right = top_right.replace(token, str_value)
             body = body.replace(token, str_value)
-        
-        
-#         created_unixtime = sg_data.get("created_at")
-#         created_datetime = datetime.datetime.fromtimestamp(created_unixtime)
-#         (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime)
-# 
-#         user_name = (sg_data.get("artist") or {}).get("name") or "Unknown User"        
-#         description = sg_data.get("description") or ""
-#         content = "By %s %s<br><i>%s</i>" % (user_name, human_str, description)
-# 
-#         title = "<b>%s</b>" % sg_data.get("code") or "Untitled Version"
-
+                
         return (top_left, top_right, body)
     
