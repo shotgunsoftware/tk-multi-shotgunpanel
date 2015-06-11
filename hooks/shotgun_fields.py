@@ -156,7 +156,7 @@ class ShotgunConfiguration(HookBaseClass):
         elif entity_type == "Task":
             
             values["title"] = "Task {content}"
-            
+            values["footer"] = ""
             values["body"] = """
                 Project: {project}<br>
                 Status: {sg_status_list}<br>
