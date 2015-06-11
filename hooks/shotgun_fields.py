@@ -47,37 +47,38 @@ class ShotgunConfiguration(HookBaseClass):
         
         # define a set of defaults
         values = {
-            "top_left": "{code}",
+            "top_left": "<big>{code}</big>",
             "top_right": "{created_at}",
-            "body": "By {created_by}<br><i>{description}</i>"            
+            "body": "By {created_by}<br>Description: <i>{description}</i>"            
             } 
         
         # override 
         if entity_type == "PublishedFile":
             
-            values["top_left"] = "{name} v{version_number}"
-            values["body"] = "By {created_by}<br>{published_file_type}<br><i>{description}</i>"            
+            values["top_left"] = "<big>{name} v{version_number}</big>"
+            values["body"] = "By: {created_by}<br>Type: {published_file_type}<br>Comments: <i>{description}</i>"            
     
         elif entity_type == "TankPublishedFile":
                         
-            values["top_left"] = "{name} v{version_number}"
-            values["body"] = "By {created_by}<br>{tank_type}<br><i>{description}</i>"            
+            values["top_left"] = "<big>{name} v{version_number}</big>"
+            values["body"] = "By: {created_by}<br>Type: {tank_type}<br>Comments: <i>{description}</i>"            
             
         elif entity_type == "Note":
             
-            values["top_left"] = "{created_by}"
+            values["top_left"] = "<big>{created_by}</big>"
             values["body"] = "{content}"            
     
+        elif entity_type == "Version":
+            
+            
+            values["body"] = "By: {user}<br>Status: {sg_status_list}<br>Task: {sg_task}<br>Description: <i>{description}</i>"            
+
+        
         elif entity_type == "Task":
             
-            values["top_left"] = "{content}"
+            values["top_left"] = "<big>{content}</big>"
             values["body"] = "Assigned to: {task_assignees}<br>Status: {sg_status_list}<br>Start: {start_date}<br>Due: {due_date}"            
 
-        elif entity_type == "Version":
-
-            values["top_left"] = "{code}"
-            values["body"] = "By {created_by}<br><i>{description}</i>"
-        
         return values
         
     
@@ -130,7 +131,7 @@ class ShotgunConfiguration(HookBaseClass):
             }
         
         
-        if entity_type in "HumanUser": 
+        if entity_type == "HumanUser": 
 
             values["title"] = "User {name}"
             
@@ -141,6 +142,18 @@ class ShotgunConfiguration(HookBaseClass):
                 """
 
             values["footer"] = ""         
+
+        if entity_type == "ApiUser": 
+
+            values["title"] = "Script User {firstname}"
+            
+            values["body"] = """
+                Maintainer: {email}<br>
+                Version: {lastname}
+                """
+
+            values["footer"] = "{description}"         
+
             
         elif entity_type == "Shot":
             
@@ -251,6 +264,18 @@ class ShotgunConfiguration(HookBaseClass):
                 File Type: {tank_type}<br>
                 """
 
+        elif entity_type == "PublishedFileType":
+            values["title"] = "Publish Type {code}"
+            
+            values["footer"] = ""
+
+            values["body"] = """
+                Associated with: {entity}<br>
+                Task: {task}<br>
+                Version number: {version_number}<br>
+                File Type: {tank_type}<br>
+                """
+
         
         elif entity_type == "Version":
             
@@ -266,7 +291,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Frame Range: {frame_range}<br>
                 Department: {department}<br>
                 Associated with: {entity}<br>
-                Task: {task}<br>
+                Task: {sg_task}<br>
                 Playlists: {playlists}<br>
                 """
             
