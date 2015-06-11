@@ -90,8 +90,9 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.
             return
-            
-        self._current_pixmap = self._sg_location.sg_formatter.create_thumbnail(path)
+        
+        sg_data = item.get_sg_data()
+        self._current_pixmap = self._sg_location.sg_formatter.create_thumbnail(path, sg_data)
         self.thumbnail_updated.emit()
 
     ############################################################################################

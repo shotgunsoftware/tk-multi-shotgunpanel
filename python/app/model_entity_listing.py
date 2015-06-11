@@ -131,5 +131,6 @@ class SgEntityListingModel(ShotgunOverlayModel):
             # ignore and not display.
             return
         
-        icon = self._sg_formatter.create_thumbnail(path)
+        sg_data = item.get_sg_data()
+        icon = self._sg_formatter.create_thumbnail(path, sg_data)
         item.setIcon(QtGui.QIcon(icon))

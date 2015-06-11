@@ -251,7 +251,7 @@ class ShotgunFormatter(object):
             
         
 
-    def create_thumbnail(self, path):
+    def create_thumbnail(self, path, sg_data):
         """
         Given a path, create a suitable thumbnail and return a pixmap
         """
