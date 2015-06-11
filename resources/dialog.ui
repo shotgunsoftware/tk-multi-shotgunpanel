@@ -258,6 +258,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
                <height>60</height>
               </size>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
             </widget>
            </item>
            <item>
@@ -290,6 +293,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
              </property>
              <property name="uniformItemSizes">
               <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox">
+             <property name="text">
+              <string>Only show versions pending review</string>
              </property>
             </widget>
            </item>
@@ -377,7 +387,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        <item>
         <widget class="QTabWidget" name="publish_tab_widget">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab_3">
           <attribute name="title">
@@ -462,6 +472,9 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
                <width>16777215</width>
                <height>60</height>
               </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
              </property>
             </widget>
            </item>
