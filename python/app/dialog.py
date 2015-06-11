@@ -230,13 +230,28 @@ class AppDialog(QtGui.QWidget):
             
             ModelClass = tab_dict["model_class"]
             DelegateClass = tab_dict["delegate_class"] 
-            
+                    
             self._app.log_debug("Creating %r..." % ModelClass)
             
             # create model 
             tab_dict["model"] = ModelClass(tab_dict["entity_type"], tab_dict["view"])
+            # create proxy for sorting
+            tab_dict["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
+            tab_dict["sort_proxy"].setSourceModel(tab_dict["model"])
+                        
+            # now use the proxy model to sort the data to ensure
+            # higher version numbers appear earlier in the list
+            # the history model is set up so that the default display
+            # role contains the version number field in shotgun.
+            # This field is what the proxy model sorts by default
+            # We set the dynamic filter to true, meaning QT will keep
+            # continously sorting. And then tell it to use column 0
+            # (we only have one column in our models) and descending order.
+            tab_dict["sort_proxy"].setDynamicSortFilter(True)
+            tab_dict["sort_proxy"].sort(0, QtCore.Qt.DescendingOrder)
+    
             # set up model
-            tab_dict["view"].setModel(tab_dict["model"])            
+            tab_dict["view"].setModel(tab_dict["sort_proxy"])            
             # set up a global on-click handler for
             tab_dict["view"].clicked.connect(self._on_entity_clicked)
             # create delegate

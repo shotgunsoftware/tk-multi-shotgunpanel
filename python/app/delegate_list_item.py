@@ -73,7 +73,8 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
             thumb = icon.pixmap(512)
             widget.set_thumbnail(thumb)
 
-        if model_index.model().is_highlighted(model_index):
+        # note: This is a violation of the model/delegate independence.
+        if model_index.model().sourceModel().is_highlighted(model_index):
             widget.set_highlighted(True)
         else:
             widget.set_highlighted(False)
@@ -82,7 +83,7 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
         sg_item = shotgun_model.get_sg_data(model_index)
         
         # get the formatter object which defines how this object is to be presented
-        sg_formatter = model_index.model().get_formatter()
+        sg_formatter = model_index.model().sourceModel().get_formatter()
         
         # ask to format the data
         (header_left, header_right, body) = sg_formatter.format_list_item_details(sg_item)
