@@ -30,7 +30,7 @@ class PlainTextEditWithPlaceholderText(QtGui.QPlainTextEdit):
         """
         Render the UI.
         """
-        if self.toPlainText() == "":
+        if self.toPlainText() == "" and not self.hasFocus():
             painter = QtGui.QPainter()
             painter.begin(self.viewport()) 
             try:
