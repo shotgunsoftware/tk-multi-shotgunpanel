@@ -13,6 +13,7 @@ from sgtk.platform.qt import QtCore, QtGui
 
 import sgtk
 from . import utils
+from .shotgun_formatter import ShotgunFormatter 
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
@@ -40,8 +41,8 @@ class SgAllFieldsModel(ShotgunOverlayModel):
         ShotgunOverlayModel.__init__(self,
                                      parent,
                                      overlay_widget=parent,
-                                     download_thumbs=True,
-                                     schema_generation=5)
+                                     download_thumbs=False,
+                                     schema_generation=6)
 
         self._app = sgtk.platform.current_bundle()
         
@@ -86,6 +87,9 @@ class SgAllFieldsModel(ShotgunOverlayModel):
                      with the standard settings that the ShotgunModel handles.
         """
         sg_data = item.get_sg_data()
+        sg_type = sg_data["type"]
+        
+        formatter = self._sg_location.sg_formatter
 
         # populate our table model based on this data
         for field_name in sorted(sg_data.keys()):
@@ -94,7 +98,7 @@ class SgAllFieldsModel(ShotgunOverlayModel):
             display_name_item = QtGui.QStandardItem(field_name)
             
             # todo: add formatting
-            value = "%s" % sg_data[field_name]
+            value = formatter.format_raw_value(sg_type, field_name, sg_data[field_name], "nolink")
             display_name_value = QtGui.QStandardItem(value)
             
             self._table_model.appendRow([display_name_item, display_name_value])

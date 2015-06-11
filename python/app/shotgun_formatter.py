@@ -104,7 +104,7 @@ class ShotgunFormatter(object):
         
         return data[hook_key]
     
-    def _sg_field_to_str(self, sg_type, sg_field, value, directive):
+    def _sg_field_to_str(self, sg_type, sg_field, value, directive=None):
         """
         Convert to string
         """         
@@ -120,7 +120,7 @@ class ShotgunFormatter(object):
                 # links are just "ABC123"
                 link_name = value["name"]
             
-            if not self._generates_links(value["type"]):
+            if not self._generates_links(value["type"]) or directive == "nolink":
                 str_val = link_name
             else:
                 str_val = "<a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a>" % (value["type"], 
@@ -332,6 +332,9 @@ class ShotgunFormatter(object):
         
         return token_str
         
+
+    def format_raw_value(self, entity_type, field_name, value, directive):
+        return self._sg_field_to_str(entity_type, field_name, value, directive)
 
     def format_entity_details(self, sg_data):
         """
