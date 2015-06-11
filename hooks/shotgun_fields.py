@@ -38,7 +38,6 @@ class ShotgunConfiguration(HookBaseClass):
         elif entity_type in ["HumanUser", "ApiUser", "ClientUser"]:
             values["style"] = "round"
 
-    
         return values
     
     def get_list_item_definition(self, entity_type):
@@ -107,11 +106,12 @@ class ShotgunConfiguration(HookBaseClass):
             "notes_tab": True
             }
         
-        if entity_type in "Step": 
+        if entity_type in ["Step", "Project", "ApiUser", "TankType", "PublishedFileType"]: 
             values["tasks_tab"] = False
             values["publishes_tab"] = False
             values["versions_tab"] = False
             values["notes_tab"] = False
+
             
         elif entity_type == "Task":
             values["tasks_tab"] = False 
