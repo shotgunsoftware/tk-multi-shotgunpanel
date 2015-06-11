@@ -104,29 +104,44 @@ class ShotgunFormatter(object):
         
         return data[hook_key]
     
-    def _sg_field_to_str(self, sg_type, sg_field, value):
+    def _sg_field_to_str(self, sg_type, sg_field, value, directive):
         """
         Convert to string
-        """
+        """         
         str_val = ""
         
         if isinstance(value, dict) and set(["type", "id", "name"]) == set(value.keys()):
             # entity link
-            str_val = "<a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a>" % (value["type"], 
+            
+            if directive == "showtype":
+                # links are displayed as "Shot ABC123"
+                link_name = "%s %s" % (value["type"], value["name"])
+            else:
+                # links are just "ABC123"
+                link_name = value["name"]
+            
+            if directive == "nolink":
+                str_val = link_name
+            else:
+                str_val = "<a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a>" % (value["type"], 
                                                                                              value["id"], 
-                                                                                             value["name"])
+                                                                                             link_name)
         
         elif isinstance(value, list):
             # list of items
             link_urls = []
             for list_item in value:
-                link_urls.append( self._sg_field_to_str(sg_type, sg_field, list_item))
+                link_urls.append( self._sg_field_to_str(sg_type, sg_field, list_item, directive))
             str_val = ", ".join(link_urls)
             
         elif sg_field in ["created_at", "updated_at"]:
             created_datetime = datetime.datetime.fromtimestamp(value)
             (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime) 
-            str_val = human_str           
+
+            if directive == "ago":
+                str_val = human_str
+            else:
+                str_val = exact_str
             
         elif value is None:
             return "No value set"
@@ -283,6 +298,30 @@ class ShotgunFormatter(object):
             
         return url
 
+    def _convert_token_string(self, token_str, sg_data):
+        """
+        Convert a string with {tokens} given a shotgun data dict
+        """
+        # extract all tokens and process them one after the other
+        for full_token in self._resolve_fields(token_str):
+            if "::" in full_token:
+                # we have a special formatting directive
+                # e.g. created_at::ago
+                (resolved_token, directive) = full_token.split("::")
+            else:
+                resolved_token = full_token
+                directive = ""
+                
+            # get sg data
+            sg_value = sg_data.get(resolved_token)
+            # resolve value 
+            resolved_value = self._sg_field_to_str(sg_data["type"], resolved_token, sg_value, directive)
+            # and replace the token with the value
+            token_str = token_str.replace("{%s}" % full_token, resolved_value)
+        
+        return token_str
+        
+
     def format_entity_details(self, sg_data):
         """
         Render details
@@ -293,15 +332,11 @@ class ShotgunFormatter(object):
         body = self._get_hook_value("get_main_view_definition", "body")
         footer = self._get_hook_value("get_main_view_definition", "footer")
         
-        # run replacements of the strings
-        for (field_name, value) in sg_data.iteritems():
-            token = "{%s}" % field_name
-            str_value = self._sg_field_to_str(sg_data["type"], field_name, value)
-            title = title.replace(token, str_value)
-            body = body.replace(token, str_value)
-            footer = footer.replace(token, str_value)
+        title_converted = self._convert_token_string(title, sg_data)
+        body_converted = self._convert_token_string(body, sg_data)
+        footer_converted = self._convert_token_string(footer, sg_data)
         
-        return (title, body, footer)
+        return (title_converted, body_converted, footer_converted)
         
     def format_list_item_details(self, sg_data):
         """
@@ -314,13 +349,9 @@ class ShotgunFormatter(object):
         top_right = self._get_hook_value("get_list_item_definition", "top_right")
         body = self._get_hook_value("get_list_item_definition", "body")
         
-        # run replacements of the strings
-        for (field_name, value) in sg_data.iteritems():
-            token = "{%s}" % field_name
-            str_value = self._sg_field_to_str(sg_data["type"], field_name, value)
-            top_left = top_left.replace(token, str_value)
-            top_right = top_right.replace(token, str_value)
-            body = body.replace(token, str_value)
-                
-        return (top_left, top_right, body)
+        top_left_converted = self._convert_token_string(top_left, sg_data)
+        top_right_converted = self._convert_token_string(top_right, sg_data)
+        body_converted = self._convert_token_string(body, sg_data)
+        
+        return (top_left_converted, top_right_converted, body_converted)
     

@@ -48,7 +48,7 @@ class ShotgunConfiguration(HookBaseClass):
         # define a set of defaults
         values = {
             "top_left": "<big>{code}</big>",
-            "top_right": "{created_at}",
+            "top_right": "{created_at::ago}",
             "body": "By {created_by}<br>Description: <i>{description}</i>"            
             } 
         
@@ -168,7 +168,7 @@ class ShotgunConfiguration(HookBaseClass):
     
         elif entity_type == "Task":
             
-            values["title"] = "Task {content}"
+            values["title"] = "Task {content} on {entity}"
             values["footer"] = ""
             values["body"] = """
                 Project: {project}<br>
@@ -224,7 +224,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Status: {sg_status_list}<br>
                 To: {addressings_to}<br>
                 CC: {addressings_cc}<br>
-                Linked to: {note_links}<br>
+                Linked to: {note_links::showtype}<br>
                 Tasks: {tasks}
                 """                
             
@@ -244,7 +244,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Task: {task}<br>
                 Reviewed in: {version}<br>
                 Version number: {version_number}<br>
-                File Type: {published_file_type}<br>
+                File Type: {published_file_type:nolink}<br>
                 """
             
         elif entity_type == "TankPublishedFile":
@@ -261,7 +261,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Associated with: {entity}<br>
                 Task: {task}<br>
                 Version number: {version_number}<br>
-                File Type: {tank_type}<br>
+                File Type: {tank_type:nolink}<br>
                 """
 
         elif entity_type == "PublishedFileType":
