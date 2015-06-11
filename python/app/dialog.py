@@ -47,7 +47,7 @@ def show_dialog(app_instance):
     # decorated and handled in a consistent fashion by the system. 
     
     # Create and display the splash screen
-    splash_pix = QtGui.QPixmap(":/res/splash.png") 
+    splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/splash.png") 
     splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
     splash.setMask(splash_pix.mask())
     splash.show()
@@ -284,7 +284,7 @@ class AppDialog(QtGui.QWidget):
         need to be called here.
         """        
         # display exit splash screen
-        splash_pix = QtGui.QPixmap(":/res/exit_splash.png")
+        splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/exit_splash.png")
         splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
         splash.setMask(splash_pix.mask())
         splash.show()

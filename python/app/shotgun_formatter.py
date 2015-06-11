@@ -110,7 +110,11 @@ class ShotgunFormatter(object):
         """         
         str_val = ""
         
-        if isinstance(value, dict) and set(["type", "id", "name"]) == set(value.keys()):
+        if value is None:
+            return "No value set"
+        
+        
+        elif isinstance(value, dict) and set(["type", "id", "name"]) == set(value.keys()):
             # entity link
             
             if directive == "showtype":
@@ -143,8 +147,6 @@ class ShotgunFormatter(object):
             else:
                 str_val = exact_str
             
-        elif value is None:
-            return "No value set"
             
         else:
             str_val = str(value)  
@@ -249,7 +251,6 @@ class ShotgunFormatter(object):
         Returns a filter string which links this type up to a particular 
         location
         """ 
-        
         # TODO - we might want to expose this in the hook at some point
         link_filters = []
         
