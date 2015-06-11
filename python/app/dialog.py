@@ -290,7 +290,7 @@ class AppDialog(QtGui.QWidget):
 
         except:
             self._app.log_exception("Error running Info panel App closeEvent()")
-
+                
         # close splash
         splash.close()
 
@@ -309,7 +309,7 @@ class AppDialog(QtGui.QWidget):
         if self._current_location.entity_type == "Version":
             self.focus_version()
             
-        elif "publish" in self._current_location.entity_type.lower():
+        elif self._current_location.entity_type in ["PublishedFile", "TankPublishedFile"]:
             self.focus_publish()
         
         elif self._current_location.entity_type == "Note":
@@ -329,6 +329,8 @@ class AppDialog(QtGui.QWidget):
         # set the right widget to show
         self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)        
         
+        #################################################################################
+        # temp tab handling! Replace with smarter, better solution!
         
         formatter = self._current_location.sg_formatter
         default_tab = None
@@ -367,7 +369,9 @@ class AppDialog(QtGui.QWidget):
             # set this tab to be default unless another tab is already set
             default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_TASKS
         
-        
+        # if there is still no default tab, fall back on the generic info tab
+        default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_INFO
+
         # reset to the default tab
         self.ui.entity_tab_widget.setCurrentIndex(default_tab)
         
@@ -485,16 +489,19 @@ class AppDialog(QtGui.QWidget):
 
     def _refresh_details(self):
         
-        sg_data = self._details_model.get_sg_data()                
+        formatter = self._current_location.sg_formatter        
+        sg_data = self._details_model.get_sg_data()
+        
+        # populate the text with data
         if sg_data:
 
-            (header, body, footer) = self._current_location.sg_formatter.format_entity_details(sg_data) 
+            (header, body, footer) = formatter.format_entity_details(sg_data) 
 
             self.ui.details_text_header.setText(header)
             self.ui.details_text_middle.setText(body)
             self.ui.details_text_bottom.setText(footer)
             
-            playback_url = self._current_location.sg_formatter.get_playback_url(sg_data)
+            playback_url = formatter.get_playback_url(sg_data)
             
         else:
             self.ui.details_text_header.setText("")
@@ -619,3 +626,4 @@ class AppDialog(QtGui.QWidget):
         self.setup_ui()
         
 
+            
