@@ -48,7 +48,7 @@ class ShotgunConfiguration(HookBaseClass):
         # define a set of defaults
         values = {
             "top_left": "<big>{code}</big>",
-            "top_right": "{created_at::ago}",
+            "top_right": "{updated_at::ago}",
             "body": "By {created_by}<br>Description: <i>{description}</i>"            
             } 
         
@@ -88,7 +88,28 @@ class ShotgunConfiguration(HookBaseClass):
         for a given entity
         """
         
-        values = ["code", "created_by", "created_at"]
+        values = ["id", 
+                  "type", 
+                  "code", 
+                  "created_by", 
+                  "created_at", 
+                  "updated_by",
+                  "project", 
+                  "updated_at"]
+        
+        if entity_type == "Note":
+            values += ["attachments", 
+                       "user", 
+                       "content", 
+                       "addressings_cc", 
+                       "addressings_to", 
+                       "client_note", 
+                       "note_links",
+                       "sg_status_list",
+                       "subject",
+                       "tag_list",
+                       "tasks",
+                       "sg_note_type"]
         
         if entity_type == "Shot":
             values += ["sg_cut_in", "sg_cut_out"]
