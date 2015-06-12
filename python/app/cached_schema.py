@@ -49,11 +49,15 @@ class CachedShotgunSchema(QtCore.QObject):
         
     def _load_cached_schema(self):
         self._app.log_debug("Loading cached metaschema...")
+        # TODO - save/load schema on disk. This needs to be saved per user because
+        # the schema is affected by permissions
         return {}
     
     
     def _cache_schema(self):
         self._app.log_debug("Saving metaschema to disk...")
+        # TODO - save/load schema on disk. This needs to be saved per user because
+        # the schema is affected by permissions
         pass
         
         
@@ -136,12 +140,10 @@ class CachedShotgunSchema(QtCore.QObject):
         
         elif sg_entity_type not in self._field_schema:
             self._refresh_cache()
-            print "--------------------"
             data = None 
         
         elif field_name not in self._field_schema[sg_entity_type]:
             self._refresh_cache()
-            print "-------------------dddddddddd-%s" % field_name 
             data = None 
 
         else:
