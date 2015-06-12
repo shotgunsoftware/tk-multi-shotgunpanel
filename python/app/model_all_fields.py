@@ -94,8 +94,17 @@ class SgAllFieldsModel(ShotgunOverlayModel):
         # populate our table model based on this data
         for field_name in sorted(sg_data.keys()):
             
-            # todo: add human readable entity types
-            display_name_item = QtGui.QStandardItem(field_name)
+            # get the human readable field display name
+            field_info = self._app.metaschema.get_field_info(sg_type, field_name)
+
+            if field_info:
+                display_name = field_info["name"]["value"]
+            else:
+                display_name = field_name
+            
+            display_name_item = QtGui.QStandardItem(display_name)
+            
+            
             
             # todo: add formatting
             value = formatter.format_raw_value(sg_type, field_name, sg_data[field_name], "nolink")

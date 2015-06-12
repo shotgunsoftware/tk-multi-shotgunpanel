@@ -110,7 +110,10 @@ class AppDialog(QtGui.QWidget):
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
 
-        # load style sheet        
+        # start caching the metaschema
+        self._app.metaschema.request_cache()
+
+        # load style sheet
         self._load_css()
         
         # now load in the UI that was created in the UI designer

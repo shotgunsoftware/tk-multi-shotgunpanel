@@ -28,6 +28,9 @@ class StgkStarterApp(Application):
         # toolkit's code reload mechanism will work properly.
         app_payload = self.import_module("app")
 
+        # set up a metaschema cache for global use
+        self.metaschema = app_payload.CachedShotgunSchema()
+
         # now register a *command*, which is normally a menu entry of some kind on a Shotgun
         # menu (but it depends on the engine). The engine will manage this command and 
         # whenever the user requests the command, it will call out to the callback.
@@ -39,3 +42,8 @@ class StgkStarterApp(Application):
         # now register the command with the engine
         self.engine.register_command("Info Panel...", menu_callback)
         
+        
+    def destroy_app(self):
+        
+        self.log_debug("Destroying app...")
+        self.metaschema.destroy()
