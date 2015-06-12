@@ -146,7 +146,13 @@ class ShotgunFormatter(object):
             
             if directive == "showtype":
                 # links are displayed as "Shot ABC123"
-                link_name = "%s %s" % (value["type"], value["name"])
+                
+                # get the nice name from our schema
+                # this is so that it says "Level" instead of "CustomEntity013"
+                entity_info = self._app.metaschema.get_type_info(value["type"])
+                entity_type_display_name = entity_info["name"]["value"]
+                
+                link_name = "%s %s" % (entity_type_display_name, value["name"])
             else:
                 # links are just "ABC123"
                 link_name = value["name"]
