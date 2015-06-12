@@ -59,16 +59,18 @@ class ShotgunFormatter(object):
         
         # extract a list of fields given all the different {tokens} defined
         fields = []
-        fields += self._resolve_fields( self._get_hook_value("get_list_item_definition", "top_left") )
-        fields += self._resolve_fields( self._get_hook_value("get_list_item_definition", "top_right") )
-        fields += self._resolve_fields( self._get_hook_value("get_list_item_definition", "body") )
-        fields += self._resolve_fields( self._get_hook_value("get_main_view_definition", "title") )
-        fields += self._resolve_fields( self._get_hook_value("get_main_view_definition", "body") )
-        fields += self._resolve_fields( self._get_hook_value("get_main_view_definition", "footer") )
+        fields += self._resolve_sg_fields( self._get_hook_value("get_list_item_definition", "top_left") )
+        fields += self._resolve_sg_fields( self._get_hook_value("get_list_item_definition", "top_right") )
+        fields += self._resolve_sg_fields( self._get_hook_value("get_list_item_definition", "body") )
+        fields += self._resolve_sg_fields( self._get_hook_value("get_main_view_definition", "title") )
+        fields += self._resolve_sg_fields( self._get_hook_value("get_main_view_definition", "body") )
+        fields += self._resolve_sg_fields( self._get_hook_value("get_main_view_definition", "footer") )
         
         # also include the thumbnail field so that it gets retrieved as part of the general 
         # query payload
         fields.append(self.thumbnail_field)
+        
+        
         
         # include the special quicktime field for versions
         if entity_type == "Version":
@@ -79,17 +81,38 @@ class ShotgunFormatter(object):
     def __repr__(self):
         return "<Shotgun '%s' formatter>" % self._entity_type
         
-    def _resolve_fields(self, token_str):
+    def _resolve_sg_fields(self, token_str):
+        """
+        Convenience method. Returns the sg fields for all tokens.
+        """
+        return [sg_field for (_, sg_field, _) in self._resolve_tokens(token_str)]
+        
+    def _resolve_tokens(self, token_str):
         """
         given a string with {tokens} or {deep.linktokens} return a list
         of tokens.
+        
+        retrurns: a list of tuples with (full_token, sg_field, directive)
         """    
     
         try:
             # find all field names ["xx", "yy", "zz.xx"] from "{xx}_{yy}_{zz.xx}"
-            fields = set(re.findall('{([^}^{]*)}', token_str))
+            raw_tokens = set(re.findall('{([^}^{]*)}', token_str))
         except Exception, error:
             raise TankError("Could not parse '%s' - Error: %s" % (token_str, error) )
+    
+        fields = []
+        for raw_token in raw_tokens:
+    
+            if "::" in raw_token:
+                # we have a special formatting directive
+                # e.g. created_at::ago
+                (sg_field, directive) = raw_token.split("::")
+            else:
+                sg_field = raw_token
+                directive = None
+        
+            fields.append( (raw_token, sg_field, directive) )
     
         return fields
     
@@ -116,8 +139,7 @@ class ShotgunFormatter(object):
         str_val = ""
         
         if value is None:
-            return "No value set"
-        
+            return "No value set"        
         
         elif isinstance(value, dict) and set(["type", "id", "name"]) == set(value.keys()):
             # entity link
@@ -315,24 +337,22 @@ class ShotgunFormatter(object):
 
         return url
 
+    def _parse_token(self, token_str):
+        """
+        Parse a token (" {foo::directive}
+        """
+        
+
     def _convert_token_string(self, token_str, sg_data):
         """
         Convert a string with {tokens} given a shotgun data dict
         """
         # extract all tokens and process them one after the other
-        for full_token in self._resolve_fields(token_str):
-            if "::" in full_token:
-                # we have a special formatting directive
-                # e.g. created_at::ago
-                (resolved_token, directive) = full_token.split("::")
-            else:
-                resolved_token = full_token
-                directive = ""
-                
+        for (full_token, sg_field, directive) in self._resolve_tokens(token_str):
             # get sg data
-            sg_value = sg_data.get(resolved_token)
+            sg_value = sg_data.get(sg_field)
             # resolve value 
-            resolved_value = self._sg_field_to_str(sg_data["type"], resolved_token, sg_value, directive)
+            resolved_value = self._sg_field_to_str(sg_data["type"], sg_field, sg_value, directive)
             # and replace the token with the value
             token_str = token_str.replace("{%s}" % full_token, resolved_value)
         
@@ -340,6 +360,9 @@ class ShotgunFormatter(object):
         
 
     def format_raw_value(self, entity_type, field_name, value, directive):
+        """
+        Format a raw shotgun value
+        """
         return self._sg_field_to_str(entity_type, field_name, value, directive)
 
     def format_entity_details(self, sg_data):
