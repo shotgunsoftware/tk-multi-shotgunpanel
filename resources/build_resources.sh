@@ -41,6 +41,7 @@ build_ui list_item_widget
 
 build_ui reply_list_widget
 build_ui reply_widget
+build_ui note_input_widget
 
 # build resources
 echo "building resources..."

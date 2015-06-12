@@ -11,7 +11,7 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(451, 859)
+        Dialog.resize(464, 878)
         self.verticalLayout_7 = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
@@ -142,11 +142,9 @@ class Ui_Dialog(object):
         self.entity_note_tab.setObjectName("entity_note_tab")
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.entity_note_tab)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.plainTextEdit = PlainTextEditWithPlaceholderText(self.entity_note_tab)
-        self.plainTextEdit.setMaximumSize(QtCore.QSize(16777215, 60))
-        self.plainTextEdit.setFocusPolicy(QtCore.Qt.ClickFocus)
-        self.plainTextEdit.setObjectName("plainTextEdit")
-        self.verticalLayout_2.addWidget(self.plainTextEdit)
+        self.entity_note_input = NoteInputWidget(self.entity_note_tab)
+        self.entity_note_input.setObjectName("entity_note_input")
+        self.verticalLayout_2.addWidget(self.entity_note_input)
         self.entity_note_view = QtGui.QListView(self.entity_note_tab)
         self.entity_note_view.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.entity_note_view.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
@@ -259,11 +257,9 @@ class Ui_Dialog(object):
         self.version_note_tab.setObjectName("version_note_tab")
         self.verticalLayout_11 = QtGui.QVBoxLayout(self.version_note_tab)
         self.verticalLayout_11.setObjectName("verticalLayout_11")
-        self.plainTextEdit_2 = PlainTextEditWithPlaceholderText(self.version_note_tab)
-        self.plainTextEdit_2.setMaximumSize(QtCore.QSize(16777215, 60))
-        self.plainTextEdit_2.setFocusPolicy(QtCore.Qt.ClickFocus)
-        self.plainTextEdit_2.setObjectName("plainTextEdit_2")
-        self.verticalLayout_11.addWidget(self.plainTextEdit_2)
+        self.version_note_input = NoteInputWidget(self.version_note_tab)
+        self.version_note_input.setObjectName("version_note_input")
+        self.verticalLayout_11.addWidget(self.version_note_input)
         self.version_note_view = QtGui.QListView(self.version_note_tab)
         self.version_note_view.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.version_note_view.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
@@ -323,6 +319,6 @@ class Ui_Dialog(object):
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_publish_tab), QtGui.QApplication.translate("Dialog", "Publishes", None, QtGui.QApplication.UnicodeUTF8))
 
 from ..widgets.reply_widget import ReplyListWidget
-from ..widgets.placeholdertext_textedit import PlainTextEditWithPlaceholderText
 from ..widgets.version_label import VersionLabel
+from ..widgets.note_input_widget import NoteInputWidget
 from . import resources_rc

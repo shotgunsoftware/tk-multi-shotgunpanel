@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="tk_multi_infopanel">
+    <file>camera_hl.png</file>
     <file>play_icon.png</file>
     <file>no_items_found.png</file>
     <file>play_icon_inactive.png</file>

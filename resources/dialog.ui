@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>451</width>
-    <height>859</height>
+    <width>464</width>
+    <height>878</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -251,17 +251,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="PlainTextEditWithPlaceholderText" name="plainTextEdit">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>60</height>
-              </size>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::ClickFocus</enum>
-             </property>
-            </widget>
+            <widget class="NoteInputWidget" name="entity_note_input" native="true"/>
            </item>
            <item>
             <widget class="QListView" name="entity_note_view">
@@ -466,17 +456,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_11">
            <item>
-            <widget class="PlainTextEditWithPlaceholderText" name="plainTextEdit_2">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>60</height>
-              </size>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::ClickFocus</enum>
-             </property>
-            </widget>
+            <widget class="NoteInputWidget" name="version_note_input" native="true"/>
            </item>
            <item>
             <widget class="QListView" name="version_note_view">
@@ -541,9 +521,10 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>PlainTextEditWithPlaceholderText</class>
-   <extends>QPlainTextEdit</extends>
-   <header>..widgets.placeholdertext_textedit</header>
+   <class>NoteInputWidget</class>
+   <extends>QWidget</extends>
+   <header>..widgets.note_input_widget</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
