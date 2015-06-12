@@ -79,7 +79,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
         if additional_fields:
             fields += additional_fields
             
-        hierarchy = ["id"]
+        hierarchy = ["updated_at"]
         ShotgunOverlayModel._load_data(self, 
                                        self._sg_formatter.entity_type, 
                                        self._get_filters(), 
