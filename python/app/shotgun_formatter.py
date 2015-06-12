@@ -75,6 +75,8 @@ class ShotgunFormatter(object):
         # include the special quicktime field for versions
         if entity_type == "Version":
             fields.append("sg_uploaded_movie")
+        if entity_type == "Note":
+            fields.append("read_by_current_user")
         
         self._token_fields = set(fields)
         
@@ -320,7 +322,16 @@ class ShotgunFormatter(object):
         
         if thumb_style == "rect":
             return utils.create_rectangular_512x400_thumbnail(path)
-        elif thumb_style == "round":
+        elif sg_data["type"] == "Note":
+            # handle read/unread as a special case for notes
+            print sg_data["read_by_current_user"] 
+            if sg_data["read_by_current_user"] == "unread":
+                return utils.create_circular_512x400_thumbnail(path, accent=True)
+            else:
+                return utils.create_circular_512x400_thumbnail(path, accent=False)
+            
+        
+        elif thumb_style == "round": 
             return utils.create_circular_512x400_thumbnail(path)
         else:
             raise TankError("Unknown thumbnail style defined in hook!")        

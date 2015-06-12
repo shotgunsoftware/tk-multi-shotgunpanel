@@ -46,17 +46,20 @@ def create_round_thumbnail(path):
     
     return base_image
 
-def create_circular_512x400_thumbnail(path):
+def create_circular_512x400_thumbnail(path, accent=False):
     """
     Given a path to a shotgun thumbnail, create a publish icon
     with the thumbnail composited onto a centered otherwise empty canvas. 
     This will return a 512x400 pixmap object.
+    
+    :param path: Path to source thumb
+    :param accent: Should the image be accentuated. This can be used to indicate an unread state.
     """
 
     CANVAS_WIDTH = 512
     CANVAS_HEIGHT = 400
     
-    CIRCLE_SIZE = 398
+    CIRCLE_SIZE = 340
 
     # get the 512 base image
     base_image = QtGui.QPixmap(CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -83,8 +86,12 @@ def create_circular_512x400_thumbnail(path):
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setBrush(brush)
         
-        # figure out the offset height wise in order to center the thumb
+        if accent:
+            pen = QtGui.QPen(QtGui.QColor("#2C93E2"))
+            pen.setWidth(18)
+            painter.setPen(pen)
         
+        # figure out the offset height wise in order to center the thumb        
         
         # center it
         inlay_offset_h = (CANVAS_HEIGHT - CIRCLE_SIZE)/2
