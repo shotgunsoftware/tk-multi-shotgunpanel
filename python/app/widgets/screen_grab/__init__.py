@@ -9,4 +9,4 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 
-from .version_label import VersionLabel
+from .screen_grab import get_desktop_pixmap, screen_capture, screen_capture_file
