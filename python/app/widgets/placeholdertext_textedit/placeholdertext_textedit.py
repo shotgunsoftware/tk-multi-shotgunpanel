@@ -14,6 +14,8 @@ class PlainTextEditWithPlaceholderText(QtGui.QPlainTextEdit):
     """
     """
     
+    on_focus = QtCore.Signal()
+    
     def __init__(self, parent):
         """
         Constructor
@@ -40,3 +42,7 @@ class PlainTextEditWithPlaceholderText(QtGui.QPlainTextEdit):
         else:
             QtGui.QPlainTextEdit.paintEvent(self, event)
         
+    def focusInEvent(self, event):
+        
+        QtGui.QPlainTextEdit.focusInEvent(self, event)
+        self.on_focus.emit()
