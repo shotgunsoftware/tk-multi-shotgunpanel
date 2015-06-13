@@ -196,7 +196,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Status: {sg_status_list}<br>
                 Start Date: {start_date}<br>
                 Due Date: {due_date}<br>
-                Associated with: {entity}<br>
+                Associated with: {entity::showtype}<br>
                 Pipeline Step: {step}<br>
                 Assigned to: {task_assignees}
                 """
@@ -252,7 +252,7 @@ class ShotgunConfiguration(HookBaseClass):
                 
             values["body"] = """
                 Project: {project}<br>
-                Associated with: {entity}<br>
+                Associated with: {entity::showtype}<br>
                 Task: {task}<br>
                 Reviewed in: {version}<br>
                 Version number: {version_number}<br>
@@ -270,7 +270,7 @@ class ShotgunConfiguration(HookBaseClass):
 
             values["body"] = """
                 Project: {project}<br>
-                Associated with: {entity}<br>
+                Associated with: {entity::showtype}<br>
                 Task: {task}<br>
                 Version number: {version_number}<br>
                 File Type: {tank_type}<br>
@@ -291,7 +291,7 @@ class ShotgunConfiguration(HookBaseClass):
                 Status: {sg_status_list}<br>
                 Frame Range: {frame_range}<br>
                 Department: {department}<br>
-                Associated with: {entity}<br>
+                Associated with: {entity::showtype}<br>
                 Task: {sg_task}<br>
                 Playlists: {playlists}<br>
                 """

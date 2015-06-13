@@ -152,7 +152,10 @@ class ShotgunFormatter(object):
                 # get the nice name from our schema
                 # this is so that it says "Level" instead of "CustomEntity013"
                 entity_info = self._app.metaschema.get_type_info(value["type"])
-                entity_type_display_name = entity_info["name"]["value"]
+                if entity_info:
+                    entity_type_display_name = entity_info["name"]["value"]
+                else:
+                    entity_type_display_name = value["type"]
                 
                 link_name = "%s %s" % (entity_type_display_name, value["name"])
             else:
@@ -324,7 +327,6 @@ class ShotgunFormatter(object):
             return utils.create_rectangular_512x400_thumbnail(path)
         elif sg_data["type"] == "Note":
             # handle read/unread as a special case for notes
-            print sg_data["read_by_current_user"] 
             if sg_data["read_by_current_user"] == "unread":
                 return utils.create_circular_512x400_thumbnail(path, accent=True)
             else:
