@@ -251,7 +251,14 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="NoteInputWidget" name="entity_note_input" native="true"/>
+            <widget class="NoteInputWidget" name="entity_note_input" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QListView" name="entity_note_view">
@@ -456,7 +463,14 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_11">
            <item>
-            <widget class="NoteInputWidget" name="version_note_input" native="true"/>
+            <widget class="NoteInputWidget" name="version_note_input" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QListView" name="version_note_view">
