@@ -223,7 +223,7 @@ def create_human_readable_timestamp(datetime_obj):
         human_time_str = "%d %s ago" % (delta_minutes, "minute" if delta_weeks == 1 else "minutes")
     
     else:
-        human_time_str = std_date
+        human_time_str = "%d seconds ago" % delta.seconds
     
     return (human_time_str, std_format)
 
