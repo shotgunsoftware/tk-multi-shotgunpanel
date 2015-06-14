@@ -144,6 +144,10 @@ class AppDialog(QtGui.QWidget):
         self.ui.navigation_next.clicked.connect(self._on_next_clicked)
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
 
+        # make note lists refresh when new notes are created
+        self.ui.entity_note_input.data_updated.connect(lambda : self._load_entity_tab_data(self.ENTITY_TAB_NOTES))
+        self.ui.version_note_input.data_updated.connect(lambda : self._load_entity_tab_data(self.VERSION_TAB_NOTES))
+
         # latest publishes only
         self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
         
@@ -344,6 +348,7 @@ class AppDialog(QtGui.QWidget):
         sets up the UI for the current location
         """
         if self._current_location.entity_type == "Version":
+            self.ui.version_note_input.set_current_entity(self._current_location.entity_dict)
             self.focus_version()
             
         elif self._current_location.entity_type in ["PublishedFile", "TankPublishedFile"]:
@@ -353,6 +358,7 @@ class AppDialog(QtGui.QWidget):
             self.focus_note()
         
         else:
+            self.ui.entity_note_input.set_current_entity(self._current_location.entity_dict)
             self.focus_entity()
 
         # update the details area
@@ -594,6 +600,14 @@ class AppDialog(QtGui.QWidget):
         """
         Update the UI to point at the given shotgun location object
         """
+        
+        # clear any note UIs that may exist. If they return 
+        # false, this is an indication that the process
+        # was cancelled by the user and that the navigation won't happen
+        if not self.ui.version_note_input.reset():
+            return
+        if not self.ui.entity_note_input.reset():
+            return
         
         # chop off history at the point we are currently
         self._history_items = self._history_items[:self._history_index]
