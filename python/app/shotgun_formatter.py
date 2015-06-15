@@ -303,12 +303,13 @@ class ShotgunFormatter(object):
                 link_filters.append(["task_assignees", "in", [sg_location.entity_dict]])
                 link_filters.append(["sg_status_list", "is_not", "final"])
                 
-            if self._entity_type == "Note":
+            elif self._entity_type == "Note":
                 # show notes that are TO me, CC me or on tasks which I have been
                 # assigned. Use advanced filters for this one so we can use OR
                 link_filters = {
                     "logical_operator": "or", 
                     "conditions": [
+                        {"path": "project", "values": [self._app.context.project], "relation": "is"},
                         {"path": "addressings_cc", "values": [sg_location.entity_dict], "relation": "in"},                       
                         {"path": "addressings_to", "values": [sg_location.entity_dict], "relation": "in"},
                         {"path": "tasks.Task.task_assignees", "values": [sg_location.entity_dict], "relation": "in"} 
