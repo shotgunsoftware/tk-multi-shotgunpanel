@@ -303,6 +303,13 @@ class ShotgunFormatter(object):
                 link_filters.append(["task_assignees", "in", [sg_location.entity_dict]])
                 link_filters.append(["sg_status_list", "is_not", "final"])
                 
+            if self._entity_type == "Note":
+                # show notes that are TO me, CC me or on tasks which I have been
+                # assigned
+                link_filters.append(["addressings_cc", "in", [sg_location.entity_dict]])
+                link_filters.append(["addressings_to", "in", [sg_location.entity_dict]])
+                link_filters.append(["tasks.Task.task_assignees", "in", [sg_location.entity_dict]])
+                
             else:
                 # for other things, show items created by me
                 link_filters.append(["created_by", "is", sg_location.entity_dict])
