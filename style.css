@@ -15,11 +15,10 @@ QTabBar { icon-size: 40px; }
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
 QTabBar::tab {
-    min-width: 8ex;
-    width: 40px;
-    icon-size: 40px;
-    height: 40px;
-    padding: 10px;
+    min-width: 20px;
+    width: 70px;
+    padding: 5px;
+    height: 30px;
     border-bottom: none;
 }
 QTabBar::tab:hover {

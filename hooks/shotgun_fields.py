@@ -206,7 +206,7 @@ class ShotgunConfiguration(HookBaseClass):
     
         elif entity_type == "Task":
             
-            values["title"] = "Task {content} on {entity}"
+            values["title"] = "Task {content}, {entity::showtype}"
             values["footer"] = ""
             values["body"] = """
                 Project: {project}<br>
