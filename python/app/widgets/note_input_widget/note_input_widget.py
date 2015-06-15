@@ -22,7 +22,7 @@ ShotgunDataRetriever = shotgun_data.ShotgunDataRetriever
 from sgtk.platform.qt import QtCore, QtGui
  
 
-from ...ui.note_input_widget import Ui_NoteInputWidget
+from .ui.note_input_widget import Ui_NoteInputWidget
 from .. import screen_grab  
  
 class NoteInputWidget(QtGui.QWidget):
@@ -54,7 +54,7 @@ class NoteInputWidget(QtGui.QWidget):
         self.__sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)
         self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
-        self.__sg_data_retriever.start()        
+        self.__sg_data_retriever.start()    
         
         self.ui.screenshot.clicked.connect(self._grab_screen)
         self.ui.submit.clicked.connect(self._submit)

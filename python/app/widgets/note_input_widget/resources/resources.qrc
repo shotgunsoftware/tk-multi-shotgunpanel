@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="tk_multi_infopanel_note_input_widget">
+    <file>camera_hl.png</file>
+  </qresource>
+</RCC>
