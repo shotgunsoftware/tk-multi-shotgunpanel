@@ -475,6 +475,14 @@ class AppDialog(QtGui.QWidget):
         """        
         
         if index == self.ENTITY_TAB_NOTES:        
+            
+            if self._current_location.entity_type in ["HumanUser", "ClientUser", "ApiUser"]:
+                # no note creation for these guys
+                # TODO: move into shotgun formatter?
+                self.ui.entity_note_input.hide()
+            else:
+                self.ui.entity_note_input.show()
+            
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
             
         elif index == self.ENTITY_TAB_VERSIONS:
