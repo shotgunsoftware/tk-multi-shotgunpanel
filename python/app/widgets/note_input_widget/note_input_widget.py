@@ -27,7 +27,7 @@ from .. import screen_grab
  
 class NoteInputWidget(QtGui.QWidget):
     """
-    Widget that 
+    Widget that can be used for note and thumbnail input and creation.
     """
     
     # emitted when shotgun has been updated
@@ -328,7 +328,10 @@ class NoteInputWidget(QtGui.QWidget):
     def __format_thumbnail(self, pixmap_obj):
         """
         Given a screengrab, create a thumbnail object, scaled to 96x75 px
-        and with a subtle frame
+        and with a subtle rounded frame.
+        
+        :param pixmap_obj: input screenshot
+        :returns: 96x75px pixmap 
         """
         CANVAS_WIDTH = 96
         CANVAS_HEIGHT = 75
