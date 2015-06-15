@@ -305,10 +305,14 @@ class ShotgunFormatter(object):
                 
             if self._entity_type == "Note":
                 # show notes that are TO me, CC me or on tasks which I have been
-                # assigned
-                link_filters.append(["addressings_cc", "in", [sg_location.entity_dict]])
-                link_filters.append(["addressings_to", "in", [sg_location.entity_dict]])
-                link_filters.append(["tasks.Task.task_assignees", "in", [sg_location.entity_dict]])
+                # assigned. Use advanced filters for this one so we can use OR
+                link_filters = {
+                    "logical_operator": "or", 
+                    "conditions": [
+                        {"path": "addressings_cc", "values": [sg_location.entity_dict], "relation": "in"},                       
+                        {"path": "addressings_to", "values": [sg_location.entity_dict], "relation": "in"},
+                        {"path": "tasks.Task.task_assignees", "values": [sg_location.entity_dict], "relation": "in"} 
+                        ] }                
                 
             else:
                 # for other things, show items created by me
