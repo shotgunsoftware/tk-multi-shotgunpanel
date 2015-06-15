@@ -9,7 +9,9 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 from sgtk.platform.qt import QtCore, QtGui
- 
+
+from .ui import resources_rc
+
 class VersionLabel(QtGui.QLabel):
     """
     """
@@ -23,8 +25,8 @@ class VersionLabel(QtGui.QLabel):
         :param parent: QT parent object
         """
         QtGui.QLabel.__init__(self, parent)
-        self._play_icon = QtGui.QPixmap(":/tk_multi_infopanel/play_icon.png")
-        self._play_icon_inactive = QtGui.QPixmap(":/tk_multi_infopanel/play_icon_inactive.png")
+        self._play_icon = QtGui.QPixmap(":/tk_multi_infopanel_version_label/play_icon.png")
+        self._play_icon_inactive = QtGui.QPixmap(":/tk_multi_infopanel_version_label/play_icon_inactive.png")
         self._playback_url = None
         self._hover = False
         self._active = False
