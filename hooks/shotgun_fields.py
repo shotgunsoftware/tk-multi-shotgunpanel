@@ -74,7 +74,7 @@ class ShotgunConfiguration(HookBaseClass):
         elif entity_type == "Note":
             
             values["top_left"] = "<big>{created_by}</big>"
-            values["body"] = "{content}"       
+            values["body"] = "{content}"     
     
         elif entity_type == "Version":
             

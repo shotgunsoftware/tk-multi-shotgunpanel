@@ -7,7 +7,7 @@ QTabWidget::tab-bar {
     left: 5px;
 }
 
-QListView, QTableView {
+QListView, QTableView, QScrollArea {
     border: none;
 }
 
