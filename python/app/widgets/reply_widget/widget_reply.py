@@ -28,3 +28,9 @@ class ReplyWidget(QtGui.QWidget):
         self.ui = Ui_ReplyWidget() 
         self.ui.setupUi(self)
         
+        # hide attachments for now
+        self.ui.attachment_scrollarea.hide()
+        self.ui.attachment_header.hide()
+        
+        
+        

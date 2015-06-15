@@ -9,10 +9,9 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 from sgtk.platform.qt import QtCore, QtGui
-
 from .ui.reply_list_widget import Ui_ReplyListWidget
- 
 from .widget_reply import ReplyWidget 
+from .model_reply import SgReplyModel
  
 class ReplyListWidget(QtGui.QWidget):
     """
@@ -33,9 +32,34 @@ class ReplyListWidget(QtGui.QWidget):
         self.ui = Ui_ReplyListWidget() 
         self.ui.setupUi(self)
         
-        w = ReplyWidget(self)
-        self.ui.reply_layout.addWidget(w)
+        self._dynamic_widgets = []
+        
+        self._reply_model = SgReplyModel(self)
+        
         
         w = ReplyWidget(self)
         self.ui.reply_layout.addWidget(w)
         
+        w = ReplyWidget(self)
+        self.ui.reply_layout.addWidget(w)
+        
+
+
+    def load_data(self, sg_entity_dict):
+        """
+        Clear widget and 
+        
+        """
+        for x in self._dynamic_widgets:
+            # remove widget from layout:
+            self.ui.reply_layout.removeWidget(x)
+            # set it's parent to None so that it is removed from the widget hierarchy
+            x.setParent(None)
+            # mark it to be deleted when event processing returns to the main loop
+            x.deleteLater()
+                
+        self._dynamic_widgets = []
+        
+        # load up data from the model
+        self.load_data(sg_entity_dict)
+

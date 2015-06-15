@@ -458,8 +458,9 @@ class AppDialog(QtGui.QWidget):
         Move UI to note mode. Load up tabs.
         """
         # set the right widget to show
-        self.ui.page_stack.setCurrentIndex(self.NOTE_PAGE_IDX)        
-        
+        self.ui.page_stack.setCurrentIndex(self.NOTE_PAGE_IDX)
+        # tell note reply widget to rebuild itself
+        self.ui.note_reply_widget.load_data(self._current_location.entity_dict)
 
     ###################################################################################################
     # tab callbacks

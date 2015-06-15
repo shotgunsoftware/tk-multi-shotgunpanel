@@ -28,6 +28,7 @@ class Ui_ReplyListWidget(object):
         self.reply_layout.setObjectName("reply_layout")
         self.verticalLayout_17.addLayout(self.reply_layout)
         self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setContentsMargins(12, -1, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.thumbnail_2 = QtGui.QLabel(self.reply_widget)
         self.thumbnail_2.setMinimumSize(QtCore.QSize(60, 60))

@@ -12,7 +12,6 @@ from collections import defaultdict
 from sgtk.platform.qt import QtCore, QtGui
 
 import sgtk
-from . import utils
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
@@ -30,7 +29,7 @@ class SgReplyModel(ShotgunOverlayModel):
         """
         Model which represents the latest publishes for an entity
         """
-        self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel/default_user.png")
+        self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel_reply_widget/default_user.png")
 
         # init base class
         ShotgunOverlayModel.__init__(self,
