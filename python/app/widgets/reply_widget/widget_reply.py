@@ -13,7 +13,7 @@ import datetime
 
 from sgtk.platform.qt import QtCore, QtGui
  
-from ...ui.reply_widget import Ui_ReplyWidget
+from .ui.reply_widget import Ui_ReplyWidget
  
 class ReplyWidget(QtGui.QWidget):
     """

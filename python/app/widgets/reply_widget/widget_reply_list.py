@@ -10,7 +10,7 @@
 
 from sgtk.platform.qt import QtCore, QtGui
 
-from ...ui.note_reply_widget import Ui_NoteReplyWidget
+from .ui.reply_list_widget import Ui_ReplyListWidget
  
 from .widget_reply import ReplyWidget 
  
@@ -30,7 +30,7 @@ class ReplyListWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self)
         
         # now load in the UI that was created in the UI designer
-        self.ui = Ui_NoteReplyWidget() 
+        self.ui = Ui_ReplyListWidget() 
         self.ui.setupUi(self)
         
         w = ReplyWidget(self)
