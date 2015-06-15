@@ -31,7 +31,7 @@ from .model_publish_listing import SgLatestPublishListingModel
 from .model_publish_history import SgPublishHistoryListingModel
 from .model_publish_dependency_down import SgPublishDependencyDownstreamListingModel
 from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
-
+from .model_current_user import SgCurrentUserModel
 from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
 
@@ -266,7 +266,12 @@ class AppDialog(QtGui.QWidget):
             # hook up delegate renderer with view
             tab_dict["view"].setItemDelegate(tab_dict["delegate"])
         
-        
+        # set up the top-left current user icon
+        self._current_user_model = SgCurrentUserModel(self)
+        self._current_user_model.thumbnail_updated.connect(self._update_current_user)
+        self._current_user_model.data_updated.connect(self._update_current_user)
+        self.ui.navigation_current_user.clicked.connect(self._on_current_user_clicked)
+        self._current_user_model.load()
 
         # set up the all fields tabs
         self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_view)        
@@ -535,6 +540,15 @@ class AppDialog(QtGui.QWidget):
     ###################################################################################################
     # top detail area callbacks
 
+    def _update_current_user(self):
+        """
+        Update the current user icon
+        """
+        self.ui.navigation_current_user.setIcon(QtGui.QIcon(self._current_user_model.get_pixmap()))
+        sg_data = self._current_user_model.get_sg_data()
+        if sg_data:
+            self.ui.navigation_current_user.setToolTip("%s's Home" % sg_data["firstname"])
+
     def _refresh_details_thumbnail(self):        
         self.ui.details_thumb.setPixmap(self._details_model.get_pixmap())
 
@@ -640,6 +654,14 @@ class AppDialog(QtGui.QWidget):
             self.ui.navigation_next.setEnabled(False)
         if self._history_index == 1:
             self.ui.navigation_prev.setEnabled(False)
+        
+    def _on_current_user_clicked(self):
+        """
+        Navigates to the current user
+        """
+        sg_data = self._current_user_model.get_sg_link()
+        sg_location = ShotgunLocation(sg_data["type"], sg_data["id"])
+        self._navigate_to(sg_location)
         
     def _on_home_clicked(self):
         """

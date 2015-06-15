@@ -17,6 +17,30 @@ class Ui_Dialog(object):
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.current_user_label_2 = QtGui.QLabel(Dialog)
+        self.current_user_label_2.setMaximumSize(QtCore.QSize(3, 32))
+        self.current_user_label_2.setCursor(QtCore.Qt.PointingHandCursor)
+        self.current_user_label_2.setText("")
+        self.current_user_label_2.setScaledContents(True)
+        self.current_user_label_2.setObjectName("current_user_label_2")
+        self.horizontalLayout_2.addWidget(self.current_user_label_2)
+        self.navigation_current_user = QtGui.QToolButton(Dialog)
+        self.navigation_current_user.setMinimumSize(QtCore.QSize(40, 40))
+        self.navigation_current_user.setMaximumSize(QtCore.QSize(40, 40))
+        self.navigation_current_user.setStyleSheet("QToolButton{\n"
+"   border: none;\n"
+"   background-color: none;\n"
+"   background-repeat: no-repeat;\n"
+"   background-position: center center;\n"
+"}\n"
+"\n"
+"")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/default_user.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.navigation_current_user.setIcon(icon)
+        self.navigation_current_user.setIconSize(QtCore.QSize(32, 32))
+        self.navigation_current_user.setObjectName("navigation_current_user")
+        self.horizontalLayout_2.addWidget(self.navigation_current_user)
         self.navigation_home = QtGui.QToolButton(Dialog)
         self.navigation_home.setMinimumSize(QtCore.QSize(40, 40))
         self.navigation_home.setMaximumSize(QtCore.QSize(40, 40))
@@ -119,9 +143,9 @@ class Ui_Dialog(object):
         self.details_thumb.setObjectName("details_thumb")
         self.gridLayout.addWidget(self.details_thumb, 2, 0, 1, 1)
         self.details_action_btn = QtGui.QToolButton(self.details)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/down_arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.details_action_btn.setIcon(icon)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/down_arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.details_action_btn.setIcon(icon1)
         self.details_action_btn.setObjectName("details_action_btn")
         self.gridLayout.addWidget(self.details_action_btn, 1, 2, 1, 1)
         self.details_text_header = QtGui.QLabel(self.details)
@@ -301,6 +325,8 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Shotgun Browser", None, QtGui.QApplication.UnicodeUTF8))
+        self.navigation_current_user.setToolTip(QtGui.QApplication.translate("Dialog", "Clicking the <i>home button</i> will take you to the location that best matches your current work area.", None, QtGui.QApplication.UnicodeUTF8))
+        self.navigation_current_user.setShortcut(QtGui.QApplication.translate("Dialog", "Ctrl+S, Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_home.setToolTip(QtGui.QApplication.translate("Dialog", "Clicking the <i>home button</i> will take you to the location that best matches your current work area.", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_prev.setToolTip(QtGui.QApplication.translate("Dialog", "<i>Go back</i> in the folder history.", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_next.setToolTip(QtGui.QApplication.translate("Dialog", "<i>Go forward</i> in the folder history.", None, QtGui.QApplication.UnicodeUTF8))

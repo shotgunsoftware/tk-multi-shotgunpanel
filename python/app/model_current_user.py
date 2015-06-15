@@ -33,6 +33,7 @@ class SgCurrentUserModel(ShotgunModel):
         # init base class
         ShotgunModel.__init__(self, parent)
         self._current_pixmap = None
+        self._current_user_sg_dict = None
         self.data_refreshed.connect(self._on_data_refreshed)
         
     def load(self):
@@ -41,8 +42,9 @@ class SgCurrentUserModel(ShotgunModel):
         """
         app = sgtk.platform.current_bundle()
         sg_user_data = sgtk.util.get_current_user(app.sgtk)
+        self._current_user_sg_dict = {"type": sg_user_data["type"], "id": sg_user_data["id"]}
         hierarchy = ["id"]
-        fields = ["image", "login", "name", "department"]
+        fields = ["image", "login", "name", "department", "firstname", "surname"]
         ShotgunModel._load_data(self, 
                                 sg_user_data["type"],
                                 [["id", "is", sg_user_data["id"]]], 
@@ -74,6 +76,15 @@ class SgCurrentUserModel(ShotgunModel):
 
     ############################################################################################
     # public interface
+    
+    def get_sg_link(self):
+        """
+        Returns the entity link for the current user
+        This is always available and doesn't need to be cached
+        
+        :returns: shotgun link style dictionary with type and id keys
+        """
+        return self._current_user_sg_dict
     
     def get_sg_data(self):
         """
