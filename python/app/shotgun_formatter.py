@@ -299,11 +299,29 @@ class ShotgunFormatter(object):
             link_filters.append(["project", "is", self._app.context.project])
             
             if self._entity_type == "Task":
+                # show tasks i am assigned to
                 link_filters.append(["task_assignees", "in", [sg_location.entity_dict]])
                 link_filters.append(["sg_status_list", "is_not", "final"])
                 
             else:
+                # for other things, show items created by me
                 link_filters.append(["created_by", "is", sg_location.entity_dict])
+            
+        elif sg_location.entity_type in ["Task"]:
+            
+            # tasks are usually associated via a task field rather than via a link field
+            if self._entity_type == "Note":
+                link_filters.append(["tasks", "in", [sg_location.entity_dict]])
+            
+            elif self._entity_type == "Version":
+                link_filters.append(["sg_task", "is", sg_location.entity_dict])
+            
+            elif self._entity_type in ["PublishedFile", "TankPublishedFile"]:
+                link_filters.append(["task", "is", sg_location.entity_dict])
+
+            else:
+                link_filters.append(["entity", "is", sg_location.entity_dict])
+            
             
         else:
             
