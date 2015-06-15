@@ -49,35 +49,52 @@ class ShotgunConfiguration(HookBaseClass):
         values = {
             "top_left": "<big>{code}</big>",
             "top_right": "{updated_at::ago}",
-            "body": "By {created_by}<br>Description: <i>{description}</i>"            
+            "body": "<b>By:</b> {created_by}<br><b>Description:</b> {description}"            
             } 
         
         # override 
         if entity_type == "PublishedFile":
             
             values["top_left"] = "<big>{name} v{version_number}</big>"
-            values["body"] = "By: {created_by}<br>Type: {published_file_type}<br>Comments: <i>{description}</i>"            
+            values["body"] = """
+                <b>By:</b> {created_by}<br>
+                <b>Type:</b> {published_file_type}<br>
+                <b>Comments:</b> {description}
+                """            
     
         elif entity_type == "TankPublishedFile":
                         
             values["top_left"] = "<big>{name} v{version_number}</big>"
-            values["body"] = "By: {created_by}<br>Type: {tank_type}<br>Comments: <i>{description}</i>"            
+            values["body"] = """
+                Published by {created_by}<br>
+                File Type: {tank_type}<br>
+                Comments: {description}
+                """            
             
         elif entity_type == "Note":
             
             values["top_left"] = "<big>{created_by}</big>"
-            values["body"] = "{content}"            
+            values["body"] = "{content}"       
     
         elif entity_type == "Version":
             
             
-            values["body"] = "By: {user}<br>Status: {sg_status_list}<br>Task: {sg_task}<br>Description: <i>{description}</i>"            
+            values["body"] = """
+                Created by {user} ({sg_task})<br>
+                Status: {sg_status_list}<br>
+                Description: {description}
+                """            
 
         
         elif entity_type == "Task":
             
             values["top_left"] = "<big>{content}</big>"
-            values["body"] = "Assigned to: {task_assignees}<br>Status: {sg_status_list}<br>Start: {start_date}<br>Due: {due_date}"            
+            values["body"] = """
+                Assigned to {task_assignees}<br>
+                Status: {sg_status_list}<br>
+                Start: {start_date}<br>
+                Due: {due_date}
+                """            
 
         return values
         
