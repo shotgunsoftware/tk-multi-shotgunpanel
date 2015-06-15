@@ -146,7 +146,7 @@ class AppDialog(QtGui.QWidget):
 
         # make note lists refresh when new notes are created
         self.ui.entity_note_input.data_updated.connect(lambda : self._load_entity_tab_data(self.ENTITY_TAB_NOTES))
-        self.ui.version_note_input.data_updated.connect(lambda : self._load_entity_tab_data(self.VERSION_TAB_NOTES))
+        self.ui.version_note_input.data_updated.connect(lambda : self._load_version_tab_data(self.VERSION_TAB_NOTES))
 
         # latest publishes only
         self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
