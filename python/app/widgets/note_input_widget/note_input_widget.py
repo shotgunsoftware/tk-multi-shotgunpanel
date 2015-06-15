@@ -27,6 +27,7 @@ from .. import screen_grab
  
 class NoteInputWidget(QtGui.QWidget):
     """
+    Widget that 
     """
     
     # emitted when shotgun has been updated
@@ -130,34 +131,103 @@ class NoteInputWidget(QtGui.QWidget):
         any QT UI components.
         
         """
+        # step 1 - extend out the link dictionary according to specific logic.
+        # - if link is a version, then also include the item the version is linked to and the version's task
+        # - if a link is a task, find its link and use that as the main link. 
+        #   set the task to be linked up to the tasks field.
         
-
-        if self._entity_link["type"] == "Note":
-            # this is a reply that should be linked up to a note 
-            raise Exception("Replies not supported yet!")
+        note_tasks = []
+        note_links = []
+        
+        entity_link = data["entity"]
+        
+        if entity_link["type"] == "Version":
+            # if we are adding a note to a version, link it with the version 
+            # and the entity that the version is linked to.
+            # if the version has a task, link the task to the note too.
+            
+            sg_version = sg.find_one("Version", 
+                                     [["id", "is", entity_link["id"] ]], 
+                                     ["entity", "sg_task", "cached_display_name"])
+            # first make a std sg link to the current entity - this to ensure we have a name key present
+            note_links += [{"id": entity_link["id"], 
+                            "type": entity_link["type"], 
+                            "name": sg_version["cached_display_name"] }] 
+            
+            # and now add the linked entity, if there is one
+            if sg_version["entity"]:
+                note_links += [sg_version["entity"]]
+            
+            if sg_version["sg_task"]:
+                note_tasks += [sg_version["sg_task"]]
+            
+        elif entity_link["type"] == "Task":
+            # if we are adding a note to a task, link the note to the entity that is linked to the
+            # task. The link the task to the note via the task link.
+            sg_task = sg.find_one("Task", 
+                                  [["id", "is", entity_link["id"] ]], 
+                                  ["entity"])
+            
+            if sg_task["entity"]:
+                # there is an entity link from this task
+                note_links += [sg_task["entity"]]
+            
+            # lastly, link the note's task link to this task            
+            note_tasks += [entity_link]
         
         else:
-            # this is an entity - so create a note and link it
-            sg_note_data = sg.create("Note", {"content": data["text"], 
-                                         "project": data["project"],
-                                         "note_links": [self._entity_link]})
-            
-            if data["pixmap"]:
-                
-                # save it out to a temp file so we can upload it
-                png_path = tempfile.NamedTemporaryFile(suffix=".png",
-                                                       prefix="screencapture_",
-                                                       delete=False).name
+            # no special logic. Just link the note to the current entity.
+            # note that because we don't have the display name for the entity,
+            # we need to retrieve this
+            sg_entity = sg.find_one(entity_link["type"], [["id", "is", entity_link["id"] ]], ["cached_display_name"])
+            note_links += [{"id": entity_link["id"], 
+                           "type": entity_link["type"], 
+                           "name": sg_entity["cached_display_name"] }] 
         
-         
-                data["pixmap"].save(png_path)
+        # step 2 - generate the subject line. This is done by various shotgun client/server
+        # logic which we attempt to emulate here. A typical example is:
+        #
+        # Tomoko's Note on aaa_00010_F004_C003_0228F8_v000 and aaa_00010
+        # First name's Note on [list of entities]
+        current_user = sgtk.util.get_current_user(self._app.sgtk)
+        if current_user:
+            if current_user.get("firstname"):
+                first_name = current_user.get("firstname")
+            else:
+                # compatibility with older cores
+                first_name = current_user.get("name").split(" ")[0]
                 
-                # create file entity and upload file
-                sg_upload_data = sg.upload("Note", sg_note_data["id"], png_path)
-                
-                if os.path.exists(png_path):
-                    self._app.log_debug("Deleting temp file %s" % png_path)
-                    os.remove(png_path)
+            title = "%s's Note" % first_name 
+        else:
+            title = "Unknown user's Note"
+        
+        if len(note_links) > 0:
+            note_names = [x["name"] for x in note_links]
+            title += " on %s" % (", ".join(note_names))
+
+        # this is an entity - so create a note and link it
+        sg_note_data = sg.create("Note", {"content": data["text"],
+                                          "subject": title, 
+                                          "project": data["project"],
+                                          "note_links": note_links,
+                                          "tasks": note_tasks })
+        
+        if data["pixmap"]:
+            
+            # save it out to a temp file so we can upload it
+            png_path = tempfile.NamedTemporaryFile(suffix=".png",
+                                                   prefix="screencapture_",
+                                                   delete=False).name
+    
+     
+            data["pixmap"].save(png_path)
+            
+            # create file entity and upload file
+            sg_upload_data = sg.upload("Note", sg_note_data["id"], png_path)
+            
+            if os.path.exists(png_path):
+                self._app.log_debug("Deleting temp file %s" % png_path)
+                os.remove(png_path)
         
         
     def __on_worker_failure(self, uid, msg):

@@ -15,7 +15,7 @@ class Ui_NoteInputWidget(object):
         NoteInputWidget.setMinimumSize(QtCore.QSize(0, 80))
         NoteInputWidget.setMaximumSize(QtCore.QSize(16777215, 80))
         self.horizontalLayout = QtGui.QHBoxLayout(NoteInputWidget)
-        self.horizontalLayout.setSpacing(1)
+        self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setContentsMargins(1, 1, 1, 1)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.text_entry = PlainTextEditWithPlaceholderText(NoteInputWidget)
