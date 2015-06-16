@@ -46,17 +46,20 @@ def create_round_thumbnail(path):
     
     return base_image
 
-def create_circular_512x400_thumbnail(path):
+def create_circular_512x400_thumbnail(path, accent=False):
     """
     Given a path to a shotgun thumbnail, create a publish icon
     with the thumbnail composited onto a centered otherwise empty canvas. 
     This will return a 512x400 pixmap object.
+    
+    :param path: Path to source thumb
+    :param accent: Should the image be accentuated. This can be used to indicate an unread state.
     """
 
     CANVAS_WIDTH = 512
     CANVAS_HEIGHT = 400
     
-    CIRCLE_SIZE = 390
+    CIRCLE_SIZE = 340
 
     # get the 512 base image
     base_image = QtGui.QPixmap(CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -83,8 +86,12 @@ def create_circular_512x400_thumbnail(path):
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setBrush(brush)
         
-        # figure out the offset height wise in order to center the thumb
+        if accent:
+            pen = QtGui.QPen(QtGui.QColor("#2C93E2"))
+            pen.setWidth(18)
+            painter.setPen(pen)
         
+        # figure out the offset height wise in order to center the thumb        
         
         # center it
         inlay_offset_h = (CANVAS_HEIGHT - CIRCLE_SIZE)/2
@@ -125,7 +132,7 @@ def create_rectangular_512x400_thumbnail(path):
         # scale it down to fit inside a frame of maximum 512x512
         thumb_scaled = thumb.scaled(CANVAS_WIDTH, 
                                     CANVAS_HEIGHT, 
-                                    QtCore.Qt.KeepAspectRatio, 
+                                    QtCore.Qt.KeepAspectRatioByExpanding, 
                                     QtCore.Qt.SmoothTransformation)  
 
         # now composite the thumbnail on top of the base image
@@ -176,10 +183,11 @@ def create_human_readable_timestamp(datetime_obj):
     # standard format 
     std_format = datetime_obj.strftime('%Y-%m-%d %H:%M')
 
+    std_date = datetime_obj.strftime('%Y-%m-%d')
 
     if datetime_obj > datetime.now():
         # future times are reported precisely
-        return ("on %s" % std_format, std_format)
+        return (std_date, std_format)
     
     # get the delta and components
     delta = datetime.now() - datetime_obj
@@ -194,7 +202,7 @@ def create_human_readable_timestamp(datetime_obj):
 
     # for larger differences, return std format
     if delta_weeks > 2:
-        return ("on %s" % std_format, std_format)
+        return (std_date, std_format)
 
     # for dates less than 3 weeks, use human readable time stamps 
     if delta_weeks > 0:
@@ -215,15 +223,9 @@ def create_human_readable_timestamp(datetime_obj):
         human_time_str = "%d %s ago" % (delta_minutes, "minute" if delta_weeks == 1 else "minutes")
     
     else:
-        human_time_str = "on %s" % std_format
+        human_time_str = "%d seconds ago" % delta.seconds
     
     return (human_time_str, std_format)
 
 
-def generate_link(sg_link):
-    
-    if sg_link is None:
-        return ""
-    else:
-        return "<a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a>" % (sg_link["type"], sg_link["id"], sg_link["name"])
     

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>451</width>
-    <height>863</height>
+    <width>464</width>
+    <height>878</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,6 +19,67 @@
      <property name="spacing">
       <number>0</number>
      </property>
+     <item>
+      <widget class="QLabel" name="current_user_label_2">
+       <property name="maximumSize">
+        <size>
+         <width>3</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="navigation_current_user">
+       <property name="minimumSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Clicking the &lt;i&gt;home button&lt;/i&gt; will take you to the location that best matches your current work area.</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton{
+   border: none;
+   background-color: none;
+   background-repeat: no-repeat;
+   background-position: center center;
+}
+
+</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/tk_multi_infopanel/default_user.png</normaloff>:/tk_multi_infopanel/default_user.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+S, Ctrl+S</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QToolButton" name="navigation_home">
        <property name="minimumSize">
@@ -164,18 +225,38 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    <item>
     <widget class="QWidget" name="details" native="true">
      <layout class="QGridLayout" name="gridLayout">
+      <item row="2" column="1" colspan="2">
+       <widget class="QLabel" name="details_text_middle">
+        <property name="text">
+         <string>Middle Text</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="3">
+       <widget class="QLabel" name="details_text_bottom">
+        <property name="text">
+         <string>Bottom Text</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="0">
        <widget class="VersionLabel" name="details_thumb">
         <property name="minimumSize">
          <size>
-          <width>192</width>
-          <height>150</height>
+          <width>128</width>
+          <height>100</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>192</width>
-          <height>150</height>
+          <width>128</width>
+          <height>100</height>
          </size>
         </property>
         <property name="text">
@@ -210,26 +291,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
         </property>
        </widget>
       </item>
-      <item row="2" column="1" colspan="2">
-       <widget class="QLabel" name="details_text_middle">
-        <property name="text">
-         <string>Middle Text</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="3">
-       <widget class="QLabel" name="details_text_bottom">
-        <property name="text">
-         <string>Bottom Text</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -243,13 +304,23 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        <item>
         <widget class="QTabWidget" name="entity_tab_widget">
          <property name="currentIndex">
-          <number>4</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="entity_note_tab">
           <attribute name="title">
            <string>Notes</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="NoteInputWidget" name="entity_note_input" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QListView" name="entity_note_view">
              <property name="verticalScrollMode">
@@ -262,69 +333,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
               <bool>true</bool>
              </property>
             </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <item>
-              <widget class="QLabel" name="label">
-               <property name="minimumSize">
-                <size>
-                 <width>65</width>
-                 <height>65</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>65</width>
-                 <height>65</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="pixmap">
-                <pixmap resource="resources.qrc">:/tk_multi_infopanel/default_user.png</pixmap>
-               </property>
-               <property name="scaledContents">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPlainTextEdit" name="plainTextEdit">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>60</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_6">
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton">
-               <property name="text">
-                <string>Create Note</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
            </item>
           </layout>
          </widget>
@@ -343,6 +351,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
              </property>
              <property name="uniformItemSizes">
               <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox">
+             <property name="text">
+              <string>Only show versions pending review</string>
              </property>
             </widget>
            </item>
@@ -509,6 +524,16 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_11">
            <item>
+            <widget class="NoteInputWidget" name="version_note_input" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QListView" name="version_note_view">
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -520,69 +545,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
               <bool>true</bool>
              </property>
             </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_11">
-             <item>
-              <widget class="QLabel" name="label_3">
-               <property name="minimumSize">
-                <size>
-                 <width>60</width>
-                 <height>60</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>60</width>
-                 <height>60</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="pixmap">
-                <pixmap resource="resources.qrc">:/tk_multi_infopanel/default_user.png</pixmap>
-               </property>
-               <property name="scaledContents">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPlainTextEdit" name="plainTextEdit_3">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>60</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_12">
-             <item>
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_3">
-               <property name="text">
-                <string>Create Note</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
            </item>
           </layout>
          </widget>
@@ -610,6 +572,13 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="note_page">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="ReplyListWidget" name="note_reply_widget" native="true"/>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -618,7 +587,19 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
   <customwidget>
    <class>VersionLabel</class>
    <extends>QLabel</extends>
-   <header>..version_label</header>
+   <header>..widgets.version_label</header>
+  </customwidget>
+  <customwidget>
+   <class>ReplyListWidget</class>
+   <extends>QWidget</extends>
+   <header>..widgets.reply_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>NoteInputWidget</class>
+   <extends>QWidget</extends>
+   <header>..widgets.note_input_widget</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

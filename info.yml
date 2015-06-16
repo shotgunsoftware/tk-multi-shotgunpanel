@@ -12,6 +12,11 @@
 
 # expected fields in the configuration file for this engine
 configuration:
+    shotgun_fields_hook:
+        type: hook
+        default_value: "{self}/shotgun_fields.py"
+        description: Hook which controls how values are presented
+
 
 # this app works in all engines - it does not contain 
 # any host application specific commands
