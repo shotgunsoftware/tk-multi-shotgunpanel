@@ -32,25 +32,66 @@ class ReplyListWidget(QtGui.QWidget):
         self.ui = Ui_ReplyListWidget() 
         self.ui.setupUi(self)
         
-        self._dynamic_widgets = []
+        # widgets, keyed by reply id
+        self._dynamic_widgets = {}
         
         self._reply_model = SgReplyModel(self)
         
+        self._reply_model.thumbnail_updated.connect(self._update_thumbnail)
+        self._reply_model.data_updated.connect(self._update_sg_data)
         
-        w = ReplyWidget(self)
-        self.ui.reply_layout.addWidget(w)
         
-        w = ReplyWidget(self)
-        self.ui.reply_layout.addWidget(w)
+    def _update_thumbnail(self, sg_id):
+        print 'update thumb! %s' % sg_id
+        
+        widget = self._dynamic_widgets.get(sg_id)
+        if widget is None:
+            print "old request!"
+            return
+        
+        item = self._reply_model.item_from_entity("Reply", sg_id)
+        thumb_pixmap = item.icon().pixmap(100)
+        widget.set_thumbnail(thumb_pixmap)
+         
+        
+
+    def _update_sg_data(self):
+        print 'update data! %s records' % self._reply_model.rowCount()
+        
+        self._clear_widget()
+        
+        # now redraw the entire reply thread
+        sg_records = {}
+        for idx in xrange(self._reply_model.rowCount()):
+            
+            sg_model_item = self._reply_model.item(idx)
+            sg_data = sg_model_item.get_sg_data()
+            pixmap = sg_model_item.icon().pixmap(100)
+            sg_records[sg_data["id"]] = {"sg_data": sg_data, "thumb": pixmap}
+        
+        for sg_id in sorted(sg_records.keys()):
+            
+            sg_data = sg_records[sg_id]["sg_data"]
+            pixmap = sg_records[sg_id]["thumb"]
+            
+            w = ReplyWidget(self)
+            w.set_content(str(sg_data["user"]["name"]), 
+                          str(sg_data["created_at"]), 
+                          sg_data["content"])
+            w.set_thumbnail(pixmap)
+            
+            w.resize(10,10)
+            
+            self.ui.reply_layout.addWidget(w)
+            self._dynamic_widgets[sg_id] = w
         
 
 
-    def load_data(self, sg_entity_dict):
+    def _clear_widget(self):
         """
-        Clear widget and 
-        
+        Reset widget
         """
-        for x in self._dynamic_widgets:
+        for x in self._dynamic_widgets.values():
             # remove widget from layout:
             self.ui.reply_layout.removeWidget(x)
             # set it's parent to None so that it is removed from the widget hierarchy
@@ -58,8 +99,18 @@ class ReplyListWidget(QtGui.QWidget):
             # mark it to be deleted when event processing returns to the main loop
             x.deleteLater()
                 
-        self._dynamic_widgets = []
+        self._dynamic_widgets = {}
         
+
+
+    def load_data(self, sg_entity_dict):
+        """
+        Load conversation
+        """
         # load up data from the model
-        self.load_data(sg_entity_dict)
+        self._reply_model.load(sg_entity_dict)
+
+
+
+
 

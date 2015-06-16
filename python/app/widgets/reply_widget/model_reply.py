@@ -15,98 +15,103 @@ import sgtk
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
+ShotgunModel = shotgun_model.ShotgunModel
 
-class SgReplyModel(ShotgunOverlayModel):
-
+class SgReplyModel(ShotgunModel):
     """
-    Model which sets a thumbnail to be a round user icon
+    Model that caches data about the current user
     """
-
-    CREATED_BY_THUMB_FIELDS = ["user.HumanUser.image", "user.ApiUser.image"]
+    # signals
+    thumbnail_updated = QtCore.Signal(int)
+    data_updated = QtCore.Signal()
 
     def __init__(self, parent):
         """
-        Model which represents the latest publishes for an entity
+        Constructor
         """
-        self._default_user_pixmap = QtGui.QPixmap(":/tk_multi_infopanel_reply_widget/default_user.png")
-
         # init base class
-        ShotgunOverlayModel.__init__(self,
-                                     parent,
-                                     overlay_widget=parent,
-                                     download_thumbs=True,
-                                     schema_generation=3)
-
-    ############################################################################################
-    # public interface
-
-
-    def load_data(self, entity):
+        ShotgunModel.__init__(self, parent)
+        self._default_thumb = QtGui.QPixmap(":/tk_multi_infopanel_reply_widget/default_user.png")
+        self.data_refreshed.connect(self._on_data_refreshed)
+        
+    def load(self, sg_entity_link):
         """
-        Clears the model and sets it up for a particular entity.
-        Loads any cached data that exists.
-
-        :param item: Selected item in the treeview, None if nothing is selected.
-        :param child_folders: List of items ('folders') from the tree view. These are to be
-                              added to the model in addition to the publishes, so that you get a mix
-                              of folders and files.
-        :param show_sub_items: Indicates whether or not to use the sub items mode. This mode shows all publishes
-                               'below' the selected item in Shotgun and hides any folders items.
-        :param additional_sg_filters: List of shotgun filters to add to the shotgun query when retrieving publishes.
+        Load replies
         """
-        fields = ["content", "created_at", "user"]
-        fields.extend(self.CREATED_BY_THUMB_FIELDS)
-        filters = [["entity", "is", entity]]
-        hierarchy = ["content"]
-        ShotgunOverlayModel._load_data(self, 
-                                       "Reply", 
-                                       filters, 
-                                       hierarchy, 
-                                       fields, 
-                                       [{"field_name": "created_at", "direction": "desc"}])
+        hierarchy = ["id"]
+        fields = ["content", "created_at", "user", "user.HumanUser.image", "user.ApiUser.image", "user.ClientUser.image"]
+        ShotgunModel._load_data(self, 
+                                "Reply",
+                                [["entity", "is", sg_entity_link]], 
+                                hierarchy,
+                                fields)
+        
+        # signal to any views that data now may be available
+        self.data_updated.emit()
         self._refresh_data()
-
+        
+    def _on_data_refreshed(self):
+        """
+        Dispatch method that gets called whenever data has been refreshed in the cache
+        """
+        # broadcast out to listeners that we have new data
+        self.data_updated.emit()
 
     def _populate_default_thumbnail(self, item):
         """
         Called whenever an item needs to get a default thumbnail attached to a node.
-        When thumbnails are loaded, this will be called first, when an object is
-        either created from scratch or when it has been loaded from a cache, then later
-        on a call to _populate_thumbnail will follow where the subclassing implementation
-        can populate the real image.
         """
         # set up publishes with a "thumbnail loading" icon
-        item.setIcon(self._default_user_pixmap)
+        item.setIcon(self._default_thumb)
 
     def _populate_thumbnail(self, item, field, path):
         """
-        Called whenever a thumbnail for an item has arrived on disk. In the case of
-        an already cached thumbnail, this may be called very soon after data has been
-        loaded, in cases when the thumbs are downloaded from Shotgun, it may happen later.
-
-        This method will be called only if the model has been instantiated with the
-        download_thumbs flag set to be true. It will be called for items which are
-        associated with shotgun entities (in a tree data layout, this is typically
-        leaf nodes).
-
-        This method makes it possible to control how the thumbnail is applied and associated
-        with the item. The default implementation will simply set the thumbnail to be icon
-        of the item, but this can be altered by subclassing this method.
-
-        Any thumbnails requested via the _request_thumbnail_download() method will also
-        resurface via this callback method.
-
+        Called whenever a thumbnail for an item has arrived on disk. 
+        
         :param item: QStandardItem which is associated with the given thumbnail
         :param field: The Shotgun field which the thumbnail is associated with.
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
+        thumb = self._create_round_thumbnail(path)
+        item.setIcon(QtGui.QIcon(thumb))
+
+        # emit the reply id that was updated
+        sg_data = item.get_sg_data()
+        self.thumbnail_updated.emit(sg_data["id"])
+
+    def _create_round_thumbnail(self, path):
+        """
+        Create a circle thumbnail 200px wide
+        """
+        CANVAS_SIZE = 200
+    
+        # get the 512 base image
+        base_image = QtGui.QPixmap(CANVAS_SIZE, CANVAS_SIZE)
+        base_image.fill(QtCore.Qt.transparent)
         
-        if field not in self.CREATED_BY_THUMB_FIELDS: 
-            # there may be other thumbnails being loaded in as part of the data flow
-            # (in particular, created_by.HumanUser.image) - these ones we just want to 
-            # ignore and not display.
-            return
+        # now attempt to load the image
+        # pixmap will be a null pixmap if load fails    
+        thumb = QtGui.QPixmap(path)
         
-        icon = utils.create_round_thumbnail(path)
-        item.setIcon(QtGui.QIcon(icon))
+        if not thumb.isNull():
+                
+            # scale it down to fit inside a frame of maximum 512x512
+            thumb_scaled = thumb.scaled(CANVAS_SIZE, 
+                                        CANVAS_SIZE, 
+                                        QtCore.Qt.KeepAspectRatioByExpanding, 
+                                        QtCore.Qt.SmoothTransformation)  
+    
+            # now composite the thumbnail on top of the base image
+            # bottom align it to make it look nice
+            thumb_img = thumb_scaled.toImage()
+            brush = QtGui.QBrush(thumb_img)
+            painter = QtGui.QPainter(base_image)
+            painter.setRenderHint(QtGui.QPainter.Antialiasing)
+            painter.setBrush(brush)
+            painter.drawEllipse(0, 0, CANVAS_SIZE, CANVAS_SIZE)             
+            painter.end()
+        
+        return base_image
+
+
+
