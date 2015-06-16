@@ -12,6 +12,9 @@ from sgtk.platform.qt import QtCore, QtGui
 from .ui.reply_list_widget import Ui_ReplyListWidget
 from .widget_reply import ReplyWidget 
 from .model_reply import SgReplyModel
+
+import datetime
+from ... import utils
  
 class ReplyListWidget(QtGui.QWidget):
     """
@@ -42,12 +45,14 @@ class ReplyListWidget(QtGui.QWidget):
         
         
     def _update_thumbnail(self, sg_id):
-        print 'update thumb! %s' % sg_id
+        """
+        update the given thumbnail
+        """
         
         widget = self._dynamic_widgets.get(sg_id)
-        if widget is None:
-            print "old request!"
-            return
+#         if widget is None:
+#             # old request where the data no longer exists
+#             return
         
         item = self._reply_model.item_from_entity("Reply", sg_id)
         thumb_pixmap = item.icon().pixmap(100)
@@ -56,7 +61,9 @@ class ReplyListWidget(QtGui.QWidget):
         
 
     def _update_sg_data(self):
-        print 'update data! %s records' % self._reply_model.rowCount()
+        """
+        Rebuilds the widget with new sg data from the model
+        """
         
         self._clear_widget()
         
@@ -75,8 +82,16 @@ class ReplyListWidget(QtGui.QWidget):
             pixmap = sg_records[sg_id]["thumb"]
             
             w = ReplyWidget(self)
-            w.set_content(str(sg_data["user"]["name"]), 
-                          str(sg_data["created_at"]), 
+            
+            # TODO - should probably hook this up to the shotgun formatter
+            # need to work out how the relationship between this widget and the
+            # formatter works...
+            created_datetime = datetime.datetime.fromtimestamp(sg_data["created_at"])
+            (human_str, _) = utils.create_human_readable_timestamp(created_datetime) 
+            
+            
+            w.set_content(sg_data["user"]["name"], 
+                          human_str, 
                           sg_data["content"])
             w.set_thumbnail(pixmap)
             

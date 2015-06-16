@@ -35,7 +35,7 @@ class ReplyWidget(QtGui.QWidget):
     def set_content(self, user, date, body):
         self.ui.reply.setText(body)
         self.ui.user.setText(user)
-        self.ui.date.setText(user)
+        self.ui.date.setText(date)
 
     def set_thumbnail(self, pixmap):
         self.ui.thumbnail.setPixmap(pixmap)
