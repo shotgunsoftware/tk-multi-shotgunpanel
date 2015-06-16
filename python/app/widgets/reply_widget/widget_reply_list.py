@@ -35,13 +35,18 @@ class ReplyListWidget(QtGui.QWidget):
         self.ui = Ui_ReplyListWidget() 
         self.ui.setupUi(self)
         
+        self.ui.reply_input.set_placeholder_text("Reply to this Note...")
+        
+        self.ui.reply_input.data_updated.connect(self._update_sg_data)
+        
         # widgets, keyed by reply id
         self._dynamic_widgets = {}
         
         self._reply_model = SgReplyModel(self)
-        
         self._reply_model.thumbnail_updated.connect(self._update_thumbnail)
         self._reply_model.data_updated.connect(self._update_sg_data)
+        
+        
         
     def set_current_user_thumbnail(self, pixmap):
         """
@@ -119,6 +124,9 @@ class ReplyListWidget(QtGui.QWidget):
         """
         Load conversation
         """
+        # tell reply widget where to push new entries...
+        self.ui.reply_input.set_current_entity(sg_entity_dict)
+        
         # load up data from the model
         self._reply_model.load(sg_entity_dict)
 
