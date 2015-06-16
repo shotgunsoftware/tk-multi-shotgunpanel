@@ -72,6 +72,8 @@ class NoteInputWidget(QtGui.QWidget):
         # reset state of the UI
         self.reset()
         
+    
+        
     def reset(self):
         """
         Rest the state of the widget completely.
@@ -119,6 +121,15 @@ class NoteInputWidget(QtGui.QWidget):
         :param entity_link: Std entity link dictionary with type and id
         """
         self._entity_link = entity_link
+
+    def set_placeholder_text(self, msg):
+        """
+        Sets the placeholder message to display
+        
+        :param msg: Placeholder text
+        """
+        self.ui.text_entry.set_placeholder_text(msg)
+        
 
     def _on_screenshot_clicked(self):
         """
