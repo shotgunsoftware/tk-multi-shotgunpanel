@@ -194,7 +194,39 @@ class NoteInputWidget(QtGui.QWidget):
         :param sg: Shotgun instance
         :param data: data dictionary passed in from _submit()
         """
+        entity_link = data["entity"]
+        if entity_link["type"] == "Note":
+            # we are replying to a note - create a reply
+            return self._async_submit_reply(sg, data)
+        else:
+            # create a new note
+            return self._async_submit_note(sg, data)
         
+    def _async_submit_reply(self, sg, data):
+        # create a new reply
+        
+        note_link = data["entity"]
+        
+        # this is an entity - so create a note and link it
+        sg.create("Reply", {"content": data["text"], "entity": note_link})
+        
+        if data["pixmap"]:
+            
+            # save it out to a temp file so we can upload it
+            png_path = tempfile.NamedTemporaryFile(suffix=".png",
+                                                   prefix="screencapture_",
+                                                   delete=False).name
+    
+            data["pixmap"].save(png_path)
+            
+            # create file entity and upload file and associate with the NOTE, not the reply!
+            sg.upload("Note", note_link["id"], png_path)
+            
+            if os.path.exists(png_path):
+                os.remove(png_path)
+                
+        
+    def _async_submit_note(self, sg, data):
         # note - no logging in here, as I am not sure how all 
         # engines currently react to log_debug() async.
         
