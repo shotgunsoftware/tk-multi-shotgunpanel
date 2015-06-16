@@ -37,16 +37,33 @@ class ListItemWidget(QtGui.QWidget):
         # set up the UI
         self.ui = Ui_ListItemWidget() 
         self.ui.setupUi(self)
-                
-        # compute highlight colors
-        p = QtGui.QPalette()
-        highlight_col = p.color(QtGui.QPalette.Active, QtGui.QPalette.Highlight)
-        self._highlight_str = "rgb(%s, %s, %s)" % (highlight_col.red(), 
-                                                   highlight_col.green(), 
-                                                   highlight_col.blue())
-        self._transp_highlight_str = "rgba(%s, %s, %s, 25%%)" % (highlight_col.red(), 
-                                                                 highlight_col.green(), 
-                                                                 highlight_col.blue())        
+        
+        # the property stylesheet syntax seems brittle and hacky so 
+        # keeping the style sheet modifications local here rather
+        # than in global css
+        
+        # todo: figure out a better way to do this!
+
+        self._css_decorated = """
+            #box { border-width: 2px; 
+                   border-radius: 5px;
+                   border-color: rgb(48, 167, 227); 
+                   border-style: solid;
+            }
+            """
+        
+        self._css_selected = """
+            #box { border-width: 2px; 
+                   border-radius: 5px;
+                   border-color: rgb(48, 167, 227); 
+                   border-style: solid; 
+                   background-color: rgba(48, 167, 227, 25%);
+            }        
+            """
+        
+        
+        self.ui.box.setProperty("decorated", False)
+        self.ui.box.setProperty("selected", False)  
                                     
     def set_selected(self, selected):
         """
@@ -55,14 +72,7 @@ class ListItemWidget(QtGui.QWidget):
         :param selected: True if selected, false if not
         """
         if selected:
-            self.ui.box.setStyleSheet("""#box {border-width: 2px; 
-                                                 border-color: %s; 
-                                                 border-style: solid; 
-                                                 background-color: %s}
-                                      """ % (self._highlight_str, self._transp_highlight_str))
-
-        else:
-            self.ui.box.setStyleSheet("")
+            self.ui.box.setStyleSheet(self._css_selected) 
     
     def set_highlighted(self, highlighted):
         """
@@ -71,13 +81,7 @@ class ListItemWidget(QtGui.QWidget):
         :param selected: True if selected, false if not
         """
         if highlighted:
-            self.ui.box.setStyleSheet("""#box {border-width: 1px; 
-                                                 border-color: %s; 
-                                                 border-style: solid}
-                                      """ % self._highlight_str)
-
-        else:
-            self.ui.box.setStyleSheet("")
+            self.ui.box.setStyleSheet(self._css_decorated)
 
     def set_thumbnail(self, pixmap):
         """

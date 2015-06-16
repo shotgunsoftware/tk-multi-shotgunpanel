@@ -17,8 +17,8 @@ QTabBar { icon-size: 40px; }
 QTabBar::tab {
     /*min-width: 50px;*/
     /*width: 70px;*/
-    padding-left: 25px;
-    padding-right: 25px;
+    padding-left: 18px;
+    padding-right: 18px;
     padding-bottom: 15px;
     padding-top: 5px;
     border-bottom: none;
@@ -31,3 +31,5 @@ QTabBar::tab:selected {
     /*font-weight: bold;*/
     border-bottom: 2px solid #2C93E2;
 }
+
+
