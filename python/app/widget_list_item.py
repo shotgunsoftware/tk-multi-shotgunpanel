@@ -82,6 +82,8 @@ class ListItemWidget(QtGui.QWidget):
         """
         if highlighted:
             self.ui.box.setStyleSheet(self._css_decorated)
+        else:
+            self.ui.box.setStyleSheet("")
 
     def set_thumbnail(self, pixmap):
         """
