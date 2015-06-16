@@ -57,8 +57,7 @@ class ShotgunConfiguration(HookBaseClass):
             
             values["top_left"] = "<big>{name} v{version_number}</big>"
             values["body"] = """
-                <b>By:</b> {created_by}<br>
-                <b>Type:</b> {published_file_type}<br>
+                {published_file_type} by {created_by}<br>
                 <b>Comments:</b> {description}
                 """            
     
