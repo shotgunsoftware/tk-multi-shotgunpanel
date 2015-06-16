@@ -43,6 +43,12 @@ class ReplyListWidget(QtGui.QWidget):
         self._reply_model.thumbnail_updated.connect(self._update_thumbnail)
         self._reply_model.data_updated.connect(self._update_sg_data)
         
+    def set_current_user_thumbnail(self, pixmap):
+        """
+        Update the current user thumb for this widget
+        """
+        self.ui.current_user_thumbnail.setPixmap(pixmap)
+        
         
     def _update_thumbnail(self, sg_id):
         """
@@ -89,19 +95,12 @@ class ReplyListWidget(QtGui.QWidget):
             created_datetime = datetime.datetime.fromtimestamp(sg_data["created_at"])
             (human_str, _) = utils.create_human_readable_timestamp(created_datetime) 
             
-            
-            w.set_content(sg_data["user"]["name"], 
-                          human_str, 
-                          sg_data["content"])
+            w.set_content(sg_data["user"]["name"], human_str, sg_data["content"])
             w.set_thumbnail(pixmap)
-            
-            w.resize(10,10)
             
             self.ui.reply_layout.addWidget(w)
             self._dynamic_widgets[sg_id] = w
         
-
-
     def _clear_widget(self):
         """
         Reset widget
@@ -116,16 +115,10 @@ class ReplyListWidget(QtGui.QWidget):
                 
         self._dynamic_widgets = {}
         
-
-
     def load_data(self, sg_entity_dict):
         """
         Load conversation
         """
         # load up data from the model
         self._reply_model.load(sg_entity_dict)
-
-
-
-
 

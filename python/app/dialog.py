@@ -545,7 +545,14 @@ class AppDialog(QtGui.QWidget):
         """
         Update the current user icon
         """
-        self.ui.navigation_current_user.setIcon(QtGui.QIcon(self._current_user_model.get_pixmap()))
+        curr_user_pixmap = self._current_user_model.get_pixmap()
+        
+        # QToolbutton needs a QIcon
+        self.ui.navigation_current_user.setIcon(QtGui.QIcon(curr_user_pixmap))
+        
+        # updat the reply icon
+        self.ui.note_reply_widget.set_current_user_thumbnail(curr_user_pixmap)
+        
         sg_data = self._current_user_model.get_sg_data()
         if sg_data:
             self.ui.navigation_current_user.setToolTip("%s's Home" % sg_data["firstname"])
