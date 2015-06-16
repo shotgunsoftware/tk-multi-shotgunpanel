@@ -37,7 +37,9 @@ class ReplyListWidget(QtGui.QWidget):
         
         self.ui.reply_input.set_placeholder_text("Reply to this Note...")
         
-        self.ui.reply_input.data_updated.connect(self._update_sg_data)
+        self.ui.reply_input.data_updated.connect(self.refresh)
+        
+        self._current_entity_link = None
         
         # widgets, keyed by reply id
         self._dynamic_widgets = {}
@@ -120,13 +122,24 @@ class ReplyListWidget(QtGui.QWidget):
                 
         self._dynamic_widgets = {}
         
+        
+    def refresh(self):
+        """
+        Refresh this widget
+        """
+        self._reply_model.load(self._current_entity_link)
+        
+        
     def load_data(self, sg_entity_dict):
         """
         Load conversation
         """
+        
+        self._current_entity_link = sg_entity_dict
+        
         # tell reply widget where to push new entries...
         self.ui.reply_input.set_current_entity(sg_entity_dict)
         
         # load up data from the model
-        self._reply_model.load(sg_entity_dict)
+        self.refresh()
 
