@@ -18,7 +18,7 @@ from ... import utils
  
 class ReplyListWidget(QtGui.QWidget):
     """
-    Note Reply Widget! 
+    Widget that displays a series of replies to a note
     """
     
     def __init__(self, parent):
@@ -35,49 +35,53 @@ class ReplyListWidget(QtGui.QWidget):
         self.ui = Ui_ReplyListWidget() 
         self.ui.setupUi(self)
         
+        # set up our reply area
         self.ui.reply_input.set_placeholder_text("Reply to this Note...")
-        
         self.ui.reply_input.data_updated.connect(self.refresh)
         
+        # holds the note that we are associating with
         self._current_entity_link = None
         
-        # widgets, keyed by reply id
+        # dynamically built widgets are stored here, 
+        # keyed by reply id
         self._dynamic_widgets = {}
         
+        # create a data model to use to load the replies
         self._reply_model = SgReplyModel(self)
         self._reply_model.thumbnail_updated.connect(self._update_thumbnail)
         self._reply_model.data_updated.connect(self._update_sg_data)
         
-        
-        
     def set_current_user_thumbnail(self, pixmap):
         """
-        Update the current user thumb for this widget
+        Update the current user thumb for this widget.
+        This thumbnail is displayed next to the 
+        reply input widget and normally represents
+        the current user.
+        
+        :param pixmap: Pixmap object to repreesent the current user
         """
         self.ui.current_user_thumbnail.setPixmap(pixmap)
         
-        
-    def _update_thumbnail(self, sg_id):
+    def _update_thumbnail(self, reply_id):
         """
-        update the given thumbnail
-        """
+        Update the thumbnail for the given reply id.
         
-        widget = self._dynamic_widgets.get(sg_id)
-#         if widget is None:
-#             # old request where the data no longer exists
-#             return
+        :param reply_id: reply id to update thumbnail for
+        """        
+        # find the corresponding widget
+        widget = self._dynamic_widgets.get(reply_id)
         
-        item = self._reply_model.item_from_entity("Reply", sg_id)
+        # find the item in the model
+        item = self._reply_model.item_from_entity("Reply", reply_id)
         thumb_pixmap = item.icon().pixmap(100)
-        widget.set_thumbnail(thumb_pixmap)
-         
         
+        # do the update
+        widget.set_thumbnail(thumb_pixmap)
 
     def _update_sg_data(self):
         """
-        Rebuilds the widget with new sg data from the model
+        Rebuild the widget with new sg data from the model.
         """
-        
         self._clear_widget()
         
         # now redraw the entire reply thread
@@ -110,7 +114,7 @@ class ReplyListWidget(QtGui.QWidget):
         
     def _clear_widget(self):
         """
-        Reset widget
+        Clear the widget from all existing replies
         """
         for x in self._dynamic_widgets.values():
             # remove widget from layout:
@@ -122,19 +126,22 @@ class ReplyListWidget(QtGui.QWidget):
                 
         self._dynamic_widgets = {}
         
+    ##########################################################################################
+    # public interface
         
     def refresh(self):
         """
-        Refresh this widget
+        Refresh this widget. This will
         """
         self._reply_model.load(self._current_entity_link)
         
         
     def load_data(self, sg_entity_dict):
         """
-        Load conversation
-        """
+        Load replies for a given entity.
         
+        :param sg_entity_dict: Shotgun link dictionary with keys type and id.
+        """
         self._current_entity_link = sg_entity_dict
         
         # tell reply widget where to push new entries...

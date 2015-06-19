@@ -10,7 +10,6 @@
 
 import os
 import sgtk
-import datetime
 import tempfile
 
 

@@ -14,8 +14,11 @@ from .ui import resources_rc
 
 class VersionLabel(QtGui.QLabel):
     """
+    Subclassed QLabel that displays a playback icon
+    centered above the existing pixmap.
     """
     
+    # signal fires when the play button was cliecked
     playback_clicked = QtCore.Signal(str)
     
     def __init__(self, parent):
@@ -32,12 +35,25 @@ class VersionLabel(QtGui.QLabel):
         self._active = False
 
     def set_playback_icon_active(self, status):
+        """
+        Control the state of the playback
+        
+        :status active: True if the playback icon should be shown, false otherwise 
+        """
         self._active = status
         
     def set_plackback_url(self, url):
+        """
+        Specifies playback url to associate with the button
+        
+        :param url: Url string
+        :"""
         self._playback_url = url
 
     def enterEvent(self, event):
+        """
+        Fires when the mouse enters the widget space
+        """
         QtGui.QLabel.enterEvent(self, event)
         if self._active:
             self._hover = True
@@ -45,6 +61,9 @@ class VersionLabel(QtGui.QLabel):
             self.repaint()
         
     def leaveEvent(self, event):
+        """
+        Fires when the mouse leaves the widget space
+        """
         QtGui.QLabel.leaveEvent(self, event)
         if self._active:
             self._hover = False
@@ -52,6 +71,9 @@ class VersionLabel(QtGui.QLabel):
             self.repaint()
 
     def mousePressEvent(self, event):
+        """
+        Fires when the mouse is pressed
+        """
         QtGui.QLabel.mousePressEvent(self, event)
         if self._active and self._hover:
             self.playback_clicked.emit(self._playback_url)

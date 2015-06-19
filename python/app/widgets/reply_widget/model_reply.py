@@ -8,7 +8,6 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
-from collections import defaultdict
 from sgtk.platform.qt import QtCore, QtGui
 
 import sgtk
@@ -19,10 +18,13 @@ ShotgunModel = shotgun_model.ShotgunModel
 
 class SgReplyModel(ShotgunModel):
     """
-    Model that caches data about the current user
+    Model that loads replies for a note 
     """
-    # signals
+    
+    # fired whenever a thumbnail is loaded,
     thumbnail_updated = QtCore.Signal(int)
+    
+    # fired whenever the data gets refreshed
     data_updated = QtCore.Signal()
 
     def __init__(self, parent):
@@ -36,10 +38,22 @@ class SgReplyModel(ShotgunModel):
         
     def load(self, sg_entity_link):
         """
-        Load replies
+        Load replies into the model given an entity (e.g. a Note)
+        
+        :param sg_entity_link: Shotgun link dict (with keys type/id)
         """
         hierarchy = ["id"]
-        fields = ["content", "created_at", "user", "user.HumanUser.image", "user.ApiUser.image", "user.ClientUser.image"]
+        
+        # note how we get several possible thumbnails
+        # to cover all different users
+        fields = ["content", 
+                  "created_at", 
+                  "user", 
+                  "user.HumanUser.image", 
+                  "user.ApiUser.image", 
+                  "user.ClientUser.image"]
+        
+        # set up the actual load
         ShotgunModel._load_data(self, 
                                 "Reply",
                                 [["entity", "is", sg_entity_link]], 
@@ -48,6 +62,8 @@ class SgReplyModel(ShotgunModel):
         
         # signal to any views that data now may be available
         self.data_updated.emit()
+        
+        # request async refresh
         self._refresh_data()
         
     def _on_data_refreshed(self):
@@ -72,6 +88,7 @@ class SgReplyModel(ShotgunModel):
         :param field: The Shotgun field which the thumbnail is associated with.
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
+        # generate a round thumb
         thumb = self._create_round_thumbnail(path)
         item.setIcon(QtGui.QIcon(thumb))
 
@@ -82,6 +99,9 @@ class SgReplyModel(ShotgunModel):
     def _create_round_thumbnail(self, path):
         """
         Create a circle thumbnail 200px wide
+        
+        :param path: Path to thumbnail on disk
+        :returns: pixmap object with round thumb
         """
         CANVAS_SIZE = 200
     

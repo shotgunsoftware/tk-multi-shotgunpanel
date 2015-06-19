@@ -310,6 +310,9 @@ class ShotgunFormatter(object):
                 link_filters = {
                     "logical_operator": "or", 
                     "conditions": [
+                        {"path": "addressings_cc.Group.users", "values": [sg_location.entity_dict], "relation": "in"},
+                        {"path": "addressings_to.Group.users", "values": [sg_location.entity_dict], "relation": "in"},
+                        {"path": "replies.Reply.user", "values": [sg_location.entity_dict], "relation": "is"},
                         {"path": "addressings_cc", "values": [sg_location.entity_dict], "relation": "in"},                       
                         {"path": "addressings_to", "values": [sg_location.entity_dict], "relation": "in"},
                         {"path": "tasks.Task.task_assignees", "values": [sg_location.entity_dict], "relation": "in"} 

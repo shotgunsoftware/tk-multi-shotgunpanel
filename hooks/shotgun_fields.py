@@ -9,7 +9,7 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 """
-Hook that configures which data should be displayed from Shotgun 
+Hook that controls how Shotgun data should be displayed in the info panel app. 
 """
 import sgtk
 import os
@@ -190,6 +190,17 @@ class ShotgunConfiguration(HookBaseClass):
                 """
 
             values["footer"] = "{description}"         
+
+        if entity_type == "Group": 
+
+            values["title"] = "Group {code}"
+            
+            values["body"] = """
+                Members: {users}<br>
+                Open Notes: {open_notes}
+                """
+
+            values["footer"] = ""         
 
             
         elif entity_type == "Shot":
