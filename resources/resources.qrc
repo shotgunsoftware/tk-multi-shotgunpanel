@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="tk_multi_infopanel">
+    <file>shotgun_logo_light_medium.png</file>
     <file>down_arrow.png</file>
     <file>rect_512x400.png</file>
     <file>round_512x400.png</file>
@@ -20,7 +21,6 @@
     <file>home_hover.png</file>
     <file>home_pressed.png</file>
     <file>default_user.png</file>
-    
     <file>status_icons/icon_arrow_right2.png</file>
     <file>status_icons/icon_airplane.png</file>
     <file>status_icons/icon_alert.png</file>

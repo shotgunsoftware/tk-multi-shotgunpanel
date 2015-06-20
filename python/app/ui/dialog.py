@@ -11,7 +11,7 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(464, 878)
+        Dialog.resize(410, 878)
         self.verticalLayout_7 = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
@@ -24,23 +24,6 @@ class Ui_Dialog(object):
         self.current_user_label_2.setScaledContents(True)
         self.current_user_label_2.setObjectName("current_user_label_2")
         self.horizontalLayout_2.addWidget(self.current_user_label_2)
-        self.navigation_current_user = QtGui.QToolButton(Dialog)
-        self.navigation_current_user.setMinimumSize(QtCore.QSize(40, 40))
-        self.navigation_current_user.setMaximumSize(QtCore.QSize(40, 40))
-        self.navigation_current_user.setStyleSheet("QToolButton{\n"
-"   border: none;\n"
-"   background-color: none;\n"
-"   background-repeat: no-repeat;\n"
-"   background-position: center center;\n"
-"}\n"
-"\n"
-"")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/default_user.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.navigation_current_user.setIcon(icon)
-        self.navigation_current_user.setIconSize(QtCore.QSize(32, 32))
-        self.navigation_current_user.setObjectName("navigation_current_user")
-        self.horizontalLayout_2.addWidget(self.navigation_current_user)
         self.navigation_home = QtGui.QToolButton(Dialog)
         self.navigation_home.setMinimumSize(QtCore.QSize(40, 40))
         self.navigation_home.setMaximumSize(QtCore.QSize(40, 40))
@@ -143,9 +126,9 @@ class Ui_Dialog(object):
         self.details_thumb.setObjectName("details_thumb")
         self.gridLayout.addWidget(self.details_thumb, 2, 0, 1, 1)
         self.details_action_btn = QtGui.QToolButton(self.details)
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/down_arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.details_action_btn.setIcon(icon1)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/down_arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.details_action_btn.setIcon(icon)
         self.details_action_btn.setObjectName("details_action_btn")
         self.gridLayout.addWidget(self.details_action_btn, 1, 2, 1, 1)
         self.details_text_header = QtGui.QLabel(self.details)
@@ -315,6 +298,41 @@ class Ui_Dialog(object):
         self.verticalLayout_5.addWidget(self.note_reply_widget)
         self.page_stack.addWidget(self.note_page)
         self.verticalLayout_7.addWidget(self.page_stack)
+        self.line_2 = QtGui.QFrame(Dialog)
+        self.line_2.setFrameShape(QtGui.QFrame.HLine)
+        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_2.setObjectName("line_2")
+        self.verticalLayout_7.addWidget(self.line_2)
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtGui.QLabel(Dialog)
+        self.label.setMinimumSize(QtCore.QSize(125, 18))
+        self.label.setMaximumSize(QtCore.QSize(125, 18))
+        self.label.setText("")
+        self.label.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel/shotgun_logo_light_medium.png"))
+        self.label.setScaledContents(True)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem1)
+        self.navigation_current_user = QtGui.QToolButton(Dialog)
+        self.navigation_current_user.setMinimumSize(QtCore.QSize(40, 40))
+        self.navigation_current_user.setMaximumSize(QtCore.QSize(40, 40))
+        self.navigation_current_user.setStyleSheet("QToolButton{\n"
+"   border: none;\n"
+"   background-color: none;\n"
+"   background-repeat: no-repeat;\n"
+"   background-position: center center;\n"
+"}\n"
+"\n"
+"")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/default_user.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.navigation_current_user.setIcon(icon1)
+        self.navigation_current_user.setIconSize(QtCore.QSize(32, 32))
+        self.navigation_current_user.setObjectName("navigation_current_user")
+        self.horizontalLayout.addWidget(self.navigation_current_user)
+        self.verticalLayout_7.addLayout(self.horizontalLayout)
 
         self.retranslateUi(Dialog)
         self.page_stack.setCurrentIndex(0)
@@ -325,8 +343,6 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Shotgun Browser", None, QtGui.QApplication.UnicodeUTF8))
-        self.navigation_current_user.setToolTip(QtGui.QApplication.translate("Dialog", "Clicking the <i>home button</i> will take you to the location that best matches your current work area.", None, QtGui.QApplication.UnicodeUTF8))
-        self.navigation_current_user.setShortcut(QtGui.QApplication.translate("Dialog", "Ctrl+S, Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_home.setToolTip(QtGui.QApplication.translate("Dialog", "Clicking the <i>home button</i> will take you to the location that best matches your current work area.", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_prev.setToolTip(QtGui.QApplication.translate("Dialog", "<i>Go back</i> in the folder history.", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_next.setToolTip(QtGui.QApplication.translate("Dialog", "<i>Go forward</i> in the folder history.", None, QtGui.QApplication.UnicodeUTF8))
@@ -345,6 +361,8 @@ class Ui_Dialog(object):
         self.publish_tab_widget.setTabText(self.publish_tab_widget.indexOf(self.tab_2), QtGui.QApplication.translate("Dialog", "Used In", None, QtGui.QApplication.UnicodeUTF8))
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_note_tab), QtGui.QApplication.translate("Dialog", "Notes", None, QtGui.QApplication.UnicodeUTF8))
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_publish_tab), QtGui.QApplication.translate("Dialog", "Publishes", None, QtGui.QApplication.UnicodeUTF8))
+        self.navigation_current_user.setToolTip(QtGui.QApplication.translate("Dialog", "Clicking the <i>home button</i> will take you to the location that best matches your current work area.", None, QtGui.QApplication.UnicodeUTF8))
+        self.navigation_current_user.setShortcut(QtGui.QApplication.translate("Dialog", "Ctrl+S, Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
 
 from ..widgets.reply_widget import ReplyListWidget
 from ..widgets.version_label import VersionLabel
