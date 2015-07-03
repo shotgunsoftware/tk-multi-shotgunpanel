@@ -24,12 +24,12 @@ QTabBar::tab {
     border-bottom: none;
 }
 QTabBar::tab:hover {
-    color: #2C93E2;
+    color: {{SG_HIGHLIGHT_COLOR}};
 }
 QTabBar::tab:selected {
-    color: #2C93E2;
+    color: {{SG_HIGHLIGHT_COLOR}};
     /*font-weight: bold;*/
-    border-bottom: 2px solid #2C93E2;
+    border-bottom: 2px solid {{SG_HIGHLIGHT_COLOR}};
 }
 
 
