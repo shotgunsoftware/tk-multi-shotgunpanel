@@ -17,9 +17,9 @@ from .shotgun_formatter import ShotgunFormatter
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
+ShotgunModel = shotgun_model.ShotgunModel
 
-class SgEntityListingModel(ShotgunOverlayModel):
+class SgAllUsersModel(ShotgunModel):
 
     """
     Model used to display long listings of data in the tabs.
@@ -33,77 +33,27 @@ class SgEntityListingModel(ShotgunOverlayModel):
     shotgun formatter
     """
     
-    def __init__(self, entity_type, parent):
+    def __init__(self, parent):
         """
         Model which represents the latest publishes for an entity
         """
-        self._sg_location = None
-        self._sg_formatter = ShotgunFormatter(entity_type)
-        
-        self._no_items_overlay = QtGui.QPixmap(":/tk_multi_infopanel/no_items_found.png")
-                
         # init base class
-        ShotgunOverlayModel.__init__(self,
-                                     parent,
-                                     overlay_widget=parent,
-                                     download_thumbs=True,
-                                     schema_generation=5,
-                                     bg_load_thumbs=True)
-
-        self.data_refreshed.connect(self._on_data_arrived)
-        self.cache_loaded.connect(self._on_data_arrived)
-
-    ############################################################################################
-    # public interface
-
-    def get_formatter(self):
-        """
-        Returns the shotgun location associated with this model
-        """
-        return self._sg_formatter
-
-    def is_highlighted(self, model_index):
-        """
-        Compute if a model index belonging to this model 
-        should be highlighted
-        """
-        return False
-
-    def load_data(self, sg_location, additional_fields=None):
-        """
-        Clears the model and sets it up for a particular entity.
-        Loads any cached data that exists.
-        """
-        self._sg_location = sg_location
+        ShotgunModel.__init__(self, parent, download_thumbs=True, bg_load_thumbs=True)
         
-        fields = self._sg_formatter.fields
-        if additional_fields:
-            fields += additional_fields
+        self._sg_formatter = ShotgunFormatter("HumanUser")
+        
+        
+        fields = ["image", "firstname", "lastname", "department", "email", "groups"]
             
-        hierarchy = ["updated_at"]
-        ShotgunOverlayModel._load_data(self, 
-                                       self._sg_formatter.entity_type, 
-                                       self._get_filters(), 
-                                       hierarchy, 
-                                       fields, 
-                                       [{"field_name":"updated_at", "direction":"asc"}])
+        hierarchy = ["login"]
+        ShotgunModel._load_data(self, 
+                               "HumanUser", 
+                               [["sg_status_list", "is", "active"]], 
+                               hierarchy, 
+                               fields, 
+                               [{"field_name":"updated_at", "direction":"asc"}])
         self._refresh_data()
-
-    ############################################################################################
-    # protected methods
-    
-    def _on_data_arrived(self):
-        """
-        Called when data has arrived
-        """
-        if len(self.entity_ids) == 0:
-            self._show_overlay_pixmap(self._no_items_overlay)
-    
-    def _get_filters(self):
-        """
-        Return the filter to be used for the current query
-        """
-        return self._sg_formatter.get_link_filters(self._sg_location)
+        
 
     def _populate_default_thumbnail(self, item):
         """

@@ -32,7 +32,7 @@ class SgReplyModel(ShotgunModel):
         Constructor
         """
         # init base class
-        ShotgunModel.__init__(self, parent)
+        ShotgunModel.__init__(self, parent, bg_load_thumbs=True)
         self._default_thumb = QtGui.QPixmap(":/tk_multi_infopanel_reply_widget/default_user.png")
         self.data_refreshed.connect(self._on_data_refreshed)
         
@@ -80,7 +80,7 @@ class SgReplyModel(ShotgunModel):
         # set up publishes with a "thumbnail loading" icon
         item.setIcon(self._default_thumb)
 
-    def _populate_thumbnail(self, item, field, path):
+    def _populate_thumbnail_image(self, item, field, image, path):
         """
         Called whenever a thumbnail for an item has arrived on disk. 
         
@@ -89,18 +89,18 @@ class SgReplyModel(ShotgunModel):
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
         # generate a round thumb
-        thumb = self._create_round_thumbnail(path)
+        thumb = self._create_round_thumbnail(image)
         item.setIcon(QtGui.QIcon(thumb))
 
         # emit the reply id that was updated
         sg_data = item.get_sg_data()
         self.thumbnail_updated.emit(sg_data["id"])
 
-    def _create_round_thumbnail(self, path):
+    def _create_round_thumbnail(self, image):
         """
         Create a circle thumbnail 200px wide
         
-        :param path: Path to thumbnail on disk
+        :param image: Qimage to make thumb from
         :returns: pixmap object with round thumb
         """
         CANVAS_SIZE = 200
@@ -111,7 +111,7 @@ class SgReplyModel(ShotgunModel):
         
         # now attempt to load the image
         # pixmap will be a null pixmap if load fails    
-        thumb = QtGui.QPixmap(path)
+        thumb = QtGui.QPixmap.fromImage(image)
         
         if not thumb.isNull():
                 

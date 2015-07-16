@@ -35,15 +35,33 @@ class StgkStarterApp(Application):
         # menu (but it depends on the engine). The engine will manage this command and 
         # whenever the user requests the command, it will call out to the callback.
 
-        # first, set up our callback, calling out to a method inside the app module contained
-        # in the python folder of the app
-        menu_callback = lambda : app_payload.dialog.show_dialog(self)
-
         # now register the command with the engine
-        self.engine.register_command("Info Panel...", menu_callback)
+        self._unique_panel_id = self.engine.register_panel(self.create_panel)
+        
+        # register a menu entry
+        self.engine.register_command("Info Panel...", self.create_panel, {"type": "panel"})
         
         
     def destroy_app(self):
         
         self.log_debug("Destroying app...")
         self.metaschema.destroy()
+
+
+    def create_panel(self):
+        """
+        Shows the main dialog window.
+        """
+        app_payload = self.import_module("app")
+        
+        # start the UI
+        try:
+            return self.engine.show_panel(self._unique_panel_id, "Shotgun", self, app_payload.AppDialog)
+        except AttributeError, e:
+            # just to gracefully handle older engines and older cores
+            self.log_warning("Could not execute show_panel method - please upgrade "
+                                     "to latest core and engine! Falling back on show_dialog. Error: %s" % e)
+            return self.engine.show_dialog("Shotgun", self, app_payload.AppDialog)
+
+
+

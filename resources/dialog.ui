@@ -14,6 +14,12 @@
    <string>Shotgun Browser</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_7">
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <property name="margin">
+    <number>2</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="spacing">
@@ -259,10 +265,16 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="margin">
+        <number>2</number>
+       </property>
        <item>
         <widget class="QTabWidget" name="entity_tab_widget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="entity_note_tab">
           <attribute name="title">
@@ -400,10 +412,16 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
      </widget>
      <widget class="QWidget" name="publish_page">
       <layout class="QVBoxLayout" name="verticalLayout_6">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="margin">
+        <number>2</number>
+       </property>
        <item>
         <widget class="QTabWidget" name="publish_tab_widget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tab_3">
           <attribute name="title">
@@ -427,7 +445,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
          </widget>
          <widget class="QWidget" name="tab">
           <attribute name="title">
-           <string>Contains</string>
+           <string>Uses</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_13">
            <item>
@@ -447,7 +465,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
          </widget>
          <widget class="QWidget" name="tab_2">
           <attribute name="title">
-           <string>Used In</string>
+           <string>Used By</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_14">
            <item>
@@ -471,10 +489,16 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
      </widget>
      <widget class="QWidget" name="version_page">
       <layout class="QVBoxLayout" name="verticalLayout_10">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="margin">
+        <number>2</number>
+       </property>
        <item>
         <widget class="QTabWidget" name="version_tab_widget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="version_note_tab">
           <attribute name="title">
@@ -538,97 +562,6 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
       </layout>
      </widget>
     </widget>
-   </item>
-   <item>
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="minimumSize">
-        <size>
-         <width>125</width>
-         <height>18</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>125</width>
-         <height>18</height>
-        </size>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="resources.qrc">:/tk_multi_infopanel/shotgun_logo_light_medium.png</pixmap>
-       </property>
-       <property name="scaledContents">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QToolButton" name="navigation_current_user">
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Clicking the &lt;i&gt;home button&lt;/i&gt; will take you to the location that best matches your current work area.</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QToolButton{
-   border: none;
-   background-color: none;
-   background-repeat: no-repeat;
-   background-position: center center;
-}
-
-</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/tk_multi_infopanel/default_user.png</normaloff>:/tk_multi_infopanel/default_user.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="shortcut">
-        <string>Ctrl+S, Ctrl+S</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
   </layout>
  </widget>

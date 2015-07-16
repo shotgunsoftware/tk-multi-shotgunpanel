@@ -31,37 +31,14 @@ from .model_publish_listing import SgLatestPublishListingModel
 from .model_publish_history import SgPublishHistoryListingModel
 from .model_publish_dependency_down import SgPublishDependencyDownstreamListingModel
 from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
-from .model_current_user import SgCurrentUserModel
 from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
+from .model_all_users import SgAllUsersModel
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings")
 
-def show_dialog(app_instance):
-    """
-    Shows the main dialog window.
-    """
-    # in order to handle UIs seamlessly, each toolkit engine has methods for launching
-    # different types of windows. By using these methods, your windows will be correctly
-    # decorated and handled in a consistent fashion by the system. 
-    
-    # Create and display the splash screen
-    splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/splash.png") 
-    splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
-    splash.setMask(splash_pix.mask())
-    splash.show()
-    QtCore.QCoreApplication.processEvents()
 
-    # start the UI
-    w = app_instance.engine.show_dialog("Info Panel", app_instance, AppDialog)
-    
-    # attach splash screen to the main window to help GC
-    w.__splash_screen = splash
-    
-    # hide splash screen after loader UI show
-    splash.finish(w.window())
-        
 
 
 class AppDialog(QtGui.QWidget):
@@ -97,9 +74,9 @@ class AppDialog(QtGui.QWidget):
         """
         Tell the system to not show the std toolbar
         """
-        return True    
+        return True
     
-    def __init__(self):
+    def __init__(self, parent=None):
         """
         Constructor
         """
@@ -113,9 +90,6 @@ class AppDialog(QtGui.QWidget):
         # start caching the metaschema
         self._app.metaschema.request_cache()
 
-        # load style sheet
-        self._load_css()
-        
         # now load in the UI that was created in the UI designer
         self.ui = Ui_Dialog() 
         self.ui.setupUi(self)
@@ -205,13 +179,13 @@ class AppDialog(QtGui.QWidget):
                                   "entity_type": self._publish_entity_type}
 
         idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_CONTAINS)
-        self._detail_tabs[idx] = {"model_class": SgPublishDependencyUpstreamListingModel,
+        self._detail_tabs[idx] = {"model_class": SgPublishDependencyDownstreamListingModel,
                                   "delegate_class": ListItemDelegate,
                                   "view": self.ui.publish_upstream_view,
                                   "entity_type": self._publish_entity_type}
 
         idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_USED_IN)
-        self._detail_tabs[idx] = {"model_class": SgPublishDependencyDownstreamListingModel,
+        self._detail_tabs[idx] = {"model_class": SgPublishDependencyUpstreamListingModel,
                                   "delegate_class": ListItemDelegate,
                                   "view": self.ui.publish_downstream_view,
                                   "entity_type": self._publish_entity_type}
@@ -260,47 +234,24 @@ class AppDialog(QtGui.QWidget):
             # set up model
             tab_dict["view"].setModel(tab_dict["sort_proxy"])            
             # set up a global on-click handler for
-            tab_dict["view"].clicked.connect(self._on_entity_clicked)
+            tab_dict["view"].doubleClicked.connect(self._on_entity_clicked)
             # create delegate
             tab_dict["delegate"] = DelegateClass(tab_dict["view"])
             # hook up delegate renderer with view
             tab_dict["view"].setItemDelegate(tab_dict["delegate"])
         
-        # set up the top-left current user icon
-        self._current_user_model = SgCurrentUserModel(self)
-        self._current_user_model.thumbnail_updated.connect(self._update_current_user)
-        self._current_user_model.data_updated.connect(self._update_current_user)
-        self.ui.navigation_current_user.clicked.connect(self._on_current_user_clicked)
-        self._current_user_model.load()
-
         # set up the all fields tabs
         self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_view)        
         self.ui.entity_info_view.setModel(self._entity_details_model.get_table_model())
         self.ui.entity_info_view.verticalHeader().hide()
         self.ui.entity_info_view.horizontalHeader().hide()
 
+        # create a model to store all users
+        self._all_users_model = SgAllUsersModel(self)
+
         # kick off
         self._on_home_clicked()
 
-
-    def _load_css(self):
-        """
-        Load external style sheet
-        """
-        css_file = os.path.join(self._app.disk_location, "style.css")
-
-        try:
-            # Read css file
-            f = open(css_file)
-            css_data = f.read()
-            # Append our add ons to current sytle sheet at the top widget
-            # level, children will inherit from it, without us affecting
-            # other apps for this engine
-            self.setStyleSheet(css_data)
-        except:
-            self._app.log_warning( "Unable to read style sheet %s" % css_file )
-        finally:
-            f.close()
 
 
 
@@ -310,6 +261,9 @@ class AppDialog(QtGui.QWidget):
         All worker threads and other things which need a proper shutdown
         need to be called here.
         """        
+        
+        self._app.log_debug("CloseEvent Received. Begin shutting down UI.")
+        
         # display exit splash screen
         splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/exit_splash.png")
         splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
@@ -540,22 +494,6 @@ class AppDialog(QtGui.QWidget):
 
     ###################################################################################################
     # top detail area callbacks
-
-    def _update_current_user(self):
-        """
-        Update the current user icon
-        """
-        curr_user_pixmap = self._current_user_model.get_pixmap()
-        
-        # QToolbutton needs a QIcon
-        self.ui.navigation_current_user.setIcon(QtGui.QIcon(curr_user_pixmap))
-        
-        # updat the reply icon
-        self.ui.note_reply_widget.set_current_user_thumbnail(curr_user_pixmap)
-        
-        sg_data = self._current_user_model.get_sg_data()
-        if sg_data:
-            self.ui.navigation_current_user.setToolTip("%s's Home" % sg_data["firstname"])
 
     def _refresh_details_thumbnail(self):        
         self.ui.details_thumb.setPixmap(self._details_model.get_pixmap())

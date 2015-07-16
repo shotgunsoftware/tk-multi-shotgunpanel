@@ -42,7 +42,8 @@ class SgAllFieldsModel(ShotgunOverlayModel):
                                      parent,
                                      overlay_widget=parent,
                                      download_thumbs=False,
-                                     schema_generation=6)
+                                     schema_generation=6,
+                                     bg_load_thumbs=True)
 
         self._app = sgtk.platform.current_bundle()
         

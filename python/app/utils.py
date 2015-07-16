@@ -12,7 +12,7 @@ import sgtk
 from sgtk.platform.qt import QtCore, QtGui
 from datetime import datetime , timedelta
 
-def create_round_thumbnail(path):
+def create_round_thumbnail(image):
     """
     Create a circle thumbnail 200px wide
     """
@@ -24,7 +24,7 @@ def create_round_thumbnail(path):
     
     # now attempt to load the image
     # pixmap will be a null pixmap if load fails    
-    thumb = QtGui.QPixmap(path)
+    thumb = QtGui.QPixmap.fromImage(image)
     
     if not thumb.isNull():
             
@@ -46,13 +46,13 @@ def create_round_thumbnail(path):
     
     return base_image
 
-def create_circular_512x400_thumbnail(path, accent=False):
+def create_circular_512x400_thumbnail(image, accent=False):
     """
-    Given a path to a shotgun thumbnail, create a publish icon
+    Given a qimage shotgun thumbnail, create a publish icon
     with the thumbnail composited onto a centered otherwise empty canvas. 
     This will return a 512x400 pixmap object.
     
-    :param path: Path to source thumb
+    :param image: QImage source image
     :param accent: Should the image be accentuated. This can be used to indicate an unread state.
     """
 
@@ -67,7 +67,7 @@ def create_circular_512x400_thumbnail(path, accent=False):
     
     # now attempt to load the image
     # pixmap will be a null pixmap if load fails    
-    thumb = QtGui.QPixmap(path)
+    thumb = QtGui.QPixmap.fromImage(image)
     
     if not thumb.isNull():
             
@@ -108,9 +108,9 @@ def create_circular_512x400_thumbnail(path, accent=False):
     
         
 
-def create_rectangular_512x400_thumbnail(path):
+def create_rectangular_512x400_thumbnail(image):
     """
-    Given a path to a shotgun thumbnail, create a publish icon
+    Given a qimage shotgun thumbnail, create a publish icon
     with the thumbnail composited onto a centered otherwise empty canvas. 
     This will return a 512x400 pixmap object.
     """
@@ -125,7 +125,7 @@ def create_rectangular_512x400_thumbnail(path):
     
     # now attempt to load the image
     # pixmap will be a null pixmap if load fails    
-    thumb = QtGui.QPixmap(path)
+    thumb = QtGui.QPixmap.fromImage(image)
     
     if not thumb.isNull():
             

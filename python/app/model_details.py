@@ -35,7 +35,8 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
                                      parent,
                                      overlay_widget=parent,
                                      download_thumbs=True,
-                                     schema_generation=3)
+                                     schema_generation=3,
+                                     bg_load_thumbs=True)
         
         self._sg_location = None
         
@@ -62,7 +63,7 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         self._current_pixmap = self._sg_location.sg_formatter.default_pixmap
         self.thumbnail_updated.emit()
 
-    def _populate_thumbnail(self, item, field, path):
+    def _populate_thumbnail_image(self, item, field, image, path):
         """
         Called whenever a thumbnail for an item has arrived on disk. In the case of
         an already cached thumbnail, this may be called very soon after data has been
@@ -92,7 +93,7 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
             return
         
         sg_data = item.get_sg_data()
-        self._current_pixmap = self._sg_location.sg_formatter.create_thumbnail(path, sg_data)
+        self._current_pixmap = self._sg_location.sg_formatter.create_thumbnail(image, sg_data)
         self.thumbnail_updated.emit()
 
     ############################################################################################

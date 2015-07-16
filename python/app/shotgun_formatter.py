@@ -349,7 +349,7 @@ class ShotgunFormatter(object):
             
         
 
-    def create_thumbnail(self, path, sg_data):
+    def create_thumbnail(self, image, sg_data):
         """
         Given a path, create a suitable thumbnail and return a pixmap
         """
@@ -357,17 +357,17 @@ class ShotgunFormatter(object):
         thumb_style = self._get_hook_value("get_thumbnail_settings", "style")
         
         if thumb_style == "rect":
-            return utils.create_rectangular_512x400_thumbnail(path)
+            return utils.create_rectangular_512x400_thumbnail(image)
         elif sg_data["type"] == "Note":
             # handle read/unread as a special case for notes
             if sg_data["read_by_current_user"] == "unread":
-                return utils.create_circular_512x400_thumbnail(path, accent=True)
+                return utils.create_circular_512x400_thumbnail(image, accent=True)
             else:
-                return utils.create_circular_512x400_thumbnail(path, accent=False)
+                return utils.create_circular_512x400_thumbnail(image, accent=False)
             
         
         elif thumb_style == "round": 
-            return utils.create_circular_512x400_thumbnail(path)
+            return utils.create_circular_512x400_thumbnail(image)
         else:
             raise TankError("Unknown thumbnail style defined in hook!")        
 
