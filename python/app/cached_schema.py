@@ -27,9 +27,9 @@ class CachedShotgunSchema(QtCore.QObject):
     Wraps around the shotgun schema and caches it for fast lookups.
     """
     
-    def __init__(self):
+    def __init__(self, parent=None):
         
-        QtCore.QObject.__init__(self)
+        QtCore.QObject.__init__(self, parent)
         
         self._app = sgtk.platform.current_bundle()
         

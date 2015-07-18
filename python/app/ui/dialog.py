@@ -11,96 +11,66 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(410, 878)
+        Dialog.resize(396, 860)
         self.verticalLayout_7 = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout_7.setSpacing(2)
         self.verticalLayout_7.setContentsMargins(2, 2, 2, 2)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
-        self.horizontalLayout_2 = QtGui.QHBoxLayout()
-        self.horizontalLayout_2.setSpacing(0)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.current_user_label_2 = QtGui.QLabel(Dialog)
-        self.current_user_label_2.setMaximumSize(QtCore.QSize(3, 32))
-        self.current_user_label_2.setCursor(QtCore.Qt.PointingHandCursor)
-        self.current_user_label_2.setText("")
-        self.current_user_label_2.setScaledContents(True)
-        self.current_user_label_2.setObjectName("current_user_label_2")
-        self.horizontalLayout_2.addWidget(self.current_user_label_2)
-        self.navigation_home = QtGui.QToolButton(Dialog)
-        self.navigation_home.setMinimumSize(QtCore.QSize(40, 40))
-        self.navigation_home.setMaximumSize(QtCore.QSize(40, 40))
-        self.navigation_home.setStyleSheet("QToolButton{\n"
-"   border: none;\n"
-"   background-color: none;\n"
-"   background-repeat: no-repeat;\n"
-"   background-position: center center;\n"
-"   background-image: url(:/tk_multi_infopanel/home.png);\n"
-"}\n"
-"\n"
-"QToolButton:hover{\n"
-"background-image: url(:/tk_multi_infopanel/home_hover.png);\n"
-"}\n"
-"\n"
-"QToolButton:Pressed {\n"
-"background-image: url(:/tk_multi_infopanel/home_pressed.png);\n"
-"}\n"
-"")
+        self.header_stack = QtGui.QStackedWidget(Dialog)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.header_stack.sizePolicy().hasHeightForWidth())
+        self.header_stack.setSizePolicy(sizePolicy)
+        self.header_stack.setObjectName("header_stack")
+        self.navigation_page = QtGui.QWidget()
+        self.navigation_page.setObjectName("navigation_page")
+        self.horizontalLayout = QtGui.QHBoxLayout(self.navigation_page)
+        self.horizontalLayout.setSpacing(2)
+        self.horizontalLayout.setContentsMargins(2, 0, 2, 0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.navigation_home = QtGui.QToolButton(self.navigation_page)
+        self.navigation_home.setMinimumSize(QtCore.QSize(30, 30))
+        self.navigation_home.setMaximumSize(QtCore.QSize(30, 30))
         self.navigation_home.setObjectName("navigation_home")
-        self.horizontalLayout_2.addWidget(self.navigation_home)
-        self.navigation_prev = QtGui.QToolButton(Dialog)
-        self.navigation_prev.setMinimumSize(QtCore.QSize(40, 40))
-        self.navigation_prev.setMaximumSize(QtCore.QSize(40, 40))
-        self.navigation_prev.setStyleSheet("QToolButton{\n"
-"   border: none;\n"
-"   background-color: none;\n"
-"   background-repeat: no-repeat;\n"
-"   background-position: center center;\n"
-"   background-image: url(:/tk_multi_infopanel/left_arrow.png);\n"
-"}\n"
-"\n"
-"QToolButton:disabled{\n"
-"   background-image: url(:/tk_multi_infopanel/left_arrow_disabled.png);\n"
-"}\n"
-"\n"
-"QToolButton:hover{\n"
-"background-image: url(:/tk_multi_infopanel/left_arrow_hover.png);\n"
-"}\n"
-"\n"
-"QToolButton:Pressed {\n"
-"background-image: url(:/tk_multi_infopanel/left_arrow_pressed.png);\n"
-"}\n"
-"")
+        self.horizontalLayout.addWidget(self.navigation_home)
+        self.navigation_prev = QtGui.QToolButton(self.navigation_page)
+        self.navigation_prev.setMinimumSize(QtCore.QSize(30, 30))
+        self.navigation_prev.setMaximumSize(QtCore.QSize(30, 30))
         self.navigation_prev.setObjectName("navigation_prev")
-        self.horizontalLayout_2.addWidget(self.navigation_prev)
-        self.navigation_next = QtGui.QToolButton(Dialog)
-        self.navigation_next.setMinimumSize(QtCore.QSize(40, 40))
-        self.navigation_next.setMaximumSize(QtCore.QSize(40, 40))
-        self.navigation_next.setStyleSheet("QToolButton{\n"
-"   border: none;\n"
-"   background-color: none;\n"
-"   background-repeat: no-repeat;\n"
-"   background-position: center center;\n"
-"   background-image: url(:/tk_multi_infopanel/right_arrow.png);\n"
-"}\n"
-"\n"
-"QToolButton:disabled{\n"
-"   background-image: url(:/tk_multi_infopanel/right_arrow_disabled.png);\n"
-"}\n"
-"\n"
-"\n"
-"QToolButton:hover{\n"
-"background-image: url(:/tk_multi_infopanel/right_arrow_hover.png);\n"
-"}\n"
-"\n"
-"QToolButton:Pressed {\n"
-"background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);\n"
-"}\n"
-"")
+        self.horizontalLayout.addWidget(self.navigation_prev)
+        self.navigation_next = QtGui.QToolButton(self.navigation_page)
+        self.navigation_next.setMinimumSize(QtCore.QSize(30, 30))
+        self.navigation_next.setMaximumSize(QtCore.QSize(30, 30))
         self.navigation_next.setObjectName("navigation_next")
-        self.horizontalLayout_2.addWidget(self.navigation_next)
+        self.horizontalLayout.addWidget(self.navigation_next)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem)
-        self.verticalLayout_7.addLayout(self.horizontalLayout_2)
+        self.horizontalLayout.addItem(spacerItem)
+        self.search = QtGui.QToolButton(self.navigation_page)
+        self.search.setMinimumSize(QtCore.QSize(30, 30))
+        self.search.setMaximumSize(QtCore.QSize(30, 30))
+        self.search.setObjectName("search")
+        self.horizontalLayout.addWidget(self.search)
+        self.header_stack.addWidget(self.navigation_page)
+        self.search_page = QtGui.QWidget()
+        self.search_page.setObjectName("search_page")
+        self.horizontalLayout_3 = QtGui.QHBoxLayout(self.search_page)
+        self.horizontalLayout_3.setSpacing(2)
+        self.horizontalLayout_3.setContentsMargins(2, 0, 2, 0)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.label = QtGui.QLabel(self.search_page)
+        self.label.setText("")
+        self.label.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel/search.png"))
+        self.label.setObjectName("label")
+        self.horizontalLayout_3.addWidget(self.label)
+        self.search_input = GlobalSearchWidget(self.search_page)
+        self.search_input.setObjectName("search_input")
+        self.horizontalLayout_3.addWidget(self.search_input)
+        self.cancel_search = QtGui.QPushButton(self.search_page)
+        self.cancel_search.setObjectName("cancel_search")
+        self.horizontalLayout_3.addWidget(self.cancel_search)
+        self.header_stack.addWidget(self.search_page)
+        self.verticalLayout_7.addWidget(self.header_stack)
         self.line = QtGui.QFrame(Dialog)
         self.line.setFrameShape(QtGui.QFrame.HLine)
         self.line.setFrameShadow(QtGui.QFrame.Sunken)
@@ -308,8 +278,9 @@ class Ui_Dialog(object):
         self.verticalLayout_7.addWidget(self.page_stack)
 
         self.retranslateUi(Dialog)
+        self.header_stack.setCurrentIndex(0)
         self.page_stack.setCurrentIndex(0)
-        self.entity_tab_widget.setCurrentIndex(1)
+        self.entity_tab_widget.setCurrentIndex(0)
         self.publish_tab_widget.setCurrentIndex(2)
         self.version_tab_widget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -319,6 +290,8 @@ class Ui_Dialog(object):
         self.navigation_home.setToolTip(QtGui.QApplication.translate("Dialog", "Clicking the <i>home button</i> will take you to the location that best matches your current work area.", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_prev.setToolTip(QtGui.QApplication.translate("Dialog", "<i>Go back</i> in the folder history.", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_next.setToolTip(QtGui.QApplication.translate("Dialog", "<i>Go forward</i> in the folder history.", None, QtGui.QApplication.UnicodeUTF8))
+        self.search.setToolTip(QtGui.QApplication.translate("Dialog", "<i>Go forward</i> in the folder history.", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_search.setText(QtGui.QApplication.translate("Dialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.details_text_middle.setText(QtGui.QApplication.translate("Dialog", "Middle Text", None, QtGui.QApplication.UnicodeUTF8))
         self.details_text_bottom.setText(QtGui.QApplication.translate("Dialog", "Bottom Text", None, QtGui.QApplication.UnicodeUTF8))
         self.details_text_header.setText(QtGui.QApplication.translate("Dialog", "Header Text", None, QtGui.QApplication.UnicodeUTF8))
@@ -336,6 +309,7 @@ class Ui_Dialog(object):
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_publish_tab), QtGui.QApplication.translate("Dialog", "Publishes", None, QtGui.QApplication.UnicodeUTF8))
 
 from ..widgets.reply_widget import ReplyListWidget
+from ..widgets.global_search_widget import GlobalSearchWidget
 from ..widgets.version_label import VersionLabel
 from ..widgets.note_input_widget import NoteInputWidget
 from . import resources_rc

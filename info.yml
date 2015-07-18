@@ -16,6 +16,13 @@ configuration:
         type: hook
         default_value: "{self}/shotgun_fields.py"
         description: Hook which controls how values are presented
+        
+#    global_search_entity_types:
+#        type: str
+#        description: Comma separated list of entity types to 
+#                     appear in the global search
+#        default_value: Shot, Asset, Sequence, Version, PublishedFile, 
+#                       HumanUser, Group 
 
 
 # this app works in all engines - it does not contain 

@@ -5,8 +5,10 @@
     <file>rect_512x400.png</file>
     <file>round_512x400.png</file>
     <file>no_items_found.png</file>
-    <file>search_active.png</file>
     <file>search.png</file>
+    <file>search_hover.png</file>
+    <file>search_pressed.png</file>
+    <file>search_disabled.png</file>
     <file>splash.png</file>
     <file>exit_splash.png</file>
     <file>right_arrow_hover.png</file>

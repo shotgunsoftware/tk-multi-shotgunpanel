@@ -46,7 +46,9 @@ class AppDialog(QtGui.QWidget):
     Main application dialog window
     """
     
-    
+    # header indices
+    NAVIGATION_HEADER_IDX = 0
+    SEARCH_HEADER_IDX = 1
     
     # page indices
     ENTITY_PAGE_IDX = 0
@@ -81,7 +83,7 @@ class AppDialog(QtGui.QWidget):
         Constructor
         """
         # first, call the base class and let it do its thing.
-        QtGui.QWidget.__init__(self)
+        QtGui.QWidget.__init__(self, parent)
         
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
@@ -117,6 +119,11 @@ class AppDialog(QtGui.QWidget):
         self.ui.navigation_home.clicked.connect(self._on_home_clicked)
         self.ui.navigation_next.clicked.connect(self._on_next_clicked)
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
+        
+        # search
+        self.ui.search.clicked.connect(self._on_search_clicked)
+        self.ui.cancel_search.clicked.connect(self._cancel_search)
+        self.ui.search_input.entity_selected.connect(self._on_search_item_selected)
 
         # make note lists refresh when new notes are created
         self.ui.entity_note_input.data_updated.connect(lambda : self._load_entity_tab_data(self.ENTITY_TAB_NOTES))
@@ -652,4 +659,26 @@ class AppDialog(QtGui.QWidget):
         self.setup_ui()
         
 
-            
+    def _on_search_clicked(self):
+        """
+        Reveals the search button
+        """
+        self.ui.header_stack.setCurrentIndex(self.SEARCH_HEADER_IDX)
+        self.ui.search_input.setFocus()
+        
+    def _cancel_search(self):
+        """
+        Cancels the search, resets the search and returns to
+        the normal navigation
+        """
+        self.ui.header_stack.setCurrentIndex(self.NAVIGATION_HEADER_IDX)
+        self.ui.search_input.setText("")
+        
+    def _on_search_item_selected(self, entity_type, entity_id):
+        """
+        Navigate based on the selection in the global search
+        """
+        self.ui.header_stack.setCurrentIndex(self.NAVIGATION_HEADER_IDX)
+        self.ui.search_input.setText("")
+        sg_location = ShotgunLocation(entity_type, entity_id)            
+        self._navigate_to(sg_location)

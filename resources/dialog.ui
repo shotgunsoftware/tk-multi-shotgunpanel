@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>410</width>
-    <height>878</height>
+    <width>396</width>
+    <height>860</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,163 +21,164 @@
     <number>2</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <property name="spacing">
+    <widget class="QStackedWidget" name="header_stack">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="currentIndex">
       <number>0</number>
      </property>
-     <item>
-      <widget class="QLabel" name="current_user_label_2">
-       <property name="maximumSize">
-        <size>
-         <width>3</width>
-         <height>32</height>
-        </size>
+     <widget class="QWidget" name="navigation_page">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="spacing">
+        <number>2</number>
        </property>
-       <property name="cursor">
-        <cursorShape>PointingHandCursor</cursorShape>
+       <property name="leftMargin">
+        <number>2</number>
        </property>
-       <property name="text">
-        <string/>
+       <property name="topMargin">
+        <number>0</number>
        </property>
-       <property name="scaledContents">
-        <bool>true</bool>
+       <property name="rightMargin">
+        <number>2</number>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="navigation_home">
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
+       <property name="bottomMargin">
+        <number>0</number>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
+       <item>
+        <widget class="QToolButton" name="navigation_home">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Clicking the &lt;i&gt;home button&lt;/i&gt; will take you to the location that best matches your current work area.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="navigation_prev">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;i&gt;Go back&lt;/i&gt; in the folder history.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="navigation_next">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;i&gt;Go forward&lt;/i&gt; in the folder history.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QToolButton" name="search">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;i&gt;Go forward&lt;/i&gt; in the folder history.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="search_page">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <property name="spacing">
+        <number>2</number>
        </property>
-       <property name="toolTip">
-        <string>Clicking the &lt;i&gt;home button&lt;/i&gt; will take you to the location that best matches your current work area.</string>
+       <property name="leftMargin">
+        <number>2</number>
        </property>
-       <property name="styleSheet">
-        <string notr="true">QToolButton{
-   border: none;
-   background-color: none;
-   background-repeat: no-repeat;
-   background-position: center center;
-   background-image: url(:/tk_multi_infopanel/home.png);
-}
-
-QToolButton:hover{
-background-image: url(:/tk_multi_infopanel/home_hover.png);
-}
-
-QToolButton:Pressed {
-background-image: url(:/tk_multi_infopanel/home_pressed.png);
-}
-</string>
+       <property name="topMargin">
+        <number>0</number>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="navigation_prev">
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
+       <property name="rightMargin">
+        <number>2</number>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
+       <property name="bottomMargin">
+        <number>0</number>
        </property>
-       <property name="toolTip">
-        <string>&lt;i&gt;Go back&lt;/i&gt; in the folder history.</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QToolButton{
-   border: none;
-   background-color: none;
-   background-repeat: no-repeat;
-   background-position: center center;
-   background-image: url(:/tk_multi_infopanel/left_arrow.png);
-}
-
-QToolButton:disabled{
-   background-image: url(:/tk_multi_infopanel/left_arrow_disabled.png);
-}
-
-QToolButton:hover{
-background-image: url(:/tk_multi_infopanel/left_arrow_hover.png);
-}
-
-QToolButton:Pressed {
-background-image: url(:/tk_multi_infopanel/left_arrow_pressed.png);
-}
-</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="navigation_next">
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>&lt;i&gt;Go forward&lt;/i&gt; in the folder history.</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QToolButton{
-   border: none;
-   background-color: none;
-   background-repeat: no-repeat;
-   background-position: center center;
-   background-image: url(:/tk_multi_infopanel/right_arrow.png);
-}
-
-QToolButton:disabled{
-   background-image: url(:/tk_multi_infopanel/right_arrow_disabled.png);
-}
-
-
-QToolButton:hover{
-background-image: url(:/tk_multi_infopanel/right_arrow_hover.png);
-}
-
-QToolButton:Pressed {
-background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
-}
-</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="resources.qrc">:/tk_multi_infopanel/search.png</pixmap>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="GlobalSearchWidget" name="search_input"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cancel_search">
+         <property name="text">
+          <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
    <item>
     <widget class="Line" name="line">
@@ -274,7 +275,7 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
        <item>
         <widget class="QTabWidget" name="entity_tab_widget">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="entity_note_tab">
           <attribute name="title">
@@ -582,6 +583,11 @@ background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
    <extends>QWidget</extends>
    <header>..widgets.note_input_widget</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GlobalSearchWidget</class>
+   <extends>QLineEdit</extends>
+   <header>..widgets.global_search_widget</header>
   </customwidget>
  </customwidgets>
  <resources>

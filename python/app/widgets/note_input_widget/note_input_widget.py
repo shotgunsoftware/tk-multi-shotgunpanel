@@ -38,7 +38,7 @@ class NoteInputWidget(QtGui.QWidget):
         """
  
         # first, call the base class and let it do its thing.
-        QtGui.QWidget.__init__(self)
+        QtGui.QWidget.__init__(self, parent)
 
         # now load in the UI that was created in the UI designer
         self.ui = Ui_NoteInputWidget() 
