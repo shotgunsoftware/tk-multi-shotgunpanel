@@ -248,6 +248,9 @@ class NoteEditor(QtGui.QTextEdit):
         # extend selection forwards and backwards until we find whitespace
         start_idx = cursor_pos-1
         end_idx = cursor_pos-1
+        if end_idx < 0:
+            # special case for the first character
+            end_idx = 0
 
         # go backwards to find start pos
         while start_idx >= 0 and full_text[start_idx] not in (" ", "\n"):
@@ -272,7 +275,7 @@ class NoteEditor(QtGui.QTextEdit):
         :param data: data dictionary passed in from _submit()
         """
         entity_types = {}
-        entity_types["HumanUser"] = {}
+        entity_types["HumanUser"] = {"filters": [["sg_status_list", "is", "act"]]}
         entity_types["Group"] = {}
         sg_data = sg.text_search(data["text"], entity_types)
         return sg_data
