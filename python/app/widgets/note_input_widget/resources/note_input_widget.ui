@@ -33,7 +33,7 @@
     <number>1</number>
    </property>
    <item>
-    <widget class="PlainTextEditWithPlaceholderText" name="text_entry">
+    <widget class="NoteEditor" name="text_entry">
      <property name="focusPolicy">
       <enum>Qt::ClickFocus</enum>
      </property>
@@ -140,9 +140,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PlainTextEditWithPlaceholderText</class>
-   <extends>QPlainTextEdit</extends>
-   <header>..placeholdertext_textedit</header>
+   <class>NoteEditor</class>
+   <extends>QTextEdit</extends>
+   <header>..note_editor</header>
   </customwidget>
  </customwidgets>
  <resources>

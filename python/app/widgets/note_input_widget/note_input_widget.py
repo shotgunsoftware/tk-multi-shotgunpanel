@@ -95,7 +95,7 @@ class NoteInputWidget(QtGui.QWidget):
             if status == QtGui.QMessageBox.No:
                 return False
         
-        self.ui.text_entry.setPlainText("")
+        self.ui.text_entry.reset()
         self.ui.screenshot.hide()
         self.ui.submit.hide()
         self.ui.thumbnail.hide()
@@ -128,7 +128,6 @@ class NoteInputWidget(QtGui.QWidget):
         :param msg: Placeholder text
         """
         self.ui.text_entry.set_placeholder_text(msg)
-        
 
     def _on_screenshot_clicked(self):
         """
@@ -179,6 +178,7 @@ class NoteInputWidget(QtGui.QWidget):
         data = {}
         data["pixmap"] = self._pixmap
         data["text"] = self.ui.text_entry.toPlainText()
+        data["recipient_links"] = self.ui.text_entry.get_recipient_links()
         data["entity"] = self._entity_link
         data["project"] = self._app.context.project
         # ask the data retriever to execute an async callback
@@ -202,12 +202,29 @@ class NoteInputWidget(QtGui.QWidget):
             return self._async_submit_note(sg, data)
         
     def _async_submit_reply(self, sg, data):
-        # create a new reply
+        """
+        Create a new reply
+        """
         
         note_link = data["entity"]
         
         # this is an entity - so create a note and link it
         sg.create("Reply", {"content": data["text"], "entity": note_link})
+
+        # if there are any recipients, make sure they are added to the note
+        # but as CCs
+        if data["recipient_links"]:
+            existing_to = sg.find_one("Note", 
+                                      [["id", "is", note_link["id"]]], 
+                                      ["addressings_to"]).get("addressings_cc")
+            
+            updated_links = data["recipient_links"] + existing_to 
+            
+            sg.update("Note", 
+                      note_link["id"], 
+                      {"addressings_cc": updated_links})
+            
+            
         
         if data["pixmap"]:
             
@@ -310,6 +327,7 @@ class NoteInputWidget(QtGui.QWidget):
         sg_note_data = sg.create("Note", {"content": data["text"],
                                           "subject": title, 
                                           "project": data["project"],
+                                          "addressings_to": data["recipient_links"],
                                           "note_links": note_links,
                                           "tasks": note_tasks })
         
@@ -361,7 +379,7 @@ class NoteInputWidget(QtGui.QWidget):
         if self._processing_id == uid:
             # all done!
             self.__overlay.hide()
-            self.ui.text_entry.setPlainText("")
+            self.ui.text_entry.reset()
             self.reset()
             self._app.log_debug("Update call complete! Return data: %s" % data)
             self.data_updated.emit()

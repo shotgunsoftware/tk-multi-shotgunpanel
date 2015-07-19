@@ -18,7 +18,7 @@ class Ui_NoteInputWidget(object):
         self.horizontalLayout.setSpacing(5)
         self.horizontalLayout.setContentsMargins(1, 1, 1, 1)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.text_entry = PlainTextEditWithPlaceholderText(NoteInputWidget)
+        self.text_entry = NoteEditor(NoteInputWidget)
         self.text_entry.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.text_entry.setObjectName("text_entry")
         self.horizontalLayout.addWidget(self.text_entry)
@@ -70,5 +70,5 @@ class Ui_NoteInputWidget(object):
         self.screenshot.setText(QtGui.QApplication.translate("NoteInputWidget", "Attach Screenshot", None, QtGui.QApplication.UnicodeUTF8))
         self.submit.setToolTip(QtGui.QApplication.translate("NoteInputWidget", "Create Note", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..placeholdertext_textedit import PlainTextEditWithPlaceholderText
+from ..note_editor import NoteEditor
 from . import resources_rc

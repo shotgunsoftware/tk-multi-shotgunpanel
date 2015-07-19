@@ -11,7 +11,6 @@
 import os
 import sgtk
 
-overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overlay_widget")
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 ShotgunDataRetriever = shotgun_data.ShotgunDataRetriever
@@ -244,20 +243,15 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         global search widget
         
         :param model_index: QModelIndex describing the current item
-        """
-        # note: local import to avoid cyclic dependencies        
-        from . import GlobalSearchWidget
-        
+        """        
         # make sure that the user selected an actual shotgun item.
         # if they just selected the "no items found" or "loading please hold"
         # items, just ignore it.
-        mode = shotgun_model.get_sanitized_data(model_index, 
-                                                GlobalSearchWidget.MODE_ROLE)
-        if mode == GlobalSearchWidget.MODE_RESULT:
+        mode = shotgun_model.get_sanitized_data(model_index, self.MODE_ROLE)
+        if mode == self.MODE_RESULT:
 
             # get the payload
-            data = shotgun_model.get_sanitized_data(model_index, 
-                                                    GlobalSearchWidget.SG_DATA_ROLE)
+            data = shotgun_model.get_sanitized_data(model_index, self.SG_DATA_ROLE)
 
             # Example of data stored in the data role:
             #
