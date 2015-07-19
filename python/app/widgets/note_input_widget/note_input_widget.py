@@ -216,7 +216,7 @@ class NoteInputWidget(QtGui.QWidget):
         if data["recipient_links"]:
             existing_to = sg.find_one("Note", 
                                       [["id", "is", note_link["id"]]], 
-                                      ["addressings_to"]).get("addressings_cc")
+                                      ["addressings_cc"]).get("addressings_cc")
             
             updated_links = data["recipient_links"] + existing_to 
             
