@@ -69,9 +69,10 @@ class AppDialog(QtGui.QWidget):
     PUBLISH_TAB_USED_IN = 2
     PUBLISH_TAB_INFO = 3
     
-    VERSION_TAB_NOTES = 0 
-    VERSION_TAB_PUBLISHES = 1
-    VERSION_TAB_INFO = 2
+    VERSION_TAB_ACTIVITY_STREAM = 0
+    VERSION_TAB_NOTES = 1 
+    VERSION_TAB_PUBLISHES = 2
+    VERSION_TAB_INFO = 3
     
     
     @property
@@ -399,10 +400,10 @@ class AppDialog(QtGui.QWidget):
         self.ui.page_stack.setCurrentIndex(self.VERSION_PAGE_IDX)
 
         # reset to the default tab
-        self.ui.version_tab_widget.setCurrentIndex(self.VERSION_TAB_NOTES)
+        self.ui.version_tab_widget.setCurrentIndex(self.VERSION_TAB_ACTIVITY_STREAM)
         
         # load up tab data
-        self._load_version_tab_data(self.VERSION_TAB_NOTES)
+        self._load_version_tab_data(self.VERSION_TAB_ACTIVITY_STREAM)
         
     def focus_note(self):
         """
@@ -431,15 +432,10 @@ class AppDialog(QtGui.QWidget):
         Loads the data for one of the UI tabs in the entity family
         """        
         
-        if index == self.ENTITY_TAB_NOTES:        
-            
-            if self._current_location.entity_type in ["HumanUser", "ClientUser", "ApiUser"]:
-                # no note creation for these guys
-                # TODO: move into shotgun formatter?
-                self.ui.entity_note_input.hide()
-            else:
-                self.ui.entity_note_input.show()
-            
+        if index == self.ENTITY_TAB_ACTIVITY_STREAM:
+            print "TODO: ADD IMPLEMENTATION"
+        
+        elif index == self.ENTITY_TAB_NOTES:            
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
             
         elif index == self.ENTITY_TAB_VERSIONS:
@@ -458,18 +454,26 @@ class AppDialog(QtGui.QWidget):
             self.ui.entity_info_view.resizeColumnsToContents()
         
         else:
-            self._app.log_error("Cannot load data for unknown entity tab.")
+            self._app.log_error("Cannot load data for unknown entity tab index %s." % index)
         
     def _load_version_tab_data(self, index):
         """
         Load the data for one of the tabs in the version family
         """
 
-        if index == self.VERSION_TAB_NOTES:
+        if index == self.VERSION_TAB_ACTIVITY_STREAM:
+            print "TODO: ADD IMPLEMENTATION"
+        
+        elif index == self.VERSION_TAB_NOTES:
             self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location)
 
         elif index == self.VERSION_TAB_PUBLISHES:        
             self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location, show_latest_only=False)
+            
+        elif index == self.VERSION_TAB_INFO:
+            print "TODO: ADD IMPLEMENTATION"
+            self.ui.version_info_view.resizeRowsToContents()
+            self.ui.version_info_view.resizeColumnsToContents()
             
         else:
             self._app.log_error("Cannot load data for unknown version tab.")
@@ -487,6 +491,11 @@ class AppDialog(QtGui.QWidget):
         elif index == self.PUBLISH_TAB_USED_IN:
             self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(self._current_location)
         
+        elif index == self.PUBLISH_TAB_INFO:
+            print "TODO: ADD IMPLEMENTATION"
+            self.ui.publish_info_view.resizeRowsToContents()
+            self.ui.publish_info_view.resizeColumnsToContents()
+            
         else:
             self._app.log_error("Cannot load data for unknown publish tab.")
         
