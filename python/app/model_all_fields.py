@@ -104,7 +104,7 @@ class SgAllFieldsModel(ShotgunOverlayModel):
                 display_name = field_name
             
             display_name_item = QtGui.QStandardItem(display_name)
-            
+            display_name_item.setData(QtCore.Qt.AlignTop, QtCore.Qt.TextAlignmentRole)
             
             
             # todo: add formatting

@@ -33,7 +33,7 @@ from .model_publish_dependency_down import SgPublishDependencyDownstreamListingM
 from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
 from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
-from .model_all_users import SgAllUsersModel
+from .model_current_user import SgCurrentUserModel
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings")
@@ -57,18 +57,21 @@ class AppDialog(QtGui.QWidget):
     NOTE_PAGE_IDX = 3
     
     # tab indices
-    ENTITY_TAB_NOTES = 0
-    ENTITY_TAB_VERSIONS = 1
-    ENTITY_TAB_PUBLISHES = 2
-    ENTITY_TAB_TASKS = 3
-    ENTITY_TAB_INFO = 4
+    ENTITY_TAB_ACTIVITY_STREAM = 0
+    ENTITY_TAB_NOTES = 1
+    ENTITY_TAB_VERSIONS = 2
+    ENTITY_TAB_PUBLISHES = 3
+    ENTITY_TAB_TASKS = 4
+    ENTITY_TAB_INFO = 5
     
     PUBLISH_TAB_HISTORY = 0
     PUBLISH_TAB_CONTAINS = 1
     PUBLISH_TAB_USED_IN = 2
+    PUBLISH_TAB_INFO = 3
     
     VERSION_TAB_NOTES = 0 
     VERSION_TAB_PUBLISHES = 1
+    VERSION_TAB_INFO = 2
     
     
     @property
@@ -137,6 +140,12 @@ class AppDialog(QtGui.QWidget):
         self.ui.version_tab_widget.currentChanged.connect(self._load_version_tab_data)
         self.ui.publish_tab_widget.currentChanged.connect(self._load_publish_tab_data)
         
+        # model to get the current user's details
+        self._current_user_model = SgCurrentUserModel(self)        
+        self._current_user_model.thumbnail_updated.connect(self._update_current_user)        
+        self._current_user_model.data_updated.connect(self._update_current_user)        
+        self._current_user_model.load()        
+        
         # top detail section
         self._details_model = SgEntityDetailsModel(self.ui.details)
         self._details_model.data_updated.connect(self._refresh_details)
@@ -145,7 +154,6 @@ class AppDialog(QtGui.QWidget):
         # hyperlink clicking
         self.ui.details_text_header.linkActivated.connect(self._on_link_clicked)
         self.ui.details_text_middle.linkActivated.connect(self._on_link_clicked)
-        self.ui.details_text_bottom.linkActivated.connect(self._on_link_clicked)
         self.ui.details_thumb.playback_clicked.connect(self._on_link_clicked)
         
         # set up the UI tabs. Each tab has a model, a delegate, a view and 
@@ -253,9 +261,6 @@ class AppDialog(QtGui.QWidget):
         self.ui.entity_info_view.verticalHeader().hide()
         self.ui.entity_info_view.horizontalHeader().hide()
 
-        # create a model to store all users
-        self._all_users_model = SgAllUsersModel(self)
-
         # kick off
         self._on_home_clicked()
 
@@ -305,10 +310,9 @@ class AppDialog(QtGui.QWidget):
         event.accept()
 
 
-
-
     ##################################################################################################
     # load data and set up UI for a particular state
+    
     def setup_ui(self):
         """
         sets up the UI for the current location
@@ -336,55 +340,41 @@ class AppDialog(QtGui.QWidget):
         Move UI to entity mode. Load up tabs.
         """
         # set the right widget to show
-        self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)        
+        self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)
         
         #################################################################################
         # temp tab handling! Replace with smarter, better solution!
         
         formatter = self._current_location.sg_formatter
-        default_tab = None
         
         self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_NOTES, formatter.show_notes_tab)
         if not formatter.show_notes_tab:
             self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, "")
         else:
             self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, "Notes")
-            # set this tab to be default unless another tab is already set
-            default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_NOTES
  
         self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_VERSIONS, formatter.show_versions_tab)
         if not formatter.show_versions_tab:
             self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, "")
         else:
             self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, "Versions")
-            # set this tab to be default unless another tab is already set
-            default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_VERSIONS
-
  
         self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_PUBLISHES, formatter.show_publishes_tab)
         if not formatter.show_publishes_tab:
             self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, "")
         else:
             self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, "Publishes")
-            # set this tab to be default unless another tab is already set
-            default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_PUBLISHES
-
 
         self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_TASKS, formatter.show_tasks_tab)
         if not formatter.show_tasks_tab:
             self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, "")
         else:
             self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, "Tasks")
-            # set this tab to be default unless another tab is already set
-            default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_TASKS
-        
-        # if there is still no default tab, fall back on the generic info tab
-        default_tab = default_tab if default_tab is not None else self.ENTITY_TAB_INFO
-
-        # reset to the default tab
-        self.ui.entity_tab_widget.setCurrentIndex(default_tab)
         
         # load up tab data
+        # reset to the default tab
+        default_tab = self.ENTITY_TAB_ACTIVITY_STREAM
+        self.ui.entity_tab_widget.setCurrentIndex(default_tab)
         self._load_entity_tab_data(default_tab)
 
 
@@ -464,6 +454,8 @@ class AppDialog(QtGui.QWidget):
         
         elif index == self.ENTITY_TAB_INFO:
             self._entity_details_model.load_data(self._current_location)
+            self.ui.entity_info_view.resizeRowsToContents()
+            self.ui.entity_info_view.resizeColumnsToContents()
         
         else:
             self._app.log_error("Cannot load data for unknown entity tab.")
@@ -502,6 +494,23 @@ class AppDialog(QtGui.QWidget):
     ###################################################################################################
     # top detail area callbacks
 
+    def _update_current_user(self):        
+        """        
+        Update the current user icon        
+        """        
+        curr_user_pixmap = self._current_user_model.get_pixmap()        
+                
+        # QToolbutton needs a QIcon        
+        self.ui.current_user.setIcon(QtGui.QIcon(curr_user_pixmap))        
+                
+        # updat the reply icon        
+        self.ui.note_reply_widget.set_current_user_thumbnail(curr_user_pixmap)        
+        
+        sg_data = self._current_user_model.get_sg_data()        
+        if sg_data:        
+            self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])        
+
+
     def _refresh_details_thumbnail(self):        
         self.ui.details_thumb.setPixmap(self._details_model.get_pixmap())
 
@@ -513,18 +522,16 @@ class AppDialog(QtGui.QWidget):
         # populate the text with data
         if sg_data:
 
-            (header, body, footer) = formatter.format_entity_details(sg_data) 
+            (header, body) = formatter.format_entity_details(sg_data) 
 
             self.ui.details_text_header.setText(header)
             self.ui.details_text_middle.setText(body)
-            self.ui.details_text_bottom.setText(footer)
             
             playback_url = formatter.get_playback_url(sg_data)
             
         else:
             self.ui.details_text_header.setText("")
             self.ui.details_text_middle.setText("")
-            self.ui.details_text_bottom.setText("")
             
             playback_url = None
             

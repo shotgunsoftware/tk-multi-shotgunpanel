@@ -65,10 +65,6 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         self._completer.setCompletionMode(QtGui.QCompleter.UnfilteredPopupCompletion)
         self.setCompleter(self._completer)
 
-        # configure how the popup should look
-        self._popup = self._completer.popup()        
-        self._delegate = SearchResultDelegate(self._popup)
-        
         # configure popup data source
         self._model = QtGui.QStandardItemModel(self) 
         self._clear_model()        
@@ -111,11 +107,14 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         # and therefore trigger the completer to pop up.
         #
         # The completer seems to have some internal properties
-        # which are tranistory and won't last between sessons.
+        # which are transitory and won't last between sessions.
         # for these, we have to set them up every time the 
         # completion process is about to start it seems.
         
         # tell completer to render matches using our delegate
+        # configure how the popup should look
+        self._popup = self._completer.popup()
+        self._delegate = SearchResultDelegate(self._popup)
         self._completer.popup().setItemDelegate(self._delegate)
         
         # try to disconnect and reconnect the activated signal
@@ -155,7 +154,7 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         entity_types = {}
         entity_types["Asset"] = {}
         entity_types["Shot"] = {}
-        entity_types["HumanUser"] = {}
+        entity_types["HumanUser"] = {"filters": [["sg_status_list", "is", "act"]]}
         entity_types["Group"] = {}
         entity_types["ClientUser"] = {}
         entity_types["Version"] = {}

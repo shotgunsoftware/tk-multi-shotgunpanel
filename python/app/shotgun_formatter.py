@@ -64,7 +64,6 @@ class ShotgunFormatter(object):
         fields += self._resolve_sg_fields( self._get_hook_value("get_list_item_definition", "body") )
         fields += self._resolve_sg_fields( self._get_hook_value("get_main_view_definition", "title") )
         fields += self._resolve_sg_fields( self._get_hook_value("get_main_view_definition", "body") )
-        fields += self._resolve_sg_fields( self._get_hook_value("get_main_view_definition", "footer") )
         
         # also include the thumbnail field so that it gets retrieved as part of the general 
         # query payload
@@ -421,17 +420,15 @@ class ShotgunFormatter(object):
         """
         Render details
         
-        returns (header, body, footer)
+        returns (header, body)
         """
         title = self._get_hook_value("get_main_view_definition", "title")
         body = self._get_hook_value("get_main_view_definition", "body")
-        footer = self._get_hook_value("get_main_view_definition", "footer")
         
         title_converted = self._convert_token_string(title, sg_data)
         body_converted = self._convert_token_string(body, sg_data)
-        footer_converted = self._convert_token_string(footer, sg_data)
         
-        return (title_converted, body_converted, footer_converted)
+        return (title_converted, body_converted)
         
     def format_list_item_details(self, sg_data):
         """

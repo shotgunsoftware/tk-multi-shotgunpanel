@@ -59,7 +59,7 @@ def create_circular_512x400_thumbnail(image, accent=False):
     CANVAS_WIDTH = 512
     CANVAS_HEIGHT = 400
     
-    CIRCLE_SIZE = 340
+    CIRCLE_SIZE = 395
 
     # get the 512 base image
     base_image = QtGui.QPixmap(CANVAS_WIDTH, CANVAS_HEIGHT)

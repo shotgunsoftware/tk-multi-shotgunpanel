@@ -32,9 +32,6 @@ class ShotgunConfiguration(HookBaseClass):
             values["style"] = "round"
             values["sg_field"] = "user.HumanUser.image"
             
-        elif entity_type == "Task":
-            values["style"] = "round"
-        
         elif entity_type in ["HumanUser", "ApiUser", "ClientUser"]:
             values["style"] = "round"
 
@@ -65,9 +62,8 @@ class ShotgunConfiguration(HookBaseClass):
                         
             values["top_left"] = "<big>{name} v{version_number}</big>"
             values["body"] = """
-                Published by {created_by}<br>
-                File Type: {tank_type}<br>
-                Comments: {description}
+                {tank_type} by {created_by}<br>
+                <b>Comments:</b> {description}
                 """            
             
         elif entity_type == "Note":
@@ -77,13 +73,11 @@ class ShotgunConfiguration(HookBaseClass):
     
         elif entity_type == "Version":
             
-            
             values["body"] = """
                 Created by {user} ({sg_task})<br>
                 Status: {sg_status_list}<br>
                 Description: {description}
-                """            
-
+                """
         
         elif entity_type == "Task":
             
@@ -106,6 +100,7 @@ class ShotgunConfiguration(HookBaseClass):
         
         values = ["id", 
                   "type", 
+                  "description",
                   "code", 
                   "created_by", 
                   "created_at", 
@@ -130,6 +125,9 @@ class ShotgunConfiguration(HookBaseClass):
         if entity_type == "Shot":
             values += ["sg_cut_in", "sg_cut_out"]
         
+        if entity_type == "Asset":
+            values += ["sg_asset_type"]
+
         return values
     
     
@@ -162,9 +160,8 @@ class ShotgunConfiguration(HookBaseClass):
         """
         
         values = {
-            "title": "{type} {code}",
-            "body": "Project: {project}<br>Created by: {created_by}",
-            "footer": "{description}"
+            "title": "{type} {code} ({sg_status_code})",
+            "body": "Created by: {created_by}",
             }
         
         
@@ -173,15 +170,12 @@ class ShotgunConfiguration(HookBaseClass):
             values["title"] = "User {name}"
             
             values["body"] = """
-                Name: {name}<br>
+                Login: {login}<br>
                 Email: {email}<br>
                 Department: {department}
                 """
 
-            values["footer"] = ""         
-
         if entity_type == "ApiUser": 
-
             values["title"] = "Script User {firstname}"
             
             values["body"] = """
@@ -189,56 +183,40 @@ class ShotgunConfiguration(HookBaseClass):
                 Version: {lastname}
                 """
 
-            values["footer"] = "{description}"         
-
         if entity_type == "Group": 
-
             values["title"] = "Group {code}"
             
             values["body"] = """
                 Members: {users}<br>
                 Open Notes: {open_notes}
                 """
-
-            values["footer"] = ""         
-
             
         elif entity_type == "Shot":
             
             values["body"] = """
-                Project: {project}<br>
-                Sequence: {sg_sequence}<br>
-                Status: {sg_status_list}<br>
-                Cut in: {sg_cut_in}<br>
-                Cut out: {sg_cut_out}<br>
-                Duration: {sg_cut_duration}<br>
+                {sg_sequence::showtype}<br>
+                Cut in: {sg_cut_in} Cut out: {sg_cut_out} Cut Duration: {sg_cut_duration}<br>
                 """
     
         elif entity_type == "Task":
             
-            values["title"] = "Task {content}, {entity::showtype}"
-            values["footer"] = ""
+            values["title"] = "Task {content} ({sg_status_list})"
             values["body"] = """
-                Project: {project}<br>
-                Status: {sg_status_list}<br>
-                Start Date: {start_date}<br>
-                Due Date: {due_date}<br>
-                Associated with: {entity::showtype}<br>
-                Pipeline Step: {step}<br>
+                {entity::showtype}<br>
+                Start: {start_date} Due: {due_date}<br>
                 Assigned to: {task_assignees}
                 """
                 
         elif entity_type == "Asset":
 
             values["body"] = """
-                Project: {project}<br>
                 Asset Type: {sg_asset_type}<br>
                 Status: {sg_status_list}
                 """
                     
         elif entity_type == "Project":
             
-            values["title"] = "Project {name}"
+            values["title"] = "Project {name} ({sg_status_list})"
             
             values["body"] = """
                 Name: {name}<br>
@@ -252,75 +230,55 @@ class ShotgunConfiguration(HookBaseClass):
             
             values["title"] = "{subject}"
             
-            values["footer"] = """
-                Created by {created_by} on {created_at}<br>
-                <br>
-                {content}
-                """
-
-            values["body"] = """
-                Project: {project}<br>
+            values["body"] = """Created by {created_by} on {created_at}<br>
                 Status: {sg_status_list}<br>
                 To: {addressings_to}<br>
                 CC: {addressings_cc}<br>
-                Linked to: {note_links::showtype}<br>
+                Links: {note_links::showtype}<br>
                 Tasks: {tasks}
-                """                
-            
+                <br>
+                {content}
+                """
     
         elif entity_type == "PublishedFile":
             values["title"] = "Publish {code}"
             
-            values["footer"] = """
-                Published by {created_by} on {created_at}<br>
-                <br>
-                <i><b>Comments:</i> {description}</i>
-                """
-                
             values["body"] = """
-                Project: {project}<br>
-                Associated with: {entity::showtype}<br>
+                {entity::showtype}<br>
                 Task: {task}<br>
                 Reviewed in: {version}<br>
                 Version number: {version_number}<br>
                 File Type: {published_file_type}<br>
+                Published by {created_by} on {created_at}<br>
+                <br>
+                <i><b>Comments:</i> {description}</i>                
                 """
             
         elif entity_type == "TankPublishedFile":
             values["title"] = "Publish {code}"
             
-            values["footer"] = """
-                Published by {created_by} on {created_at}<br>
-                <br>
-                <i><b>Comments:</i> {description}</i>
-                """
-
             values["body"] = """
-                Project: {project}<br>
-                Associated with: {entity::showtype}<br>
+                {entity::showtype}<br>
                 Task: {task}<br>
                 Version number: {version_number}<br>
                 File Type: {tank_type}<br>
+                Published by {created_by} on {created_at}<br>
+                <br>
+                <i><b>Comments:</i> {description}</i>                
                 """
 
 
         
         elif entity_type == "Version":
             
-            values["footer"] = """
-                Created by {created_by} on {created_at}<br>
-                <br>
-                <i><b>Comments:</i> {description}</i>
-                """
-
             values["body"] = """
-                Project: {project}<br>
-                Status: {sg_status_list}<br>
-                Frame Range: {frame_range}<br>
+                {entity::showtype}<br>
                 Department: {department}<br>
-                Associated with: {entity::showtype}<br>
                 Task: {sg_task}<br>
                 Playlists: {playlists}<br>
+                Created by {created_by} on {created_at}<br>
+                <br>
+                <i><b>Comments:</i> {description}</i>                
                 """
             
     
