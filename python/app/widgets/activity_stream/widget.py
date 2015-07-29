@@ -61,6 +61,7 @@ class ActivityStreamWidget(QtGui.QWidget):
         self.ui.note_widget.data_updated.connect(self._on_note_submitted)
         
         self._loading_widget = None
+        self._expanding_widget = None
         self._widgets = {}
         
         self._entity_type = None
@@ -95,6 +96,16 @@ class ActivityStreamWidget(QtGui.QWidget):
         # now load cached data
         self._data_manager.load_data(entity_type, entity_id)
 
+        # we are building the widgets bottom up.
+        # first of all, insert a widget that will expand so that 
+        # it consumes all un-used space. This is to keep other
+        # widgets from growing when there are only a few widgets
+        # available in the scroll area.
+        self._expanding_widget = QtGui.QLabel(self)
+        self.ui.activity_stream_layout.addWidget(self._expanding_widget)
+        self.ui.activity_stream_layout.setStretchFactor(self._expanding_widget, 1)
+
+        # now process activity events
         ids_to_process = self._data_manager.get_activity_ids(self.MAX_STREAM_LENGTH)
         # ids are returned in async order. Now pop them onto the activity stream,
         # old items first order...
@@ -103,10 +114,8 @@ class ActivityStreamWidget(QtGui.QWidget):
         
         # last, create "loading" widget
         # to put at the top of the list
-        w = LoadingWidget(self)
-        self.ui.activity_stream_layout.addWidget(w)
-        self._loading_widget = w
-        
+        self._loading_widget = LoadingWidget(self)
+        self.ui.activity_stream_layout.addWidget(self._loading_widget)
         
     
     def reset(self):
@@ -132,6 +141,13 @@ class ActivityStreamWidget(QtGui.QWidget):
             x.deleteLater()
     
         self._widgets = {}
+
+        if self._expanding_widget:
+            self.ui.activity_stream_layout.removeWidget(self._expanding_widget)
+            self._expanding_widget.setParent(None)
+            self._expanding_widget.deleteLater()
+            self._expanding_widget = None
+            
         
     def _clear_loading_widget(self):
         
@@ -186,10 +202,7 @@ class ActivityStreamWidget(QtGui.QWidget):
             w = self._append_widget(activity_id)
             w.setStyleSheet("QFrame#frame{ border: 1px solid rgba(48, 167, 227, 50%); }")
             
-        
-            
-        
-    
+
     def _process_thumbnail(self, data):
 
         activity_id = data["activity_id"]

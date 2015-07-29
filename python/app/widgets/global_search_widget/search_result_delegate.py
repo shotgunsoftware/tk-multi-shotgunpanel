@@ -129,6 +129,8 @@ class SearchResultDelegate(shotgun_view.WidgetDelegate):
             #  'type': 'Version', 
             #  'id': 99}            
 
+            entity_type_display_name = CachedShotgunSchema.get_type_display_name(data["type"])
+
             content = ""
             et_url = self._url_for_entity_type(data["type"])
             if et_url:
@@ -136,7 +138,9 @@ class SearchResultDelegate(shotgun_view.WidgetDelegate):
                 content += "<img src='%s'/>&nbsp;&nbsp;<b style='color: rgb(48, 167, 227)';>%s</b>" % (et_url, data["name"])
             else:
                 # present type name name
-                content += "%s %s" % (CachedShotgunSchema.get_type_display_name(data["type"]), data["name"])  
+                content += "%s" % data["name"]  
+    
+            content += "<br>%s" % entity_type_display_name
     
             links = data["links"]
             # note users return weird data so ignore it.
@@ -145,19 +149,13 @@ class SearchResultDelegate(shotgun_view.WidgetDelegate):
                 et_url = self._url_for_entity_type(links[0])
                 if et_url:
                     # present thumbnail icon and name
-                    content += "<br><img align=absmiddle src='%s'/>  %s" % (et_url, links[1])
+                    content += " on <img align=absmiddle src='%s'/>  %s" % (et_url, links[1])
                 else:
                     # present type name name
                     link_entity_type = links[0]
                                         
                     content += "<br>%s %s" % (CachedShotgunSchema.get_type_display_name(link_entity_type), links[1])
             
-            elif et_url:
-                # no linked entity and only showing an icon
-                # so help by printing the type
-                display_name = CachedShotgunSchema.get_type_display_name(data["type"])
-                content += "<br>%s" % display_name
-                
             widget.set_text(content)
         
         else:

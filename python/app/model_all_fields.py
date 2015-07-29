@@ -93,18 +93,18 @@ class SgAllFieldsModel(ShotgunOverlayModel):
         for field_name in sorted(sg_data.keys()):
             
             # get the human readable field display name
-            field_info = CachedShotgunSchema.get_field_info(sg_type, field_name)
-
-            if field_info:
-                display_name = field_info["name"]["value"]
-            else:
-                display_name = field_name
-            
+            display_name = CachedShotgunSchema.get_field_display_name(sg_type, field_name)
             display_name_item = QtGui.QStandardItem(display_name)
+            
+            # set field names to align at the top so that for large values
+            # (like descriptions) it won't look strange. Also dial down the color
+            # a little bit by adding transparency. 
             display_name_item.setData(QtCore.Qt.AlignTop, QtCore.Qt.TextAlignmentRole)
+            field_color = QtGui.QColor(self._app.style_constants["SG_FOREGROUND_COLOR"])
+            field_color.setAlpha(120)
+            display_name_item.setData(QtGui.QBrush(field_color), QtCore.Qt.ForegroundRole)
             
-            
-            # todo: add formatting
+            # and add the value
             value = formatter.format_raw_value(sg_type, field_name, sg_data[field_name], "nolink")
             display_name_value = QtGui.QStandardItem(value)
             

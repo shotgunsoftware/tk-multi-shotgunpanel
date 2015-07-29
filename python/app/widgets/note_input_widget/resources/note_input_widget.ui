@@ -191,7 +191,7 @@
           <item>
            <widget class="QLabel" name="placeholder_label">
             <property name="text">
-             <string>&lt;i&gt;Click to create a new note...&lt;/i&gt;</string>
+             <string>Click to create a new note...</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

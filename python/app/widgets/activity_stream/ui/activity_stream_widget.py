@@ -37,8 +37,6 @@ class Ui_ActivityStreamWidget(object):
         self.activity_stream_layout.setContentsMargins(0, 12, 12, 12)
         self.activity_stream_layout.setObjectName("activity_stream_layout")
         self.verticalLayout_17.addLayout(self.activity_stream_layout)
-        spacerItem = QtGui.QSpacerItem(20, 0, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout_17.addItem(spacerItem)
         self.activity_stream_scroll_area.setWidget(self.activity_stream_widget)
         self.verticalLayout.addWidget(self.activity_stream_scroll_area)
 

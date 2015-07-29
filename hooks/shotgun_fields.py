@@ -46,7 +46,7 @@ class ShotgunConfiguration(HookBaseClass):
         values = {
             "top_left": "<big>{code}</big>",
             "top_right": "{updated_at::ago}",
-            "body": "<b>By:</b> {created_by}<br><b>Description:</b> {description}"            
+            "body": "<b>By:</b> {created_by}{[<br><b>Description:</b> ]description}"            
             } 
         
         # override 
@@ -54,7 +54,7 @@ class ShotgunConfiguration(HookBaseClass):
             
             values["top_left"] = "<big>{name} v{version_number}</big>"
             values["body"] = """
-                {published_file_type} by {created_by}<br>
+                {published_file_type} by {created_by}{[ (Task ]sg_task[)]}<br>
                 <b>Comments:</b> {description}
                 """            
     
@@ -62,7 +62,7 @@ class ShotgunConfiguration(HookBaseClass):
                         
             values["top_left"] = "<big>{name} v{version_number}</big>"
             values["body"] = """
-                {tank_type} by {created_by}<br>
+                {tank_type} by {created_by}{[ (Task ]sg_task[)]}<br>
                 <b>Comments:</b> {description}
                 """            
             
@@ -74,9 +74,8 @@ class ShotgunConfiguration(HookBaseClass):
         elif entity_type == "Version":
             
             values["body"] = """
-                Created by {user} ({sg_task})<br>
-                Status: {sg_status_list}<br>
-                Description: {description}
+                <b>By:</b> {user} (Task {sg_task})<br>
+                <b>Comments:</b> {description}
                 """
         
         elif entity_type == "Task":
@@ -84,9 +83,9 @@ class ShotgunConfiguration(HookBaseClass):
             values["top_left"] = "<big>{content}</big>"
             values["body"] = """
                 Assigned to {task_assignees}<br>
-                Status: {sg_status_list}<br>
-                Start: {start_date}<br>
-                Due: {due_date}
+                Status: {sg_status_list}
+                {[<br>Start: ]start_date}
+                {[<br>Due: ]due_date}
                 """            
 
         return values

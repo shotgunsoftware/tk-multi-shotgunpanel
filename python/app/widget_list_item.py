@@ -46,7 +46,7 @@ class ListItemWidget(QtGui.QWidget):
 
         self._css_decorated = """
             #box { border-width: 2px; 
-                   border-radius: 5px;
+                   border-radius: 4px;
                    border-color: rgb(48, 167, 227); 
                    border-style: solid;
             }
@@ -54,7 +54,7 @@ class ListItemWidget(QtGui.QWidget):
         
         self._css_selected = """
             #box { border-width: 2px; 
-                   border-radius: 5px;
+                   border-radius: 4px;
                    border-color: rgb(48, 167, 227); 
                    border-style: solid; 
                    background-color: rgba(48, 167, 227, 25%);

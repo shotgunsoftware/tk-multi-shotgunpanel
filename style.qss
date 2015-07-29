@@ -119,12 +119,17 @@ QPushButton#cancel_search {
     border: none;
 }
 
+
+
 /* field details spreadsheet */
 
-QTableView#entity_info_view::item {
+#entity_info_view::item, #publish_info_view::item, #version_info_view::item {
+    border: none;
     border-top: 1px dotted #888888;
     padding: 15px;
  }
+
+/* top detail area */
     
 QWidget#top_group {
     background-color: rgba(255, 255, 255, 10%);

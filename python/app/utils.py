@@ -59,7 +59,7 @@ def create_circular_512x400_thumbnail(image, accent=False):
     CANVAS_WIDTH = 512
     CANVAS_HEIGHT = 400
     
-    CIRCLE_SIZE = 395
+    CIRCLE_SIZE = 380
 
     # get the 512 base image
     base_image = QtGui.QPixmap(CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -198,7 +198,7 @@ def create_human_readable_timestamp(datetime_obj):
         human_time_str = "%d %s ago" % (delta_weeks, "week" if delta_weeks == 1 else "weeks")
      
     elif delta_days == 1:
-        human_time_str = "yesterday"
+        human_time_str = "Yesterday"
         
     elif delta_days > 1:
         # 2 days ago

@@ -88,14 +88,20 @@ class ShotgunFormatter(object):
         """
         Convenience method. Returns the sg fields for all tokens.
         """
-        return [sg_field for (_, sg_field, _) in self._resolve_tokens(token_str)]
+        return [sg_field for (_, sg_field, _, _, _) in self._resolve_tokens(token_str)]
         
     def _resolve_tokens(self, token_str):
         """
+        Resolve a list of tokens from a string.
+        
+        Tokens are on the following form:
+        
+            {[preroll]shotgun.field.name::directive[postroll]}
+        
         given a string with {tokens} or {deep.linktokens} return a list
         of tokens.
         
-        retrurns: a list of tuples with (full_token, sg_field, directive)
+        returns: a list of tuples with (full_token, sg_field, directive, preroll, postroll)
         """    
     
         try:
@@ -107,15 +113,36 @@ class ShotgunFormatter(object):
         fields = []
         for raw_token in raw_tokens:
     
-            if "::" in raw_token:
+            pre_roll = None
+            post_roll = None
+            directive = None
+    
+            processed_token = raw_token
+            
+            match = re.match( "^\[([^\]]+)\]", processed_token)
+            if match:
+                pre_roll = match.group(1)
+                # remove preroll part from main token
+                processed_token = processed_token[len(pre_roll) + 2:]
+            
+            match = re.match( ".*\[([^\]]+)\]$", processed_token)
+            if match:
+                post_roll = match.group(1)
+                # remove preroll part from main token
+                processed_token = processed_token[:-(len(post_roll) + 2)]
+    
+            if "::" in processed_token:
                 # we have a special formatting directive
                 # e.g. created_at::ago
-                (sg_field, directive) = raw_token.split("::")
+                (sg_field, directive) = processed_token.split("::")
             else:
-                sg_field = raw_token
-                directive = None
+                sg_field = processed_token
         
-            fields.append( (raw_token, sg_field, directive) )
+            fields.append( (raw_token, 
+                            sg_field, 
+                            directive, 
+                            pre_roll, 
+                            post_roll) )
     
         return fields
     
@@ -141,8 +168,8 @@ class ShotgunFormatter(object):
         """         
         str_val = ""
         
-        if value is None:
-            return "No value set"        
+        if value is None:            
+            return CachedShotgunSchema.get_empty_phrase(sg_type, sg_field)
         
         elif isinstance(value, dict) and set(["type", "id", "name"]) == set(value.keys()):
             # entity link
@@ -185,9 +212,13 @@ class ShotgunFormatter(object):
             else:
                 str_val = exact_str
             
+        elif sg_field == "sg_status_list":
+            str_val = CachedShotgunSchema.get_status_display_name(value, name_only=True)
             
         else:
-            str_val = str(value)  
+            str_val = str(value)
+            # make sure it gets formatted correctly in html
+            str_val = str_val.replace("\n", "<br>")  
             
         return str_val
     
@@ -394,13 +425,30 @@ class ShotgunFormatter(object):
         Convert a string with {tokens} given a shotgun data dict
         """
         # extract all tokens and process them one after the other
-        for (full_token, sg_field, directive) in self._resolve_tokens(token_str):
+        for (full_token, sg_field, directive, pre_roll, post_roll) in self._resolve_tokens(token_str):
             # get sg data
             sg_value = sg_data.get(sg_field)
-            # resolve value 
-            resolved_value = self._sg_field_to_str(sg_data["type"], sg_field, sg_value, directive)
-            # and replace the token with the value
-            token_str = token_str.replace("{%s}" % full_token, resolved_value)
+            
+            if sg_value is None and ( pre_roll or post_roll ):
+                # shotgun value is empty
+                # if we have a pre or post roll part of the token
+                # then we basicaly just skip the display of both 
+                # those and the value entirely
+                # e.g. Hello {[Shot:]sg_shot} becomes:
+                # for shot abc: 'Hello Shot:abc'
+                # for shot <empty>: 'Hello '             
+                token_str = token_str.replace("{%s}" % full_token, "")
+
+            else:
+                resolved_value = self._sg_field_to_str(sg_data["type"], sg_field, sg_value, directive)
+            
+                # potentially add pre/and post
+                if pre_roll:
+                    resolved_value = "%s%s" % (pre_roll, resolved_value)
+                if post_roll:
+                    resolved_value = "%s%s" % (resolved_value, post_roll)
+                # and replace the token with the value
+                token_str = token_str.replace("{%s}" % full_token, resolved_value)
         
         return token_str
         

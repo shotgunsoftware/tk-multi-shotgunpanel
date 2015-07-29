@@ -111,7 +111,7 @@ class Ui_NoteInputWidget(object):
         self.screenshot.setText(QtGui.QApplication.translate("NoteInputWidget", "Attach Screenshot", None, QtGui.QApplication.UnicodeUTF8))
         self.submit.setToolTip(QtGui.QApplication.translate("NoteInputWidget", "Create Note", None, QtGui.QApplication.UnicodeUTF8))
         self.hint_label.setText(QtGui.QApplication.translate("NoteInputWidget", "<small>You can add people by referring to them by @name.</small>", None, QtGui.QApplication.UnicodeUTF8))
-        self.placeholder_label.setText(QtGui.QApplication.translate("NoteInputWidget", "<i>Click to create a new note...</i>", None, QtGui.QApplication.UnicodeUTF8))
+        self.placeholder_label.setText(QtGui.QApplication.translate("NoteInputWidget", "Click to create a new note...", None, QtGui.QApplication.UnicodeUTF8))
 
 from ..note_editor import NoteEditor
 from . import resources_rc

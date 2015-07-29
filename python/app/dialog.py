@@ -564,9 +564,14 @@ class AppDialog(QtGui.QWidget):
             self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])        
 
         self.user_menu = QtGui.QMenu(self)
-        name_action = self.user_menu.addAction(sg_data["name"])
-        url_action = self.user_menu.addAction(self._app.shotgun.base_url.split("://")[1])
+        self.user_menu.addAction("%s's Home" % sg_data["name"])
+        self.user_menu.addAction("Jump to Project")
         self.user_menu.addSeparator()
+        self.user_menu.addAction("Copy current Shotgun URL")
+        self.user_menu.addAction("Jump to Shotgun")
+        self.user_menu.addSeparator()
+        self.user_menu.addAction("Reload")
+        
 
         self.ui.current_user.setMenu(self.user_menu)        
 
