@@ -100,7 +100,7 @@ class ValueUpdateWidget(ActivityStreamBaseWidget):
 
             # set the first line with summary
             field_display_name = CachedShotgunSchema.get_field_display_name(entity_type, field_name)
-            full_str = "The <b>%s</b> field changed on %s" % (field_display_name, entity_url)
+            full_str = "<b>%s</b> changed on %s" % (field_display_name, entity_url)
             
             # set the second line with details around the update
             if new_value:
@@ -115,10 +115,10 @@ class ValueUpdateWidget(ActivityStreamBaseWidget):
                 text = ""
                 
                 if len(added) > 0:
-                    text += "Added %s" % ", ".join([self._generate_entity_url(e) for e in added])
+                    text += "Added %s" % ", ".join([self._generate_entity_url(e, display_type=False) for e in added])
                 
                 if len(removed) > 0:
-                    text += "Removed %s" % ", ".join([self._generate_entity_url(e) for e in removed])
+                    text += "Removed %s" % ", ".join([self._generate_entity_url(e, display_type=False) for e in removed])
                 
                 self.ui.footer.setText(text)
             

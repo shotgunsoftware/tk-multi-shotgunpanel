@@ -187,7 +187,7 @@ class ActivityStreamBaseWidget(QtGui.QWidget):
         return str_val
     
     
-    def _generate_entity_url(self, entity, this_syntax=True):
+    def _generate_entity_url(self, entity, this_syntax=True, display_type=True):
         """
         Generate a standard created by url string given activity data.
         
@@ -202,6 +202,9 @@ class ActivityStreamBaseWidget(QtGui.QWidget):
 
         icon = self._icon_url_for_entity_type(entity["type"])
 
-        name = "%s %s" % (entity_type_display_name, entity["name"])
+        if display_type:
+            name = "%s %s" % (entity_type_display_name, entity["name"])
+        else:
+            name = entity["name"]
 
         return self.__generate_url(entity["type"], entity["id"], name)

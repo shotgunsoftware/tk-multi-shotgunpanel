@@ -127,8 +127,6 @@ class ActivityStreamDataHandler(QtCore.QObject):
         # store activity ids sorted desc
         self._note_threads = notes_data
         
-        self.rescan()
-        
         return len(self._activity_data)
 
     def rescan(self):

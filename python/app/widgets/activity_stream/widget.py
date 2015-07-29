@@ -126,6 +126,9 @@ class ActivityStreamWidget(QtGui.QWidget):
         finally:
             # make the window visible again and trigger a redraw
             self.setVisible(True)
+        
+        # and now request an update check
+        self._data_manager.rescan()
     
     def reset(self):
         """

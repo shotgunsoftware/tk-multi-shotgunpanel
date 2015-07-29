@@ -1,13 +1,9 @@
 
 QFrame#frame {
-    /*border: 1px solid rgba(200, 200, 200, 20%);*/
     background-color: rgba(200, 200, 200, 5%);
     border-radius: 3px;
 }
 
-QFrame:hover#frame {
-    border: 1px solid rgba(200, 200, 200, 50%);
-}
 
 
 
