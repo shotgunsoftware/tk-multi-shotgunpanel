@@ -86,6 +86,7 @@ class NewItemWidget(ActivityStreamBaseWidget):
         # call base class
         ActivityStreamBaseWidget.set_info(self, data)
         
+        # make the user icon clickable
         self.ui.user_thumb.set_shotgun_data(data["created_by"])
         
         # set standard date and header fields
@@ -96,8 +97,8 @@ class NewItemWidget(ActivityStreamBaseWidget):
         
         header = "%s was created" % entity_url
         
-        # add link if there is a link field!
-        if "entity" in primary_entity:
+        # add link if there is a link field that is populated
+        if "entity" in primary_entity and primary_entity["entity"]:
             link_url = self._generate_entity_url(primary_entity["entity"])
             header += " on %s" % link_url
         
@@ -114,7 +115,7 @@ class NewItemWidget(ActivityStreamBaseWidget):
             # there is a thumbnail. Show thumbnail.
             self.ui.details_thumb.setVisible(True)
             
-        self.ui.details_thumb.set_shotgun_data(primary_entity)            
+        self.ui.details_thumb.set_shotgun_data(primary_entity)
             
 
 

@@ -78,25 +78,49 @@ class ValueUpdateWidget(ActivityStreamBaseWidget):
         # call base class
         ActivityStreamBaseWidget.set_info(self, data)
         
+        # make the user icon clickable
+        self.ui.user_thumb.set_shotgun_data(data["created_by"])
+        
         # set standard date and header fields
         self._set_timestamp(data, self.ui.date)
         
         entity_url = self._generate_entity_url(data["primary_entity"])
         
         if data["meta"]["type"] == "attribute_change":
+
             field_name = data["meta"]["attribute_name"]
             entity_type = data["meta"]["entity_type"]
-            new_value = data["meta"]["new_value"]
             
+            # Values can change in different ways
+            # for simple data types, values are just set
+            # for lists, values are added or removed 
+            new_value = data["meta"].get("new_value")
+            added = data["meta"].get("added") or []
+            removed = data["meta"].get("removed") or []
+
+            # set the first line with summary
             field_display_name = CachedShotgunSchema.get_field_display_name(entity_type, field_name)
+            full_str = "The <b>%s</b> field changed on %s" % (field_display_name, entity_url)
             
+            # set the second line with details around the update
+            if new_value:
+                # a simple data type value was updated
+                if field_name == "sg_status_list":
+                    new_value = CachedShotgunSchema.get_status_display_name(new_value)
+
+                self.ui.footer.setText("New <b>%s</b>: %s" % (field_display_name, new_value))
             
-            full_str = "The %s changed on %s" % (field_display_name, entity_url)
-            
-            if data["meta"]["field_data_type"] == "status_list":
-                new_value = CachedShotgunSchema.get_status_display_name(new_value)
-            
-            self.ui.footer.setText("<b>%s</b>: %s" % (field_display_name, new_value))
+            if len(added) > 0 or len(removed) > 0:
+                
+                text = ""
+                
+                if len(added) > 0:
+                    text += "Added %s" % ", ".join([self._generate_entity_url(e) for e in added])
+                
+                if len(removed) > 0:
+                    text += "Removed %s" % ", ".join([self._generate_entity_url(e) for e in removed])
+                
+                self.ui.footer.setText(text)
             
         else:
             # something changed, not clear what :)

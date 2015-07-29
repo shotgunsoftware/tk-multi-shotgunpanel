@@ -68,7 +68,7 @@ class ActivityStreamBaseWidget(QtGui.QWidget):
             ActivityStreamDataHandler.THUMBNAIL_ATTACHMENT
         """
         # each deriving class should implement this
-        print "need to implement this!"
+        raise NotImplementedError
     
     ##############################################################################
     # protected methods called by base classes
@@ -194,7 +194,6 @@ class ActivityStreamBaseWidget(QtGui.QWidget):
         :param data: activity stream data chunk
         :returns: string with url
         """
-        
         entity_type_display_name = CachedShotgunSchema.get_type_display_name(entity["type"])
         
         if entity["type"] == self._entity_type and entity["id"] == self._entity_id and this_syntax:

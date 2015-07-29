@@ -27,7 +27,7 @@ class ActivityStreamWidget(QtGui.QWidget):
     Widget that displays a series of replies to a note
     """
     
-    MAX_STREAM_LENGTH = 100
+    MAX_STREAM_LENGTH = 40
     
     # when someone clicks a link or similar
     entity_requested = QtCore.Signal(str, int)

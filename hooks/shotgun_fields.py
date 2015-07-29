@@ -230,7 +230,6 @@ class ShotgunConfiguration(HookBaseClass):
             values["title"] = "{subject}"
             
             values["body"] = """Created by {created_by} on {created_at}<br>
-                Status: {sg_status_list}<br>
                 To: {addressings_to}<br>
                 CC: {addressings_cc}<br>
                 Links: {note_links::showtype}<br>
