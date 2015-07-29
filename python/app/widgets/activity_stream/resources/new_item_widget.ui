@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>352</width>
-    <height>278</height>
+    <width>342</width>
+    <height>222</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -121,23 +121,20 @@
         <property name="minimumSize">
          <size>
           <width>256</width>
-          <height>200</height>
+          <height>144</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>256</width>
-          <height>200</height>
+          <height>144</height>
          </size>
         </property>
         <property name="text">
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/tk_multi_infopanel_activity_stream/rect_512x400.png</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
+         <pixmap resource="resources.qrc">:/tk_multi_infopanel_activity_stream/rect_256x144.png</pixmap>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

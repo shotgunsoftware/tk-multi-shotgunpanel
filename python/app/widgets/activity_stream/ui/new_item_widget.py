@@ -11,7 +11,7 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_NewItemWidget(object):
     def setupUi(self, NewItemWidget):
         NewItemWidget.setObjectName("NewItemWidget")
-        NewItemWidget.resize(352, 278)
+        NewItemWidget.resize(342, 222)
         self.horizontalLayout_2 = QtGui.QHBoxLayout(NewItemWidget)
         self.horizontalLayout_2.setSpacing(8)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -60,11 +60,10 @@ class Ui_NewItemWidget(object):
         self.horizontalLayout.addWidget(self.date)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.details_thumb = VersionLabel(self.frame)
-        self.details_thumb.setMinimumSize(QtCore.QSize(256, 200))
-        self.details_thumb.setMaximumSize(QtCore.QSize(256, 200))
+        self.details_thumb.setMinimumSize(QtCore.QSize(256, 144))
+        self.details_thumb.setMaximumSize(QtCore.QSize(256, 144))
         self.details_thumb.setText("")
-        self.details_thumb.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel_activity_stream/rect_512x400.png"))
-        self.details_thumb.setScaledContents(True)
+        self.details_thumb.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel_activity_stream/rect_256x144.png"))
         self.details_thumb.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.details_thumb.setObjectName("details_thumb")
         self.verticalLayout.addWidget(self.details_thumb)

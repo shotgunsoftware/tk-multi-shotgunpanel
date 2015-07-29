@@ -96,27 +96,36 @@ class ActivityStreamWidget(QtGui.QWidget):
         # now load cached data
         self._data_manager.load_data(entity_type, entity_id)
 
-        # we are building the widgets bottom up.
-        # first of all, insert a widget that will expand so that 
-        # it consumes all un-used space. This is to keep other
-        # widgets from growing when there are only a few widgets
-        # available in the scroll area.
-        self._expanding_widget = QtGui.QLabel(self)
-        self.ui.activity_stream_layout.addWidget(self._expanding_widget)
-        self.ui.activity_stream_layout.setStretchFactor(self._expanding_widget, 1)
+        # before we begin widget operations, turn off visibility
+        # of the whole widget in order to avoid recomputes
+        self.setVisible(False)
+        try:
 
-        # now process activity events
-        ids_to_process = self._data_manager.get_activity_ids(self.MAX_STREAM_LENGTH)
-        # ids are returned in async order. Now pop them onto the activity stream,
-        # old items first order...
-        for activity_id in ids_to_process:
-            self._append_widget(activity_id)      
+            # we are building the widgets bottom up.
+            # first of all, insert a widget that will expand so that 
+            # it consumes all un-used space. This is to keep other
+            # widgets from growing when there are only a few widgets
+            # available in the scroll area.
+            self._expanding_widget = QtGui.QLabel(self)
+            self.ui.activity_stream_layout.addWidget(self._expanding_widget)
+            self.ui.activity_stream_layout.setStretchFactor(self._expanding_widget, 1)
+    
+            # now process activity events
+            ids_to_process = self._data_manager.get_activity_ids(self.MAX_STREAM_LENGTH)
         
-        # last, create "loading" widget
-        # to put at the top of the list
-        self._loading_widget = LoadingWidget(self)
-        self.ui.activity_stream_layout.addWidget(self._loading_widget)
+            # ids are returned in async order. Now pop them onto the activity stream,
+            # old items first order...
+            for activity_id in ids_to_process:
+                self._append_widget(activity_id)      
         
+            # last, create "loading" widget
+            # to put at the top of the list
+            self._loading_widget = LoadingWidget(self)
+            self.ui.activity_stream_layout.addWidget(self._loading_widget)
+        
+        finally:
+            # make the window visible again and trigger a redraw
+            self.setVisible(True)
     
     def reset(self):
         """
@@ -128,25 +137,36 @@ class ActivityStreamWidget(QtGui.QWidget):
         
     def _clear(self):
         """
-        Clear the widget. This will clear the 
+        Clear the widget. This will remove all items
+        the UI
         """
-        self._clear_loading_widget()
+        
+        # before we begin widget operations, turn off visibility
+        # of the whole widget in order to avoid recomputes        
+        self.setVisible(False)
+        
+        try:
+            self._clear_loading_widget()
 
-        for x in self._widgets.values():
-            # remove widget from layout:
-            self.ui.activity_stream_layout.removeWidget(x)
-            # set it's parent to None so that it is removed from the widget hierarchy
-            x.setParent(None)
-            # mark it to be deleted when event processing returns to the main loop
-            x.deleteLater()
+            for x in self._widgets.values():
+                # remove widget from layout:
+                self.ui.activity_stream_layout.removeWidget(x)
+                # set it's parent to None so that it is removed from the widget hierarchy
+                x.setParent(None)
+                # mark it to be deleted when event processing returns to the main loop
+                x.deleteLater()
+        
+            self._widgets = {}
     
-        self._widgets = {}
-
-        if self._expanding_widget:
-            self.ui.activity_stream_layout.removeWidget(self._expanding_widget)
-            self._expanding_widget.setParent(None)
-            self._expanding_widget.deleteLater()
-            self._expanding_widget = None
+            if self._expanding_widget:
+                self.ui.activity_stream_layout.removeWidget(self._expanding_widget)
+                self._expanding_widget.setParent(None)
+                self._expanding_widget.deleteLater()
+                self._expanding_widget = None
+        
+        finally:
+            # make the window visible again and trigger a redraw
+            self.setVisible(True)
             
         
     def _clear_loading_widget(self):
@@ -173,13 +193,14 @@ class ActivityStreamWidget(QtGui.QWidget):
         elif data["update_type"] == "update":
             w = ValueUpdateWidget(self)
         
+        self.ui.activity_stream_layout.addWidget(w)
+        
         # tell the widget which activity stream we
         # are placing it into
         w.set_host_entity(self._entity_type, self._entity_id)
-        
         # add widget to our UI
         w.set_info(data)
-        self.ui.activity_stream_layout.addWidget(w)
+        
         self._widgets[activity_id] = w
         
         w.entity_requested.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))

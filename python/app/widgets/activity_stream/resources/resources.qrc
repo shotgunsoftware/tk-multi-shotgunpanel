@@ -1,6 +1,6 @@
 <RCC>
   <qresource prefix="tk_multi_infopanel_activity_stream">
-    <file>rect_512x400.png</file>
+    <file>rect_256x144.png</file>
     <file>default_user.png</file>
     <file>entity_icons/icon_Asset_dark.png</file>
     <file>entity_icons/icon_ClientUser_dark.png</file>

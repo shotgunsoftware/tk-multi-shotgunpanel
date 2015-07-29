@@ -106,7 +106,54 @@ def create_circular_512x400_thumbnail(image, accent=False):
     return base_image
     
     
+def create_rectangular_640x360_thumbnail(image):
+    """
+    Given a qimage shotgun thumbnail, create a publish icon
+    with the thumbnail composited onto a centered otherwise empty canvas. 
+    This will return a 512x400 pixmap object.
+    """
+    CANVAS_WIDTH = 640
+    CANVAS_HEIGHT = 360
+    CORNER_RADIUS = 10
+
+    # get the base image
+    base_image = QtGui.QPixmap(CANVAS_WIDTH, CANVAS_HEIGHT)
+    base_image.fill(QtCore.Qt.transparent)
+    
+    # now attempt to load the image
+    # pixmap will be a null pixmap if load fails    
+    thumb = QtGui.QPixmap.fromImage(image)
+    
+    if not thumb.isNull():
+            
+        # scale it down to fit inside a frame
+        thumb_scaled = thumb.scaled(CANVAS_WIDTH, 
+                                    CANVAS_HEIGHT, 
+                                    QtCore.Qt.KeepAspectRatioByExpanding, 
+                                    QtCore.Qt.SmoothTransformation)  
+
+        # now composite the thumbnail on top of the base image
+        # bottom align it to make it look nice
+        thumb_img = thumb_scaled.toImage()
+        brush = QtGui.QBrush(thumb_img)
         
+        painter = QtGui.QPainter(base_image)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.setBrush(brush)
+        painter.setPen(QtGui.QPen())
+        
+        painter.drawRoundedRect(0,  
+                                0, 
+                                CANVAS_WIDTH, 
+                                CANVAS_HEIGHT, 
+                                CORNER_RADIUS, 
+                                CORNER_RADIUS)
+        
+        painter.end()
+    
+    return base_image
+    
+
 
 def create_rectangular_512x400_thumbnail(image):
     """

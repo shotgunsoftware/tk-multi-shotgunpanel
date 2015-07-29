@@ -14,7 +14,7 @@ from .widget_activity_stream_base import ActivityStreamBaseWidget
 from .ui.new_item_widget import Ui_NewItemWidget
 
 from .data_manager import ActivityStreamDataHandler
-from ... import utils
+from . import utils
 
 class NewItemWidget(ActivityStreamBaseWidget):
     """
@@ -134,6 +134,6 @@ class NewItemWidget(ActivityStreamBaseWidget):
             self.ui.user_thumb.setPixmap(thumb)
 
         elif thumbnail_type == ActivityStreamDataHandler.THUMBNAIL_ENTITY:
-            thumb = utils.create_rectangular_512x400_thumbnail(image)
+            thumb = utils.create_rectangular_256x144_thumbnail(image)
             self.ui.details_thumb.setPixmap(thumb)
         
