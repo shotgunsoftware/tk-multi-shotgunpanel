@@ -9,4 +9,3 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 from .dialog import AppDialog
-from .cached_schema import CachedShotgunSchema

@@ -32,6 +32,7 @@ class SgCurrentUserModel(ShotgunModel):
         """
         # init base class
         ShotgunModel.__init__(self, parent, bg_load_thumbs=True)
+        self._app = sgtk.platform.current_bundle()
         self._current_pixmap = None
         self._current_user_sg_dict = None
         self.data_refreshed.connect(self._on_data_refreshed)
@@ -42,18 +43,25 @@ class SgCurrentUserModel(ShotgunModel):
         """
         app = sgtk.platform.current_bundle()
         sg_user_data = sgtk.util.get_current_user(app.sgtk)
-        self._current_user_sg_dict = {"type": sg_user_data["type"], "id": sg_user_data["id"]}
-        hierarchy = ["id"]
-        fields = ["image", "login", "name", "department", "firstname", "surname"]
-        ShotgunModel._load_data(self, 
-                                sg_user_data["type"],
-                                [["id", "is", sg_user_data["id"]]], 
-                                hierarchy,
-                                fields)
         
-        # signal to any views that data now may be available
-        self.data_updated.emit()
-        self._refresh_data()
+        if sg_user_data is None:
+            self._app.log_warning("No current user found! Will continue "
+                                  "without a current user.")
+        
+        else:
+            self._current_user_sg_dict = {"type": sg_user_data["type"], 
+                                          "id": sg_user_data["id"]}
+            hierarchy = ["id"]
+            fields = ["image", "login", "name", "department", "firstname", "surname"]
+            ShotgunModel._load_data(self, 
+                                    sg_user_data["type"],
+                                    [["id", "is", sg_user_data["id"]]], 
+                                    hierarchy,
+                                    fields)
+        
+            # signal to any views that data now may be available
+            self.data_updated.emit()
+            self._refresh_data()
         
 
     def _on_data_refreshed(self):

@@ -36,8 +36,11 @@ function build_res {
 
 # build UI's:
 echo "building user interfaces..."
-build_ui reply_list_widget
-build_ui reply_widget
+build_ui activity_stream_widget
+build_ui value_update_widget
+build_ui note_widget
+build_ui new_item_widget
+build_ui loading_widget
 
 # build resources
 echo "building resources..."

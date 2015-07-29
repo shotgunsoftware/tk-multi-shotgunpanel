@@ -17,6 +17,8 @@ shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun
 
 from .search_result_widget import SearchResultWidget 
 
+from ...modules.schema import CachedShotgunSchema
+
 class SearchResultDelegate(shotgun_view.WidgetDelegate):
     """
     Delegate which renders search match entries in the global 
@@ -45,6 +47,8 @@ class SearchResultDelegate(shotgun_view.WidgetDelegate):
                                    "EventLogEntry",
                                    "Group",
                                    "HumanUser",
+                                   "PublishedFile",
+                                   "TankPublishedFile",
                                    "Note",
                                    "Playlist",
                                    "Project",
@@ -132,8 +136,7 @@ class SearchResultDelegate(shotgun_view.WidgetDelegate):
                 content += "<img src='%s'/>&nbsp;&nbsp;<b style='color: rgb(48, 167, 227)';>%s</b>" % (et_url, data["name"])
             else:
                 # present type name name
-                # TODO: resolve display name for type
-                content += "%s %s" % (data["type"], data["name"])  
+                content += "%s %s" % (CachedShotgunSchema.get_type_display_name(data["type"]), data["name"])  
     
             links = data["links"]
             # note users return weird data so ignore it.
@@ -145,8 +148,15 @@ class SearchResultDelegate(shotgun_view.WidgetDelegate):
                     content += "<br><img align=absmiddle src='%s'/>  %s" % (et_url, links[1])
                 else:
                     # present type name name
-                    # TODO: resolve display name for type                    
-                    content += "<br>%s %s" % (links[0], links[1])
+                    link_entity_type = links[0]
+                                        
+                    content += "<br>%s %s" % (CachedShotgunSchema.get_type_display_name(link_entity_type), links[1])
+            
+            elif et_url:
+                # no linked entity and only showing an icon
+                # so help by printing the type
+                display_name = CachedShotgunSchema.get_type_display_name(data["type"])
+                content += "<br>%s" % display_name
                 
             widget.set_text(content)
         

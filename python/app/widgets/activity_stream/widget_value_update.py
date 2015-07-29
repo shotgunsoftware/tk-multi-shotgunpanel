@@ -1,0 +1,121 @@
+# Copyright (c) 2015 Shotgun Software Inc.
+# 
+# CONFIDENTIAL AND PROPRIETARY
+# 
+# This work is provided "AS IS" and subject to the Shotgun Pipeline Toolkit 
+# Source Code License included in this distribution package. See LICENSE.
+# By accessing, using, copying or modifying this work you indicate your 
+# agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
+# not expressly granted therein are reserved by Shotgun Software Inc.
+
+from sgtk.platform.qt import QtCore, QtGui
+
+from .widget_activity_stream_base import ActivityStreamBaseWidget
+from .ui.value_update_widget import Ui_ValueUpdateWidget
+
+from .data_manager import ActivityStreamDataHandler
+
+from ...modules.schema import CachedShotgunSchema
+
+from ... import utils
+
+class ValueUpdateWidget(ActivityStreamBaseWidget):
+    """
+    Widget that displays a series of replies to a note
+    """
+    
+    def __init__(self, parent):
+        """
+        Constructor
+        
+        :param parent: QT parent object
+        """
+
+        # first, call the base class and let it do its thing.
+        ActivityStreamBaseWidget.__init__(self, parent)
+        
+        # now load in the UI that was created in the UI designer
+        self.ui = Ui_ValueUpdateWidget() 
+        self.ui.setupUi(self)
+        
+        # make sure clicks propagate upwards in the hierarchy
+        self.ui.footer.linkActivated.connect(self._entity_request_from_url)
+        self.ui.header_left.linkActivated.connect(self._entity_request_from_url)
+
+    ##############################################################################
+    # public interface        
+
+    def set_info(self, data):
+        """
+        Populate text fields for this widget
+        
+        Example of data chunk:
+        
+            {'created_at': 1437322671.0,
+             'created_by': {'id': 38,
+                            'image': '',
+                            'name': 'Manne Ohrstrom',
+                            'status': 'act',
+                            'type': 'HumanUser'},
+             'id': 112,
+             'meta': {'attribute_name': 'sg_status_list',
+                      'entity_id': 769,
+                      'entity_type': 'Asset',
+                      'field_data_type': 'status_list',
+                      'new_value': 'ip',
+                      'old_value': 'fin',
+                      'type': 'attribute_change'},
+             'primary_entity': {'id': 769,
+                                'image': '',
+                                'name': 'Alice',
+                                'status': 'hld',
+                                'type': 'Asset'},
+             'read': False,
+             'update_type': 'update'}
+        
+        :param data: data dictionary with activity stream info. 
+        """
+        # call base class
+        ActivityStreamBaseWidget.set_info(self, data)
+        
+        # set standard date and header fields
+        self._set_timestamp(data, self.ui.date)
+        
+        entity_url = self._generate_entity_url(data["primary_entity"])
+        
+        if data["meta"]["type"] == "attribute_change":
+            field_name = data["meta"]["attribute_name"]
+            entity_type = data["meta"]["entity_type"]
+            new_value = data["meta"]["new_value"]
+            
+            field_display_name = CachedShotgunSchema.get_field_display_name(entity_type, field_name)
+            
+            
+            full_str = "The %s changed on %s" % (field_display_name, entity_url)
+            
+            if data["meta"]["field_data_type"] == "status_list":
+                new_value = CachedShotgunSchema.get_status_display_name(new_value)
+            
+            self.ui.footer.setText("<b>%s</b>: %s" % (field_display_name, new_value))
+            
+        else:
+            # something changed, not clear what :)
+            full_str = "%s was updated" % entity_url 
+        
+        self.ui.header_left.setText(full_str)
+        
+
+    def set_thumbnail(self, image, thumbnail_type):
+        """
+        Populate the UI with the given thumbnail
+        
+        :param image: QImage with thumbnail data
+        :param thumbnail_type: thumbnail enum constant:
+            ActivityStreamDataHandler.THUMBNAIL_CREATED_BY
+            ActivityStreamDataHandler.THUMBNAIL_ENTITY
+            ActivityStreamDataHandler.THUMBNAIL_ATTACHMENT
+        """
+        if thumbnail_type == ActivityStreamDataHandler.THUMBNAIL_CREATED_BY:
+            thumb = utils.create_round_thumbnail(image)          
+            self.ui.user_thumb.setPixmap(thumb)
+

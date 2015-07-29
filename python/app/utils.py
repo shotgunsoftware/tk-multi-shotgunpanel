@@ -114,7 +114,6 @@ def create_rectangular_512x400_thumbnail(image):
     with the thumbnail composited onto a centered otherwise empty canvas. 
     This will return a 512x400 pixmap object.
     """
-
     CANVAS_WIDTH = 512
     CANVAS_HEIGHT = 400
     CORNER_RADIUS = 10
@@ -143,23 +142,12 @@ def create_rectangular_512x400_thumbnail(image):
         painter = QtGui.QPainter(base_image)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setBrush(brush)
+        painter.setPen(QtGui.QPen())
         
-        # figure out the offset height wise in order to center the thumb
-        height_difference = CANVAS_HEIGHT - thumb_scaled.height()
-        width_difference = CANVAS_WIDTH - thumb_scaled.width()
-        
-        # center it with wise
-        inlay_offset_w = (width_difference/2)+(CORNER_RADIUS/2)
-        # bottom height wise
-        #inlay_offset_h = height_difference+CORNER_RADIUS
-        inlay_offset_h = (height_difference/2)+(CORNER_RADIUS/2)
-        
-        # note how we have to compensate for the corner radius
-        painter.translate(inlay_offset_w, inlay_offset_h)
         painter.drawRoundedRect(0,  
                                 0, 
-                                thumb_scaled.width()-CORNER_RADIUS, 
-                                thumb_scaled.height()-CORNER_RADIUS, 
+                                CANVAS_WIDTH, 
+                                CANVAS_HEIGHT, 
                                 CORNER_RADIUS, 
                                 CORNER_RADIUS)
         

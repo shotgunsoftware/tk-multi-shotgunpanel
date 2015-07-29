@@ -9,5 +9,5 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 
-from .widget_reply_list import ReplyListWidget
+from .widget import ReplyListWidget
 

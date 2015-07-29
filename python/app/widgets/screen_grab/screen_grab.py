@@ -23,6 +23,9 @@ class ScreenGrabber(QtGui.QDialog):
     """
 
     def __init__(self, parent=None):
+        """
+        Constructor
+        """
         super(ScreenGrabber, self).__init__(parent)
 
         self._opacity = 1
@@ -43,10 +46,15 @@ class ScreenGrabber(QtGui.QDialog):
 
     @property
     def capture_rect(self):
-        """The resulting QRect from a previous capture operation."""
+        """
+        The resulting QRect from a previous capture operation.
+        """
         return self._capture_rect
 
     def paintEvent(self, evt):
+        """
+        Paint event
+        """
         # Convert click and current mouse positions to local space.
         mouse_pos = self.mapFromGlobal(QtGui.QCursor.pos())
         click_pos = None
@@ -106,7 +114,7 @@ class ScreenGrabber(QtGui.QDialog):
         fade_anim = QtCore.QPropertyAnimation(self, "_opacity_anim_prop", self)
         fade_anim.setStartValue(self._opacity)
         fade_anim.setEndValue(127)
-        fade_anim.setDuration(500)
+        fade_anim.setDuration(300)
         fade_anim.setEasingCurve(QtCore.QEasingCurve.OutCubic)
         fade_anim.start(QtCore.QAbstractAnimation.DeleteWhenStopped)
 

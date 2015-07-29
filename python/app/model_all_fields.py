@@ -8,19 +8,16 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
-from collections import defaultdict
 from sgtk.platform.qt import QtCore, QtGui
-
 import sgtk
-from . import utils
-from .shotgun_formatter import ShotgunFormatter 
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 
-ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
-ShotgunDataRetriever = shotgun_data.ShotgunDataRetriever 
+ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel 
+
+from .modules.schema import CachedShotgunSchema
 
 class SgAllFieldsModel(ShotgunOverlayModel):
     """
@@ -96,7 +93,7 @@ class SgAllFieldsModel(ShotgunOverlayModel):
         for field_name in sorted(sg_data.keys()):
             
             # get the human readable field display name
-            field_info = self._app.metaschema.get_field_info(sg_type, field_name)
+            field_info = CachedShotgunSchema.get_field_info(sg_type, field_name)
 
             if field_info:
                 display_name = field_info["name"]["value"]
@@ -113,5 +110,3 @@ class SgAllFieldsModel(ShotgunOverlayModel):
             
             self._table_model.appendRow([display_name_item, display_name_value])
             
-            
-        

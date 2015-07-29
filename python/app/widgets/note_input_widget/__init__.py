@@ -9,5 +9,5 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 
-from .note_input_widget import NoteInputWidget
+from .widget import NoteInputWidget
 

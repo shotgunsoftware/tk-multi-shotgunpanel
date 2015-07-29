@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>372</width>
-    <height>81</height>
+    <width>361</width>
+    <height>85</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,17 @@
    <property name="spacing">
     <number>1</number>
    </property>
-   <property name="margin">
-    <number>1</number>
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>3</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>3</number>
    </property>
    <item>
     <widget class="QFrame" name="box">
@@ -30,13 +39,13 @@
        <number>10</number>
       </property>
       <property name="leftMargin">
-       <number>1</number>
+       <number>4</number>
       </property>
       <property name="topMargin">
        <number>2</number>
       </property>
       <property name="rightMargin">
-       <number>1</number>
+       <number>4</number>
       </property>
       <property name="bottomMargin">
        <number>2</number>

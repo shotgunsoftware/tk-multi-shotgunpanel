@@ -28,9 +28,6 @@ class StgkStarterApp(Application):
         # toolkit's code reload mechanism will work properly.
         app_payload = self.import_module("app")
 
-        # set up a metaschema cache for global use
-        self.metaschema = app_payload.CachedShotgunSchema()
-
         # now register a *command*, which is normally a menu entry of some kind on a Shotgun
         # menu (but it depends on the engine). The engine will manage this command and 
         # whenever the user requests the command, it will call out to the callback.
@@ -41,12 +38,8 @@ class StgkStarterApp(Application):
         # register a menu entry
         self.engine.register_command("Info Panel...", self.create_panel, {"type": "panel"})
         
-        
     def destroy_app(self):
-        
         self.log_debug("Destroying app...")
-        self.metaschema.destroy()
-
 
     def create_panel(self):
         """
@@ -62,6 +55,5 @@ class StgkStarterApp(Application):
             self.log_warning("Could not execute show_panel method - please upgrade "
                                      "to latest core and engine! Falling back on show_dialog. Error: %s" % e)
             return self.engine.show_dialog("Shotgun", self, app_payload.AppDialog)
-
 
 

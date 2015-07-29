@@ -160,7 +160,7 @@ class ShotgunConfiguration(HookBaseClass):
         """
         
         values = {
-            "title": "{type} {code} ({sg_status_code})",
+            "title": "{type} {code} ({sg_status_list})",
             "body": "Created by: {created_by}",
             }
         
@@ -236,7 +236,7 @@ class ShotgunConfiguration(HookBaseClass):
                 CC: {addressings_cc}<br>
                 Links: {note_links::showtype}<br>
                 Tasks: {tasks}
-                <br>
+                <br><br>
                 {content}
                 """
     

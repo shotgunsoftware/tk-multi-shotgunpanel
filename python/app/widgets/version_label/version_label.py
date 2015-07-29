@@ -16,10 +16,19 @@ class VersionLabel(QtGui.QLabel):
     """
     Subclassed QLabel that displays a playback icon
     centered above the existing pixmap.
+    
+    By populating an instance with shotgun version data
+    via the set_shotgun_data() method, the version label
+    will look at the data and determine whether a playback 
+    icon should be displayed or not. In the case an icon is
+    displayed, a playback_clicked signal may be emitted. 
+    
+    This signal passes the same shotgun version data back
+    to the caller.   
     """
     
     # signal fires when the play button was cliecked
-    playback_clicked = QtCore.Signal(str)
+    playback_clicked = QtCore.Signal(dict)
     
     def __init__(self, parent):
         """
@@ -30,26 +39,29 @@ class VersionLabel(QtGui.QLabel):
         QtGui.QLabel.__init__(self, parent)
         self._play_icon = QtGui.QPixmap(":/tk_multi_infopanel_version_label/play_icon.png")
         self._play_icon_inactive = QtGui.QPixmap(":/tk_multi_infopanel_version_label/play_icon_inactive.png")
-        self._playback_url = None
+        self._sg_data = None
         self._hover = False
         self._active = False
 
-    def set_playback_icon_active(self, status):
+    def set_shotgun_data(self, sg_data):
         """
-        Control the state of the playback
-        
-        :status active: True if the playback icon should be shown, false otherwise 
-        """
-        self._active = status
-        
-    def set_plackback_url(self, url):
-        """
-        Specifies playback url to associate with the button
-        
-        :param url: Url string
+        Sets version data associated with this label
         :"""
-        self._playback_url = url
-
+        self._sg_data = sg_data
+        
+        # based on the data, figure out if the icon should be active or not
+        self._active = False
+        
+        if sg_data and sg_data.get("type") == "Version":
+            # versions are supported
+            if sg_data.get("sg_uploaded_movie"):
+                self._active = True
+        
+        if self._active:
+            self.setCursor(QtCore.Qt.PointingHandCursor)
+        else:
+            self.unsetCursor() 
+            
     def enterEvent(self, event):
         """
         Fires when the mouse enters the widget space
@@ -57,7 +69,6 @@ class VersionLabel(QtGui.QLabel):
         QtGui.QLabel.enterEvent(self, event)
         if self._active:
             self._hover = True
-            self.setCursor(QtCore.Qt.PointingHandCursor)
             self.repaint()
         
     def leaveEvent(self, event):
@@ -67,7 +78,6 @@ class VersionLabel(QtGui.QLabel):
         QtGui.QLabel.leaveEvent(self, event)
         if self._active:
             self._hover = False
-            self.unsetCursor()
             self.repaint()
 
     def mousePressEvent(self, event):
@@ -76,14 +86,12 @@ class VersionLabel(QtGui.QLabel):
         """
         QtGui.QLabel.mousePressEvent(self, event)
         if self._active and self._hover:
-            self.playback_clicked.emit(self._playback_url)
+            self.playback_clicked.emit(self._sg_data)
         
-
     def paintEvent(self, event):
         """
         Render the UI.
         """
-        
         # first render the label
         QtGui.QLabel.paintEvent(self, event)
         

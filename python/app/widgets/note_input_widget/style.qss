@@ -1,0 +1,9 @@
+QFrame#frame {
+    border: 1px solid rgba(200, 200, 200, 25%);
+    background-color: none;
+    border-radius: 3px;
+}        
+
+QLabel#placeholder_label {
+    color: rgba(200, 200, 200, 50%);
+}

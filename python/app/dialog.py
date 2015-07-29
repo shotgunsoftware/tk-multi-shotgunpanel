@@ -34,9 +34,13 @@ from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
 from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
 from .model_current_user import SgCurrentUserModel
+from .shotgun_formatter import ShotgunFormatter
+
+from .modules.schema import CachedShotgunSchema
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings")
+shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 
 
 
@@ -74,7 +78,6 @@ class AppDialog(QtGui.QWidget):
     VERSION_TAB_PUBLISHES = 2
     VERSION_TAB_INFO = 3
     
-    
     @property
     def hide_tk_title_bar(self):
         """
@@ -93,12 +96,23 @@ class AppDialog(QtGui.QWidget):
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
 
-        # start caching the metaschema
-        self._app.metaschema.request_cache()
-
+        # set up an asynchronous shotgun retriever to pull down data
+        self._sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)
+        self._sg_data_retriever.start()
+        
+        # register the data fetcher with the global schema manager
+        CachedShotgunSchema.register_data_retriever(self._sg_data_retriever)
+                
         # now load in the UI that was created in the UI designer
         self.ui = Ui_Dialog() 
         self.ui.setupUi(self)
+
+
+        self.ui.search_input.set_data_retriever(self._sg_data_retriever)
+        self.ui.note_reply_widget.set_data_retriever(self._sg_data_retriever)    
+        self.ui.entity_activity_stream.set_data_retriever(self._sg_data_retriever)
+        self.ui.version_activity_stream.set_data_retriever(self._sg_data_retriever)
+
         
         # our current object we are currently displaying
         self._current_location = None
@@ -129,10 +143,6 @@ class AppDialog(QtGui.QWidget):
         self.ui.cancel_search.clicked.connect(self._cancel_search)
         self.ui.search_input.entity_selected.connect(self._on_search_item_selected)
 
-        # make note lists refresh when new notes are created
-        self.ui.entity_note_input.data_updated.connect(lambda : self._load_entity_tab_data(self.ENTITY_TAB_NOTES))
-        self.ui.version_note_input.data_updated.connect(lambda : self._load_version_tab_data(self.VERSION_TAB_NOTES))
-
         # latest publishes only
         self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
         
@@ -155,7 +165,13 @@ class AppDialog(QtGui.QWidget):
         # hyperlink clicking
         self.ui.details_text_header.linkActivated.connect(self._on_link_clicked)
         self.ui.details_text_middle.linkActivated.connect(self._on_link_clicked)
-        self.ui.details_thumb.playback_clicked.connect(self._on_link_clicked)
+        self.ui.details_thumb.playback_clicked.connect(self._playback_version)
+        
+        self.ui.entity_activity_stream.playback_requested.connect(self._playback_version)
+        self.ui.version_activity_stream.playback_requested.connect(self._playback_version)
+        
+        self.ui.entity_activity_stream.entity_requested.connect(self._navigate_to_entity)
+        self.ui.version_activity_stream.entity_requested.connect(self._navigate_to_entity)
         
         # set up the UI tabs. Each tab has a model, a delegate, a view and 
         # an associated enity type
@@ -223,7 +239,7 @@ class AppDialog(QtGui.QWidget):
         # now initialize all tabs. This will add two model and delegate keys
         # to all the dicts
         
-        for tab_dict in self._detail_tabs.values():
+        for (idx, tab_dict) in self._detail_tabs.iteritems():
             
             ModelClass = tab_dict["model_class"]
             DelegateClass = tab_dict["delegate_class"] 
@@ -231,7 +247,16 @@ class AppDialog(QtGui.QWidget):
             self._app.log_debug("Creating %r..." % ModelClass)
             
             # create model 
-            tab_dict["model"] = ModelClass(tab_dict["entity_type"], tab_dict["view"])
+            if idx == (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_HISTORY):
+                # special case for the version history model
+                tab_dict["model"] = ModelClass(tab_dict["entity_type"], 
+                                               self._sg_data_retriever, 
+                                               tab_dict["view"])
+                
+            else:
+                tab_dict["model"] = ModelClass(tab_dict["entity_type"], 
+                                               tab_dict["view"])
+                
             # create proxy for sorting
             tab_dict["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
             tab_dict["sort_proxy"].setSourceModel(tab_dict["model"])
@@ -262,10 +287,19 @@ class AppDialog(QtGui.QWidget):
         self.ui.entity_info_view.verticalHeader().hide()
         self.ui.entity_info_view.horizontalHeader().hide()
 
+        self._version_details_model = SgAllFieldsModel(self.ui.version_info_view)        
+        self.ui.version_info_view.setModel(self._version_details_model.get_table_model())
+        self.ui.version_info_view.verticalHeader().hide()
+        self.ui.version_info_view.horizontalHeader().hide()
+
+        self._publish_details_model = SgAllFieldsModel(self.ui.publish_info_view)        
+        self.ui.publish_info_view.setModel(self._publish_details_model.get_table_model())
+        self.ui.publish_info_view.verticalHeader().hide()
+        self.ui.publish_info_view.horizontalHeader().hide()
+
+        
         # kick off
         self._on_home_clicked()
-
-
 
 
     def closeEvent(self, event):
@@ -284,18 +318,30 @@ class AppDialog(QtGui.QWidget):
         splash.show()
         QtCore.QCoreApplication.processEvents()
 
+        
+
         try:
+            
             # clear the selection in the main views. 
             # this is to avoid re-triggering selection
             # as items are being removed in the models
             #
             # TODO: might have to clear selection models here
             
+            CachedShotgunSchema.unregister_data_retriever(self._sg_data_retriever)
+            
+            self._sg_data_retriever.work_completed.disconnect()
+            self._sg_data_retriever.work_failure.disconnect()
+            self._sg_data_retriever.stop()
+            
             # shut down main details model
             self._details_model.destroy()
+            self._current_user_model.destroy()
             
             # and the all fields model
             self._entity_details_model.destroy()
+            self._version_details_model.destroy()
+            self._publish_details_model.destroy()
             
             # gracefully close all tab model connections
             for tab_dict in self._detail_tabs.values():
@@ -319,7 +365,6 @@ class AppDialog(QtGui.QWidget):
         sets up the UI for the current location
         """
         if self._current_location.entity_type == "Version":
-            self.ui.version_note_input.set_current_entity(self._current_location.entity_dict)
             self.focus_version()
             
         elif self._current_location.entity_type in ["PublishedFile", "TankPublishedFile"]:
@@ -328,8 +373,7 @@ class AppDialog(QtGui.QWidget):
         elif self._current_location.entity_type == "Note":
             self.focus_note()
         
-        else:
-            self.ui.entity_note_input.set_current_entity(self._current_location.entity_dict)
+        else:            
             self.focus_entity()
 
         # update the details area
@@ -433,7 +477,7 @@ class AppDialog(QtGui.QWidget):
         """        
         
         if index == self.ENTITY_TAB_ACTIVITY_STREAM:
-            print "TODO: ADD IMPLEMENTATION"
+            self.ui.entity_activity_stream.set_current_entity(self._current_location.entity_type, self._current_location.entity_id)
         
         elif index == self.ENTITY_TAB_NOTES:            
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
@@ -462,7 +506,7 @@ class AppDialog(QtGui.QWidget):
         """
 
         if index == self.VERSION_TAB_ACTIVITY_STREAM:
-            print "TODO: ADD IMPLEMENTATION"
+            self.ui.version_activity_stream.set_current_entity(self._current_location.entity_type, self._current_location.entity_id)
         
         elif index == self.VERSION_TAB_NOTES:
             self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location)
@@ -471,7 +515,7 @@ class AppDialog(QtGui.QWidget):
             self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location, show_latest_only=False)
             
         elif index == self.VERSION_TAB_INFO:
-            print "TODO: ADD IMPLEMENTATION"
+            self._version_details_model.load_data(self._current_location)
             self.ui.version_info_view.resizeRowsToContents()
             self.ui.version_info_view.resizeColumnsToContents()
             
@@ -492,7 +536,7 @@ class AppDialog(QtGui.QWidget):
             self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(self._current_location)
         
         elif index == self.PUBLISH_TAB_INFO:
-            print "TODO: ADD IMPLEMENTATION"
+            self._publish_details_model.load_data(self._current_location)
             self.ui.publish_info_view.resizeRowsToContents()
             self.ui.publish_info_view.resizeColumnsToContents()
             
@@ -506,7 +550,7 @@ class AppDialog(QtGui.QWidget):
     def _update_current_user(self):        
         """        
         Update the current user icon        
-        """        
+        """
         curr_user_pixmap = self._current_user_model.get_pixmap()        
                 
         # QToolbutton needs a QIcon        
@@ -519,6 +563,15 @@ class AppDialog(QtGui.QWidget):
         if sg_data:        
             self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])        
 
+        self.user_menu = QtGui.QMenu(self)
+        name_action = self.user_menu.addAction(sg_data["name"])
+        url_action = self.user_menu.addAction(self._app.shotgun.base_url.split("://")[1])
+        self.user_menu.addSeparator()
+
+        self.ui.current_user.setMenu(self.user_menu)        
+
+
+
 
     def _refresh_details_thumbnail(self):        
         self.ui.details_thumb.setPixmap(self._details_model.get_pixmap())
@@ -528,28 +581,18 @@ class AppDialog(QtGui.QWidget):
         formatter = self._current_location.sg_formatter        
         sg_data = self._details_model.get_sg_data()
         
+        # set up the thumbnail
+        self.ui.details_thumb.set_shotgun_data(sg_data)
+        
         # populate the text with data
         if sg_data:
-
             (header, body) = formatter.format_entity_details(sg_data) 
-
             self.ui.details_text_header.setText(header)
             self.ui.details_text_middle.setText(body)
-            
-            playback_url = formatter.get_playback_url(sg_data)
             
         else:
             self.ui.details_text_header.setText("")
             self.ui.details_text_middle.setText("")
-            
-            playback_url = None
-            
-        
-        if playback_url:
-            self.ui.details_thumb.set_playback_icon_active(True)
-            self.ui.details_thumb.set_plackback_url(playback_url)
-        else:
-            self.ui.details_thumb.set_playback_icon_active(False)
             
             
     ###################################################################################################
@@ -561,6 +604,32 @@ class AppDialog(QtGui.QWidget):
         sg_item = shotgun_model.get_sg_data(model_index)
         sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
         self._navigate_to(sg_location)
+
+    def _navigate_to_entity(self, entity_type, entity_id):
+        """
+        Navigate to a particular entity 
+        """
+        sg_location = ShotgunLocation(entity_type, entity_id)
+        if sg_location.sg_formatter.should_open_in_shotgun_web:
+            sg_url = sg_location.get_external_url()
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(sg_url))            
+        else:
+            self._navigate_to(sg_location)
+        
+    def _playback_version(self, version_data):
+        """
+        Given version data, play back a version
+        
+        :param version_data: A version dictionary containing version data
+        """
+        url = ShotgunFormatter.get_playback_url(version_data)
+        if url:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+        else:
+            self._app.log_warning("Cannot play back version %s - "
+                                  "no playback url defined." % version_data["id"])
+        
+        
 
     def _on_link_clicked(self, url):
         """
@@ -575,14 +644,7 @@ class AppDialog(QtGui.QWidget):
         else:
             (entity_type, entity_id) = url.split(":")
             entity_id = int(entity_id)
-            
-            sg_location = ShotgunLocation(entity_type, entity_id)
-            if sg_location.sg_formatter.should_open_in_shotgun_web:
-                sg_url = sg_location.get_external_url()
-                QtGui.QDesktopServices.openUrl(QtCore.QUrl(sg_url))
-                                                
-            else:
-                self._navigate_to(sg_location)
+            self._navigate_to_entity(entity_type, entity_id)            
 
     ###################################################################################################
     # navigation
@@ -595,9 +657,9 @@ class AppDialog(QtGui.QWidget):
         # clear any note UIs that may exist. If they return 
         # false, this is an indication that the process
         # was cancelled by the user and that the navigation won't happen
-        if not self.ui.version_note_input.reset():
+        if not self.ui.version_activity_stream.reset():
             return
-        if not self.ui.entity_note_input.reset():
+        if not self.ui.entity_activity_stream.reset():
             return
         
         # chop off history at the point we are currently

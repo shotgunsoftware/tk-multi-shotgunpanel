@@ -18,6 +18,8 @@ import threading
 import datetime
 from . import utils
 
+from .modules.schema import CachedShotgunSchema
+
 class ShotgunFormatter(object):
     """
     
@@ -150,12 +152,7 @@ class ShotgunFormatter(object):
                 
                 # get the nice name from our schema
                 # this is so that it says "Level" instead of "CustomEntity013"
-                entity_info = self._app.metaschema.get_type_info(value["type"])
-                if entity_info:
-                    entity_type_display_name = entity_info["name"]["value"]
-                else:
-                    entity_type_display_name = value["type"]
-                
+                entity_type_display_name = CachedShotgunSchema.get_type_display_name(value["type"])                
                 link_name = "%s %s" % (entity_type_display_name, value["name"])
             else:
                 # links are just "ABC123"
@@ -164,9 +161,13 @@ class ShotgunFormatter(object):
             if not self._generates_links(value["type"]) or directive == "nolink":
                 str_val = link_name
             else:
-                str_val = "<a href='%s:%s' style='text-decoration: none; color: #2C93E2'>%s</a>" % (value["type"], 
-                                                                                             value["id"], 
-                                                                                             link_name)
+                str_val = """<a href='%s:%s' 
+                                style='text-decoration: none; 
+                                color: %s'>%s</a>
+                          """ % (value["type"], 
+                                 value["id"],
+                                 self._app.style_constants["SG_HIGHLIGHT_COLOR"], 
+                                 link_name)
         
         elif isinstance(value, list):
             # list of items
@@ -370,29 +371,23 @@ class ShotgunFormatter(object):
         else:
             raise TankError("Unknown thumbnail style defined in hook!")        
 
-
-    def get_playback_url(self, sg_data):
+    @classmethod
+    def get_playback_url(cls, sg_data):
         """
         returns a url to be used for playback
         """
         
         # TODO - we might want to expose this in the hook at some point
-        if self._entity_type != "Version":
+        if sg_data.get("type") != "Version":
             return None
         
         url = None
         if sg_data.get("sg_uploaded_movie"):
             # there is a web quicktime available!
-            sg_url = sgtk.platform.current_bundle().shotgun.base_url
+            sg_url = sgtk.platform.current_bundle().sgtk.shotgun_url
             url = "%s/page/screening_room?entity_type=%s&entity_id=%d" % (sg_url, sg_data["type"], sg_data["id"])                    
 
         return url
-
-    def _parse_token(self, token_str):
-        """
-        Parse a token (" {foo::directive}
-        """
-        
 
     def _convert_token_string(self, token_str, sg_data):
         """

@@ -19,7 +19,6 @@ shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "sho
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 
 ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
-ShotgunDataRetriever = shotgun_data.ShotgunDataRetriever 
 
 from .model_entity_listing import SgEntityListingModel
 
@@ -33,7 +32,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
     pass
     """
 
-    def __init__(self, entity_type, parent):
+    def __init__(self, entity_type, data_retriever, parent):
         """
         constructor
         """
@@ -51,27 +50,9 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
 
         self._app = sgtk.platform.current_bundle()
         
-        # create a separate sg data fetcher for this model so that we can read in separate 
-        # shotgun data asynchronously
-        self.__sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)
+        self.__sg_data_retriever = data_retriever
         self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
-        self.__sg_data_retriever.start()
-
-
-    def destroy(self):
-        """
-        Call this method prior to destroying this object.
-        This will ensure all worker threads etc are stopped.
-        """
-        # first disconnect our worker completely
-        self.__sg_data_retriever.work_completed.disconnect(self.__on_worker_signal)
-        self.__sg_data_retriever.work_failure.disconnect(self.__on_worker_failure)
-        # gracefully stop thread
-        self.__sg_data_retriever.stop()
-        # call base class
-        ShotgunOverlayModel.destroy(self)
-
 
     ############################################################################################
     # slots
@@ -84,10 +65,10 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         uid = shotgun_model.sanitize_qt(uid) # qstring on pyqt, str on pyside
         msg = shotgun_model.sanitize_qt(msg)
 
-        self._app.log_warning("History model query error: %s" % msg)
-        
-        full_msg = "Error retrieving data from Shotgun: %s" % msg        
-        self._show_overlay_error_message(full_msg)
+        if uid == self._sg_query_id: 
+            self._app.log_warning("History model query error: %s" % msg)
+            full_msg = "Error retrieving data from Shotgun: %s" % msg        
+            self._show_overlay_error_message(full_msg)
         
 
     def __on_worker_signal(self, uid, request_type, data):
@@ -95,15 +76,14 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         Signaled whenever the worker completes something.
         This method will dispatch the work to different methods
         depending on what async task has completed.
-        """
-        
-        # hide spinner
-        self._hide_overlay_info()        
-        
+        """        
         uid = shotgun_model.sanitize_qt(uid) # qstring on pyqt, str on pyside
         data = shotgun_model.sanitize_qt(data)
 
         if self._sg_query_id == uid:
+            # hide spinner
+            self._hide_overlay_info()        
+
             # process the data
             sg_records = data["sg"]
             

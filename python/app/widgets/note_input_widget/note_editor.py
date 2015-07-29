@@ -15,7 +15,6 @@ from sgtk.platform.qt import QtCore, QtGui
 
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-ShotgunDataRetriever = shotgun_data.ShotgunDataRetriever
 
  
 class NoteEditor(QtGui.QTextEdit):
@@ -23,10 +22,7 @@ class NoteEditor(QtGui.QTextEdit):
     A Shotgun note creation/reply editor with user and group auto
     completion.
     """
-    
-    # signal that gets emitted whenever this widget receives focus
-    on_focus = QtCore.Signal()
-    
+        
     # internal role constant defining where the auto completer
     # stores shotgun data
     _SG_DATA_ROLE = QtCore.Qt.UserRole + 1
@@ -36,10 +32,7 @@ class NoteEditor(QtGui.QTextEdit):
         Constructor
         
         :param parent: QT parent object
-        """
-        # set default placeholder text 
-        self._placeholder_text = "Create new Note..."
-         
+        """         
         QtGui.QTextEdit.__init__(self, parent)
         
         # set up some handy references
@@ -51,11 +44,8 @@ class NoteEditor(QtGui.QTextEdit):
         # list of users that have been pushed through via auto completion
         self._users_selected = []
         
-        # create a separate sg data handler for submission
-        self.__sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)
-        self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
-        self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
-        self.__sg_data_retriever.start()
+        # have a sg data handler for submission
+        self.__sg_data_retriever = None
         
         # configure our popup completer
         self._completer = QtGui.QCompleter(self)
@@ -66,22 +56,22 @@ class NoteEditor(QtGui.QTextEdit):
 
         # configure popup data source
         self._model = QtGui.QStandardItemModel(self) 
-        self._clear_model()        
+        self._clear_model()    
         self._completer.setModel(self._model)        
 
         self._completer.activated[QtCore.QModelIndex].connect(self._insert_completion)
+
+    def set_data_retriever(self, data_retriever):
+        
+        # create a separate sg data handler for submission
+        self.__sg_data_retriever = data_retriever
+        self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
+        self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)        
+        
         
     ##########################################################################################
     # public interface
     
-    def set_placeholder_text(self, text):
-        """
-        Set the placeholder text that should be shown.
-        
-        :param text: Text to display
-        """
-        self._placeholder_text = text
-
     def reset(self):
         """
         Clear editor state
@@ -95,7 +85,6 @@ class NoteEditor(QtGui.QTextEdit):
         
         :returns: list of shotgun link dictionaries with name, type and id
         """
-        
         # first get the *html* contents of the editor
         html_content = self.toHtml()
         
@@ -119,22 +108,6 @@ class NoteEditor(QtGui.QTextEdit):
     ##########################################################################################
     # overridden event handlers
                 
-    def paintEvent(self, event):
-        """
-        Render the placeholder text in the UI.
-        """
-        if self.toPlainText() == "" and not self.hasFocus():
-            # not in focus and no text entered
-            painter = QtGui.QPainter()
-            painter.begin(self.viewport()) 
-            try:
-                painter.drawText(self.geometry(), QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop, self._placeholder_text)                    
-            finally:
-                painter.end()
-        else:
-            # call parent class implementation
-            QtGui.QTextEdit.paintEvent(self, event)
-        
     def focusInEvent(self, event):
         """
         Event that fires when the widget receives focus.
@@ -145,8 +118,6 @@ class NoteEditor(QtGui.QTextEdit):
         self._completer.setWidget(self)
         # run base class
         QtGui.QTextEdit.focusInEvent(self, event)
-        # emit our new signal
-        self.on_focus.emit()
 
 
     def keyPressEvent(self, event):

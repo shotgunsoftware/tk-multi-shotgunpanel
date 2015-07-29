@@ -13,7 +13,6 @@ import sgtk
 
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-ShotgunDataRetriever = shotgun_data.ShotgunDataRetriever
 
 from sgtk.platform.qt import QtCore, QtGui
  
@@ -46,18 +45,14 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         QtGui.QLineEdit.__init__(self, parent)
 
         # set up some handy references
-        self._app = sgtk.platform.current_bundle()      
+        self._app = sgtk.platform.current_bundle()
+        
+        self.__sg_data_retriever = None
         
         self._processing_id = None
         self._thumb_map = {}
         self._default_icon = QtGui.QPixmap(":/tk_multi_infopanel_global_search_widget/rect_512x400.png")
-        
-        # create a separate sg data handler for submission
-        self.__sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)
-        self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
-        self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
-        self.__sg_data_retriever.start()    
-        
+                
         # configure our popup completer
         self._completer = QtGui.QCompleter(self)
         self._completer.setMaxVisibleItems(10)
@@ -73,7 +68,13 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         # hook up completer and trigger reload on keypress
         self.textEdited.connect(self._on_text_changed)
         
-
+    def set_data_retriever(self, data_retriever):
+        
+        # create a separate sg data handler for submission
+        self.__sg_data_retriever = data_retriever
+        self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
+        self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
+                
     def _clear_model(self, add_loading_item = True):
         """
         Clears the current data in the model.
@@ -152,8 +153,10 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         :param data: data dictionary passed in from _submit()
         """
         entity_types = {}
+        entity_types["Project"] = {}
         entity_types["Asset"] = {}
         entity_types["Shot"] = {}
+        entity_types["Task"] = {}
         entity_types["HumanUser"] = {"filters": [["sg_status_list", "is", "act"]]}
         entity_types["Group"] = {}
         entity_types["ClientUser"] = {}
