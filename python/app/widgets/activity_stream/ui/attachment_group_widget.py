@@ -14,7 +14,7 @@ class Ui_AttachmentGroupWidget(object):
         AttachmentGroupWidget.resize(345, 182)
         self.verticalLayout = QtGui.QVBoxLayout(AttachmentGroupWidget)
         self.verticalLayout.setSpacing(0)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setContentsMargins(36, 6, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.preview_frame = QtGui.QFrame(AttachmentGroupWidget)
         self.preview_frame.setFrameShape(QtGui.QFrame.NoFrame)

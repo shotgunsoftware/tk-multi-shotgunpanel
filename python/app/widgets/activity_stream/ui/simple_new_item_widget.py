@@ -74,4 +74,3 @@ class Ui_SimpleNewItemWidget(object):
 
 from ..thumbnail_widgets import UserThumbnail
 from . import resources_rc
-from . import resources_rc
