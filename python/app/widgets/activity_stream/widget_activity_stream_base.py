@@ -48,6 +48,18 @@ class ActivityStreamBaseWidget(QtGui.QWidget):
         self._entity_type = entity_type
         self._entity_id = entity_id    
     
+    @property
+    def entity_type(self):
+        return self._entity_type
+    
+    @property
+    def entity_id(self):
+        return self._entity_id
+    
+    @property
+    def activity_id(self):
+        return self._activity_id
+
     def set_info(self, data):
         """
         Populate text fields for this widget
@@ -56,6 +68,7 @@ class ActivityStreamBaseWidget(QtGui.QWidget):
         """
         self._target_entity_type = data["primary_entity"]["type"] 
         self._target_entity_id = data["primary_entity"]["id"]
+        self._activity_id = data["id"]
         
     def set_thumbnail(self, image, thumbnail_type):
         """
@@ -185,7 +198,6 @@ class ActivityStreamBaseWidget(QtGui.QWidget):
                          self._app.style_constants["SG_HIGHLIGHT_COLOR"], 
                          name)
         return str_val
-    
     
     def _generate_entity_url(self, entity, this_syntax=True, display_type=True):
         """

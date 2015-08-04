@@ -15,3 +15,24 @@ QLabel#loading_label {
     border: rgba(200, 200, 200, 50%)
 }
 
+
+#reply_button {
+    border: 1px solid rgba(200, 200, 200, 50%);
+    border-radius: 3px;
+    color: rgba(200, 200, 200, 50%);
+}
+
+#reply_button:hover {
+    color: rgb(200, 200, 200);
+}
+
+#date {
+    color: rgba(200, 200, 200, 40%);
+}
+
+#full_shotgun_stream_button {
+    border: none;
+    color: rgba(200, 200, 200, 50%);
+    padding-left: 60px;
+    font-size: 9px;
+}

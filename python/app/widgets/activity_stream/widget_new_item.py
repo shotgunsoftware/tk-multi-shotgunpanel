@@ -12,6 +12,7 @@ from sgtk.platform.qt import QtCore, QtGui
 
 from .widget_activity_stream_base import ActivityStreamBaseWidget
 from .ui.new_item_widget import Ui_NewItemWidget
+from .ui.simple_new_item_widget import Ui_SimpleNewItemWidget
 
 from .data_manager import ActivityStreamDataHandler
 from . import utils
@@ -118,8 +119,7 @@ class NewItemWidget(ActivityStreamBaseWidget):
         self.ui.details_thumb.set_shotgun_data(primary_entity)
             
 
-
-    def set_thumbnail(self, image, thumbnail_type):
+    def set_thumbnail(self, data):
         """
         Populate the UI with the given thumbnail
         
@@ -128,7 +128,15 @@ class NewItemWidget(ActivityStreamBaseWidget):
             ActivityStreamDataHandler.THUMBNAIL_CREATED_BY
             ActivityStreamDataHandler.THUMBNAIL_ENTITY
             ActivityStreamDataHandler.THUMBNAIL_ATTACHMENT
-        """
+        """        
+        activity_id = data["activity_id"]
+        
+        if activity_id != self.activity_id:
+            return
+        
+        thumbnail_type = data["thumbnail_type"]
+        image = data["image"]
+                
         if thumbnail_type == ActivityStreamDataHandler.THUMBNAIL_CREATED_BY:
             thumb = utils.create_round_thumbnail(image)          
             self.ui.user_thumb.setPixmap(thumb)
@@ -136,4 +144,113 @@ class NewItemWidget(ActivityStreamBaseWidget):
         elif thumbnail_type == ActivityStreamDataHandler.THUMBNAIL_ENTITY:
             thumb = utils.create_rectangular_256x144_thumbnail(image)
             self.ui.details_thumb.setPixmap(thumb)
+        
+
+
+
+
+
+
+class SimpleNewItemWidget(ActivityStreamBaseWidget):
+    """
+    Widget that displays a series of replies to a note
+    """
+    
+    def __init__(self, parent):
+        """
+        Constructor
+        
+        :param parent: QT parent object
+        """
+
+        # first, call the base class and let it do its thing.
+        ActivityStreamBaseWidget.__init__(self, parent)
+        
+        # now load in the UI that was created in the UI designer
+        self.ui = Ui_SimpleNewItemWidget() 
+        self.ui.setupUi(self)
+        
+        # make sure that click on hyperlinks bubble up
+        self.ui.header_left.linkActivated.connect(self._entity_request_from_url)        
+        self.ui.user_thumb.clicked.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))
+        
+    ##############################################################################
+    # public interface
+        
+    def set_info(self, data):
+        """
+        Populate text fields for this widget.
+        
+        Example of data:
+        
+            {'created_at': 1437322777.0,
+             'created_by': {'id': 38,
+                            'image': '',
+                            'name': 'Manne Ohrstrom',
+                            'status': 'act',
+                            'type': 'HumanUser'},
+             'id': 116,
+             'meta': {'entity_id': 6007, 'entity_type': 'Version', 'type': 'new_entity'},
+             'primary_entity': {'description': 'testing testing\n\n1\n\n2\n\n3',
+                                'id': 6007,
+                                'image': '',
+                                'name': 'note_addressing',
+                                'sg_uploaded_movie': {'content_type': 'video/quicktime',
+                                                      'id': 180,
+                                                      'link_type': 'upload',
+                                                      'name': 'note_addressing.mov',
+                                                      'type': 'Attachment',
+                                                      'url': ''},
+                                'status': 'rev',
+                                'type': 'Version'},
+             'read': False,
+             'update_type': 'create'}
+        
+        
+        
+        :param data: data dictionary with activity stream info. 
+        """
+        # call base class
+        ActivityStreamBaseWidget.set_info(self, data)
+        
+        # make the user icon clickable
+        self.ui.user_thumb.set_shotgun_data(data["created_by"])
+        
+        # set standard date and header fields
+        self._set_timestamp(data, self.ui.date)
+        
+        primary_entity = data["primary_entity"]
+        entity_url = self._generate_entity_url(primary_entity, this_syntax=False)        
+        
+        header = "%s was created" % entity_url
+        
+        # add link if there is a link field that is populated
+        if "entity" in primary_entity and primary_entity["entity"]:
+            link_url = self._generate_entity_url(primary_entity["entity"])
+            header += " on %s" % link_url
+        
+        self.ui.header_left.setText(header)
+            
+
+    def set_thumbnail(self, data):
+        """
+        Populate the UI with the given thumbnail
+        
+        :param image: QImage with thumbnail data
+        :param thumbnail_type: thumbnail enum constant:
+            ActivityStreamDataHandler.THUMBNAIL_CREATED_BY
+            ActivityStreamDataHandler.THUMBNAIL_ENTITY
+            ActivityStreamDataHandler.THUMBNAIL_ATTACHMENT
+        """        
+        activity_id = data["activity_id"]
+        
+        if activity_id != self.activity_id:
+            return
+        
+        thumbnail_type = data["thumbnail_type"]
+        image = data["image"]
+                
+        if thumbnail_type == ActivityStreamDataHandler.THUMBNAIL_CREATED_BY:
+            thumb = utils.create_round_thumbnail(image)          
+            self.ui.user_thumb.setPixmap(thumb)
         

@@ -67,6 +67,13 @@ class NoteEditor(QtGui.QTextEdit):
         self.__sg_data_retriever = data_retriever
         self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)        
+
+    def destroy(self):        
+        
+        if self.__sg_data_retriever:
+            self.__sg_data_retriever.work_completed.disconnect(self.__on_worker_signal)
+            self.__sg_data_retriever.work_failure.disconnect(self.__on_worker_failure)
+            self.__sg_data_retriever = None
         
         
     ##########################################################################################
@@ -118,7 +125,6 @@ class NoteEditor(QtGui.QTextEdit):
         self._completer.setWidget(self)
         # run base class
         QtGui.QTextEdit.focusInEvent(self, event)
-
 
     def keyPressEvent(self, event):
         """

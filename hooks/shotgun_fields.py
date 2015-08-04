@@ -215,7 +215,7 @@ class ShotgunConfiguration(HookBaseClass):
                     
         elif entity_type == "Project":
             
-            values["title"] = "Project {name} ({sg_status_list})"
+            values["title"] = "Project {name} ({sg_status})"
             
             values["body"] = """
                 Name: {name}<br>

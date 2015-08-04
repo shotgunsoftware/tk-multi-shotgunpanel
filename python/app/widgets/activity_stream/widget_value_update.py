@@ -41,6 +41,7 @@ class ValueUpdateWidget(ActivityStreamBaseWidget):
         # make sure clicks propagate upwards in the hierarchy
         self.ui.footer.linkActivated.connect(self._entity_request_from_url)
         self.ui.header_left.linkActivated.connect(self._entity_request_from_url)
+        self.ui.user_thumb.clicked.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))
 
     ##############################################################################
     # public interface        
@@ -128,8 +129,7 @@ class ValueUpdateWidget(ActivityStreamBaseWidget):
         
         self.ui.header_left.setText(full_str)
         
-
-    def set_thumbnail(self, image, thumbnail_type):
+    def set_thumbnail(self, data):
         """
         Populate the UI with the given thumbnail
         
@@ -138,8 +138,16 @@ class ValueUpdateWidget(ActivityStreamBaseWidget):
             ActivityStreamDataHandler.THUMBNAIL_CREATED_BY
             ActivityStreamDataHandler.THUMBNAIL_ENTITY
             ActivityStreamDataHandler.THUMBNAIL_ATTACHMENT
-        """
+        """        
+        activity_id = data["activity_id"]
+        
+        if activity_id != self.activity_id:
+            return
+        
+        thumbnail_type = data["thumbnail_type"]
+        image = data["image"]
+                
         if thumbnail_type == ActivityStreamDataHandler.THUMBNAIL_CREATED_BY:
             thumb = utils.create_round_thumbnail(image)          
             self.ui.user_thumb.setPixmap(thumb)
-
+        

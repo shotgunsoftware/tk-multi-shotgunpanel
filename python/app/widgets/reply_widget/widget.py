@@ -36,8 +36,9 @@ class ReplyListWidget(QtGui.QWidget):
         self.ui.setupUi(self)
         
         # set up our reply area
-        self.ui.reply_input.set_placeholder_text("Reply to this Note...")
         self.ui.reply_input.data_updated.connect(self.refresh)
+
+        self.ui.reply_input.set_reply_mode(True)
         
         # holds the note that we are associating with
         self._current_entity_link = None

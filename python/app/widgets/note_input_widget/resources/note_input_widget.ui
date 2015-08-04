@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
-    <height>80</height>
+    <width>363</width>
+    <height>203</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -28,20 +28,8 @@
    </property>
    <item>
     <widget class="QStackedWidget" name="stacked_widget">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>80</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>80</height>
-      </size>
-     </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="note_editor_page">
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -87,7 +75,7 @@
             <bool>true</bool>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignBottom|Qt::AlignHCenter</set>
            </property>
           </widget>
          </item>
@@ -96,6 +84,26 @@
            <property name="spacing">
             <number>3</number>
            </property>
+           <item>
+            <widget class="QToolButton" name="close">
+             <property name="toolTip">
+              <string>Cancel</string>
+             </property>
+             <property name="text">
+              <string>Attach Screenshot</string>
+             </property>
+             <property name="icon">
+              <iconset resource="resources.qrc">
+               <normaloff>:/tk_multi_infopanel_note_input_widget/close.png</normaloff>:/tk_multi_infopanel_note_input_widget/close.png</iconset>
+             </property>
+             <property name="toolButtonStyle">
+              <enum>Qt::ToolButtonIconOnly</enum>
+             </property>
+             <property name="autoRaise">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
            <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
@@ -177,7 +185,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QFrame" name="frame">
+        <widget class="QFrame" name="new_note_frame">
          <property name="styleSheet">
           <string notr="true"/>
          </property>
@@ -189,12 +197,44 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <widget class="QLabel" name="placeholder_label">
+           <widget class="QLabel" name="new_note_placeholder">
             <property name="text">
              <string>Click to create a new note...</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="reply_preview_page">
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QFrame" name="reply_frame">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QLabel" name="reply_placeholder">
+            <property name="text">
+             <string>Click to Reply...</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>

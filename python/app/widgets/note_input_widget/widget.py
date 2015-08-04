@@ -18,6 +18,8 @@ shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "sho
 
 from sgtk.platform.qt import QtCore, QtGui
 
+from sgtk import TankError
+
 from .ui.note_input_widget import Ui_NoteInputWidget
 from .overlaywidget import SmallOverlayWidget
 from .. import screen_grab  
@@ -27,9 +29,9 @@ class NoteInputWidget(QtGui.QWidget):
     Widget that can be used for note and thumbnail input and creation.
     """
     
-    EDITOR_MODE = 0
-    BANNER_MODE = 1
-    
+    _EDITOR_WIDGET_INDEX = 0
+    _NEW_NOTE_WIDGET_INDEX = 1
+    _REPLY_WIDGET_INDEX = 2
     
     # emitted when shotgun has been updated
     data_updated = QtCore.Signal()
@@ -47,6 +49,8 @@ class NoteInputWidget(QtGui.QWidget):
         self.ui.setupUi(self)
 
         self._load_stylesheet()
+        
+        self._reply_mode = False
         
         # set up some handy references
         self._app = sgtk.platform.current_bundle()        
@@ -66,11 +70,23 @@ class NoteInputWidget(QtGui.QWidget):
         self.__sg_data_retriever = None
         
         # hook up signals and slots
-        self.ui.screenshot.clicked.connect(self._on_screenshot_clicked)
+        self.ui.screenshot.clicked.connect(self._screenshot_or_clear)
         self.ui.submit.clicked.connect(self._submit)
+        self.ui.close.clicked.connect(self._cancel)
 
         # reset state of the UI
         self.reset()
+        
+    def destroy(self):
+        """
+        disconnect and prepare for this object
+        to be garbage collected
+        """
+        self.ui.text_entry.destroy()
+        if self.__sg_data_retriever:
+            self.__sg_data_retriever.work_completed.disconnect(self.__on_worker_signal)
+            self.__sg_data_retriever.work_failure.disconnect(self.__on_worker_failure)
+            self.__sg_data_retriever = None
         
     def set_data_retriever(self, data_retriever):
         
@@ -81,7 +97,30 @@ class NoteInputWidget(QtGui.QWidget):
         
         self.ui.text_entry.set_data_retriever(data_retriever)
         
+    def set_reply_mode(self, enabled):
+        self._reply_mode = enabled
+        self.reset()
         
+    def _adjust_ui(self):
+        """
+        adjust the UI to be optimal size depending on view
+        """
+        if self.ui.stacked_widget.currentIndex() == self._NEW_NOTE_WIDGET_INDEX:
+            self.setMinimumSize(QtCore.QSize(0, 80))
+            self.setMaximumSize(QtCore.QSize(16777215, 80))
+             
+        elif self.ui.stacked_widget.currentIndex() == self._REPLY_WIDGET_INDEX:
+            self.setMinimumSize(QtCore.QSize(0, 36))
+            self.setMaximumSize(QtCore.QSize(16777215, 36))
+         
+        elif self.ui.stacked_widget.currentIndex() == self._EDITOR_WIDGET_INDEX:
+            self.setMinimumSize(QtCore.QSize(0, 120))
+            self.setMaximumSize(QtCore.QSize(16777215, 120))
+             
+        else:
+            self._app.log_warning("cannot adjust unknown ui mode.")             
+        
+    
     def _load_stylesheet(self):
         """
         Loads in a stylesheet from disk
@@ -94,9 +133,8 @@ class NoteInputWidget(QtGui.QWidget):
             self.setStyleSheet(qss_data)
         finally:
             f.close()
-
-        
-    def reset(self):
+      
+    def reset(self, force=False):
         """
         Rest the state of the widget completely.
         Clear any input.
@@ -105,7 +143,8 @@ class NoteInputWidget(QtGui.QWidget):
         :returns: true if reset was completed, false if reset couldn't be
                   completed because the user cancelled the operation.
         """
-        if self.ui.text_entry.toPlainText() != "":
+        if not force and self.ui.text_entry.toPlainText() != "":
+            
             # this is similar to what Chrome prompts
             # when you are about to nagivate away from a page
             # where you have entered text 
@@ -120,7 +159,12 @@ class NoteInputWidget(QtGui.QWidget):
         
         self.ui.text_entry.reset()
 
-        self.ui.stacked_widget.setCurrentIndex(self.BANNER_MODE)
+        if self._reply_mode:
+            self.ui.stacked_widget.setCurrentIndex(self._REPLY_WIDGET_INDEX)
+        else:
+            self.ui.stacked_widget.setCurrentIndex(self._NEW_NOTE_WIDGET_INDEX)
+        
+        self._adjust_ui()        
         
         # reset data state
         self._processing_id = None
@@ -143,23 +187,22 @@ class NoteInputWidget(QtGui.QWidget):
         self._entity_type = entity_type
         self._entity_id = entity_id
 
-    def set_placeholder_text(self, msg):
-        """
-        Sets the placeholder message to display
-        
-        :param msg: Placeholder text
-        """
-        self.ui.placeholder_label.setText("<i>%s</i>" % msg)
-
     def mousePressEvent(self, event):
         """
         User clicks the preview part of the widget
         """
-        self.ui.stacked_widget.setCurrentIndex(self.EDITOR_MODE)
+        self.ui.stacked_widget.setCurrentIndex(self._EDITOR_WIDGET_INDEX)
         self.ui.text_entry.setFocus()
         self.ui.hint_label.show()
+        self._adjust_ui()
 
-    def _on_screenshot_clicked(self):
+    def _cancel(self):
+        """
+        Cancel editing, no questions asked 
+        """
+        self.reset(force=True)
+
+    def _screenshot_or_clear(self):
         """
         Screenshot button is clicked. This either means that 
         a screenshot should be taken or that it should be cleared.
@@ -192,6 +235,8 @@ class NoteInputWidget(QtGui.QWidget):
         """
         Creates items in Shotgun and clears the widget.
         """
+        # hide hint label for better ux.
+        self.ui.hint_label.hide()
         self.__overlay.start_spin()
         
         # get all publish details from the UI

@@ -11,6 +11,7 @@
 from sgtk.platform.qt import QtCore, QtGui
 
 import sgtk
+import copy
 import time
 import os
 import sys
@@ -31,14 +32,22 @@ class ActivityStreamDataHandler(QtCore.QObject):
     for performance.
     """
     
-    PROTOCOL_VERSION = 1
-    MAX_ITEMS_TO_GET_FROM_SG = 100
+    DATBASE_FORMAT_VERSION = 13
     
-    (THUMBNAIL_CREATED_BY, THUMBNAIL_ENTITY, THUMBNAIL_ATTACHMENT) = range(3)
+    # max number of items to pull from shotgun
+    # typically the updates are incremental and hence smaller
+    MAX_ITEMS_TO_GET_FROM_SG = 300
+    
+    # define the different types of thumbnails that can be 
+    # handled by the activity stream
+    (THUMBNAIL_CREATED_BY, 
+     THUMBNAIL_ENTITY, 
+     THUMBNAIL_USER,
+     THUMBNAIL_ATTACHMENT) = range(4)
     
     
     update_arrived = QtCore.Signal(list)
-    note_arrived = QtCore.Signal(int)
+    note_arrived = QtCore.Signal(int, int)
     thumbnail_arrived = QtCore.Signal(dict)
     
     def __init__(self, parent):
@@ -52,32 +61,34 @@ class ActivityStreamDataHandler(QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
         
         # set up some handy references
-        self._app = sgtk.platform.current_bundle()      
+        self._app = sgtk.platform.current_bundle()
+
+        # default not found/loading thumb
+        self._default_icon = QtGui.QPixmap(":/tk_multi_infopanel_global_search_widget/rect_512x400.png")
 
         # cache path on disk
         self._cache_path = os.path.join(self._app.cache_location, 
-                                         "activity_stream_v%s.sqlite" % self.PROTOCOL_VERSION)
+                                         "activity_stream_v%s.sqlite" % self.DATBASE_FORMAT_VERSION)
 
         # set up a data retriever
         self._sg_data_retriever = None
                 
         # set up defaults
         self.__reset()
-        self._default_icon = QtGui.QPixmap(":/tk_multi_infopanel_global_search_widget/rect_512x400.png")
-
-    def set_data_retriever(self, data_retriever):
         
-        # create a separate sg data handler for submission
+    def set_data_retriever(self, data_retriever):
+        """
+        Set the async data retriever that is used to load data.
+        This needs to happen prior to running any updates.
+        """
         self._sg_data_retriever = data_retriever
         self._sg_data_retriever.work_completed.connect(self.__on_worker_signal)
         self._sg_data_retriever.work_failure.connect(self.__on_worker_failure)
 
-
     def __reset(self):
         """
         Reset all values
-        """
-        
+        """        
         if self._sg_data_retriever:
             self._sg_data_retriever.clear()
         self._entity_type = None
@@ -173,15 +184,45 @@ class ActivityStreamDataHandler(QtCore.QObject):
         """
         Returns the data for a given activity id
         """
-        return self._activity_data[activity_id]
+        return self._activity_data.get(activity_id)
 
     def get_note(self, note_id):
         """
         Returns the note for a given activity id
         """
-        return self._note_threads[note_id]
+        return self._note_threads.get(note_id)
         
-    def request_thumbnails(self, activity_id):
+    def request_user_thumbnail(self, entity_type, entity_id):
+        """
+        Request the thumbnail for a given user
+        """
+        uid = self._sg_data_retriever.request_thumbnail("no_url_given", 
+                                                        entity_type, 
+                                                        entity_id, 
+                                                        "image",
+                                                        load_image=True)
+        self._thumb_map[uid] = {"activity_id": None,
+                                "entity": {"type": entity_type, "id": entity_id}, 
+                                "thumbnail_type": self.THUMBNAIL_USER}
+        
+        
+    def request_attachment_thumbnail(self, activity_id, attachment_group_id, sg_data):
+        """
+        Given shotgun data for an attachment, schedule a thumbnail 
+        download
+        """
+        uid = self._sg_data_retriever.request_thumbnail(sg_data["image"], 
+                                                        sg_data["type"], 
+                                                        sg_data["id"], 
+                                                        "image",
+                                                        load_image=True)
+        self._thumb_map[uid] = {"activity_id": activity_id,
+                                "attachment_group_id": attachment_group_id, 
+                                "entity": {"type": sg_data["type"], 
+                                           "id": sg_data["id"]}, 
+                                "thumbnail_type": self.THUMBNAIL_ATTACHMENT}
+        
+    def request_activity_thumbnails(self, activity_id):
         """
         Request thumbs for an event
         Depending the event type, multiple thumbs may be returned.
@@ -191,16 +232,39 @@ class ActivityStreamDataHandler(QtCore.QObject):
         created_by = activity_data["created_by"] 
         entity = activity_data["primary_entity"]
         
-        if created_by and created_by.get("image"):
+        
+        if entity and entity["type"] == "Note":
+            # special logic for notes - for these, the created by thumbnail
+            # is who created the *note* rather than who created the activity
+            # entry. This ie because when someone replies to a note, the
+            # activity will be created by the reply-er but we still want to
+            # display the thumbnail of the original author of the note.  
+            if "created_by.HumanUser.image" in entity:
+                # note has a created-by field populated
+                # (some data oddly enough doesn't!)
+                uid = self._sg_data_retriever.request_thumbnail(entity["created_by.HumanUser.image"], 
+                                                                entity["created_by"]["id"], 
+                                                                entity["created_by"]["type"], 
+                                                                "image",
+                                                                load_image=True)
+                self._thumb_map[uid] = {"activity_id": activity_id, 
+                                        "thumbnail_type": self.THUMBNAIL_CREATED_BY}
+            else:
+                self._app.log_warning("No thumbnail found for this note!")
+            
+        elif created_by and created_by.get("image"):
+            # for all other activities, the thumbnail reflects who
+            # created the activity
             uid = self._sg_data_retriever.request_thumbnail(created_by["image"], 
                                                             created_by["type"], 
                                                             created_by["id"], 
                                                             "image",
                                                             load_image=True)
             self._thumb_map[uid] = {"activity_id": activity_id, 
-                                    "type": self.THUMBNAIL_CREATED_BY}
+                                    "thumbnail_type": self.THUMBNAIL_CREATED_BY}
              
         # see if there is a thumbnail for the main object
+        # e.g. for versions and thumbnails
         if entity and entity.get("image"):
             uid = self._sg_data_retriever.request_thumbnail(entity["image"], 
                                                             entity["type"], 
@@ -208,7 +272,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
                                                             "image",
                                                             load_image=True)
             self._thumb_map[uid] = {"activity_id": activity_id, 
-                                    "type": self.THUMBNAIL_ENTITY}         
+                                    "thumbnail_type": self.THUMBNAIL_ENTITY}            
 
 
     ###########################################################################
@@ -219,7 +283,6 @@ class ActivityStreamDataHandler(QtCore.QObject):
         Sets up the database if it doesn't exist.
         Returns a handle that must be closed.
         """
-                
         connection = sqlite3.connect(self._cache_path)
         
         # this is to handle unicode properly - make sure that sqlite returns 
@@ -287,9 +350,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
                               SELECT a.activity_id, a.payload, n.note_id, n.payload
                               FROM activity a
                               INNER JOIN entity e on e.activity_id = a.activity_id
-                              
                               LEFT OUTER JOIN note n on a.note_id = n.note_id
-                              
                               WHERE e.entity_type=? and e.entity_id=? 
                               order by a.activity_id desc
                               LIMIT ?
@@ -300,9 +361,38 @@ class ActivityStreamDataHandler(QtCore.QObject):
                 activity_payload = data[1]
                 note_id = data[2]
                 note_payload = data[3]
-                activities[activity_id] = cPickle.loads(str(activity_payload)) 
+                
+                activity_data = cPickle.loads(str(activity_payload))
+                
+                # if the activity links to a note and this note
+                # has already been registered, skip the activity altogether.
+                # this is handling the case where we only want to show a note
+                # once in the activity stream, even if the stream contains
+                # several note-reply items. Because we are going through the 
+                # sql recordset in descending id order, all duplicate 
+                # records after the first discovered (most recent) are 
+                # discarded
+                pe = activity_data.get("primary_entity")
+                if pe and pe.get("type") == "Note" and pe.get("id") in notes: 
+                    continue
+                
+                activities[activity_id] = activity_data
+                
                 if note_id:
                     notes[note_id] = cPickle.loads(str(note_payload))
+
+                # now for items where there is just the note created
+                # and no note updates yet, we haevn't pulled down
+                # the entire conversation separately (no need as we 
+                # already have all the info in the activity stream data).
+                # In this case, turn the primary entity in the stream
+                # (which represents the note entity itself) into the 
+                # first item in a note data list.                
+                elif activity_data["update_type"] == "create" and pe and pe.get("type") == "Note":
+                    # primary entity is a note but we didn't have
+                    # the conversation stored!
+                    notes[pe["id"]] = [pe]
+                
             
         except:
             # supress and continue
@@ -319,7 +409,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
             
         return (activities, notes)
             
-        
+            
     def __db_insert_activity_updates(self, entity_type, entity_id, events):
         """
         Adds a number of records to the activity db. If they 
@@ -367,7 +457,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
                     connection.close()
             except:
                 self._app.log_exception("Could not close database handle")
-            
+        self._app.log_debug("...update complete")
             
     def __db_insert_note_update(self, update_id, note_id, data):
         """
@@ -417,24 +507,42 @@ class ActivityStreamDataHandler(QtCore.QObject):
             except:
                 self._app.log_exception("Could not close database handle")
             
-
-
-
-    
     ###########################################################################
-    # public interface        
+    # private methods        
         
     def _get_note_thread(self, sg, data):
         """
+        Async callback called by the data retriever.
+        Retrieves the entire note conversation for a given note
         """
         note_id = data["note_id"]
-        sg_data = sg.note_thread_read(note_id)
+        
+        entity_fields ={ 
+            "Note":       ["addressings_cc", 
+                           "addressings_to",
+                           "playlist", 
+                           "user",
+                           "content",
+                           "body",
+                           "note_links",
+                           "created_by",
+                           "created_by.HumanUser.image",
+                           "created_at",
+                           "read_by_current_user",
+                           "subject",
+                           "tasks"],
+              "Reply":      [ "content", "updated_at", "user.HumanUser.image", "user"], 
+              "Attachment": [ "this_file", "image", "attachment_links"]
+            }        
+        
+        sg_data = sg.note_thread_read(note_id, entity_fields)
+        
         return sg_data
         
         
     def _get_activity_stream(self, sg, data):
         """
-        Actual payload for creating things in shotgun.
+        Actual payload for getting actity stream data from shotgun
         Note: This runs in a different thread and cannot access
         any QT UI components.
         
@@ -449,15 +557,23 @@ class ActivityStreamDataHandler(QtCore.QObject):
                           "Shot": ["image"],
                           "Asset": ["image"],
                           "Sequence": ["image"],
+                          "Note": ["addressings_cc", 
+                           "addressings_to",
+                           "playlist", 
+                             "user",
+                             "content",
+                             "body",
+                             "note_links",
+                             "created_by",
+                             "created_at",
+                             "created_by.HumanUser.image",
+                             "read_by_current_user",
+                             "subject",
+                             "tasks"], 
                           "Version": ["description", "sg_uploaded_movie", "image", "entity"],
                           "PublishedFile": ["description", "sg_uploaded_movie", "image", "entity"],
                           "TankPublishedFile": ["description", "sg_uploaded_movie", "image", "entity"],
                           }
-         
-#                          "Note": ["created_by", "created_by.HumanUser.image", "addressings_to", "attachments",
-#                                   "attachments.Attachment.this_file", "playlist", "reply_content", "user" ],
-#                          "Attachment": ["attachment_links", "filmstrip_image", "local_storage", "this_file", "image"] }
-        
         
         sg_data = sg.activity_stream_read(entity_type, entity_id, entity_fields, min_id, limit=self.MAX_ITEMS_TO_GET_FROM_SG)
         
@@ -525,32 +641,53 @@ class ActivityStreamDataHandler(QtCore.QObject):
             self.__db_insert_activity_updates(self._entity_type, self._entity_id, updates)
 
             # now post process the data to fetch all full conversations 
-            # for note replies that have happened            
+            # for note replies that have happened      
             for update in updates:
-
-                # add to our local in-memory cache
-                self._activity_data[ update["id"] ] = update
                 
-                if update["update_type"] == "create_reply":
+                activity_id = update["id"]
+                
+                # add to our local in-memory cache
+                self._activity_data[ activity_id ] = update
+                
+                # now for items where there is just the note created
+                # and no note updates yet, we haevn't pulled down
+                # the entire conversation separately (no need as we 
+                # already have all the info in the activity stream data).
+                # In this case, turn the primary entity in the stream
+                # (which represents the note entity itself) into the 
+                # first item in a note data list.                
+                if update["update_type"] == "create":
+                    if update["primary_entity"]["type"] == "Note":
+                        # primary entity is a note but we didn't have
+                        # the conversation stored!
+                        note_id = update["primary_entity"]["id"]
+                        self._note_threads[note_id] = [ update["primary_entity"] ]
+                
+                elif update["update_type"] == "create_reply":
                     note_id = update["primary_entity"]["id"]
                     self._app.log_debug("Requesting note thread download "
                                         "for note %s" % note_id)
                     # kick off async data request from shotgun 
                     data = {"note_id": note_id }
+                    self._app.log_debug("Requesting async data for note id %s" % note_id)
                     note_uid = self._sg_data_retriever.execute_method(self._get_note_thread, data)        
 
                     # map the unique id with the update id so we can merge the 
                     # two later as the data arrives 
-                    self._note_map[note_uid] = {"update_id": update["id"], "note_id": note_id}
+                    self._note_map[note_uid] = {"update_id": activity_id, "note_id": note_id}
+            
+            self._app.log_debug("Processed %s updates" % len(updates))
             
             # emit signal
             new_ids = [x["id"] for x in updates]
             # sort them in ascending order
             new_ids = sorted(new_ids)
+            self._app.log_debug("emit update_arrived signal for %s ids" % len(new_ids))
             self.update_arrived.emit(new_ids)
             
             
         if uid in self._note_map:
+
             # we got a note id back!
             update_id = self._note_map[uid]["update_id"]
             note_id = self._note_map[uid]["note_id"]
@@ -564,17 +701,15 @@ class ActivityStreamDataHandler(QtCore.QObject):
             self._note_threads[note_id] = note_thread_list
             
             # emit signal
-            self.note_arrived.emit(note_id)
+            self.note_arrived.emit(update_id, note_id)
             
             
         if uid in self._thumb_map:
             # we got a thumbnail back!            
             image = data["image"]
             if image:
-                signal_payload = {"activity_id": self._thumb_map[uid]["activity_id"],
-                                  "thumbnail_type": self._thumb_map[uid]["type"],
-                                  "image": image}
-                
+                signal_payload = copy.copy(self._thumb_map[uid])
+                signal_payload["image"] = image                
                 self.thumbnail_arrived.emit(signal_payload)
          
 

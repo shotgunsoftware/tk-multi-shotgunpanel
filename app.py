@@ -36,7 +36,9 @@ class StgkStarterApp(Application):
         self._unique_panel_id = self.engine.register_panel(self.create_panel)
         
         # register a menu entry
-        self.engine.register_command("Info Panel...", self.create_panel, {"type": "panel"})
+        self.engine.register_command("Shotgun Panel...", 
+                                     self.create_panel, 
+                                     {"type": "panel", "short_name": "shotgun_panel"})
         
     def destroy_app(self):
         self.log_debug("Destroying app...")

@@ -51,8 +51,12 @@ class CachedShotgunSchema(object):
         self._schema_cache_path = os.path.join(self._app.cache_location, "sg_schema.pickle")
         self._status_cache_path = os.path.join(self._app.cache_location, "sg_status.pickle")
 
+        # load cached values from disk
         self._schema_loaded = self._load_cached_schema()
-        self._status_loaded = self._load_cached_status()        
+        self._status_loaded = self._load_cached_status()
+        
+        self._schema_requested = False
+        self._status_requested = False        
         
         
     def _load_cached_status(self):
@@ -90,83 +94,57 @@ class CachedShotgunSchema(object):
                 self._app.log_warning("Could not open cached schema "
                                       "file '%s': %s" % (self._schema_cache_path, e))
         return cache_loaded            
-    
-    def _cache_schema(self):
-        """
-        Write schema cache to disk
-        """
-        self._app.log_debug("Saving schema to '%s'..." % self._schema_cache_path)
-        try:
-            with open(self._schema_cache_path, "wb") as fh:
-                data = {"field_schema": self._field_schema, 
-                        "type_schema": self._type_schema}
-                pickle.dump(data, fh)
-        except Exception, e:
-            self._app.log_warning("Could not write schema "
-                                  "file '%s': %s" % (self._schema_cache_path, e))            
-        
-    def _cache_status(self):
-        """
-        Write status cache to disk
-        """
-        self._app.log_debug("Saving status to '%s'..." % self._status_cache_path)
-        try:
-            with open(self._status_cache_path, "wb") as fh:
-                pickle.dump(self._status_data, fh)
-        except Exception, e:
-            self._app.log_warning("Could not write status "
-                                  "file '%s': %s" % (self._status_cache_path, e))            
-
-    def _refresh_schema(self):
-        """
-        Request a new fresh cache from shotgun, asynchronously
-        """
-        sg_project_id = self._app.context.project["id"]
-                
-        self._app.log_debug("Starting to download new metaschema from Shotgun...")
-        
-        if len(self.__sg_data_retrievers) == 0:
-            self._app.log_warning("No data retrievers registered with this " 
-                                  "schema manager. Cannot load shotgun schema.")
-        else:
-            # pick the first one
-            dr = self.__sg_data_retrievers.values()[0]
-            self._sg_schema_query_id = dr.get_schema(sg_project_id)
-
+            
     def _check_schema_refresh(self, entity_type, field_name=None):
         """
         Check and potentially trigger a cache refresh
         """
-        refresh_needed = False
-        if entity_type not in self._field_schema:
-            self._app.log_debug("Schema cache check: Type '%s' "
-                                "triggered a cache refresh" % entity_type)        
-            self._refresh_schema()
-            refresh_needed = True
-
-        elif field_name and field_name != "type" and field_name not in self._field_schema[entity_type]:
-            self._app.log_debug("Schema cache check: Field '%s.%s' "
-                                "triggered a cache refresh" % (entity_type, field_name))        
-            self._refresh_schema()
-            refresh_needed = True
         
-        return refresh_needed
+        # TODO: currently, this only checks if there is a full cache in memory
+        # or not. Later on, when we have the ability to check the current 
+        # metaschema generation via the shotgun API, this can be handled in a 
+        # more graceful fashion.
         
-    def _refresh_status(self):
+        if not self._schema_loaded and not self._schema_requested: 
+            # schema is not requested and not loaded.
+            # so download it from shotgun!
+            sg_project_id = self._app.context.project["id"]
+                    
+            self._app.log_debug("Starting to download new metaschema from Shotgun...")
+            
+            if len(self.__sg_data_retrievers) == 0:
+                self._app.log_warning("No data retrievers registered with this " 
+                                      "schema manager. Cannot load shotgun schema.")
+            else:
+                # flag that we have submitted a request
+                # to avoid flooding of requests.
+                self._schema_requested = True
+                # pick the first one
+                dr = self.__sg_data_retrievers.values()[0]
+                self._sg_schema_query_id = dr.get_schema(sg_project_id)
+        
+    def _check_status_refresh(self):
         """
         Request status data from shotgun
         """
-        fields = ["bg_color", "code", "name"]
-
-        self._app.log_debug("Starting to download status list from Shotgun...")
         
-        if len(self.__sg_data_retrievers) == 0:
-            self._app.log_warning("No data retrievers registered with this " 
-                                  "schema manager. Cannot load shotgun status.")
-        else:
-            # pick the first one
-            dr = self.__sg_data_retrievers.values()[0]
-            self._sg_status_query_id = dr.execute_find("Status", [], fields)        
+        if not self._status_loaded and not self._status_requested:
+        
+            fields = ["bg_color", "code", "name"]
+    
+            self._app.log_debug("Starting to download status list from Shotgun...")
+            
+            if len(self.__sg_data_retrievers) == 0:
+                self._app.log_warning("No data retrievers registered with this " 
+                                      "schema manager. Cannot load shotgun status.")
+            else:
+                # flag that we have submitted a request
+                # to avoid flooding of requests.
+                self._status_requested = True
+                
+                # pick the first one
+                dr = self.__sg_data_retrievers.values()[0]
+                self._sg_status_query_id = dr.execute_find("Status", [], fields)        
         
     def _on_worker_failure(self, uid, msg):
         """
@@ -175,10 +153,12 @@ class CachedShotgunSchema(object):
         if uid == self._sg_schema_query_id:
             msg = shotgun_model.sanitize_qt(msg) # qstring on pyqt, str on pyside
             self._app.log_warning("Could not load sg schema: %s" % msg)
+            self._schema_requested = False
         
         elif uid == self._sg_status_query_id:
             msg = shotgun_model.sanitize_qt(msg) # qstring on pyqt, str on pyside
             self._app.log_warning("Could not load sg status: %s" % msg)
+            self._status_requested = False
         
     def _on_worker_signal(self, uid, request_type, data):
         """
@@ -191,20 +171,44 @@ class CachedShotgunSchema(object):
 
         if self._sg_schema_query_id == uid:
             self._app.log_debug("Metaschema arrived from Shotgun...")
-            # store the schema
+            # store the schema in memory
             self._field_schema = data["fields"]
             self._type_schema = data["types"]
+            # job done! set our load flags accordingly.
+            self._schema_loaded = True
+            self._schema_requested = True
             # and write out the data to disk
-            self._cache_schema()
+            self._app.log_debug("Saving schema to '%s'..." % self._schema_cache_path)
+            try:
+                with open(self._schema_cache_path, "wb") as fh:
+                    data = {"field_schema": self._field_schema, 
+                            "type_schema": self._type_schema}
+                    pickle.dump(data, fh)
+                    self._app.log_debug("...done")
+            except Exception, e:
+                self._app.log_warning("Could not write schema "
+                                      "file '%s': %s" % (self._schema_cache_path, e))            
         
         elif uid == self._sg_status_query_id:
             self._app.log_debug("Status list arrived from Shotgun...")
-            # store status
-            self._status_data = {}
+            # store status in memory
+            self._status_data = {}            
             for x in data["sg"]:
                 self._status_data[ x["code"] ] = x
+            
+            # job done! set our load flags accordingly.
+            self._status_loaded = True
+            self._status_requested = True
+            
             # and write out the data to disk
-            self._cache_status()
+            self._app.log_debug("Saving status to '%s'..." % self._status_cache_path)
+            try:
+                with open(self._status_cache_path, "wb") as fh:
+                    pickle.dump(self._status_data, fh)
+                    self._app.log_debug("...done")
+            except Exception, e:
+                self._app.log_warning("Could not write status "
+                                      "file '%s': %s" % (self._status_cache_path, e))            
 
     ##########################################################################################
     # public methods
@@ -225,14 +229,6 @@ class CachedShotgunSchema(object):
         self.__sg_data_retrievers[obj_hash] = data_retriever
         data_retriever.work_completed.connect(self._on_worker_signal)
         data_retriever.work_failure.connect(self._on_worker_failure)
-        
-        if not self._status_loaded:
-            self._status_loaded = True
-            self._refresh_status()
-        
-        if not self._schema_loaded:
-            self._schema_loaded = True
-            self._refresh_schema()
         
     @classmethod
     def unregister_data_retriever(cls, data_retriever):
@@ -267,15 +263,16 @@ class CachedShotgunSchema(object):
         :param sg_entity_type: Shotgun entity type
         :returns: schema information dict if entity type is known, None if not.
         """
-        
         self = cls.__get_instance()
+        self._check_schema_refresh(sg_entity_type)
         
-        display_name = sg_entity_type
-            
-        if not self._check_schema_refresh(sg_entity_type):
+        if sg_entity_type in self._type_schema:
             # cache contains our item
             data = self._type_schema[sg_entity_type]
-            display_name = data["name"]["value"]            
+            display_name = data["name"]["value"]
+        
+        else:
+            display_name = sg_entity_type
         
         return display_name
         
@@ -287,18 +284,21 @@ class CachedShotgunSchema(object):
         the field name is returned.
         """
         self = cls.__get_instance()
-        
-        display_name = field_name
+        self._check_schema_refresh(sg_entity_type, field_name)        
 
         if field_name == "type":
             # type doesn't seem to exist in the schema
             # so treat as a special case
             display_name = "Type"
         
-        elif not self._check_schema_refresh(sg_entity_type, field_name):
+        elif sg_entity_type in self._type_schema and field_name in self._field_schema[sg_entity_type]:
             # cache contains our item
             data = self._field_schema[sg_entity_type][field_name]
             display_name = data["name"]["value"]
+
+        else:
+            display_name = field_name
+
 
         return display_name
         
@@ -311,10 +311,11 @@ class CachedShotgunSchema(object):
         the data type of the field.
         """
         self = cls.__get_instance()
+        self._check_schema_refresh(sg_entity_type, field_name)
         
         empty_value = "Not set"
         
-        if not self._check_schema_refresh(sg_entity_type, field_name):
+        if sg_entity_type in self._type_schema and field_name in self._field_schema[sg_entity_type]:        
             # cache contains our item
             data = self._field_schema[sg_entity_type][field_name]
             data_type = data["data_type"]["value"]
@@ -338,14 +339,11 @@ class CachedShotgunSchema(object):
         :returns: string with descriptive status name 
         """
         self = cls.__get_instance()
+        self._check_status_refresh()
         
         display_name = status_code
         
-        if status_code not in self._status_data:
-            # unknown status. Most likely our cache is out of date
-            self._refresh_status()
-        
-        else:
+        if status_code in self._status_data:
             data = self._status_data[status_code]
         
             display_name = data.get("name") or status_code

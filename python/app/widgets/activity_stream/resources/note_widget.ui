@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>290</width>
-    <height>70</height>
+    <width>357</width>
+    <height>231</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -117,7 +117,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="footer">
+       <widget class="QLabel" name="links">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -134,6 +134,38 @@
          <bool>true</bool>
         </property>
        </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="content">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="reply_layout">
+        <property name="spacing">
+         <number>14</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>14</number>
+        </property>
+       </layout>
       </item>
      </layout>
     </widget>

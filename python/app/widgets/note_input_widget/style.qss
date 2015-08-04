@@ -1,9 +1,9 @@
-QFrame#frame {
+#new_note_frame, #reply_frame {
     border: 1px solid rgba(200, 200, 200, 25%);
     background-color: none;
     border-radius: 3px;
 }        
 
-QLabel#placeholder_label {
+#new_note_placeholder, #reply_placeholder {
     color: rgba(200, 200, 200, 50%);
 }
