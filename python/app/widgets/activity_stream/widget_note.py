@@ -111,6 +111,9 @@ class NoteWidget(ActivityStreamBaseWidget):
         self._general_widgets.append(reply_button)
         return reply_button
 
+    def get_attachment_group_widget_ids(self):
+        return self._attachment_group_widgets.keys()
+    
     def get_attachment_group_widget(self, attachment_group_id):
         """
         Returns an attachment group widget given its id
@@ -120,12 +123,9 @@ class NoteWidget(ActivityStreamBaseWidget):
     def add_replies(self, replies_and_attachments):
         """
         Add replies and attachment widgets
-        
-        :returns: list of attachment group ids
         """
         
         curr_attachment_group_widget_id = len(self._attachment_group_widgets)
-        created_attachment_group_ids = []
         
         current_attachments = []
         
@@ -141,7 +141,6 @@ class NoteWidget(ActivityStreamBaseWidget):
                     
                     # add it to our mapping dict and increment the counter
                     self._attachment_group_widgets[curr_attachment_group_widget_id] = attachment_group
-                    created_attachment_group_ids.append(curr_attachment_group_widget_id)
                     curr_attachment_group_widget_id += 1
                                                 
                 w = ReplyWidget(self)
@@ -154,8 +153,6 @@ class NoteWidget(ActivityStreamBaseWidget):
                 
             if item["type"] == "Attachment" and item["this_file"]["link_type"] == "upload":             
                 current_attachments.append(item)
-        
-        return created_attachment_group_ids
         
     def get_reply_users(self):
         """

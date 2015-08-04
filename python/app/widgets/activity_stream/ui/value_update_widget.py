@@ -18,7 +18,7 @@ class Ui_ValueUpdateWidget(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout_3 = QtGui.QVBoxLayout()
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.user_thumb = UserLabel(ValueUpdateWidget)
+        self.user_thumb = UserThumbnail(ValueUpdateWidget)
         self.user_thumb.setMinimumSize(QtCore.QSize(30, 30))
         self.user_thumb.setMaximumSize(QtCore.QSize(30, 30))
         self.user_thumb.setText("")
@@ -83,6 +83,5 @@ class Ui_ValueUpdateWidget(object):
         self.date.setText(QtGui.QApplication.translate("ValueUpdateWidget", "3 days ago", None, QtGui.QApplication.UnicodeUTF8))
         self.footer.setText(QtGui.QApplication.translate("ValueUpdateWidget", "asdasdasd", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..user_label import UserLabel
-from . import resources_rc
+from ..thumbnail_widgets import UserThumbnail
 from . import resources_rc

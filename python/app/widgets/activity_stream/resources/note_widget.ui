@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>357</width>
-    <height>231</height>
+    <height>166</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="UserLabel" name="user_thumb">
+      <widget class="UserThumbnail" name="user_thumb">
        <property name="minimumSize">
         <size>
          <width>50</width>
@@ -157,13 +157,13 @@
       <item>
        <layout class="QVBoxLayout" name="reply_layout">
         <property name="spacing">
-         <number>14</number>
+         <number>0</number>
         </property>
         <property name="leftMargin">
          <number>0</number>
         </property>
         <property name="topMargin">
-         <number>14</number>
+         <number>0</number>
         </property>
        </layout>
       </item>
@@ -174,14 +174,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UserLabel</class>
+   <class>UserThumbnail</class>
    <extends>QLabel</extends>
-   <header>..user_label</header>
+   <header>..thumbnail_widgets</header>
   </customwidget>
  </customwidgets>
  <resources>
   <include location="resources.qrc"/>
-  <include location="../../../../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -123,6 +123,7 @@ class ActivityStreamWidget(QtGui.QWidget):
         self._app.log_debug("Db returned %s events" % len(ids_to_process))
 
         reply_users = set()
+        attachment_requests = []
         
         # before we begin widget operations, turn off visibility
         # of the whole widget in order to avoid recomputes
@@ -168,6 +169,15 @@ class ActivityStreamWidget(QtGui.QWidget):
                     self._populate_note_widget(w, activity_id, note_id)            
                     # request a list of users that have replied
                     reply_users |= w.get_reply_users()
+                    
+                    for attachment_group_id in w.get_attachment_group_widget_ids():
+                        agw = w.get_attachment_group_widget(attachment_group_id)
+                        for attachment_data in agw.get_data():                        
+                            ag_request = {"attachment_group_id": attachment_group_id,
+                                          "activity_id": activity_id,
+                                          "attachment_data": attachment_data}
+                            attachment_requests.append(ag_request)
+                    
         
             # last, create "loading" widget
             # to put at the top of the list
@@ -184,6 +194,11 @@ class ActivityStreamWidget(QtGui.QWidget):
         self._app.log_debug("Request thumbnails...")
         for activity_id in ids_to_process:
             self._data_manager.request_activity_thumbnails(activity_id)
+        
+        for attachment_req in attachment_requests:
+            self._data_manager.request_attachment_thumbnail(attachment_req["activity_id"], 
+                                                            attachment_req["attachment_group_id"], 
+                                                            attachment_req["attachment_data"])
         
         for (entity_type, entity_id) in reply_users:
             self._data_manager.request_user_thumbnail(entity_type, entity_id)
@@ -269,13 +284,8 @@ class ActivityStreamWidget(QtGui.QWidget):
             activity_widget.set_note_info(note_data)
             
             # now add replies
-            attachment_group_ids = activity_widget.add_replies(replies_and_attachments)
+            activity_widget.add_replies(replies_and_attachments)
             
-            # finally hook up expand events on the attachmen groups to a callback
-            for attachment_group_id in attachment_group_ids:
-                attachment_group_widget = activity_widget.get_attachment_group_widget(attachment_group_id)
-                attachment_group_widget.expanded.connect(lambda : self._on_attachment_group_expanded(activity_id, attachment_group_id))
-        
             # lastly, add a reply button
             reply_button = activity_widget.add_reply_button()
             # connect reply click
@@ -326,6 +336,7 @@ class ActivityStreamWidget(QtGui.QWidget):
         self._clear_loading_widget()
         
         reply_users = set()
+        attachment_requests = []
         
         # load in the new data
         # the list of ids is delivered in ascending order
@@ -341,6 +352,15 @@ class ActivityStreamWidget(QtGui.QWidget):
                 self._populate_note_widget(w, activity_id, note_id)
                 # request a list of users that have replied
                 reply_users |= w.get_reply_users()
+                # get all attachment data
+                # can request thumbnails post UI build
+                for attachment_group_id in w.get_attachment_group_widget_ids():
+                    agw = w.get_attachment_group_widget(attachment_group_id)
+                    for attachment_data in agw.get_data():                        
+                        ag_request = {"attachment_group_id": attachment_group_id,
+                                      "activity_id": activity_id,
+                                      "attachment_data": attachment_data}
+                        attachment_requests.append(ag_request)
             
             
             self._widgets[activity_id] = w
@@ -353,6 +373,11 @@ class ActivityStreamWidget(QtGui.QWidget):
         self._app.log_debug("Requesting thumbnails")
         for activity_id in activity_ids:
             self._data_manager.request_activity_thumbnails(activity_id)
+        
+        for attachment_req in attachment_requests:
+            self._data_manager.request_attachment_thumbnail(attachment_req["activity_id"], 
+                                                            attachment_req["attachment_group_id"], 
+                                                            attachment_req["attachment_data"])
 
         for (entity_type, entity_id) in reply_users:
             self._data_manager.request_user_thumbnail(entity_type, entity_id)
@@ -377,20 +402,7 @@ class ActivityStreamWidget(QtGui.QWidget):
             self._populate_note_widget(widget, activity_id, note_id)
 
     def _on_reply_clicked(self, note_id):
-        print "REPLY FOR NOTE ID %s" % note_id
-    
-    def _on_attachment_group_expanded(self, activity_id, attachment_group_id):
-        """
-        Someone clicked an attachment group
-        """
-
-        widget = self._widgets[activity_id]
-        attachment_group_widget = widget.get_attachment_group_widget(attachment_group_id)
-        for attachment_data in attachment_group_widget.get_data():
-            self._data_manager.request_attachment_thumbnail(activity_id, 
-                                                            attachment_group_id, 
-                                                            attachment_data)
-        
+        print "REPLY FOR NOTE ID %s" % note_id        
     
     def _on_note_submitted(self):
         """

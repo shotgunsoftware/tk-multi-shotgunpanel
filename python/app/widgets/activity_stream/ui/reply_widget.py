@@ -13,11 +13,11 @@ class Ui_ReplyWidget(object):
         ReplyWidget.setObjectName("ReplyWidget")
         ReplyWidget.resize(287, 142)
         self.horizontalLayout_2 = QtGui.QHBoxLayout(ReplyWidget)
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_2.setContentsMargins(0, 10, 0, 2)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout_2 = QtGui.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.user_thumb = UserLabel(ReplyWidget)
+        self.user_thumb = UserThumbnail(ReplyWidget)
         self.user_thumb.setMinimumSize(QtCore.QSize(30, 30))
         self.user_thumb.setMaximumSize(QtCore.QSize(30, 30))
         self.user_thumb.setText("")
@@ -73,6 +73,5 @@ class Ui_ReplyWidget(object):
         self.date.setText(QtGui.QApplication.translate("ReplyWidget", "Tuesday", None, QtGui.QApplication.UnicodeUTF8))
         self.reply.setText(QtGui.QApplication.translate("ReplyWidget", "Lorem ipsum foo bar.", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..user_label import UserLabel
-from . import resources_rc
+from ..thumbnail_widgets import UserThumbnail
 from . import resources_rc

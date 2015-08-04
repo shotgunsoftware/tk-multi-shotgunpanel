@@ -14,13 +14,22 @@
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
-   <property name="margin">
+   <property name="leftMargin">
     <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>10</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>2</number>
    </property>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
      <item>
-      <widget class="UserLabel" name="user_thumb">
+      <widget class="UserThumbnail" name="user_thumb">
        <property name="minimumSize">
         <size>
          <width>30</width>
@@ -128,14 +137,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UserLabel</class>
+   <class>UserThumbnail</class>
    <extends>QLabel</extends>
-   <header>..user_label</header>
+   <header>..thumbnail_widgets</header>
   </customwidget>
  </customwidgets>
  <resources>
   <include location="resources.qrc"/>
-  <include location="../../../../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

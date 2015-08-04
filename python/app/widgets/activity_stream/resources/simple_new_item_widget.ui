@@ -32,7 +32,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="UserLabel" name="user_thumb">
+      <widget class="UserThumbnail" name="user_thumb">
        <property name="minimumSize">
         <size>
          <width>30</width>
@@ -123,14 +123,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UserLabel</class>
+   <class>UserThumbnail</class>
    <extends>QLabel</extends>
-   <header>..user_label</header>
+   <header>..thumbnail_widgets</header>
   </customwidget>
  </customwidgets>
  <resources>
   <include location="resources.qrc"/>
-  <include location="../../../../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

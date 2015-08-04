@@ -12,7 +12,7 @@ from sgtk.platform.qt import QtCore, QtGui
 
 import sgtk
 
-from .attachment_label import AttachmentLabel
+from .thumbnail_widgets import LargeAttachmentThumbnail, SmallAttachmentThumbnail
 from .data_manager import ActivityStreamDataHandler
 
 from .ui.attachment_group_widget import Ui_AttachmentGroupWidget
@@ -21,8 +21,6 @@ class AttachmentGroupWidget(QtGui.QWidget):
     """
     Subclassed QLabel to represent a shotgun user.
     """
-    
-    expanded = QtCore.Signal()
     
     def __init__(self, parent, attachment_data):
         """
@@ -36,11 +34,47 @@ class AttachmentGroupWidget(QtGui.QWidget):
         self.ui = Ui_AttachmentGroupWidget() 
         self.ui.setupUi(self)
         
-        self._widgets = {}
+        
+        self._large_thumbnails = {}
+        self._small_thumbnails = {}
+        self._other_widgets = []
         
         self._attachment_data = attachment_data
-        self.ui.load_more.setText("%s Attachments" % len(attachment_data))        
-        self.ui.load_more.clicked.connect(self._show_attachments)
+        
+        self.ui.attachment_frame.setVisible(False)
+        
+        current_row = 0
+        current_col = 0
+        max_col = 0
+        
+        for data in self._attachment_data:
+            obj = SmallAttachmentThumbnail(self.ui.preview_frame)
+            obj.set_data(data)
+            obj.clicked.connect(self._toggle_large_thumbnails)            
+            self.ui.preview_layout.addWidget(obj, current_row, current_col)
+            self._small_thumbnails[data["id"]] = obj
+            
+            
+            if current_col > 4:
+                current_col = 0
+                current_row += 1
+            else:
+                current_col += 1
+                
+            # track the max column used so far
+            max_col = max(current_col, max_col)
+            
+        
+        # and have everything pushed to the left        
+        self.ui.preview_layout.setColumnStretch(max_col+1, 1)
+        
+        for data in self._attachment_data:
+            obj = LargeAttachmentThumbnail(self)
+            obj.set_data(data)
+            obj.clicked.connect(self._toggle_small_thumbnails)
+            self.ui.attachment_layout.addWidget(obj)
+            self._large_thumbnails[data["id"]] = obj
+        
         
 
     def set_thumbnail(self, data):
@@ -50,22 +84,23 @@ class AttachmentGroupWidget(QtGui.QWidget):
         if data["thumbnail_type"] != ActivityStreamDataHandler.THUMBNAIL_ATTACHMENT:
             return
         attachment_id = data["entity"]["id"]
-        if attachment_id in self._widgets:
-            attachment_obj = self._widgets[attachment_id]
+        if attachment_id in self._large_thumbnails:
+            attachment_obj = self._large_thumbnails[attachment_id]
             attachment_obj.set_thumbnail(data["image"])
             
+        if attachment_id in self._small_thumbnails:
+            attachment_obj = self._small_thumbnails[attachment_id]
+            attachment_obj.set_thumbnail(data["image"])
+
+    def _toggle_large_thumbnails(self):
         
-    def _show_attachments(self):
+        self.ui.attachment_frame.setVisible(True)
+        self.ui.preview_frame.setVisible(False)
         
-        self.expanded.emit()
+    def _toggle_small_thumbnails(self):
         
-        self.ui.load_more.setVisible(False)
-        
-        for data in self._attachment_data:
-            attachment_obj = AttachmentLabel(self)
-            attachment_obj.set_data(data)
-            self.ui.attachment_layout.addWidget(attachment_obj)
-            self._widgets[data["id"]] = attachment_obj
+        self.ui.attachment_frame.setVisible(False)
+        self.ui.preview_frame.setVisible(True)
                 
         
     def get_data(self):

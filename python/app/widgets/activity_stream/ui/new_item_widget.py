@@ -18,7 +18,7 @@ class Ui_NewItemWidget(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout_2 = QtGui.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.user_thumb = UserLabel(NewItemWidget)
+        self.user_thumb = UserThumbnail(NewItemWidget)
         self.user_thumb.setMinimumSize(QtCore.QSize(50, 50))
         self.user_thumb.setMaximumSize(QtCore.QSize(50, 50))
         self.user_thumb.setText("")
@@ -89,6 +89,5 @@ class Ui_NewItemWidget(object):
         self.footer.setText(QtGui.QApplication.translate("NewItemWidget", "description", None, QtGui.QApplication.UnicodeUTF8))
 
 from ...version_label import VersionLabel
-from ..user_label import UserLabel
-from . import resources_rc
+from ..thumbnail_widgets import UserThumbnail
 from . import resources_rc

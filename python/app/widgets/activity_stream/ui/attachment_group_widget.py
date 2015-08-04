@@ -11,26 +11,34 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_AttachmentGroupWidget(object):
     def setupUi(self, AttachmentGroupWidget):
         AttachmentGroupWidget.setObjectName("AttachmentGroupWidget")
-        AttachmentGroupWidget.resize(217, 27)
+        AttachmentGroupWidget.resize(345, 182)
         self.verticalLayout = QtGui.QVBoxLayout(AttachmentGroupWidget)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.load_more = QtGui.QToolButton(AttachmentGroupWidget)
-        self.load_more.setObjectName("load_more")
-        self.verticalLayout.addWidget(self.load_more)
-        self.attachment_layout = QtGui.QVBoxLayout()
+        self.preview_frame = QtGui.QFrame(AttachmentGroupWidget)
+        self.preview_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.preview_frame.setFrameShadow(QtGui.QFrame.Raised)
+        self.preview_frame.setObjectName("preview_frame")
+        self.preview_layout = QtGui.QGridLayout(self.preview_frame)
+        self.preview_layout.setContentsMargins(0, 0, 0, 0)
+        self.preview_layout.setSpacing(2)
+        self.preview_layout.setObjectName("preview_layout")
+        self.verticalLayout.addWidget(self.preview_frame)
+        self.attachment_frame = QtGui.QFrame(AttachmentGroupWidget)
+        self.attachment_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.attachment_frame.setFrameShadow(QtGui.QFrame.Raised)
+        self.attachment_frame.setObjectName("attachment_frame")
+        self.attachment_layout = QtGui.QVBoxLayout(self.attachment_frame)
         self.attachment_layout.setContentsMargins(2, 2, 2, 2)
         self.attachment_layout.setObjectName("attachment_layout")
-        self.verticalLayout.addLayout(self.attachment_layout)
-        self.verticalLayout.setStretch(1, 1)
+        self.verticalLayout.addWidget(self.attachment_frame)
 
         self.retranslateUi(AttachmentGroupWidget)
         QtCore.QMetaObject.connectSlotsByName(AttachmentGroupWidget)
 
     def retranslateUi(self, AttachmentGroupWidget):
         AttachmentGroupWidget.setWindowTitle(QtGui.QApplication.translate("AttachmentGroupWidget", "Form", None, QtGui.QApplication.UnicodeUTF8))
-        self.load_more.setText(QtGui.QApplication.translate("AttachmentGroupWidget", "...", None, QtGui.QApplication.UnicodeUTF8))
 
 from . import resources_rc
 from . import resources_rc

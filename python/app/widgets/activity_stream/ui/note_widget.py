@@ -11,14 +11,14 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_NoteWidget(object):
     def setupUi(self, NoteWidget):
         NoteWidget.setObjectName("NoteWidget")
-        NoteWidget.resize(357, 231)
+        NoteWidget.resize(357, 166)
         self.horizontalLayout_2 = QtGui.QHBoxLayout(NoteWidget)
         self.horizontalLayout_2.setSpacing(8)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout_2 = QtGui.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.user_thumb = UserLabel(NoteWidget)
+        self.user_thumb = UserThumbnail(NoteWidget)
         self.user_thumb.setMinimumSize(QtCore.QSize(50, 50))
         self.user_thumb.setMaximumSize(QtCore.QSize(50, 50))
         self.user_thumb.setText("")
@@ -84,8 +84,8 @@ class Ui_NoteWidget(object):
         self.content.setObjectName("content")
         self.verticalLayout.addWidget(self.content)
         self.reply_layout = QtGui.QVBoxLayout()
-        self.reply_layout.setSpacing(14)
-        self.reply_layout.setContentsMargins(0, 14, -1, -1)
+        self.reply_layout.setSpacing(0)
+        self.reply_layout.setContentsMargins(0, 0, -1, -1)
         self.reply_layout.setObjectName("reply_layout")
         self.verticalLayout.addLayout(self.reply_layout)
         self.horizontalLayout_2.addWidget(self.frame)
@@ -96,6 +96,5 @@ class Ui_NoteWidget(object):
     def retranslateUi(self, NoteWidget):
         NoteWidget.setWindowTitle(QtGui.QApplication.translate("NoteWidget", "Form", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..user_label import UserLabel
-from . import resources_rc
+from ..thumbnail_widgets import UserThumbnail
 from . import resources_rc

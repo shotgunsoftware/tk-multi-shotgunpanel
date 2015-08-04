@@ -18,7 +18,7 @@ class Ui_SimpleNewItemWidget(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout_3 = QtGui.QVBoxLayout()
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.user_thumb = UserLabel(SimpleNewItemWidget)
+        self.user_thumb = UserThumbnail(SimpleNewItemWidget)
         self.user_thumb.setMinimumSize(QtCore.QSize(30, 30))
         self.user_thumb.setMaximumSize(QtCore.QSize(30, 30))
         self.user_thumb.setText("")
@@ -72,6 +72,6 @@ class Ui_SimpleNewItemWidget(object):
     def retranslateUi(self, SimpleNewItemWidget):
         SimpleNewItemWidget.setWindowTitle(QtGui.QApplication.translate("SimpleNewItemWidget", "Form", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..user_label import UserLabel
+from ..thumbnail_widgets import UserThumbnail
 from . import resources_rc
 from . import resources_rc
