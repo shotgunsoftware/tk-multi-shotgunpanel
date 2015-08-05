@@ -128,14 +128,19 @@ class NoteWidget(ActivityStreamBaseWidget):
         curr_attachment_group_widget_id = len(self._attachment_group_widgets)
         
         current_attachments = []
+        attachment_is_directly_after_note = True
         
         for item in replies_and_attachments:
             
             if item["type"] == "Reply":
-                
+                                
                 # first, wrap up attachments
                 if len(current_attachments) > 0:
                     attachment_group = AttachmentGroupWidget(self, current_attachments)
+                    
+                    if attachment_is_directly_after_note:
+                        attachment_group.adjust_ui_for_note()
+                        
                     self.ui.reply_layout.addWidget(attachment_group)
                     current_attachments = []
                     
@@ -149,10 +154,26 @@ class NoteWidget(ActivityStreamBaseWidget):
                 self._reply_widgets.append(w)
                 # ensure navigation requests from replies bubble up
                 w.entity_requested.connect(self.entity_requested.emit)
+                # next bunch of attachments will be after a reply
+                # rather than directly under the note
+                # (this affects the visual style) 
+                attachment_is_directly_after_note = False
+
                 
                 
-            if item["type"] == "Attachment" and item["this_file"]["link_type"] == "upload":             
+            if item["type"] == "Attachment" and item["this_file"]["link_type"] == "upload":
                 current_attachments.append(item)
+        
+        # see if there are still open attachments
+        if len(current_attachments) > 0:
+            
+            attachment_group = AttachmentGroupWidget(self, current_attachments)
+            if attachment_is_directly_after_note:
+                attachment_group.adjust_ui_for_note()
+            
+            self._attachment_group_widgets[curr_attachment_group_widget_id] = attachment_group
+            self.ui.reply_layout.addWidget(attachment_group)
+            print self._attachment_group_widgets
         
     def get_reply_users(self):
         """

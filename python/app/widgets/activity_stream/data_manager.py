@@ -32,7 +32,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
     for performance.
     """
     
-    DATBASE_FORMAT_VERSION = 13
+    DATBASE_FORMAT_VERSION = 15
     
     # max number of items to pull from shotgun
     # typically the updates are incremental and hence smaller
@@ -557,19 +557,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
                           "Shot": ["image"],
                           "Asset": ["image"],
                           "Sequence": ["image"],
-                          "Note": ["addressings_cc", 
-                           "addressings_to",
-                           "playlist", 
-                             "user",
-                             "content",
-                             "body",
-                             "note_links",
-                             "created_by",
-                             "created_at",
-                             "created_by.HumanUser.image",
-                             "read_by_current_user",
-                             "subject",
-                             "tasks"], 
+                          "Note": ["created_by", "created_by.HumanUser.image"], 
                           "Version": ["description", "sg_uploaded_movie", "image", "entity"],
                           "PublishedFile": ["description", "sg_uploaded_movie", "image", "entity"],
                           "TankPublishedFile": ["description", "sg_uploaded_movie", "image", "entity"],
@@ -656,14 +644,11 @@ class ActivityStreamDataHandler(QtCore.QObject):
                 # In this case, turn the primary entity in the stream
                 # (which represents the note entity itself) into the 
                 # first item in a note data list.                
-                if update["update_type"] == "create":
-                    if update["primary_entity"]["type"] == "Note":
-                        # primary entity is a note but we didn't have
-                        # the conversation stored!
-                        note_id = update["primary_entity"]["id"]
-                        self._note_threads[note_id] = [ update["primary_entity"] ]
-                
-                elif update["update_type"] == "create_reply":
+                if (update["update_type"] == "create" and \
+                    update["primary_entity"]["type"] == "Note") or \
+                    update["update_type"] == "create_reply":
+                    # for all notes, grab their data from shotgun
+                    
                     note_id = update["primary_entity"]["id"]
                     self._app.log_debug("Requesting note thread download "
                                         "for note %s" % note_id)

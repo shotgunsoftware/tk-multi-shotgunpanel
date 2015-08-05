@@ -24,6 +24,10 @@ from .ui.note_input_widget import Ui_NoteInputWidget
 from .overlaywidget import SmallOverlayWidget
 from .. import screen_grab  
  
+
+ 
+ 
+ 
 class NoteInputWidget(QtGui.QWidget):
     """
     Widget that can be used for note and thumbnail input and creation.
@@ -35,6 +39,8 @@ class NoteInputWidget(QtGui.QWidget):
     
     # emitted when shotgun has been updated
     data_updated = QtCore.Signal()
+    close_clicked = QtCore.Signal()
+    
     
     def __init__(self, parent):
         """
@@ -73,6 +79,7 @@ class NoteInputWidget(QtGui.QWidget):
         self.ui.screenshot.clicked.connect(self._screenshot_or_clear)
         self.ui.submit.clicked.connect(self._submit)
         self.ui.close.clicked.connect(self._cancel)
+        self.ui.close.clicked.connect(self.close_clicked)
 
         # reset state of the UI
         self.reset()
@@ -96,6 +103,16 @@ class NoteInputWidget(QtGui.QWidget):
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
         
         self.ui.text_entry.set_data_retriever(data_retriever)
+        
+    def open_editor(self):
+        """
+        Set the editor into its "open mode"
+        where a user can type in stuff
+        """
+        self.ui.stacked_widget.setCurrentIndex(self._EDITOR_WIDGET_INDEX)
+        self.ui.hint_label.show()
+        self._adjust_ui()        
+        self.ui.text_entry.setFocus()
         
     def set_reply_mode(self, enabled):
         self._reply_mode = enabled
@@ -191,10 +208,7 @@ class NoteInputWidget(QtGui.QWidget):
         """
         User clicks the preview part of the widget
         """
-        self.ui.stacked_widget.setCurrentIndex(self._EDITOR_WIDGET_INDEX)
-        self.ui.text_entry.setFocus()
-        self.ui.hint_label.show()
-        self._adjust_ui()
+        self.open_editor()
 
     def _cancel(self):
         """
@@ -291,21 +305,7 @@ class NoteInputWidget(QtGui.QWidget):
                       {"addressings_cc": updated_links})
             
             
-        
-        if data["pixmap"]:
-            
-            # save it out to a temp file so we can upload it
-            png_path = tempfile.NamedTemporaryFile(suffix=".png",
-                                                   prefix="screencapture_",
-                                                   delete=False).name
-    
-            data["pixmap"].save(png_path)
-            
-            # create file entity and upload file and associate with the NOTE, not the reply!
-            sg.upload("Note", note_link["id"], png_path)
-            
-            if os.path.exists(png_path):
-                os.remove(png_path)
+        self.__upload_thumbnail(note_link, sg, data)        
                 
         
     def _async_submit_note(self, sg, data):
@@ -397,6 +397,11 @@ class NoteInputWidget(QtGui.QWidget):
                                           "note_links": note_links,
                                           "tasks": note_tasks })
         
+        self.__upload_thumbnail(sg_note_data, sg, data)
+        
+        
+    def __upload_thumbnail(self, parent_entity, sg, data):
+        
         if data["pixmap"]:
             
             # save it out to a temp file so we can upload it
@@ -407,11 +412,11 @@ class NoteInputWidget(QtGui.QWidget):
             data["pixmap"].save(png_path)
             
             # create file entity and upload file
-            sg.upload("Note", sg_note_data["id"], png_path)
-            
             if os.path.exists(png_path):
+                self._app.log_debug("Uploading attachment (%s bytes)..." % os.path.getsize(png_path))
+                sg.upload(parent_entity["type"], parent_entity["id"], png_path)
+                self._app.log_debug("Upload complete!")            
                 os.remove(png_path)
-        
         
     def __on_worker_failure(self, uid, msg):
         """

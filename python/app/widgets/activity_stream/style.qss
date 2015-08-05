@@ -37,3 +37,17 @@ QLabel#loading_label {
     padding-left: 60px;
     font-size: 9px;
 }
+
+#hide_preview_button {
+    border: none;
+    text-align: left;
+    color: rgba(200, 200, 200, 50%);
+    font-size: 9px;
+}
+
+#loading_widget {
+    text-align: center;
+    color: rgba(200, 200, 200, 50%);
+    padding-left: 60px;
+    font-size: 9px;
+}

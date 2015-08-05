@@ -48,8 +48,7 @@ class AttachmentGroupWidget(QtGui.QWidget):
         max_col = 0
         
         for data in self._attachment_data:
-            obj = SmallAttachmentThumbnail(self.ui.preview_frame)
-            obj.set_data(data)
+            obj = SmallAttachmentThumbnail(data, self.ui.preview_frame)
             obj.clicked.connect(self._toggle_large_thumbnails)            
             self.ui.preview_layout.addWidget(obj, current_row, current_col)
             self._small_thumbnails[data["id"]] = obj
@@ -68,14 +67,32 @@ class AttachmentGroupWidget(QtGui.QWidget):
         # and have everything pushed to the left        
         self.ui.preview_layout.setColumnStretch(max_col+1, 1)
         
+        
+        
+        # now populate the large thumbs - they reside in a hidden 
+        # frame in the UI
+        
+        # first, add a button to allow for the collapse of the UI
+        hide_preview_button = QtGui.QPushButton(self)
+        hide_preview_button.setText("Click to hide preview")
+        hide_preview_button.setObjectName("hide_preview_button")
+        hide_preview_button.setCursor(QtCore.Qt.PointingHandCursor)
+        hide_preview_button.setFocusPolicy(QtCore.Qt.NoFocus)
+        hide_preview_button.clicked.connect(self._toggle_small_thumbnails)        
+        self.ui.attachment_layout.addWidget(hide_preview_button)
+        self._other_widgets.append(hide_preview_button)
+        
         for data in self._attachment_data:
-            obj = LargeAttachmentThumbnail(self)
-            obj.set_data(data)
-            obj.clicked.connect(self._toggle_small_thumbnails)
+            obj = LargeAttachmentThumbnail(data, self)
             self.ui.attachment_layout.addWidget(obj)
             self._large_thumbnails[data["id"]] = obj
         
-        
+    def adjust_ui_for_note(self):
+        """
+        Adjust the widget to be placed directly after a note
+        rather than  the (standard) placement after a reply
+        """
+        self.ui.verticalLayout.setContentsMargins(0, 6, 0, 0)        
 
     def set_thumbnail(self, data):
         """
@@ -101,8 +118,7 @@ class AttachmentGroupWidget(QtGui.QWidget):
         
         self.ui.attachment_frame.setVisible(False)
         self.ui.preview_frame.setVisible(True)
-                
-        
+
     def get_data(self):
         return self._attachment_data
             

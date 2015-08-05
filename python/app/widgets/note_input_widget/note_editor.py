@@ -62,14 +62,12 @@ class NoteEditor(QtGui.QTextEdit):
         self._completer.activated[QtCore.QModelIndex].connect(self._insert_completion)
 
     def set_data_retriever(self, data_retriever):
-        
         # create a separate sg data handler for submission
         self.__sg_data_retriever = data_retriever
         self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)        
 
-    def destroy(self):        
-        
+    def destroy(self):
         if self.__sg_data_retriever:
             self.__sg_data_retriever.work_completed.disconnect(self.__on_worker_signal)
             self.__sg_data_retriever.work_failure.disconnect(self.__on_worker_failure)

@@ -16,12 +16,16 @@ from sgtk.platform.qt import QtCore, QtGui
 
 from .ui.activity_stream_widget import Ui_ActivityStreamWidget
 
-from .widget_loading import LoadingWidget
 from .widget_new_item import NewItemWidget, SimpleNewItemWidget
 from .widget_note import NoteWidget
 from .widget_value_update import ValueUpdateWidget
+from .dialog_reply import ReplyDialog
 
 from .data_manager import ActivityStreamDataHandler
+ 
+overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overlay_widget")
+
+from .overlaywidget import SmallOverlayWidget
  
 class ActivityStreamWidget(QtGui.QWidget):
     """
@@ -51,6 +55,10 @@ class ActivityStreamWidget(QtGui.QWidget):
         
         # apply styling
         self._load_stylesheet()
+
+        # keep an overlay for loading
+        self.__overlay = overlay_module.ShotgunOverlayWidget(self)
+        self.__small_overlay = SmallOverlayWidget(self)
 
         # set insertion order into list to be bottom-up
         self.ui.activity_stream_layout.setDirection(QtGui.QBoxLayout.BottomToTop)
@@ -122,7 +130,14 @@ class ActivityStreamWidget(QtGui.QWidget):
         ids_to_process = self._data_manager.get_activity_ids(self.MAX_STREAM_LENGTH)
         self._app.log_debug("Db returned %s events" % len(ids_to_process))
 
-        reply_users = set()
+        if len(ids_to_process) == 0:
+            # nothing cached - show spinner!
+            # NOTE!!!! - cannot use the actual spinning animation because
+            # this triggers the GIL bug where signals from threads
+            # will deadlock the GIL
+            self.__overlay.show_message("Loading Activity Stream...")
+
+        all_reply_users = set()
         attachment_requests = []
         
         # before we begin widget operations, turn off visibility
@@ -166,23 +181,19 @@ class ActivityStreamWidget(QtGui.QWidget):
                 if isinstance(w, NoteWidget):
                     data = self._data_manager.get_activity_data(activity_id)
                     note_id = data["primary_entity"]["id"]
-                    self._populate_note_widget(w, activity_id, note_id)            
-                    # request a list of users that have replied
-                    reply_users |= w.get_reply_users()
-                    
-                    for attachment_group_id in w.get_attachment_group_widget_ids():
-                        agw = w.get_attachment_group_widget(attachment_group_id)
-                        for attachment_data in agw.get_data():                        
-                            ag_request = {"attachment_group_id": attachment_group_id,
-                                          "activity_id": activity_id,
-                                          "attachment_data": attachment_data}
-                            attachment_requests.append(ag_request)
-                    
-        
+                    (note_reply_users, note_attachment_requests) = self._populate_note_widget(w, activity_id, note_id)
+                    # extend user and attachment requests to our full list
+                    # so that we can request thumbnails for these later...
+                    all_reply_users |= note_reply_users                    
+                    attachment_requests.extend(note_attachment_requests)
+            
             # last, create "loading" widget
             # to put at the top of the list
             self._app.log_debug("Adding loading widget...")
-            self._loading_widget = LoadingWidget(self)
+            self._loading_widget = QtGui.QLabel(self)
+            self._loading_widget.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+            self._loading_widget.setText("Loading data from Shotgun...") 
+            self._loading_widget.setObjectName("loading_widget")
             self.ui.activity_stream_layout.addWidget(self._loading_widget)
         
         finally:
@@ -200,12 +211,10 @@ class ActivityStreamWidget(QtGui.QWidget):
                                                             attachment_req["attachment_group_id"], 
                                                             attachment_req["attachment_data"])
         
-        for (entity_type, entity_id) in reply_users:
+        for (entity_type, entity_id) in all_reply_users:
             self._data_manager.request_user_thumbnail(entity_type, entity_id)
         
         self._app.log_debug("...done")
-        
-        
         
         # and now request an update check
         self._app.log_debug("Ask db manager to ask shotgun for updates...")
@@ -229,6 +238,9 @@ class ActivityStreamWidget(QtGui.QWidget):
         # before we begin widget operations, turn off visibility
         # of the whole widget in order to avoid recomputes        
         self.setVisible(False)
+        
+        # scroll to top
+        self.ui.activity_stream_scroll_area.verticalScrollBar().setValue(0)
         
         try:
             self._app.log_debug("Clear loading widget")
@@ -269,27 +281,45 @@ class ActivityStreamWidget(QtGui.QWidget):
             self._loading_widget = None
             self._app.log_debug("...done")
         
-    def _populate_note_widget(self, activity_widget, activity_id, note_id):
+    def _populate_note_widget(self, note_widget, activity_id, note_id):
         """
         Load note content and replies into a note widget
         """
         # set note content            
         note_thread_data = self._data_manager.get_note(note_id)
+        
+        attachment_requests = []
+        reply_users = set()
+        
         if note_thread_data:
             # we have cached note data
             note_data = note_thread_data[0]
             replies_and_attachments = note_thread_data[1:] 
             
             # set up the note data first
-            activity_widget.set_note_info(note_data)
+            note_widget.set_note_info(note_data)
             
             # now add replies
-            activity_widget.add_replies(replies_and_attachments)
+            note_widget.add_replies(replies_and_attachments)
             
-            # lastly, add a reply button
-            reply_button = activity_widget.add_reply_button()
-            # connect reply click
+            # add a reply button and connect it
+            reply_button = note_widget.add_reply_button()
             reply_button.clicked.connect(lambda : self._on_reply_clicked(note_id))
+
+            # request a list of users that have replied
+            reply_users = note_widget.get_reply_users()
+            
+            # get all attachment data
+            # can request thumbnails post UI build
+            for attachment_group_id in note_widget.get_attachment_group_widget_ids():
+                agw = note_widget.get_attachment_group_widget(attachment_group_id)
+                for attachment_data in agw.get_data():                        
+                    ag_request = {"attachment_group_id": attachment_group_id,
+                                  "activity_id": activity_id,
+                                  "attachment_data": attachment_data}
+                    attachment_requests.append(ag_request)
+            
+        return (reply_users, attachment_requests)
         
         
     def _create_activity_widget(self, activity_id):
@@ -332,37 +362,17 @@ class ActivityStreamWidget(QtGui.QWidget):
         New activity items have arrived from from the data manager
         """
         self._app.log_debug("Process new data slot called for %s events" % len(activity_ids))
+                
         # remove the "loading please wait .... widget
         self._clear_loading_widget()
         
-        reply_users = set()
-        attachment_requests = []
         
         # load in the new data
         # the list of ids is delivered in ascending order
         # and we pop them on to the widget
         for activity_id in activity_ids:
             self._app.log_debug("Creating new widget...")
-            w = self._create_activity_widget(activity_id)
-            
-            # run extra init for notes
-            if isinstance(w, NoteWidget):
-                data = self._data_manager.get_activity_data(activity_id)
-                note_id = data["primary_entity"]["id"]
-                self._populate_note_widget(w, activity_id, note_id)
-                # request a list of users that have replied
-                reply_users |= w.get_reply_users()
-                # get all attachment data
-                # can request thumbnails post UI build
-                for attachment_group_id in w.get_attachment_group_widget_ids():
-                    agw = w.get_attachment_group_widget(attachment_group_id)
-                    for attachment_data in agw.get_data():                        
-                        ag_request = {"attachment_group_id": attachment_group_id,
-                                      "activity_id": activity_id,
-                                      "attachment_data": attachment_data}
-                        attachment_requests.append(ag_request)
-            
-            
+            w = self._create_activity_widget(activity_id)            
             self._widgets[activity_id] = w
             self._app.log_debug("Adding %s to layout" % w)
             self.ui.activity_stream_layout.addWidget(w)        
@@ -373,16 +383,12 @@ class ActivityStreamWidget(QtGui.QWidget):
         self._app.log_debug("Requesting thumbnails")
         for activity_id in activity_ids:
             self._data_manager.request_activity_thumbnails(activity_id)
-        
-        for attachment_req in attachment_requests:
-            self._data_manager.request_attachment_thumbnail(attachment_req["activity_id"], 
-                                                            attachment_req["attachment_group_id"], 
-                                                            attachment_req["attachment_data"])
-
-        for (entity_type, entity_id) in reply_users:
-            self._data_manager.request_user_thumbnail(entity_type, entity_id)
-        
+                
         self._app.log_debug("Process new data complete.")
+
+        # turn off the overlay in case it is spinning
+        # (which only happens on a full load)
+        self.__overlay.hide()
             
 
     def _process_thumbnail(self, data):
@@ -399,10 +405,43 @@ class ActivityStreamWidget(QtGui.QWidget):
         """
         if activity_id in self._widgets:
             widget = self._widgets[activity_id]
-            self._populate_note_widget(widget, activity_id, note_id)
+            (reply_users, attachment_requests) = self._populate_note_widget(widget, activity_id, note_id)
+            
+            # request thumbs
+            for attachment_req in attachment_requests:
+                self._data_manager.request_attachment_thumbnail(attachment_req["activity_id"], 
+                                                                attachment_req["attachment_group_id"], 
+                                                                attachment_req["attachment_data"])
+            
+            for (entity_type, entity_id) in reply_users:
+                self._data_manager.request_user_thumbnail(entity_type, entity_id)
+            
+            
+            
+            
+            
+            
 
     def _on_reply_clicked(self, note_id):
-        print "REPLY FOR NOTE ID %s" % note_id        
+        
+        reply_dialog = ReplyDialog(self, self._data_retriever, note_id)
+        
+        #position the reply modal dialog above the activity stream scroll area
+        pos = self.mapToGlobal(self.ui.activity_stream_scroll_area.pos())
+        x_pos = pos.x() + (self.ui.activity_stream_scroll_area.width() / 2) - (reply_dialog.width() / 2) - 10         
+        y_pos = pos.y() + (self.ui.activity_stream_scroll_area.height() / 2) - (reply_dialog.height() / 2) - 20
+        reply_dialog.move(x_pos, y_pos)
+        
+        # and pop it
+        
+        try:
+            self.__small_overlay.show()
+        
+            if reply_dialog.exec_() == QtGui.QDialog.Accepted:
+                self.set_current_entity(self._entity_type, self._entity_id)
+        finally:
+            self.__small_overlay.hide()
+        
     
     def _on_note_submitted(self):
         """

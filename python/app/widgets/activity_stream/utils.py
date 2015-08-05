@@ -46,19 +46,20 @@ def create_round_thumbnail(image):
     
     return base_image
 
+def create_square_48_thumbnail(image):
+    return __create_rounded_rect_thumbnail(image, 48, 48, 4)
     
 def create_rectangular_256x144_thumbnail(image):
+    return __create_rounded_rect_thumbnail(image, 256, 144, 5)
+
+def __create_rounded_rect_thumbnail(image, canvas_width, canvas_height, radius):
     """
     Given a qimage shotgun thumbnail, create a publish icon
     with the thumbnail composited onto a centered otherwise empty canvas. 
     This will return a 512x400 pixmap object.
     """
-    CANVAS_WIDTH = 256
-    CANVAS_HEIGHT = 144
-    CORNER_RADIUS = 5
-
     # get the base image
-    base_image = QtGui.QPixmap(CANVAS_WIDTH, CANVAS_HEIGHT)
+    base_image = QtGui.QPixmap(canvas_width, canvas_height)
     base_image.fill(QtCore.Qt.transparent)
     
     # now attempt to load the image
@@ -68,8 +69,8 @@ def create_rectangular_256x144_thumbnail(image):
     if not thumb.isNull():
             
         # scale it down to fit inside a frame
-        thumb_scaled = thumb.scaled(CANVAS_WIDTH, 
-                                    CANVAS_HEIGHT, 
+        thumb_scaled = thumb.scaled(canvas_width, 
+                                    canvas_height, 
                                     QtCore.Qt.KeepAspectRatioByExpanding, 
                                     QtCore.Qt.SmoothTransformation)  
 
@@ -85,10 +86,10 @@ def create_rectangular_256x144_thumbnail(image):
         
         painter.drawRoundedRect(0,  
                                 0, 
-                                CANVAS_WIDTH, 
-                                CANVAS_HEIGHT, 
-                                CORNER_RADIUS, 
-                                CORNER_RADIUS)
+                                canvas_width, 
+                                canvas_height, 
+                                radius, 
+                                radius)
         
         painter.end()
     

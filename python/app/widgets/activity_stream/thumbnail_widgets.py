@@ -21,26 +21,42 @@ class LargeAttachmentThumbnail(QtGui.QLabel):
     
     clicked = QtCore.Signal()
     
-    def __init__(self, parent):
+    def __init__(self, data, parent):
         """
         Constructor
         
         :param parent: QT parent object
         """
         QtGui.QLabel.__init__(self, parent)
+        self._app = sgtk.platform.current_bundle()
         
-        self.setMinimumSize(QtCore.QSize(256, 144))
-        self.setMaximumSize(QtCore.QSize(256, 144))
-        self.setText("")
-        self.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel_activity_stream/rect_256x144.png"))
-        # make this user clickable
+        # make this label clickable
         self.setCursor(QtCore.Qt.PointingHandCursor)
 
-        self._data = None
-        
-    def set_data(self, data):
+        # store shotgun data
         self._data = data
-
+        
+        if self._data["image"]:
+            # a thumbnail exists for this attachment
+            # set it up as a std event stream 254x144 chunk        
+            self.setToolTip("Click to see full attachment.<br>"
+                "File Name: %s" % self._data["this_file"]["name"])
+            self.setMinimumSize(QtCore.QSize(256, 144))
+            self.setMaximumSize(QtCore.QSize(256, 144))
+            self.setText("")
+            self.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel_activity_stream/rect_256x144.png"))
+        
+        else:
+            # no thumbnail for this guy
+            self.setToolTip("Click to see full attachment.")
+            self.setText(self._data["this_file"]["name"])
+            self.setStyleSheet("""QLabel { 
+                border-radius: 2px; 
+                border: 1px solid rgba(200, 200, 200, 40%); 
+                padding: 8px; 
+                }""")
+        
+        
     def set_thumbnail(self, image):
         thumb = utils.create_rectangular_256x144_thumbnail(image)
         self.setPixmap(thumb)
@@ -50,7 +66,48 @@ class LargeAttachmentThumbnail(QtGui.QLabel):
         Fires when the mouse is pressed
         """
         QtGui.QLabel.mousePressEvent(self, event)        
-        self.clicked.emit()
+
+        # {'attachment_links': [{'id': 6105,
+        #                        'name': "Manne's Note on bunny_010_0050 - asdasdasdasd",
+        #                        'type': 'Note'}],
+        #  'created_at': 1438774776.0,
+        #  'created_by': {'id': 38, 'name': 'Manne Ohrstrom', 'type': 'HumanUser'},
+        #  'id': 266,
+        #  'image': None,
+        #  'this_file': {'content_type': 'application/pdf',
+        #                'id': 266,
+        #                'link_type': 'upload',
+        #                'name': 'SustraMM_Costs_and_benefits_of_cycling.pdf',
+        #                'type': 'Attachment',
+        #                'url': 'https://manne-dev-1.shotgunstudio.com/file_serve/attachment/266'},
+        #  'type': 'Attachment'}
+        
+        
+        # {'attachment_links': [{'id': 6105,
+        #                        'name': "Manne's Note on bunny_010_0050 - asdasdasdasd",
+        #                        'type': 'Note'}],
+        #  'created_at': 1438774085.0,
+        #  'created_by': {'id': 38, 'name': 'Manne Ohrstrom', 'type': 'HumanUser'},
+        #  'id': 265,
+        #  'image': 'https://sg-media-usor-01.s3.amazonaws.com/...',
+        #  'this_file': {'content_type': 'image/png',
+        #                'id': 265,
+        #                'link_type': 'upload',
+        #                'name': 'screencapture_o9Pgb9.png',
+        #                'type': 'Attachment',
+        #                'url': 'https://sg-media-usor-01.s3.amazonaws.com/...'},
+        #  'type': 'Attachment'}
+
+        # the url to serve up attachments is on the form
+        # https://manne-dev-1.shotgunstudio.com/file_serve/attachment/259/screencapture_3bVvcA.png
+        
+        file_name = self._data["this_file"]["name"]
+        url = "%s/file_serve/attachment/%s/%s" % (self._app.sgtk.shotgun_url, self._data["id"], file_name)
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+        
+        
+        
+        
         
 
 class SmallAttachmentThumbnail(QtGui.QLabel):
@@ -60,7 +117,7 @@ class SmallAttachmentThumbnail(QtGui.QLabel):
     
     clicked = QtCore.Signal()
     
-    def __init__(self, parent):
+    def __init__(self, data, parent):
         """
         Constructor
         
@@ -70,18 +127,18 @@ class SmallAttachmentThumbnail(QtGui.QLabel):
         
         self.setMinimumSize(QtCore.QSize(48, 48))
         self.setMaximumSize(QtCore.QSize(48, 48))
+        self.setScaledContents(True)
         self.setText("")
-        self.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel_activity_stream/rect_256x144.png"))
+        self.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel_activity_stream/attachment_icon_192px.png"))
         # make this user clickable
         self.setCursor(QtCore.Qt.PointingHandCursor)
 
-        self._data = None
-        
-    def set_data(self, data):
         self._data = data
-
+        
+        self.setToolTip("Click to show a larger thumbnail.")
+        
     def set_thumbnail(self, image):
-        thumb = utils.create_rectangular_256x144_thumbnail(image)
+        thumb = utils.create_square_48_thumbnail(image)
         self.setPixmap(thumb)
 
     def mousePressEvent(self, event):
