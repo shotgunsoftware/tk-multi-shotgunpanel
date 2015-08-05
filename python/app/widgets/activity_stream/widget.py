@@ -174,18 +174,19 @@ class ActivityStreamWidget(QtGui.QWidget):
             self._app.log_debug("Adding activity widgets...")
             for activity_id in ids_to_process:
                 w = self._create_activity_widget(activity_id)      
-                self._widgets[activity_id] = w
-                self.ui.activity_stream_layout.addWidget(w)        
-        
-                # run extra init for notes
-                if isinstance(w, NoteWidget):
-                    data = self._data_manager.get_activity_data(activity_id)
-                    note_id = data["primary_entity"]["id"]
-                    (note_reply_users, note_attachment_requests) = self._populate_note_widget(w, activity_id, note_id)
-                    # extend user and attachment requests to our full list
-                    # so that we can request thumbnails for these later...
-                    all_reply_users |= note_reply_users                    
-                    attachment_requests.extend(note_attachment_requests)
+                if w:
+                    self._widgets[activity_id] = w
+                    self.ui.activity_stream_layout.addWidget(w)        
+            
+                    # run extra init for notes
+                    if isinstance(w, NoteWidget):
+                        data = self._data_manager.get_activity_data(activity_id)
+                        note_id = data["primary_entity"]["id"]
+                        (note_reply_users, note_attachment_requests) = self._populate_note_widget(w, activity_id, note_id)
+                        # extend user and attachment requests to our full list
+                        # so that we can request thumbnails for these later...
+                        all_reply_users |= note_reply_users                    
+                        attachment_requests.extend(note_attachment_requests)
             
             # last, create "loading" widget
             # to put at the top of the list
@@ -325,37 +326,46 @@ class ActivityStreamWidget(QtGui.QWidget):
     def _create_activity_widget(self, activity_id):
         """
         Create a widget for a given activity id
+        If the activity id is not supported by the implementation, 
+        returns None
         """
         data = self._data_manager.get_activity_data(activity_id)
+        
+        widget = None
         
         # factory logic
         if data["update_type"] == "create":
             
             if data["primary_entity"]["type"] in ["Version", "PublishedFile", "TankPublishedFile"]:
                 # full on 'new item' widget with thumbnail, description etc.
-                w = NewItemWidget(self)
+                widget = NewItemWidget(self)
             
             elif data["primary_entity"]["type"] == "Note":
                 # new note
-                w = NoteWidget(self)
+                widget = NoteWidget(self)
                 
             else:
                 # minimalistic 'new' widget for all other cases
-                w = SimpleNewItemWidget(self)
+                widget = SimpleNewItemWidget(self)
                             
         elif data["update_type"] == "create_reply":
-            w = NoteWidget(self)
+            widget = NoteWidget(self)
             
         elif data["update_type"] == "update":
-            w = ValueUpdateWidget(self)
+            widget = ValueUpdateWidget(self)
+            
+        else:
+            self._app.log_debug("Activity type not supported and will not be "
+                                "rendered: %s" % data["update_type"])
         
         # initialize the widget
-        w.set_host_entity(self._entity_type, self._entity_id)
-        w.set_info(data)
-        w.entity_requested.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))
-        w.playback_requested.connect(lambda sg_data: self.playback_requested.emit(sg_data))
+        if widget:
+            widget.set_host_entity(self._entity_type, self._entity_id)
+            widget.set_info(data)
+            widget.entity_requested.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))
+            widget.playback_requested.connect(lambda sg_data: self.playback_requested.emit(sg_data))
                     
-        return w
+        return widget
         
     def _process_new_data(self, activity_ids):
         """
@@ -372,12 +382,13 @@ class ActivityStreamWidget(QtGui.QWidget):
         # and we pop them on to the widget
         for activity_id in activity_ids:
             self._app.log_debug("Creating new widget...")
-            w = self._create_activity_widget(activity_id)            
-            self._widgets[activity_id] = w
-            self._app.log_debug("Adding %s to layout" % w)
-            self.ui.activity_stream_layout.addWidget(w)        
-            # add special blue border to indicate that this is a new arrival
-            w.setStyleSheet("QFrame#frame{ border: 1px solid rgba(48, 167, 227, 50%); }")
+            w = self._create_activity_widget(activity_id)
+            if w:            
+                self._widgets[activity_id] = w
+                self._app.log_debug("Adding %s to layout" % w)
+                self.ui.activity_stream_layout.addWidget(w)        
+                # add special blue border to indicate that this is a new arrival
+                w.setStyleSheet("QFrame#frame{ border: 1px solid rgba(48, 167, 227, 50%); }")
         
         # when everything is loaded in, load the thumbs
         self._app.log_debug("Requesting thumbnails")

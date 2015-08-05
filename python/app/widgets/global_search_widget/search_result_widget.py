@@ -48,6 +48,16 @@ class SearchResultWidget(QtGui.QWidget):
                    border-style: solid;
             }
             """        
+        self._css_not_selected = """
+            #box { border-width: 2px; 
+                   border-radius: 4px;
+                   border-color: rgba(0, 0, 0, 0%);
+                   border-style: solid;
+            }
+            """    
+        
+        self.set_selected(False)    
+
                                     
     def set_selected(self, selected):
         """
@@ -57,6 +67,9 @@ class SearchResultWidget(QtGui.QWidget):
         """
         if selected:
             self.ui.box.setStyleSheet(self._css_selected)
+        else:
+            self.ui.box.setStyleSheet(self._css_not_selected)
+            
     
     def set_thumbnail(self, pixmap):
         """

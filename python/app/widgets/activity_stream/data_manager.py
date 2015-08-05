@@ -559,10 +559,11 @@ class ActivityStreamDataHandler(QtCore.QObject):
                           "Sequence": ["image"],
                           "Note": ["created_by", "created_by.HumanUser.image"], 
                           "Version": ["description", "sg_uploaded_movie", "image", "entity"],
-                          "PublishedFile": ["description", "sg_uploaded_movie", "image", "entity"],
-                          "TankPublishedFile": ["description", "sg_uploaded_movie", "image", "entity"],
+                          "PublishedFile": ["description", "image", "entity"],
+                          "TankPublishedFile": ["description", "image", "entity"],
                           }
         
+        print "begin activity stream read! %s %s" % (entity_type, entity_id) 
         sg_data = sg.activity_stream_read(entity_type, entity_id, entity_fields, min_id, limit=self.MAX_ITEMS_TO_GET_FROM_SG)
         
         return sg_data
