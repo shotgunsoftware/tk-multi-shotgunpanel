@@ -13,9 +13,12 @@ class Ui_ReplyWidget(object):
         ReplyWidget.setObjectName("ReplyWidget")
         ReplyWidget.resize(287, 142)
         self.horizontalLayout_2 = QtGui.QHBoxLayout(ReplyWidget)
+        self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setContentsMargins(0, 10, 0, 2)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout_2 = QtGui.QVBoxLayout()
+        self.verticalLayout_2.setSpacing(0)
+        self.verticalLayout_2.setContentsMargins(-1, -1, 8, -1)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.user_thumb = UserThumbnail(ReplyWidget)
         self.user_thumb.setMinimumSize(QtCore.QSize(30, 30))
@@ -31,6 +34,7 @@ class Ui_ReplyWidget(object):
         self.verticalLayout_2.setStretch(1, 1)
         self.horizontalLayout_2.addLayout(self.verticalLayout_2)
         self.verticalLayout = QtGui.QVBoxLayout()
+        self.verticalLayout.setSpacing(3)
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -58,6 +62,7 @@ class Ui_ReplyWidget(object):
         self.reply = QtGui.QLabel(ReplyWidget)
         self.reply.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.reply.setWordWrap(True)
+        self.reply.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.reply.setObjectName("reply")
         self.verticalLayout.addWidget(self.reply)
         self.verticalLayout.setStretch(1, 1)
@@ -73,5 +78,5 @@ class Ui_ReplyWidget(object):
         self.date.setText(QtGui.QApplication.translate("ReplyWidget", "Tuesday", None, QtGui.QApplication.UnicodeUTF8))
         self.reply.setText(QtGui.QApplication.translate("ReplyWidget", "Lorem ipsum foo bar.", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..thumbnail_widgets import UserThumbnail
+from ..label_widgets import UserThumbnail
 from . import resources_rc

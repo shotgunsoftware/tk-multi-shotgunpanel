@@ -79,6 +79,7 @@ class ActivityStreamWidget(QtGui.QWidget):
                 
         # state management
         self._data_retriever = None
+        self._sg_entity_dict = None
         self._entity_type = None
         self._entity_id = None
         
@@ -105,18 +106,19 @@ class ActivityStreamWidget(QtGui.QWidget):
         finally:
             f.close()
         
-    def set_current_entity(self, entity_type, entity_id):
+    def load_data(self, sg_entity_dict):
         """
         Reset the state of the widget and then load up the data
         for the given entity.
         """
-        self._app.log_debug("Setting up activity stream for entity %s %s" % (entity_type, entity_id))
+        self._app.log_debug("Setting up activity stream for entity %s" % sg_entity_dict)
         # clean up everything first
         self._clear()
         
         # change the state
-        self._entity_type = entity_type
-        self._entity_id = entity_id
+        self._sg_entity_dict = sg_entity_dict
+        self._entity_type = self._sg_entity_dict["type"]
+        self._entity_id = self._sg_entity_dict["id"]
         
         # tell our "new note" widget which entity it should link up against 
         self.ui.note_widget.set_current_entity(self._entity_type, 
@@ -135,7 +137,7 @@ class ActivityStreamWidget(QtGui.QWidget):
             # NOTE!!!! - cannot use the actual spinning animation because
             # this triggers the GIL bug where signals from threads
             # will deadlock the GIL
-            self.__overlay.show_message("Loading Activity Stream...")
+            self.__overlay.show_message("Loading Shotgun Data...")
 
         all_reply_users = set()
         attachment_requests = []
@@ -447,9 +449,8 @@ class ActivityStreamWidget(QtGui.QWidget):
         
         try:
             self.__small_overlay.show()
-        
             if reply_dialog.exec_() == QtGui.QDialog.Accepted:
-                self.set_current_entity(self._entity_type, self._entity_id)
+                self.load_data(self._sg_entity_dict)
         finally:
             self.__small_overlay.hide()
         

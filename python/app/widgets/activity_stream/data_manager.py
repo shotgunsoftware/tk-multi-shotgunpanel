@@ -128,34 +128,57 @@ class ActivityStreamDataHandler(QtCore.QObject):
 
         time_before = time.time()
         self._app.log_debug("Loading cached data...")
-        (activity_data, notes_data) = self.__get_db_records(self._entity_type, self._entity_id)
+        
+        if entity_type == "Note":
+            # load note thread only
+            note_id = self._entity_id
+            note_data = self.__get_note_thread_data(note_id)
+            if note_data:
+                self._note_threads[note_id] = note_data
+            records_loaded = len(self._note_threads)
+            
+        else:
+            # load activity stream and associated notes
+            (self._activity_data, self._note_threads) = self.__get_db_activity_stream_records(self._entity_type, self._entity_id)
+            records_loaded = len(self._activity_data)
+        
         time_diff = (time.time() - time_before)
         self._app.log_debug("...loading complete! %s "
                             "events and %s notes loaded in "
-                            "%4fs" % (len(activity_data), len(notes_data), time_diff))
-    
-        self._activity_data = activity_data
-        # store activity ids sorted desc
-        self._note_threads = notes_data
-        
-        return len(self._activity_data)
+                            "%4fs" % (len(self._activity_data), len(self._note_threads), time_diff))
+            
+        return records_loaded
+
+
 
     def rescan(self):
         """
         Check for updates
         """
-        # the first record returned is the latest one
-        if len(self._activity_data) > 0:
-            highest_id = max(self._activity_data.keys()) 
+        if self._entity_type == "Note":
+            
+            # refresh note
+            data = {"note_id": self._entity_id }
+            note_uid = self._sg_data_retriever.execute_method(self._get_note_thread, data)
+            
+            # map the unique id with the update id so we can merge the 
+            # two later as the data arrives 
+            self._note_map[note_uid] = {"update_id": None, "note_id": self._entity_id}
+            
         else:
-            highest_id = None
-        
-        # kick off async data request from shotgun 
-        data = {"entity_type": self._entity_type,
-                "entity_id": self._entity_id,
-                "highest_id": highest_id
-                }
-        self._processing_id = self._sg_data_retriever.execute_method(self._get_activity_stream, data)        
+            # refresh full activity stream
+            # the first record returned is the latest one
+            if len(self._activity_data) > 0:
+                highest_id = max(self._activity_data.keys()) 
+            else:
+                highest_id = None
+            
+            # kick off async data request from shotgun 
+            data = {"entity_type": self._entity_type,
+                    "entity_id": self._entity_id,
+                    "highest_id": highest_id
+                    }
+            self._processing_id = self._sg_data_retriever.execute_method(self._get_activity_stream, data)        
         
 
     def get_activity_ids(self, limit=None):
@@ -332,7 +355,45 @@ class ActivityStreamDataHandler(QtCore.QObject):
 
         return connection
  
-    def __get_db_records(self, entity_type, entity_id, limit=1000):
+    def __get_note_thread_data(self, note_id):
+        """
+        Load note data from the db
+        """
+        note_data = None
+        connection = None
+        cursor = None
+        try:
+            connection = self.__init_db()
+            cursor = connection.cursor()
+            
+            # get the activity payload for the first X entities
+            # if they have a note thread associated, bring that in too
+            res = cursor.execute("SELECT payload FROM note WHERE note_id=?", (note_id,))
+            
+            # read in all records into a list
+            res = list(res)
+            
+            if len(res) > 0:
+                note_payload = res[0][0]
+                note_data = cPickle.loads(str(note_payload))
+                
+        except:
+            # supress and continue
+            self._app.log_exception("Could not load activity stream data "
+                                    "from cache database %s" % self._cache_path)
+        finally:
+            try:
+                if cursor:
+                    cursor.close()
+                if connection:
+                    connection.close()
+            except:
+                self._app.log_exception("Could not close database handle")
+            
+        return note_data
+       
+ 
+    def __get_db_activity_stream_records(self, entity_type, entity_id, limit=1000):
         """
         Returns the activity stream for a particular record.
         """
@@ -462,6 +523,9 @@ class ActivityStreamDataHandler(QtCore.QObject):
     def __db_insert_note_update(self, update_id, note_id, data):
         """
         update the sql db with note data
+        
+        :param update_id: Activity stream id to update. If None, only
+                          the note will be rebuilt in the database.
         """
         self._app.log_debug("Adding note %s to database, "
                             "linking it to event %s" % (note_id, update_id))
@@ -484,13 +548,15 @@ class ActivityStreamDataHandler(QtCore.QObject):
                 
             cursor.execute(sql, (note_id, blob))                
                 
-            # and finally update the event record to point at this note
-            sql = """UPDATE activity
-                     SET note_id = ?
-                     WHERE activity_id = ?
-                  """
-                
-            cursor.execute(sql, (note_id, update_id))                
+            if update_id is not None:
+            
+                # and finally update the event record to point at this note
+                sql = """UPDATE activity
+                         SET note_id = ?
+                         WHERE activity_id = ?
+                      """
+                    
+                cursor.execute(sql, (note_id, update_id))                
             
             connection.commit()
             
@@ -562,8 +628,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
                           "PublishedFile": ["description", "image", "entity"],
                           "TankPublishedFile": ["description", "image", "entity"],
                           }
-        
-        print "begin activity stream read! %s %s" % (entity_type, entity_id) 
+         
         sg_data = sg.activity_stream_read(entity_type, entity_id, entity_fields, min_id, limit=self.MAX_ITEMS_TO_GET_FROM_SG)
         
         return sg_data
@@ -677,7 +742,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
             # we got a note id back!
             update_id = self._note_map[uid]["update_id"]
             note_id = self._note_map[uid]["note_id"]
-            self._app.log_debug("Received note reply info for update %s" % update_id)
+            self._app.log_debug("Received note reply info for note id %s, update %s" % (note_id, update_id))
             
             # data is a list of entities, stored inside a "return_value" key
             note_thread_list = data["return_value"]

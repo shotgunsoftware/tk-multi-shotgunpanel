@@ -72,5 +72,5 @@ class Ui_SimpleNewItemWidget(object):
     def retranslateUi(self, SimpleNewItemWidget):
         SimpleNewItemWidget.setWindowTitle(QtGui.QApplication.translate("SimpleNewItemWidget", "Form", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..thumbnail_widgets import UserThumbnail
+from ..label_widgets import UserThumbnail
 from . import resources_rc

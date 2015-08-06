@@ -20,6 +20,8 @@ class ReplyWidget(ActivityStreamBaseWidget):
     Widget that replies event stream details for a note
     """
     
+    (LARGE_USER_THUMB, SMALL_USER_THUMB) = range(2)
+    
     def __init__(self, parent):
         """
         Constructor
@@ -40,10 +42,23 @@ class ReplyWidget(ActivityStreamBaseWidget):
         self.ui.reply.linkActivated.connect(self._entity_request_from_url)
         self.ui.header_left.linkActivated.connect(self._entity_request_from_url)    
         
-        self.ui.user_thumb.clicked.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))    
+        self.ui.user_thumb.entity_requested.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))    
 
     ##############################################################################
     # public interface
+
+    def adjust_thumb_style(self, style):
+        
+        if style == self.LARGE_USER_THUMB:
+            self.ui.user_thumb.setMinimumSize(QtCore.QSize(50, 50))
+            self.ui.user_thumb.setMaximumSize(QtCore.QSize(50, 50))
+        elif style == self.SMALL_USER_THUMB:
+            self.ui.user_thumb.setMinimumSize(QtCore.QSize(30, 30))
+            self.ui.user_thumb.setMaximumSize(QtCore.QSize(30, 30))
+        else:
+            self._app.log_warning("Unknown thumb style for reply")
+        
+        
 
     @property
     def thumbnail_populated(self):
@@ -76,7 +91,7 @@ class ReplyWidget(ActivityStreamBaseWidget):
         # set standard date field
         self._set_timestamp(data, self.ui.date)
         
-        self.ui.header_left.setText(entity_url)
+        self.ui.header_left.setText("<big>%s</big>" % entity_url)
         
         self.ui.reply.setText(data["content"])
         

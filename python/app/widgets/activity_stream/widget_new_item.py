@@ -46,7 +46,7 @@ class NewItemWidget(ActivityStreamBaseWidget):
         
         self.ui.details_thumb.playback_clicked.connect(lambda sg_data: self.playback_requested.emit(sg_data))
         
-        self.ui.user_thumb.clicked.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))
+        self.ui.user_thumb.entity_requested.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))
         
     ##############################################################################
     # public interface
@@ -172,7 +172,7 @@ class SimpleNewItemWidget(ActivityStreamBaseWidget):
         
         # make sure that click on hyperlinks bubble up
         self.ui.header_left.linkActivated.connect(self._entity_request_from_url)        
-        self.ui.user_thumb.clicked.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))
+        self.ui.user_thumb.entity_requested.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))
         
     ##############################################################################
     # public interface

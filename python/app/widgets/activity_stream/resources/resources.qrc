@@ -3,6 +3,7 @@
     <file>attachment_icon_192px.png</file>
     <file>rect_256x144.png</file>
     <file>default_user.png</file>
+    <file>attachments.png</file>
     <file>entity_icons/icon_Asset_dark.png</file>
     <file>entity_icons/icon_ClientUser_dark.png</file>
     <file>entity_icons/icon_EventLogEntry_dark.png</file>

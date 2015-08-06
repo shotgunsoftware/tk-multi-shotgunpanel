@@ -45,6 +45,7 @@ build_ui collapse_widget
 build_ui attachment_group_widget
 build_ui simple_new_item_widget
 build_ui reply_dialog
+build_ui reply_list_widget
 
 # build resources
 echo "building resources..."

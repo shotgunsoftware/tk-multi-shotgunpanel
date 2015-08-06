@@ -83,5 +83,5 @@ class Ui_ValueUpdateWidget(object):
         self.date.setText(QtGui.QApplication.translate("ValueUpdateWidget", "3 days ago", None, QtGui.QApplication.UnicodeUTF8))
         self.footer.setText(QtGui.QApplication.translate("ValueUpdateWidget", "asdasdasd", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..thumbnail_widgets import UserThumbnail
+from ..label_widgets import UserThumbnail
 from . import resources_rc

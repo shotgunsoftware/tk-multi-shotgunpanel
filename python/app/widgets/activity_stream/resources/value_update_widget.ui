@@ -147,7 +147,7 @@
   <customwidget>
    <class>UserThumbnail</class>
    <extends>QLabel</extends>
-   <header>..thumbnail_widgets</header>
+   <header>..label_widgets</header>
   </customwidget>
  </customwidgets>
  <resources>

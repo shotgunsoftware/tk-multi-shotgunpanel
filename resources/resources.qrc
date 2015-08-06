@@ -1,6 +1,7 @@
 <RCC>
   <qresource prefix="tk_multi_infopanel">
     <file>default_user_thumb.png</file>
+    <file>bye_for_now.png</file>
     <file>down_arrow.png</file>
     <file>rect_512x400.png</file>
     <file>round_512x400.png</file>

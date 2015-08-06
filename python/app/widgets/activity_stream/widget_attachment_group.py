@@ -12,7 +12,7 @@ from sgtk.platform.qt import QtCore, QtGui
 
 import sgtk
 
-from .thumbnail_widgets import LargeAttachmentThumbnail, SmallAttachmentThumbnail
+from .label_widgets import LargeAttachmentThumbnail, SmallAttachmentThumbnail
 from .data_manager import ActivityStreamDataHandler
 
 from .ui.attachment_group_widget import Ui_AttachmentGroupWidget
@@ -21,6 +21,8 @@ class AttachmentGroupWidget(QtGui.QWidget):
     """
     Subclassed QLabel to represent a shotgun user.
     """
+    
+    OFFSET_NONE, OFFSET_LARGE_THUMB, OFFSET_SMALL_THUMB = range(3)
     
     def __init__(self, parent, attachment_data):
         """
@@ -34,6 +36,7 @@ class AttachmentGroupWidget(QtGui.QWidget):
         self.ui = Ui_AttachmentGroupWidget() 
         self.ui.setupUi(self)
         
+        self._app = sgtk.platform.current_bundle()
         
         self._large_thumbnails = {}
         self._small_thumbnails = {}
@@ -67,8 +70,6 @@ class AttachmentGroupWidget(QtGui.QWidget):
         # and have everything pushed to the left        
         self.ui.preview_layout.setColumnStretch(max_col+1, 1)
         
-        
-        
         # now populate the large thumbs - they reside in a hidden 
         # frame in the UI
         
@@ -87,13 +88,21 @@ class AttachmentGroupWidget(QtGui.QWidget):
             self.ui.attachment_layout.addWidget(obj)
             self._large_thumbnails[data["id"]] = obj
         
-    def adjust_ui_for_note(self):
-        """
-        Adjust the widget to be placed directly after a note
-        rather than  the (standard) placement after a reply
-        """
-        self.ui.verticalLayout.setContentsMargins(0, 6, 0, 0)        
-
+    def show_attachments_label(self, status):
+        
+        self.ui.attachments_label.setVisible(status)
+        
+    def adjust_left_offset(self, offset):
+        
+        if offset == self.OFFSET_NONE:
+            self.ui.verticalLayout.setContentsMargins(0, 6, 0, 0)
+        elif offset == self.OFFSET_LARGE_THUMB:
+            self.ui.verticalLayout.setContentsMargins(60, 6, 0, 0)
+        elif offset == self.OFFSET_SMALL_THUMB:
+            self.ui.verticalLayout.setContentsMargins(36, 6, 0, 0)
+        else:
+            self._app.log_warning("Unknown offset for attachment group")
+        
     def set_thumbnail(self, data):
         """
         set thumbnail

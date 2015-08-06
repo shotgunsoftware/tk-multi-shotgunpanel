@@ -19,6 +19,8 @@ shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "sho
 
 from .widget_reply import ReplyWidget
 
+from .label_widgets import ClickableTextLabel
+
 from .widget_attachment_group import AttachmentGroupWidget
 from ...modules.schema import CachedShotgunSchema
 
@@ -52,7 +54,7 @@ class NoteWidget(ActivityStreamBaseWidget):
         self.ui.links.linkActivated.connect(self._entity_request_from_url)
         self.ui.content.linkActivated.connect(self._entity_request_from_url)
         self.ui.header_left.linkActivated.connect(self._entity_request_from_url)    
-        self.ui.user_thumb.clicked.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))    
+        self.ui.user_thumb.entity_requested.connect(lambda entity_type, entity_id: self.entity_requested.emit(entity_type, entity_id))    
 
     ##############################################################################
     # public interface
@@ -104,8 +106,9 @@ class NoteWidget(ActivityStreamBaseWidget):
 
 
     def add_reply_button(self):
-        reply_button = QtGui.QToolButton(self)
-        reply_button.setText("Reply")
+        reply_button = ClickableTextLabel(self)
+        reply_button.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTop)
+        reply_button.setText("Reply to this Note")
         reply_button.setObjectName("reply_button")
         self.ui.reply_layout.addWidget(reply_button)
         self._general_widgets.append(reply_button)
@@ -125,28 +128,17 @@ class NoteWidget(ActivityStreamBaseWidget):
         Add replies and attachment widgets
         """
         
-        curr_attachment_group_widget_id = len(self._attachment_group_widgets)
-        
         current_attachments = []
         attachment_is_directly_after_note = True
         
         for item in replies_and_attachments:
             
             if item["type"] == "Reply":
-                                
+                    
                 # first, wrap up attachments
-                if len(current_attachments) > 0:
-                    attachment_group = AttachmentGroupWidget(self, current_attachments)
-                    
-                    if attachment_is_directly_after_note:
-                        attachment_group.adjust_ui_for_note()
-                        
-                    self.ui.reply_layout.addWidget(attachment_group)
-                    current_attachments = []
-                    
-                    # add it to our mapping dict and increment the counter
-                    self._attachment_group_widgets[curr_attachment_group_widget_id] = attachment_group
-                    curr_attachment_group_widget_id += 1
+                if len(current_attachments) > 0:                    
+                    self._add_attachment_group(current_attachments, attachment_is_directly_after_note)
+                    current_attachments = []                                
                                                 
                 w = ReplyWidget(self)
                 self.ui.reply_layout.addWidget(w)
@@ -165,15 +157,9 @@ class NoteWidget(ActivityStreamBaseWidget):
                 current_attachments.append(item)
         
         # see if there are still open attachments
-        if len(current_attachments) > 0:
-            
-            attachment_group = AttachmentGroupWidget(self, current_attachments)
-            if attachment_is_directly_after_note:
-                attachment_group.adjust_ui_for_note()
-            
-            self._attachment_group_widgets[curr_attachment_group_widget_id] = attachment_group
-            self.ui.reply_layout.addWidget(attachment_group)
-            print self._attachment_group_widgets
+        if len(current_attachments) > 0:                    
+            self._add_attachment_group(current_attachments, attachment_is_directly_after_note)
+            current_attachments = []                                
         
     def get_reply_users(self):
         """
@@ -187,6 +173,24 @@ class NoteWidget(ActivityStreamBaseWidget):
                                 reply_widget.created_by["id"])
             users.append(created_by_tuple)
         return set(users)
+        
+        
+    def _add_attachment_group(self, attachments, after_note):
+        """
+        
+        """
+        curr_attachment_group_widget_id = len(self._attachment_group_widgets)
+        attachment_group = AttachmentGroupWidget(self, attachments)
+        # don't show the ATTACHMENTS header in the activity stream
+        attachment_group.show_attachments_label(False)        
+
+        offset = attachment_group.OFFSET_NONE if after_note else attachment_group.OFFSET_SMALL_THUMB        
+        attachment_group.adjust_left_offset(offset)
+        
+        self.ui.reply_layout.addWidget(attachment_group)
+        
+        # add it to our mapping dict and increment the counter
+        self._attachment_group_widgets[curr_attachment_group_widget_id] = attachment_group
         
         
     def __generate_note_links_table(self, links):

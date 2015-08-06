@@ -41,8 +41,7 @@ from .modules.schema import CachedShotgunSchema
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings")
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
-
-
+overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overlay_widget")
 
 
 class AppDialog(QtGui.QWidget):
@@ -99,7 +98,7 @@ class AppDialog(QtGui.QWidget):
         # set up an asynchronous shotgun retriever to pull down data
         self._sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)
         self._sg_data_retriever.start()
-        
+                
         # register the data fetcher with the global schema manager
         CachedShotgunSchema.register_data_retriever(self._sg_data_retriever)
                 
@@ -120,7 +119,9 @@ class AppDialog(QtGui.QWidget):
         # track the history
         self._history_items = []
         self._history_index = 0
-                                
+        
+        # overlay to show messages                        
+        self._overlay = overlay_module.ShotgunOverlayWidget(self)
 
         # figure out which type of publish this toolkit project is using
         self._publish_entity_type = sgtk.util.get_published_file_entity_type(self._app.sgtk)
@@ -167,11 +168,13 @@ class AppDialog(QtGui.QWidget):
         self.ui.details_text_middle.linkActivated.connect(self._on_link_clicked)
         self.ui.details_thumb.playback_clicked.connect(self._playback_version)
         
-        self.ui.entity_activity_stream.playback_requested.connect(self._playback_version)
-        self.ui.version_activity_stream.playback_requested.connect(self._playback_version)
-        
+        self.ui.note_reply_widget.entity_requested.connect(self._navigate_to_entity)
         self.ui.entity_activity_stream.entity_requested.connect(self._navigate_to_entity)
         self.ui.version_activity_stream.entity_requested.connect(self._navigate_to_entity)
+
+        self.ui.entity_activity_stream.playback_requested.connect(self._playback_version)
+        self.ui.version_activity_stream.playback_requested.connect(self._playback_version)
+
         
         # set up the UI tabs. Each tab has a model, a delegate, a view and 
         # an associated enity type
@@ -310,15 +313,11 @@ class AppDialog(QtGui.QWidget):
         """        
         
         self._app.log_debug("CloseEvent Received. Begin shutting down UI.")
-        
-        # display exit splash screen
-        splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/exit_splash.png")
-        splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
-        splash.setMask(splash_pix.mask())
-        splash.show()
-        QtCore.QCoreApplication.processEvents()
 
-        
+        # register a shutdown overlay
+        splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/bye_for_now.png")
+        self._overlay.show_message_pixmap(splash_pix)
+        QtCore.QCoreApplication.processEvents()
 
         try:
             
@@ -351,7 +350,7 @@ class AppDialog(QtGui.QWidget):
             self._app.log_exception("Error running Info panel App closeEvent()")
                 
         # close splash
-        splash.close()
+        self._overlay.hide()
 
         # okay to close dialog
         event.accept()
@@ -477,7 +476,7 @@ class AppDialog(QtGui.QWidget):
         """        
         
         if index == self.ENTITY_TAB_ACTIVITY_STREAM:
-            self.ui.entity_activity_stream.set_current_entity(self._current_location.entity_type, self._current_location.entity_id)
+            self.ui.entity_activity_stream.load_data(self._current_location.entity_dict )
         
         elif index == self.ENTITY_TAB_NOTES:            
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
@@ -506,7 +505,7 @@ class AppDialog(QtGui.QWidget):
         """
 
         if index == self.VERSION_TAB_ACTIVITY_STREAM:
-            self.ui.version_activity_stream.set_current_entity(self._current_location.entity_type, self._current_location.entity_id)
+            self.ui.version_activity_stream.load_data(self._current_location.entity_dict)
         
         elif index == self.VERSION_TAB_NOTES:
             self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location)
@@ -556,15 +555,17 @@ class AppDialog(QtGui.QWidget):
         # QToolbutton needs a QIcon        
         self.ui.current_user.setIcon(QtGui.QIcon(curr_user_pixmap))        
                 
-        # updat the reply icon        
-        self.ui.note_reply_widget.set_current_user_thumbnail(curr_user_pixmap)        
-        
+        # updat the reply icon                
         sg_data = self._current_user_model.get_sg_data()        
         if sg_data:        
-            self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])        
+            self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])
+            home_str = "%s's Home" % sg_data["name"]
+        else:
+            # no data loaded yet in the model
+            home_str = "My Home"
 
         self.user_menu = QtGui.QMenu(self)
-        self.user_menu.addAction("%s's Home" % sg_data["name"])
+        self.user_menu.addAction(home_str)
         self.user_menu.addAction("Jump to Project")
         self.user_menu.addSeparator()
         self.user_menu.addAction("Copy current Shotgun URL")

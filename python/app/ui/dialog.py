@@ -19,7 +19,8 @@ class Ui_Dialog(object):
         self.top_group.setFrameShadow(QtGui.QFrame.Raised)
         self.top_group.setObjectName("top_group")
         self.verticalLayout_18 = QtGui.QVBoxLayout(self.top_group)
-        self.verticalLayout_18.setSpacing(8)
+        self.verticalLayout_18.setSpacing(4)
+        self.verticalLayout_18.setContentsMargins(6, 6, 6, 6)
         self.verticalLayout_18.setObjectName("verticalLayout_18")
         self.header_stack = QtGui.QStackedWidget(self.top_group)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
@@ -96,6 +97,7 @@ class Ui_Dialog(object):
         self.details = QtGui.QWidget(self.top_group)
         self.details.setObjectName("details")
         self.horizontalLayout_2 = QtGui.QHBoxLayout(self.details)
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.gridLayout = QtGui.QGridLayout()
@@ -359,10 +361,10 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
         self.header_stack.setCurrentIndex(0)
-        self.page_stack.setCurrentIndex(0)
-        self.entity_tab_widget.setCurrentIndex(5)
+        self.page_stack.setCurrentIndex(3)
+        self.entity_tab_widget.setCurrentIndex(0)
         self.publish_tab_widget.setCurrentIndex(3)
-        self.version_tab_widget.setCurrentIndex(3)
+        self.version_tab_widget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
@@ -391,8 +393,7 @@ class Ui_Dialog(object):
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_publish_tab), QtGui.QApplication.translate("Dialog", "Publishes", None, QtGui.QApplication.UnicodeUTF8))
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_info_tab), QtGui.QApplication.translate("Dialog", "Info", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..widgets.activity_stream import ActivityStreamWidget
-from ..widgets.reply_widget import ReplyListWidget
+from ..widgets.activity_stream import ReplyListWidget, ActivityStreamWidget
 from ..widgets.version_label import VersionLabel
 from ..widgets.global_search_widget import GlobalSearchWidget
 from . import resources_rc

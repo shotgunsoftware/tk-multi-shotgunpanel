@@ -9,5 +9,5 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 
-from .widget import ActivityStreamWidget
-
+from .activity_stream import ActivityStreamWidget
+from .reply_list import ReplyListWidget

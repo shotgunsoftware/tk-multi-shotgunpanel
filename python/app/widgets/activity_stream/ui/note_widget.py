@@ -13,10 +13,11 @@ class Ui_NoteWidget(object):
         NoteWidget.setObjectName("NoteWidget")
         NoteWidget.resize(357, 166)
         self.horizontalLayout_2 = QtGui.QHBoxLayout(NoteWidget)
-        self.horizontalLayout_2.setSpacing(8)
+        self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout_2 = QtGui.QVBoxLayout()
+        self.verticalLayout_2.setContentsMargins(-1, -1, 8, -1)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.user_thumb = UserThumbnail(NoteWidget)
         self.user_thumb.setMinimumSize(QtCore.QSize(50, 50))
@@ -81,6 +82,7 @@ class Ui_NoteWidget(object):
         self.content.setText("")
         self.content.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.content.setWordWrap(True)
+        self.content.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.content.setObjectName("content")
         self.verticalLayout.addWidget(self.content)
         self.reply_layout = QtGui.QVBoxLayout()
@@ -96,5 +98,5 @@ class Ui_NoteWidget(object):
     def retranslateUi(self, NoteWidget):
         NoteWidget.setWindowTitle(QtGui.QApplication.translate("NoteWidget", "Form", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..thumbnail_widgets import UserThumbnail
+from ..label_widgets import UserThumbnail
 from . import resources_rc

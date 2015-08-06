@@ -141,12 +141,14 @@ class ShotgunConfiguration(HookBaseClass):
             "notes_tab": True
             }
         
-        if entity_type in ["Step", "Project", "ApiUser", "TankType", "PublishedFileType"]: 
+        if entity_type in ["Step", "ApiUser", "TankType", "PublishedFileType"]: 
             values["tasks_tab"] = False
             values["publishes_tab"] = False
             values["versions_tab"] = False
             values["notes_tab"] = False
 
+        elif entity_type == "Project":
+            values["tasks_tab"] = False
             
         elif entity_type == "Task":
             values["tasks_tab"] = False 
@@ -229,13 +231,14 @@ class ShotgunConfiguration(HookBaseClass):
             
             values["title"] = "{subject}"
             
-            values["body"] = """Created by {created_by} on {created_at}<br>
-                To: {addressings_to}<br>
-                CC: {addressings_cc}<br>
-                Links: {note_links::showtype}<br>
-                Tasks: {tasks}
-                <br><br>
-                {content}
+            values["body"] = """
+                By {created_by} on {created_at}<br>
+                {[To: ]addressings_to[<br>]}
+                {[CC: ]addressings_cc[<br>]}
+                {[Tasks: ]tasks[<br>]}
+                {note_links::showtype}<br>
+                <br>
+                <b>Message:</b> {content}
                 """
     
         elif entity_type == "PublishedFile":

@@ -353,7 +353,7 @@ class ShotgunFormatter(object):
                 # for other things, show items created by me
                 link_filters.append(["created_by", "is", sg_location.entity_dict])
             
-        elif sg_location.entity_type in ["Task"]:
+        elif sg_location.entity_type == "Task":
             
             # tasks are usually associated via a task field rather than via a link field
             if self._entity_type == "Note":
@@ -368,6 +368,23 @@ class ShotgunFormatter(object):
             else:
                 link_filters.append(["entity", "is", sg_location.entity_dict])
             
+
+        elif sg_location.entity_type == "Project":
+            
+            # tasks are usually associated via a task field rather than via a link field
+            if self._entity_type == "Note":
+                link_filters.append(["project", "is", sg_location.entity_dict])
+            
+            elif self._entity_type == "Version":
+                link_filters.append(["project", "is", sg_location.entity_dict])
+            
+            elif self._entity_type in ["PublishedFile", "TankPublishedFile"]:
+                link_filters.append(["project", "is", sg_location.entity_dict])
+
+            else:
+                link_filters.append(["entity", "is", sg_location.entity_dict])
+            
+
             
         else:
             
@@ -429,7 +446,7 @@ class ShotgunFormatter(object):
             # get sg data
             sg_value = sg_data.get(sg_field)
             
-            if sg_value is None and ( pre_roll or post_roll ):
+            if (sg_value is None or sg_value == []) and ( pre_roll or post_roll ):
                 # shotgun value is empty
                 # if we have a pre or post roll part of the token
                 # then we basicaly just skip the display of both 
