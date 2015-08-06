@@ -33,6 +33,9 @@ class SgEntityListingModel(ShotgunOverlayModel):
     shotgun formatter
     """
     
+    # maximum number of items to show in the listings
+    SG_RECORD_LIMIT = 50
+    
     def __init__(self, entity_type, parent):
         """
         Model which represents the latest publishes for an entity
@@ -86,7 +89,8 @@ class SgEntityListingModel(ShotgunOverlayModel):
                                        self._get_filters(), 
                                        hierarchy, 
                                        fields, 
-                                       [{"field_name":"updated_at", "direction":"asc"}])
+                                       [{"field_name":"updated_at", "direction":"desc"}],
+                                       limit=self.SG_RECORD_LIMIT)
         self._refresh_data()
 
     ############################################################################################

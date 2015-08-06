@@ -145,9 +145,22 @@ class ReplyListWidget(QtGui.QWidget):
 
             self._clear()
     
-            note_id = self._sg_entity_dict["id"]
-            
+            note_id = self._sg_entity_dict["id"]            
             attachment_requests = []
+            
+            # first display the content of the note
+            note_data = note_thread_data[0]
+            
+            note_content = note_data.get("content") or \
+                           "This note does not have any content associated." 
+            
+            content_widget = QtGui.QLabel(self)
+            content_widget.setWordWrap(True)
+            content_widget.setText(note_content)
+            content_widget.setObjectName("note_content_label")
+            self.ui.reply_layout.addWidget(content_widget)
+            self._general_widgets.append(content_widget)
+            
             
             # we have cached note data
             replies_and_attachments = note_thread_data[1:] 
@@ -189,7 +202,6 @@ class ReplyListWidget(QtGui.QWidget):
             # make the window visible again and trigger a redraw
             self.setVisible(True)
             
-        
         self._app.log_debug("...done")
 
 

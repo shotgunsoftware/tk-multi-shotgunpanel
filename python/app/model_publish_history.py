@@ -110,7 +110,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
                       ]
 
 
-            hierarchy = ["name"]
+            hierarchy = ["created_by"]
 
             self._current_version = sg_data["version_number"]
 

@@ -159,7 +159,7 @@ class AppDialog(QtGui.QWidget):
         self._current_user_model.load()        
         
         # top detail section
-        self._details_model = SgEntityDetailsModel(self.ui.details)
+        self._details_model = SgEntityDetailsModel(self.ui.top_group)
         self._details_model.data_updated.connect(self._refresh_details)
         self._details_model.thumbnail_updated.connect(self._refresh_details_thumbnail)
 
@@ -594,10 +594,12 @@ class AppDialog(QtGui.QWidget):
         if sg_data:
             (header, body) = formatter.format_entity_details(sg_data) 
             self.ui.details_text_header.setText(header)
+            self.ui.details_text_header.setToolTip(header)
             self.ui.details_text_middle.setText(body)
             
         else:
             self.ui.details_text_header.setText("")
+            self.ui.details_text_header.setToolTip("")
             self.ui.details_text_middle.setText("")
             
             

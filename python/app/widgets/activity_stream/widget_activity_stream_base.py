@@ -147,7 +147,7 @@ class ActivityStreamBaseWidget(QtGui.QWidget):
         datetime_obj = datetime.datetime.fromtimestamp(created_at_unixtime)
         
         # standard format 
-        full_time_str = datetime_obj.strftime('%A %d %B %Y %H:%M') 
+        full_time_str = datetime_obj.strftime('%a %d %b %Y %H:%M') 
     
         if datetime_obj > datetime.datetime.now():
             # future times are reported precisely
@@ -165,11 +165,11 @@ class ActivityStreamBaseWidget(QtGui.QWidget):
 
         if delta_weeks > 52:
             # more than one year ago - 26 June 2012
-            time_str = datetime_obj.strftime('%d %B %Y')
+            time_str = datetime_obj.strftime('%d %b %Y')
         
         elif delta_days > 5:
             # ~ more than one week ago - 26 June
-            time_str = datetime_obj.strftime('%d %B')
+            time_str = datetime_obj.strftime('%d %b')
     
         elif delta_days > 0:
             # more than one day ago - day of week - e.g. Sunday

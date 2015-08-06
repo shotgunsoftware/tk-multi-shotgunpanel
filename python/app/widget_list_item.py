@@ -59,12 +59,16 @@ class ListItemWidget(QtGui.QWidget):
                    border-style: solid; 
                    background-color: rgba(48, 167, 227, 25%);
             }        
-            """
-        
-        
-        self.ui.box.setProperty("decorated", False)
-        self.ui.box.setProperty("selected", False)  
-                                    
+            """                                    
+
+        self._no_style = """
+            #box { border-width: 2px; 
+                   border-radius: 4px;
+                   border-color: rgba(0, 0, 0, 0%); 
+                   border-style: solid; 
+            }        
+            """                                    
+
     def set_selected(self, selected):
         """
         Adjust the style sheet to indicate selection or not
@@ -72,7 +76,7 @@ class ListItemWidget(QtGui.QWidget):
         :param selected: True if selected, false if not
         """
         if selected:
-            self.ui.box.setStyleSheet(self._css_selected) 
+            self.ui.box.setStyleSheet(self._css_selected)
     
     def set_highlighted(self, highlighted):
         """
@@ -83,7 +87,7 @@ class ListItemWidget(QtGui.QWidget):
         if highlighted:
             self.ui.box.setStyleSheet(self._css_decorated)
         else:
-            self.ui.box.setStyleSheet("")
+            self.ui.box.setStyleSheet(self._no_style)
 
     def set_thumbnail(self, pixmap):
         """
@@ -102,9 +106,9 @@ class ListItemWidget(QtGui.QWidget):
         :param body: Body text as string
         """
         #self.setToolTip("%s<br>%s" % (header_left, body))        
-        self.ui.top_left.setText(header_left)
-        self.ui.top_right.setText(header_right)
-        self.ui.body.setText(body)
+        self.ui.list_item_top_left.setText(header_left)
+        self.ui.list_item_top_right.setText(header_right)
+        self.ui.list_item_body.setText(body)
 
     @staticmethod
     def calculate_size():
@@ -113,6 +117,6 @@ class ListItemWidget(QtGui.QWidget):
         
         :returns: Size of the widget
         """        
-        return QtCore.QSize(300, 90)
+        return QtCore.QSize(300, 102)
 
 

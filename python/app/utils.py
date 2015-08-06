@@ -10,7 +10,7 @@
 
 import sgtk
 from sgtk.platform.qt import QtCore, QtGui
-from datetime import datetime , timedelta
+import datetime
 
 def create_round_thumbnail(image):
     """
@@ -205,62 +205,45 @@ def create_rectangular_512x400_thumbnail(image):
 
 
 
+
+
 def create_human_readable_timestamp(datetime_obj):
     """
-    
-    Based on http://code.activestate.com/recipes/578113-human-readable-format-for-a-given-time-delta/
-    
-    Returns (human_readable_timestamp_str, full_timestamp_str)
+    Formats a time stamp the way dates are formatted in the 
+    Shotgun activity stream. 
     """
-    
-    from_date = datetime.now()
-
     # standard format 
-    std_format = datetime_obj.strftime('%Y-%m-%d %H:%M')
+    full_time_str = datetime_obj.strftime('%a %d %b %Y %H:%M') 
 
-    std_date = datetime_obj.strftime('%Y-%m-%d')
-
-    if datetime_obj > datetime.now():
+    if datetime_obj > datetime.datetime.now():
         # future times are reported precisely
-        return (std_date, std_format)
+        return (full_time_str, full_time_str) 
     
     # get the delta and components
-    delta = datetime.now() - datetime_obj
+    delta = datetime.datetime.now() - datetime_obj
 
     # the timedelta structure does not have all units; bigger units are converted
     # into given smaller ones (hours -> seconds, minutes -> seconds, weeks > days, ...)
     # but we need all units:
-    delta_minutes      = delta.seconds // 60
-    delta_hours        = delta.seconds // 3600
     delta_weeks        = delta.days // 7
     delta_days         = delta.days
 
-    # for larger differences, return std format
-    if delta_weeks > 2:
-        return (std_date, std_format)
 
-    # for dates less than 3 weeks, use human readable time stamps 
-    if delta_weeks > 0:
-        # 3 weeks ago
-        human_time_str = "%d %s ago" % (delta_weeks, "week" if delta_weeks == 1 else "weeks")
-     
-    elif delta_days == 1:
-        human_time_str = "Yesterday"
-        
-    elif delta_days > 1:
-        # 2 days ago
-        human_time_str = "%d days ago" % delta_days
-
-    elif delta_hours > 0:
-        human_time_str = "%d %s ago" % (delta_hours, "hour" if delta_weeks == 1 else "hours")
+    if delta_weeks > 52:
+        # more than one year ago - 26 June 2012
+        time_str = datetime_obj.strftime('%d %b %Y')
     
-    elif delta_minutes > 0:
-        human_time_str = "%d %s ago" % (delta_minutes, "minute" if delta_weeks == 1 else "minutes")
+    elif delta_days > 5:
+        # ~ more than one week ago - 26 June
+        time_str = datetime_obj.strftime('%d %b')
+
+    elif delta_days > 0:
+        # more than one day ago - day of week - e.g. Sunday
+        time_str = datetime_obj.strftime('%A')
     
     else:
-        human_time_str = "%d seconds ago" % delta.seconds
-    
-    return (human_time_str, std_format)
-
-
-    
+        # earlier today - display timestamp - 23:22
+        time_str = datetime_obj.strftime('%H:%M')
+                 
+    return (time_str, full_time_str)
+                     

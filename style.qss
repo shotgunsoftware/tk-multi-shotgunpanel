@@ -120,6 +120,15 @@ QPushButton#cancel_search {
 }
 
 
+#details_text_header {
+    padding-left: 2px;
+    font-size: 16px; 
+}
+
+#details_text_middle {
+    padding-left: 0px;
+    padding-left: 8px;
+}
 
 /* field details spreadsheet */
 
@@ -140,9 +149,10 @@ QFrame#line {
     border-top: 1px dotted #888;
 }	
 
-
-
-
 QPushButton#current_user {
     border: none;
+}
+
+#list_item_top_right {
+    color: rgba(200, 200, 200, 40%);
 }

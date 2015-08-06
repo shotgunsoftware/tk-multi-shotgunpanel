@@ -249,6 +249,14 @@ class NoteInputWidget(QtGui.QWidget):
         """
         Creates items in Shotgun and clears the widget.
         """
+        
+        if self.ui.text_entry.toPlainText() == "":
+            QtGui.QMessageBox.information(self, 
+                                          "Please Add Note",
+                                          "Please add some content before submitting.")
+            return
+        
+        
         # hide hint label for better ux.
         self.ui.hint_label.hide()
         self.__overlay.start_spin()
