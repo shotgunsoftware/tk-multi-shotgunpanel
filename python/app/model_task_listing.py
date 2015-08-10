@@ -26,7 +26,7 @@ class SgTaskListingModel(SgEntityListingModel):
     Model to list tasks
     """
     
-    data_updated = QtCore.Signal()
+    request_user_thumbnails = QtCore.Signal(list)
 
     def __init__(self, entity_type, parent):
         """
@@ -49,10 +49,25 @@ class SgTaskListingModel(SgEntityListingModel):
         so that a data_updated signal is consistenntly sent
         out both after the data has been updated and after a cache has been read in
         """
-        self.data_updated.emit()
+        if self._sg_location.entity_type != "HumanUser":
+            # when tasks are shown not for users, get user
+            # thumbnails for them
+            rows = self.rowCount()
+            
+            # get the task assignees
+            assignees = []
+            for x in range(rows):
+                data = self.item(x).get_sg_data()
+                assignees.extend(data["task_assignees"])
+            user_ids = [x["id"] for x in assignees] 
+            
+            self.request_user_thumbnails.emit(user_ids)
   
     def _on_user_thumb(self, sg_data, image):
-
+        """
+        When a user thumb arrives from the 
+        user thumbnail retriever
+        """
         rows = self.rowCount()
         
         for x in range(rows):
@@ -61,11 +76,8 @@ class SgTaskListingModel(SgEntityListingModel):
             user_ids = [x["id"] for x in data["task_assignees"]]
             if sg_data["id"] in user_ids:
                 # this thumbnail should be assigned
-                print sg_data
                 icon = self._sg_formatter.create_thumbnail(image, sg_data)
                 item.setIcon(QtGui.QIcon(icon))
-
-        
   
     def _populate_default_thumbnail(self, item):
         """
@@ -117,24 +129,6 @@ class SgTaskListingModel(SgEntityListingModel):
             item.setIcon(QtGui.QIcon(icon))
 
 
-    def get_user_ids(self):
-        """
-        Returns the sg data dictionary for the associated item
-        None if not available.
-        """
-        rows = self.rowCount()
-        
-        # get the task assignees
-        assignees = []
-        for x in range(rows):
-            data = self.item(x).get_sg_data()
-            assignees.extend(data["task_assignees"])
-        
-        return [x["id"] for x in assignees] 
-
-
-
-
 
 class TaskAssigneeModel(ShotgunModel):
     """
@@ -151,12 +145,12 @@ class TaskAssigneeModel(ShotgunModel):
         ShotgunModel.__init__(self, parent, bg_load_thumbs=True)
         self._app = sgtk.platform.current_bundle()
         self._task_model = parent
-        self._task_model.data_updated.connect(self._load_user_thumbnails)
+        self._task_model.request_user_thumbnails.connect(self._load_user_thumbnails)
 
-    def _load_user_thumbnails(self):
-        
-        user_ids = self._task_model.get_user_ids()
-        
+    def _load_user_thumbnails(self, user_ids):
+        """
+        Load thumbnails for all user ids
+        """        
         fields = ["image"]
         self._load_data("HumanUser", [["id", "in", user_ids]], ["id"], fields)    
         self._refresh_data()
