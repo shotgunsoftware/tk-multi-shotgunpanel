@@ -11,7 +11,7 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_ListItemWidget(object):
     def setupUi(self, ListItemWidget):
         ListItemWidget.setObjectName("ListItemWidget")
-        ListItemWidget.resize(355, 99)
+        ListItemWidget.resize(355, 105)
         self.horizontalLayout_3 = QtGui.QHBoxLayout(ListItemWidget)
         self.horizontalLayout_3.setSpacing(1)
         self.horizontalLayout_3.setContentsMargins(8, 4, 8, 4)
@@ -45,6 +45,11 @@ class Ui_ListItemWidget(object):
         self.list_item_top_right.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.list_item_top_right.setObjectName("list_item_top_right")
         self.horizontalLayout.addWidget(self.list_item_top_right)
+        self.button = QtGui.QPushButton(self.box)
+        self.button.setMaximumSize(QtCore.QSize(16, 16))
+        self.button.setIconSize(QtCore.QSize(10, 10))
+        self.button.setObjectName("button")
+        self.horizontalLayout.addWidget(self.button)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.list_item_body = QtGui.QLabel(self.box)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)

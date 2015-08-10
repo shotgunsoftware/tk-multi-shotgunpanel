@@ -244,7 +244,7 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
+       <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1,0">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -315,6 +315,36 @@
           </property>
          </widget>
         </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_22" stretch="0,1">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="action_button">
+            <property name="maximumSize">
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </item>
      </layout>
@@ -323,7 +353,7 @@
    <item>
     <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -335,8 +365,11 @@
        </property>
        <item>
         <widget class="QTabWidget" name="entity_tab_widget">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>5</number>
          </property>
          <widget class="QWidget" name="entity_activity_tab">
           <attribute name="title">
@@ -469,26 +502,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QTableView" name="entity_info_view">
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-             <property name="showGrid">
-              <bool>false</bool>
-             </property>
-             <property name="sortingEnabled">
-              <bool>true</bool>
-             </property>
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-            </widget>
+            <widget class="AllFieldsWidget" name="entity_info_widget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -506,6 +520,9 @@
        </property>
        <item>
         <widget class="QTabWidget" name="publish_tab_widget">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="currentIndex">
           <number>3</number>
          </property>
@@ -587,26 +604,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QTableView" name="publish_info_view">
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-             <property name="showGrid">
-              <bool>false</bool>
-             </property>
-             <property name="sortingEnabled">
-              <bool>true</bool>
-             </property>
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-            </widget>
+            <widget class="AllFieldsWidget" name="publish_info_widget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -624,8 +622,11 @@
        </property>
        <item>
         <widget class="QTabWidget" name="version_tab_widget">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="version_activity_tab">
           <attribute name="title">
@@ -695,26 +696,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QTableView" name="version_info_view">
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-             <property name="showGrid">
-              <bool>false</bool>
-             </property>
-             <property name="sortingEnabled">
-              <bool>true</bool>
-             </property>
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-            </widget>
+            <widget class="AllFieldsWidget" name="version_info_widget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -760,6 +742,12 @@
    <class>ActivityStreamWidget</class>
    <extends>QWidget</extends>
    <header>..widgets.activity_stream</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AllFieldsWidget</class>
+   <extends>QWidget</extends>
+   <header>..widget_all_fields</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

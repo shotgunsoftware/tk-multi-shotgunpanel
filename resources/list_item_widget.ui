@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>355</width>
-    <height>99</height>
+    <height>105</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -102,6 +102,22 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="button">
+            <property name="maximumSize">
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>10</width>
+              <height>10</height>
+             </size>
             </property>
            </widget>
           </item>

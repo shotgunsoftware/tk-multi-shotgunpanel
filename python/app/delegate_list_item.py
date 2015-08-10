@@ -9,10 +9,6 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-import datetime
-
-from . import utils
-
 from sgtk.platform.qt import QtCore, QtGui
  
 # import the shotgun_model and view modules from the shotgun utils framework
@@ -26,7 +22,7 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
     Delegate which 'glues up' the Details Widget with a QT View.
     """
 
-    def __init__(self, view):
+    def __init__(self, view, action_manager):
         """
         Constructor
         
@@ -34,6 +30,7 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
         :param action_manager: Action manager instance
         """                
         shotgun_view.WidgetDelegate.__init__(self, view)
+        self._action_manager = action_manager
         
     def _create_widget(self, parent):
         """
@@ -57,6 +54,11 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
         # do std drawing first
         self._on_before_paint(widget, model_index, style_options)        
         widget.set_selected(True)
+        
+        # now set up actions menu
+        sg_item = shotgun_model.get_sg_data(model_index)
+        actions = self._action_manager.get_actions(sg_item, self._action_manager.UI_AREA_MAIN)
+        widget.set_actions(actions)
     
     def _on_before_paint(self, widget, model_index, style_options):
         """

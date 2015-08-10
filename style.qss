@@ -1,7 +1,7 @@
 
 /* General rules */
 QListView, QTableView, QScrollArea {
-    border: none;    
+    border: none;
 }
 
 
@@ -26,6 +26,24 @@ QTabBar::tab:hover {
 QTabBar::tab:selected {
     color: {{SG_HIGHLIGHT_COLOR}};
     border-bottom: 2px solid {{SG_HIGHLIGHT_COLOR}};
+}
+
+FieldNameLabel {
+    
+    padding: 8px;
+    /* there seems to be an odd bug where border-bottom isn't evaluated
+       unless there is a border top, so add a transparent line... */
+    border-top: 1px dotted rgba(0,0,0,0%);
+    color: rgba(200, 200, 200, 40%);
+    border-bottom: 1px dotted rgba(200, 200, 200, 18%);
+}
+
+FieldValueLabel {
+    padding: 8px;
+    /* there seems to be an odd bug where border-bottom isn't evaluated
+       unless there is a border top, so add a transparent line... */
+    border-top: 1px dotted rgba(0,0,0,0%);
+    border-bottom: 1px dotted rgba(200, 200, 200, 18%);
 }
 
 
@@ -122,7 +140,7 @@ QPushButton#cancel_search {
 
 #details_text_header {
     padding-left: 2px;
-    font-size: 16px; 
+    font-size: 16px;
 }
 
 #details_text_middle {
@@ -130,24 +148,16 @@ QPushButton#cancel_search {
     padding-left: 8px;
 }
 
-/* field details spreadsheet */
-
-#entity_info_view::item, #publish_info_view::item, #version_info_view::item {
-    border: none;
-    border-top: 1px dotted #888888;
-    padding: 15px;
- }
-
 /* top detail area */
-    
+
 QWidget#top_group {
     background-color: rgba(255, 255, 255, 10%);
     border-radius: 3px;
-}	
+}
 
 QFrame#line {
     border-top: 1px dotted #888;
-}	
+}
 
 QPushButton#current_user {
     border: none;

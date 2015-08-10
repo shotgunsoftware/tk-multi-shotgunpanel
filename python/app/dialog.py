@@ -25,10 +25,12 @@ from . import utils
 from .shotgun_location import ShotgunLocation
 
 from .delegate_list_item import ListItemDelegate
+from .action_manager import ActionManager
 
 from .model_entity_listing import SgEntityListingModel
 from .model_publish_listing import SgLatestPublishListingModel
 from .model_publish_history import SgPublishHistoryListingModel
+from .model_task_listing import SgTaskListingModel
 from .model_publish_dependency_down import SgPublishDependencyDownstreamListingModel
 from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
 from .model_all_fields import SgAllFieldsModel
@@ -94,6 +96,8 @@ class AppDialog(QtGui.QWidget):
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
+        
+        self._action_manager = ActionManager(self)
 
         # set up an asynchronous shotgun retriever to pull down data
         self._sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)
@@ -112,6 +116,10 @@ class AppDialog(QtGui.QWidget):
         self.ui.entity_activity_stream.set_data_retriever(self._sg_data_retriever)
         self.ui.version_activity_stream.set_data_retriever(self._sg_data_retriever)
 
+        # set up action menu
+        self._menu = QtGui.QMenu()
+        self._actions = []
+        self.ui.action_button.setMenu(self._menu)        
         
         # our current object we are currently displaying
         self._current_location = None
@@ -156,7 +164,8 @@ class AppDialog(QtGui.QWidget):
         self._current_user_model = SgCurrentUserModel(self)        
         self._current_user_model.thumbnail_updated.connect(self._update_current_user)        
         self._current_user_model.data_updated.connect(self._update_current_user)        
-        self._current_user_model.load()        
+        self._current_user_model.load()
+        self.ui.current_user.clicked.connect(self._on_user_home_clicked)
         
         # top detail section
         self._details_model = SgEntityDetailsModel(self.ui.top_group)
@@ -201,7 +210,7 @@ class AppDialog(QtGui.QWidget):
                                   "entity_type": self._publish_entity_type}
 
         idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_TASKS)
-        self._detail_tabs[idx] = {"model_class": SgEntityListingModel,
+        self._detail_tabs[idx] = {"model_class": SgTaskListingModel,
                                   "delegate_class": ListItemDelegate,
                                   "view": self.ui.entity_task_view,
                                   "entity_type": "Task"}
@@ -280,26 +289,22 @@ class AppDialog(QtGui.QWidget):
             # set up a global on-click handler for
             tab_dict["view"].doubleClicked.connect(self._on_entity_clicked)
             # create delegate
-            tab_dict["delegate"] = DelegateClass(tab_dict["view"])
+            tab_dict["delegate"] = DelegateClass(tab_dict["view"], self._action_manager)
             # hook up delegate renderer with view
             tab_dict["view"].setItemDelegate(tab_dict["delegate"])
         
         # set up the all fields tabs
-        self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_view)        
-        self.ui.entity_info_view.setModel(self._entity_details_model.get_table_model())
-        self.ui.entity_info_view.verticalHeader().hide()
-        self.ui.entity_info_view.horizontalHeader().hide()
-
-        self._version_details_model = SgAllFieldsModel(self.ui.version_info_view)        
-        self.ui.version_info_view.setModel(self._version_details_model.get_table_model())
-        self.ui.version_info_view.verticalHeader().hide()
-        self.ui.version_info_view.horizontalHeader().hide()
-
-        self._publish_details_model = SgAllFieldsModel(self.ui.publish_info_view)        
-        self.ui.publish_info_view.setModel(self._publish_details_model.get_table_model())
-        self.ui.publish_info_view.verticalHeader().hide()
-        self.ui.publish_info_view.horizontalHeader().hide()
-
+        self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_widget)     
+        self._entity_details_model.data_updated.connect(self.ui.entity_info_widget.set_data)
+        self.ui.entity_info_widget.link_activated.connect(self._on_link_clicked)
+           
+        self._version_details_model = SgAllFieldsModel(self.ui.version_info_widget)        
+        self._version_details_model.data_updated.connect(self.ui.version_info_widget.set_data)
+        self.ui.version_info_widget.link_activated.connect(self._on_link_clicked)
+        
+        self._publish_details_model = SgAllFieldsModel(self.ui.publish_info_widget)        
+        self._publish_details_model.data_updated.connect(self.ui.publish_info_widget.set_data)
+        self.ui.publish_info_widget.link_activated.connect(self._on_link_clicked)
         
         # kick off
         self._on_home_clicked()
@@ -377,7 +382,8 @@ class AppDialog(QtGui.QWidget):
 
         # update the details area
         self._details_model.load_data(self._current_location)
-
+        
+        
 
     def focus_entity(self):
         """
@@ -493,8 +499,6 @@ class AppDialog(QtGui.QWidget):
         
         elif index == self.ENTITY_TAB_INFO:
             self._entity_details_model.load_data(self._current_location)
-            self.ui.entity_info_view.resizeRowsToContents()
-            self.ui.entity_info_view.resizeColumnsToContents()
         
         else:
             self._app.log_error("Cannot load data for unknown entity tab index %s." % index)
@@ -515,8 +519,6 @@ class AppDialog(QtGui.QWidget):
             
         elif index == self.VERSION_TAB_INFO:
             self._version_details_model.load_data(self._current_location)
-            self.ui.version_info_view.resizeRowsToContents()
-            self.ui.version_info_view.resizeColumnsToContents()
             
         else:
             self._app.log_error("Cannot load data for unknown version tab.")
@@ -536,8 +538,6 @@ class AppDialog(QtGui.QWidget):
         
         elif index == self.PUBLISH_TAB_INFO:
             self._publish_details_model.load_data(self._current_location)
-            self.ui.publish_info_view.resizeRowsToContents()
-            self.ui.publish_info_view.resizeColumnsToContents()
             
         else:
             self._app.log_error("Cannot load data for unknown publish tab.")
@@ -552,31 +552,13 @@ class AppDialog(QtGui.QWidget):
         """
         curr_user_pixmap = self._current_user_model.get_pixmap()        
                 
-        # QToolbutton needs a QIcon        
+        # QToolbutton needs a QIcon      
         self.ui.current_user.setIcon(QtGui.QIcon(curr_user_pixmap))        
                 
         # updat the reply icon                
         sg_data = self._current_user_model.get_sg_data()        
         if sg_data:        
             self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])
-            home_str = "%s's Home" % sg_data["name"]
-        else:
-            # no data loaded yet in the model
-            home_str = "My Home"
-
-        self.user_menu = QtGui.QMenu(self)
-        self.user_menu.addAction(home_str)
-        self.user_menu.addAction("Jump to Project")
-        self.user_menu.addSeparator()
-        self.user_menu.addAction("Copy current Shotgun URL")
-        self.user_menu.addAction("Jump to Shotgun")
-        self.user_menu.addSeparator()
-        self.user_menu.addAction("Reload")
-        
-
-        self.ui.current_user.setMenu(self.user_menu)        
-
-
 
 
     def _refresh_details_thumbnail(self):        
@@ -601,6 +583,14 @@ class AppDialog(QtGui.QWidget):
             self.ui.details_text_header.setText("")
             self.ui.details_text_header.setToolTip("")
             self.ui.details_text_middle.setText("")
+            
+        # load actions
+        actions = self._action_manager.get_actions(sg_data, 
+                                                   self._action_manager.UI_AREA_DETAILS)
+        self._actions = actions
+        for a in self._actions:
+            self._menu.addAction(a)
+            
             
             
     ###################################################################################################
@@ -701,6 +691,15 @@ class AppDialog(QtGui.QWidget):
         sg_data = self._current_user_model.get_sg_link()
         sg_location = ShotgunLocation(sg_data["type"], sg_data["id"])
         self._navigate_to(sg_location)
+        
+    def _on_user_home_clicked(self):
+        """
+        Navigate to current user
+        """
+        sg_user_data = sgtk.util.get_current_user(self._app.sgtk)
+        if sg_user_data:
+            sg_location = ShotgunLocation(sg_user_data["type"], sg_user_data["id"])
+            self._navigate_to(sg_location)
         
     def _on_home_clicked(self):
         """

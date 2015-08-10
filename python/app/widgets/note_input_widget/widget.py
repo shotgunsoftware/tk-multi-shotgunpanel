@@ -35,7 +35,6 @@ class NoteInputWidget(QtGui.QWidget):
     
     _EDITOR_WIDGET_INDEX = 0
     _NEW_NOTE_WIDGET_INDEX = 1
-    _REPLY_WIDGET_INDEX = 2
     
     # emitted when shotgun has been updated
     data_updated = QtCore.Signal()
@@ -55,8 +54,6 @@ class NoteInputWidget(QtGui.QWidget):
         self.ui.setupUi(self)
 
         self._load_stylesheet()
-        
-        self._reply_mode = False
         
         # set up some handy references
         self._app = sgtk.platform.current_bundle()        
@@ -114,10 +111,6 @@ class NoteInputWidget(QtGui.QWidget):
         self._adjust_ui()        
         self.ui.text_entry.setFocus()
         
-    def set_reply_mode(self, enabled):
-        self._reply_mode = enabled
-        self.reset()
-        
     def _adjust_ui(self):
         """
         adjust the UI to be optimal size depending on view
@@ -126,10 +119,6 @@ class NoteInputWidget(QtGui.QWidget):
             self.setMinimumSize(QtCore.QSize(0, 80))
             self.setMaximumSize(QtCore.QSize(16777215, 80))
              
-        elif self.ui.stacked_widget.currentIndex() == self._REPLY_WIDGET_INDEX:
-            self.setMinimumSize(QtCore.QSize(0, 36))
-            self.setMaximumSize(QtCore.QSize(16777215, 36))
-         
         elif self.ui.stacked_widget.currentIndex() == self._EDITOR_WIDGET_INDEX:
             self.setMinimumSize(QtCore.QSize(0, 120))
             self.setMaximumSize(QtCore.QSize(16777215, 120))
@@ -176,10 +165,7 @@ class NoteInputWidget(QtGui.QWidget):
         
         self.ui.text_entry.reset()
 
-        if self._reply_mode:
-            self.ui.stacked_widget.setCurrentIndex(self._REPLY_WIDGET_INDEX)
-        else:
-            self.ui.stacked_widget.setCurrentIndex(self._NEW_NOTE_WIDGET_INDEX)
+        self.ui.stacked_widget.setCurrentIndex(self._NEW_NOTE_WIDGET_INDEX)
         
         self._adjust_ui()        
         

@@ -38,6 +38,7 @@ function build_res {
 echo "building user interfaces..."
 build_ui dialog
 build_ui list_item_widget
+build_ui all_fields_widget
 
 # build resources
 echo "building resources..."

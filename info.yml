@@ -12,10 +12,16 @@
 
 # expected fields in the configuration file for this engine
 configuration:
+
     shotgun_fields_hook:
         type: hook
         default_value: "{self}/shotgun_fields.py"
         description: Hook which controls how values are presented
+
+    actions_hook:
+        type: hook
+        default_value: "{self}/{engine_name}_actions.py"
+        description: Hook which contains all methods for action management.
         
 #    global_search_entity_types:
 #        type: str
@@ -23,6 +29,32 @@ configuration:
 #                     appear in the global search
 #        default_value: Shot, Asset, Sequence, Version, PublishedFile, 
 #                       HumanUser, Group 
+
+
+    action_mappings:
+        type: dict
+        description: Associates shotgun objects with actions. The actions are all defined
+                     inside the actions hook, so a number of actions are available by default
+                     and in addition to this you can add your own actions if you like.
+        default_value: 
+            Task:
+                - { actions: [assign_task], filters: {} }
+
+            Version:
+                - { actions: [play_in_rv], filters: {} }
+                
+        default_value_tk-nuke:
+            PublishedFile:
+                - { actions: [read_node], filters: { published_file_type: Rendered Image} }
+                - { actions: [script_import], filters: { published_file_type: Nuke Script} }
+            
+        default_value_tk-maya:
+            PublishedFile:
+                - { actions: [reference, import], filters: { published_file_type: Maya Scene} }
+                - { actions: [texture_node], filters: { published_file_type: Rendered Image} }
+                - { actions: [texture_node], filters: { published_file_type: Photoshop Image} }
+                - { actions: [udim_texture_node], filters: { published_file_type: UDIM Image} }
+    
 
 
 # this app works in all engines - it does not contain 
@@ -33,8 +65,8 @@ supported_engines:
 requires_shotgun_fields:
         
 # More verbose description of this item 
-display_name: "Shotgun Info Panel"
-description: "Dashboard panel with information from Shotgun."
+display_name: "Shotgun Panel"
+description: "Panel UI with Shotgun information about your scene, yourself and the things around you."
 
 # Required minimum versions for this item to run
 requires_shotgun_version:

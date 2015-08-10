@@ -105,28 +105,10 @@ class Ui_NoteInputWidget(object):
         self.verticalLayout_4.addWidget(self.new_note_placeholder)
         self.verticalLayout_3.addWidget(self.new_note_frame)
         self.stacked_widget.addWidget(self.preview_page)
-        self.reply_preview_page = QtGui.QWidget()
-        self.reply_preview_page.setObjectName("reply_preview_page")
-        self.verticalLayout_7 = QtGui.QVBoxLayout(self.reply_preview_page)
-        self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_7.setObjectName("verticalLayout_7")
-        self.reply_frame = QtGui.QFrame(self.reply_preview_page)
-        self.reply_frame.setStyleSheet("")
-        self.reply_frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.reply_frame.setFrameShadow(QtGui.QFrame.Raised)
-        self.reply_frame.setObjectName("reply_frame")
-        self.verticalLayout_6 = QtGui.QVBoxLayout(self.reply_frame)
-        self.verticalLayout_6.setObjectName("verticalLayout_6")
-        self.reply_placeholder = QtGui.QLabel(self.reply_frame)
-        self.reply_placeholder.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        self.reply_placeholder.setObjectName("reply_placeholder")
-        self.verticalLayout_6.addWidget(self.reply_placeholder)
-        self.verticalLayout_7.addWidget(self.reply_frame)
-        self.stacked_widget.addWidget(self.reply_preview_page)
         self.verticalLayout_5.addWidget(self.stacked_widget)
 
         self.retranslateUi(NoteInputWidget)
-        self.stacked_widget.setCurrentIndex(0)
+        self.stacked_widget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(NoteInputWidget)
 
     def retranslateUi(self, NoteInputWidget):
@@ -138,7 +120,6 @@ class Ui_NoteInputWidget(object):
         self.submit.setToolTip(QtGui.QApplication.translate("NoteInputWidget", "Create Note", None, QtGui.QApplication.UnicodeUTF8))
         self.hint_label.setText(QtGui.QApplication.translate("NoteInputWidget", "<small>You can add people by referring to them by @name.</small>", None, QtGui.QApplication.UnicodeUTF8))
         self.new_note_placeholder.setText(QtGui.QApplication.translate("NoteInputWidget", "Click to create a new note...", None, QtGui.QApplication.UnicodeUTF8))
-        self.reply_placeholder.setText(QtGui.QApplication.translate("NoteInputWidget", "Click to Reply...", None, QtGui.QApplication.UnicodeUTF8))
 
 from ..note_editor import NoteEditor
 from . import resources_rc

@@ -17,26 +17,7 @@ import os
 HookBaseClass = sgtk.get_hook_baseclass()
 
 class ShotgunConfiguration(HookBaseClass):
-    
-    
-    def get_thumbnail_settings(self, entity_type):
-        """
         
-        """
-        values = {
-            "style": "rect",
-            "sg_field": "image",
-            }
-                
-        if entity_type == "Note":
-            values["style"] = "round"
-            values["sg_field"] = "user.HumanUser.image"
-            
-        elif entity_type in ["HumanUser", "ApiUser", "ClientUser"]:
-            values["style"] = "round"
-
-        return values
-    
     def get_list_item_definition(self, entity_type):
         """
         Controls the rendering of items in the listings.
@@ -45,7 +26,7 @@ class ShotgunConfiguration(HookBaseClass):
         # define a set of defaults
         values = {
             "top_left": "<big>{code}</big>",
-            "top_right": "{updated_at::ago}",
+            "top_right": "{updated_at}",
             "body": "<b>By:</b> {created_by}{[<br><b>Description:</b> ]description}"            
             } 
         
@@ -58,14 +39,6 @@ class ShotgunConfiguration(HookBaseClass):
                 <b>Comments:</b> {description}
                 """            
     
-        elif entity_type == "TankPublishedFile":
-                        
-            values["top_left"] = "<big>{name} v{version_number}</big>"
-            values["body"] = """
-                {tank_type} by {created_by}<br>
-                <b>Comments:</b> {description}
-                """            
-            
         elif entity_type == "Note":
             
             values["top_left"] = "<big>{created_by}</big>"
@@ -74,7 +47,7 @@ class ShotgunConfiguration(HookBaseClass):
         elif entity_type == "Version":
             
             values["body"] = """
-                <b>By:</b> {user}<br>
+                <b>By:</b> {user|created_by}<br>
                 <b>Comments:</b> {description}
                 """
         
@@ -97,68 +70,106 @@ class ShotgunConfiguration(HookBaseClass):
         for a given entity
         """
         
-        values = ["id", 
-                  "type", 
-                  "description",
-                  "code", 
-                  "created_by", 
-                  "created_at", 
-                  "updated_by",
-                  "project", 
-                  "updated_at"]
+        # supported by all normal fields
+        base_values = ["id", 
+                       "type", 
+                       "created_by", 
+                       "created_at", 
+                       "updated_by",
+                       "updated_at"]
         
-        if entity_type == "Note":
-            values += ["attachments", 
-                       "user", 
-                       "content", 
-                       "addressings_cc", 
-                       "addressings_to", 
-                       "client_note", 
-                       "note_links",
-                       "sg_status_list",
-                       "subject",
-                       "tag_list",
-                       "tasks",
-                       "sg_note_type"]
+        # supported by most entities
+        std_values = base_values + ["code", 
+                                    "project", 
+                                    "tags",
+                                    "sg_status_list", 
+                                    "description"]
         
         if entity_type == "Shot":
-            values += ["sg_cut_in", "sg_cut_out"]
+            values = std_values
+            values += ["assets",
+                       "sg_cut_duration",
+                       "sg_cut_in", 
+                       "sg_cut_out",
+                       "sg_head_in",
+                       "sg_tail_out",
+                       "sg_sequence",
+                       "sg_working_duration"]
         
-        if entity_type == "Asset":
-            values += ["sg_asset_type"]
+        elif entity_type == "Sequence":
+            values = std_values + ["shots", "assets"] 
 
-        return values
-    
-    
-    def get_tab_visibility(self, entity_type):
-        """
-        Define which tabs should be visible
-        """
-        values = {
-            "tasks_tab": True,
-            "publishes_tab": True,
-            "versions_tab": True,
-            "notes_tab": True
-            }
-        
-        if entity_type in ["Step", "ApiUser", "TankType", "PublishedFileType"]: 
-            values["tasks_tab"] = False
-            values["publishes_tab"] = False
-            values["versions_tab"] = False
-            values["notes_tab"] = False
+        elif entity_type == "Asset":
+            values = std_values + ["sg_asset_type", 
+                                   "shots", 
+                                   "parents", 
+                                   "sequences", 
+                                   "assets"] 
+ 
+        elif entity_type == "ClientUser":
+            values = base_values + ["email", 
+                                   "firstname", 
+                                   "lastname", 
+                                   "name", 
+                                   "sg_status_list"] 
 
-        elif entity_type == "Group":
-            values["tasks_tab"] = False
-            values["publishes_tab"] = False
-            values["versions_tab"] = False
+        elif entity_type == "HumanUser":
+            values = base_values + ["department",
+                                    "groups",
+                                    "login",
+                                    "email", 
+                                    "firstname", 
+                                    "lastname", 
+                                    "name", 
+                                    "sg_status_list"] 
+
+        elif entity_type == "ScriptUser":
+            values = base_values + ["description",
+                                    "email", 
+                                    "firstname", 
+                                    "lastname"] 
+
+        elif entity_type == "Version":
+            values = std_values + ["user",
+                                   "sg_department", 
+                                   "sg_first_frame", 
+                                   "frame_count",
+                                   "frame_range",
+                                   "sg_last_frame",
+                                   "entity",
+                                   "sg_path_to_frames",
+                                   "sg_path_to_movie",
+                                   "playlists",
+                                   "published_files",
+                                   "sg_task",
+                                   "sg_version_type"]
             
-        elif entity_type == "Project":
-            values["tasks_tab"] = False
-            
+        elif entity_type == "PublishedFile":
+            values = std_values + [ "entity", 
+                                    "name", 
+                                    "published_file_type",
+                                    "task",
+                                    "version",
+                                    "version_number"] 
+
         elif entity_type == "Task":
-            values["tasks_tab"] = False 
-    
+            values = base_values + [ "task_assignees", 
+                                     "est_in_mins", 
+                                     "addressings_cc",
+                                     "due_date",
+                                     "duration",
+                                     "entity",
+                                     "step",
+                                     "start_date",
+                                     "sg_status_list",
+                                     "content"] 
+
+        else:
+            values = std_values
+
         return values
+    
+    
 
     def get_main_view_definition(self, entity_type):
         """
@@ -228,8 +239,7 @@ class ShotgunConfiguration(HookBaseClass):
                 {[Start Date: ]start_date[<br>]}
                 {[End Date: ]end_date[<br>]}
                 """
-            
-    
+                
         elif entity_type == "Note":
             values["title"] = "{subject}"
             
@@ -256,26 +266,13 @@ class ShotgunConfiguration(HookBaseClass):
                 {description}                
                 """
             
-        elif entity_type == "TankPublishedFile":
-            values["title"] = "{code}"
-            
-            values["body"] = """
-                <big>{tank_type}, Version {version_number}</big><br>
-                For {entity::showtype}{[, Task ]task} <br>
-                Created by {created_by} on {created_at}<br>
-            
-                <br>
-                <b>Comments:</b><br>
-                {description}
-                """
-
         elif entity_type == "Version":
             values["title"] = "{code}"
             
             values["body"] = """
                 <b>Version for Review</b><br>
                 For {entity::showtype}{[, Task ]sg_task} <br>
-                Created by {created_by} on {created_at}<br>
+                Created by {user|created_by} on {created_at}<br>
                 
                 {[<br>In Playlists: ]playlists[<br>]}
                 

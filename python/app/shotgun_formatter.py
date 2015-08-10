@@ -26,6 +26,9 @@ class ShotgunFormatter(object):
     """
     
     
+    
+    
+    
     def __init__(self, entity_type):
         """
         Constructor
@@ -39,10 +42,6 @@ class ShotgunFormatter(object):
         # read in the hook data into a dict
         self._hook_data = {}
         
-        self._hook_data["get_thumbnail_settings"] = self._app.execute_hook_method("shotgun_fields_hook", 
-                                                                                  "get_thumbnail_settings", 
-                                                                                  entity_type=entity_type)
-
         self._hook_data["get_list_item_definition"] = self._app.execute_hook_method("shotgun_fields_hook", 
                                                                                   "get_list_item_definition", 
                                                                                   entity_type=entity_type)
@@ -50,10 +49,6 @@ class ShotgunFormatter(object):
         self._hook_data["get_all_fields"] = self._app.execute_hook_method("shotgun_fields_hook", 
                                                                           "get_all_fields", 
                                                                           entity_type=entity_type)
-        
-        self._hook_data["get_tab_visibility"] = self._app.execute_hook_method("shotgun_fields_hook", 
-                                                                              "get_tab_visibility", 
-                                                                              entity_type=entity_type)
         
         self._hook_data["get_main_view_definition"] = self._app.execute_hook_method("shotgun_fields_hook", 
                                                                                     "get_main_view_definition", 
@@ -88,7 +83,12 @@ class ShotgunFormatter(object):
         """
         Convenience method. Returns the sg fields for all tokens.
         """
-        return [sg_field for (_, sg_field, _, _, _) in self._resolve_tokens(token_str)]
+        fields = []
+        
+        for (_, sg_fields, _, _, _) in self._resolve_tokens(token_str):
+            fields.extend(sg_fields)
+        
+        return fields
         
     def _resolve_tokens(self, token_str):
         """
@@ -96,12 +96,30 @@ class ShotgunFormatter(object):
         
         Tokens are on the following form:
         
-            {[preroll]shotgun.field.name::directive[postroll]}
+            {[preroll]shotgun.field.name|sg_field_name_fallback::directive[postroll]}
+            
+        Basic Examples:
         
-        given a string with {tokens} or {deep.linktokens} return a list
-        of tokens.
+        - {code}                         # simple format
+        - {sg_sequence.Sequence.code}    # deep links
+        - {artist|created_by}            # if artist is null, use creted_by
         
-        returns: a list of tuples with (full_token, sg_field, directive, preroll, postroll)
+        Directives are also supported - these are used by the formatting logic
+        and include the following:
+        
+        - {sg_sequence::showtype}        # will generate a link saying
+                                         # 'Sequence ABC123' instead of just
+                                         # 'ABC123' like it does by default
+        - {sg_sequence::nolink}          # no url link will be created
+        
+        Optional pre/post roll - if a value is null, pre- and post-strings are
+        omitted from the final result. Examples of this syntax:
+        
+        - {[Name: ]code}                 # If code is set, 'Name: xxx' will be 
+                                         # printed out, otherwise nothing.
+        - {[Name: ]code[<br>]}           # Same but with a post line break
+        
+        returns: a list of tuples with (full_token, sg_fields, directive, preroll, postroll)
         """    
     
         try:
@@ -134,12 +152,19 @@ class ShotgunFormatter(object):
             if "::" in processed_token:
                 # we have a special formatting directive
                 # e.g. created_at::ago
-                (sg_field, directive) = processed_token.split("::")
+                (sg_field_str, directive) = processed_token.split("::")
             else:
-                sg_field = processed_token
-        
+                sg_field_str = processed_token
+
+            if "|" in sg_field_str:
+                # there is more than one sg field, we have a 
+                # series of fallbacks
+                sg_fields = sg_field_str.split("|")
+            else:
+                sg_fields = [sg_field_str]
+            
             fields.append( (raw_token, 
-                            sg_field, 
+                            sg_fields, 
                             directive, 
                             pre_roll, 
                             post_roll) )
@@ -202,12 +227,7 @@ class ShotgunFormatter(object):
             
         elif sg_field in ["created_at", "updated_at"]:
             created_datetime = datetime.datetime.fromtimestamp(value)
-            (human_str, exact_str) = utils.create_human_readable_timestamp(created_datetime) 
-
-            if directive == "ago":
-                str_val = human_str
-            else:
-                str_val = exact_str
+            (str_val, _) = utils.create_human_readable_timestamp(created_datetime) 
             
         elif sg_field == "sg_status_list":
             str_val = CachedShotgunSchema.get_status_display_name(value, name_only=True)
@@ -229,7 +249,7 @@ class ShotgunFormatter(object):
         else:
             return True
         
-    
+            
     ####################################################################################################
     # properties
     
@@ -238,21 +258,20 @@ class ShotgunFormatter(object):
         """
         Returns the default pixmap associated with this location
         """
-        thumb_style = self._get_hook_value("get_thumbnail_settings", "style")
-        
-        if thumb_style == "rect":
-            return self._rect_default_icon
-        elif thumb_style == "round":
+        if self.entity_type in ["Note", "HumanUser", "ApiUser", "ClientUser"]:
             return self._round_default_icon
         else:
-            raise TankError("Unknown thumbnail style defined in hook!")
+            return self._rect_default_icon
             
     @property
     def thumbnail_field(self):
         """
         Returns the field name to use when look for thumbnails
         """
-        return self._get_hook_value("get_thumbnail_settings", "sg_field")
+        if self.entity_type == "Note":
+            return "user.HumanUser.image"
+        else:
+            return "image"
     
     @property
     def entity_type(self):
@@ -286,28 +305,40 @@ class ShotgunFormatter(object):
         """
         Should the note tab be shown for this
         """
-        return self._get_hook_value("get_tab_visibility", "notes_tab")
+        if self.entity_type in ["ApiUser"]:
+            return False
+        else:
+            return True        
 
     @property
     def show_publishes_tab(self):
         """
         Should the publishes tab be shown for this
         """
-        return self._get_hook_value("get_tab_visibility", "publishes_tab")
+        if self.entity_type in ["Group"]:
+            return False
+        else:
+            return True        
 
     @property
     def show_versions_tab(self):
         """
         Should the publishes tab be shown for this
         """
-        return self._get_hook_value("get_tab_visibility", "versions_tab")
+        if self.entity_type in ["Group"]:
+            return False
+        else:
+            return True        
 
     @property
     def show_tasks_tab(self):
         """
         Should the tasks tab be shown for this
         """
-        return self._get_hook_value("get_tab_visibility", "tasks_tab")
+        if self.entity_type in ["ApiUser", "Group", "Task"]:
+            return False
+        else:
+            return True        
 
     ####################################################################################################
     # methods
@@ -320,7 +351,7 @@ class ShotgunFormatter(object):
         # TODO - we might want to expose this in the hook at some point
         link_filters = []
         
-        if sg_location.entity_type in ["HumanUser", "ClientUser"]:
+        if sg_location.entity_type in ["HumanUser", "ClientUser", "ApiUser", "Group"]:
             # the logic for users is different
             # here we want give an overview of their work
             # for the current project 
@@ -398,23 +429,17 @@ class ShotgunFormatter(object):
         """
         Given a path, create a suitable thumbnail and return a pixmap
         """
+        if self.entity_type in ["HumanUser", "ApiUser", "ClientUser"]:
+            return utils.create_circular_512x400_thumbnail(image)
         
-        thumb_style = self._get_hook_value("get_thumbnail_settings", "style")
-        
-        if thumb_style == "rect":
-            return utils.create_rectangular_512x400_thumbnail(image)
-        elif sg_data["type"] == "Note":
-            # handle read/unread as a special case for notes
+        elif self.entity_type == "Note":
             if sg_data["read_by_current_user"] == "unread":
                 return utils.create_circular_512x400_thumbnail(image, accent=True)
             else:
                 return utils.create_circular_512x400_thumbnail(image, accent=False)
-            
         
-        elif thumb_style == "round": 
-            return utils.create_circular_512x400_thumbnail(image)
         else:
-            raise TankError("Unknown thumbnail style defined in hook!")        
+            return utils.create_rectangular_512x400_thumbnail(image)
 
     @classmethod
     def get_playback_url(cls, sg_data):
@@ -439,9 +464,16 @@ class ShotgunFormatter(object):
         Convert a string with {tokens} given a shotgun data dict
         """
         # extract all tokens and process them one after the other
-        for (full_token, sg_field, directive, pre_roll, post_roll) in self._resolve_tokens(token_str):
-            # get sg data
-            sg_value = sg_data.get(sg_field)
+        for (full_token, sg_fields, directive, pre_roll, post_roll) in self._resolve_tokens(token_str):
+            
+            # get the first sg field value we find
+            # this is usef when we have a fallback syntax in the token string,
+            # for example {artist|created_by}
+            for sg_field in sg_fields: 
+                sg_value = sg_data.get(sg_field)
+                if sg_value:
+                    # got a value so stop looking
+                    break
             
             if (sg_value is None or sg_value == []) and ( pre_roll or post_roll ):
                 # shotgun value is empty
@@ -467,7 +499,7 @@ class ShotgunFormatter(object):
         return token_str
         
 
-    def format_raw_value(self, entity_type, field_name, value, directive):
+    def format_raw_value(self, entity_type, field_name, value, directive=None):
         """
         Format a raw shotgun value
         """

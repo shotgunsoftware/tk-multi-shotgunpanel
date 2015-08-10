@@ -67,7 +67,14 @@ class ListItemWidget(QtGui.QWidget):
                    border-color: rgba(0, 0, 0, 0%); 
                    border-style: solid; 
             }        
-            """                                    
+            """
+
+        # set up action menu
+        self._menu = QtGui.QMenu()
+        self._actions = []
+        self.ui.button.setMenu(self._menu)
+        self.ui.button.setVisible(False)
+                                  
 
     def set_selected(self, selected):
         """
@@ -77,7 +84,8 @@ class ListItemWidget(QtGui.QWidget):
         """
         if selected:
             self.ui.box.setStyleSheet(self._css_selected)
-    
+            self.ui.button.setVisible(True)
+        
     def set_highlighted(self, highlighted):
         """
         Adjust the style sheet to indicate that an object is highlighted
@@ -88,6 +96,20 @@ class ListItemWidget(QtGui.QWidget):
             self.ui.box.setStyleSheet(self._css_decorated)
         else:
             self.ui.box.setStyleSheet(self._no_style)
+
+    def set_actions(self, actions):
+        """
+        Adds a list of QActions to add to the actions menu for this widget.
+        
+        :param actions: List of QActions to add
+        """
+        if len(actions) == 0:
+            self.ui.button.setVisible(False)
+        else:
+            self.ui.button.setVisible(True)
+            self._actions = actions
+            for a in self._actions:
+                self._menu.addAction(a)
 
     def set_thumbnail(self, pixmap):
         """

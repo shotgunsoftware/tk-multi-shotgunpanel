@@ -8,64 +8,71 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
+from collections import defaultdict
 from sgtk.platform.qt import QtCore, QtGui
+
 import sgtk
+from . import utils
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
-
-ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel 
-
-from .modules.schema import CachedShotgunSchema
+ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
 
 class SgAllFieldsModel(ShotgunOverlayModel):
     """
-    Model that handles the "all fields" tab.
-    
-    The model wraps around a table model that gets updated with values
-    from this shotgun model.
+    Model that represents the details data that is 
+    displayed in the main section of the UI.
     """
+    data_updated = QtCore.Signal(dict)
 
     def __init__(self, parent):
         """
         Model which represents the latest publishes for an entity
-        """        
-        # current publish we have loaded
-        self._sg_location = None
-        
+        """
         # init base class
         ShotgunOverlayModel.__init__(self,
                                      parent,
                                      overlay_widget=parent,
                                      download_thumbs=False,
-                                     schema_generation=6,
-                                     bg_load_thumbs=True)
+                                     schema_generation=3)
+        
+        self._sg_location = None                
+        self.data_refreshed.connect(self._on_data_refreshed)
 
-        self._app = sgtk.platform.current_bundle()
-        
-        # create the coupled model
-        self._table_model = QtGui.QStandardItemModel(parent)
-        
-    def get_table_model(self):
+    def _get_sg_data(self):
         """
-        Returns the embedded table model
+        Returns the sg data dictionary for the associated item
+        None if not available.
         """
-        return self._table_model
+        if self.rowCount() == 0:
+            data = {}
+        else:
+            data = self.item(0).get_sg_data()
+        
+        return data
+
+    def _on_data_refreshed(self):
+        """
+        helper method. dispatches the after-refresh signal
+        so that a data_updated signal is consistenntly sent
+        out both after the data has been updated and after a cache has been read in
+        """
+        sg_data = self._get_sg_data()
+        self.data_updated.emit(sg_data)
 
     ############################################################################################
     # public interface
+
 
     def load_data(self, sg_location):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
-        """        
-        
+        """
+        # set the current location to represent
         self._sg_location = sg_location
-        self._table_model.clear()
-        
-        filters = [ ["id", "is", sg_location.entity_id ] ]
+          
+        filters = [ ["id", "is", self._sg_location.entity_id ] ]
         hierarchy = ["id"]
 
         ShotgunOverlayModel._load_data(self, 
@@ -73,40 +80,8 @@ class SgAllFieldsModel(ShotgunOverlayModel):
                                        filters,
                                        hierarchy, 
                                        sg_location.sg_formatter.all_fields)
+        # signal to any views that data now may be available
+        self.data_updated.emit(self._get_sg_data())
         self._refresh_data()
-
-
-    def _finalize_item(self, item):
-        """
-        Called whenever an item is fully constructed, either because a shotgun query returned it
-        or because it was loaded as part of a cache load from disk.
-
-        :param item: QStandardItem that is about to be added to the model. This has been primed
-                     with the standard settings that the ShotgunModel handles.
-        """
-        sg_data = item.get_sg_data()
-        sg_type = sg_data["type"]
         
-        formatter = self._sg_location.sg_formatter
-
-        # populate our table model based on this data
-        for field_name in sorted(sg_data.keys()):
-            
-            # get the human readable field display name
-            display_name = CachedShotgunSchema.get_field_display_name(sg_type, field_name)
-            display_name_item = QtGui.QStandardItem(display_name)
-            
-            # set field names to align at the top so that for large values
-            # (like descriptions) it won't look strange. Also dial down the color
-            # a little bit by adding transparency. 
-            display_name_item.setData(QtCore.Qt.AlignTop, QtCore.Qt.TextAlignmentRole)
-            field_color = QtGui.QColor(self._app.style_constants["SG_FOREGROUND_COLOR"])
-            field_color.setAlpha(120)
-            display_name_item.setData(QtGui.QBrush(field_color), QtCore.Qt.ForegroundRole)
-            
-            # and add the value
-            value = formatter.format_raw_value(sg_type, field_name, sg_data[field_name], "nolink")
-            display_name_value = QtGui.QStandardItem(value)
-            
-            self._table_model.appendRow([display_name_item, display_name_value])
-            
+        
