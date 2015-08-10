@@ -438,6 +438,11 @@ class ShotgunFormatter(object):
             else:
                 return utils.create_circular_512x400_thumbnail(image, accent=False)
         
+        elif self.entity_type == "Task" and sg_data["type"] == "HumanUser":
+            # a user icon for a task
+            # todo: refcator this logic to make it clearer
+            return utils.create_circular_512x400_thumbnail(image)
+        
         else:
             return utils.create_rectangular_512x400_thumbnail(image)
 

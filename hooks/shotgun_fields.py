@@ -209,8 +209,8 @@ class ShotgunConfiguration(HookBaseClass):
         elif entity_type == "Shot":
             values["body"] = """
                 Sequence: {sg_sequence}<br>
-                Status: {sg_status_list}<br>
-                {[Cut In: ]sg_cut_in[  ]}{[Cut Out:]sg_cut_out[  ]}{[Cut Duration: ]sg_cut_duration}<br>
+                Status: {sg_status_list}<br><br>
+                {[Cut In: ]sg_cut_in[  ]}{[Cut Out:]sg_cut_out[  ]}{[Duration: ]sg_cut_duration}<br>
                 """
     
         elif entity_type == "Task":

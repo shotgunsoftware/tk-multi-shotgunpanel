@@ -43,6 +43,8 @@ class ActionManager(object):
                         Currently one of UI_AREA_MAIN, UI_AREA_DETAILS and UI_AREA_HISTORY
         :returns: List of QAction objects, ready to be parented to some QT Widgetry.
         """
+        if sg_data is None:
+            return []
         
         # check if we have logic configured to handle this
         action_defs = []
