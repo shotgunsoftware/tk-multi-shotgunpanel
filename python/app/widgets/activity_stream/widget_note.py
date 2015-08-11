@@ -225,10 +225,10 @@ class NoteWidget(ActivityStreamBaseWidget):
         self._note_id = data["id"]
         
         # make the thumbnail clickable
-        self.ui.user_thumb.set_shotgun_data(data["created_by"])
+        self.ui.user_thumb.set_shotgun_data(data["user"])
         
         # the top left part of the note is the name of the author
-        entity_url = self._generate_entity_url(data["created_by"], 
+        entity_url = self._generate_entity_url(data["user"], 
                                                this_syntax=False,
                                                display_type=False)        
         self.ui.header_left.setText("<big>%s</big>" % entity_url)

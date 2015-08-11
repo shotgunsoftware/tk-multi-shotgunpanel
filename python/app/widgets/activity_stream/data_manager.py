@@ -32,7 +32,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
     for performance.
     """
     
-    DATBASE_FORMAT_VERSION = 15
+    DATBASE_FORMAT_VERSION = 17
     
     # max number of items to pull from shotgun
     # typically the updates are incremental and hence smaller
@@ -262,10 +262,10 @@ class ActivityStreamDataHandler(QtCore.QObject):
             # entry. This ie because when someone replies to a note, the
             # activity will be created by the reply-er but we still want to
             # display the thumbnail of the original author of the note.  
-            if "created_by.HumanUser.image" in entity:
+            if "user.HumanUser.image" in entity:
                 # note has a created-by field populated
                 # (some data oddly enough doesn't!)
-                uid = self._sg_data_retriever.request_thumbnail(entity["created_by.HumanUser.image"], 
+                uid = self._sg_data_retriever.request_thumbnail(entity["user.HumanUser.image"], 
                                                                 entity["created_by"]["id"], 
                                                                 entity["created_by"]["type"], 
                                                                 "image",
@@ -623,7 +623,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
                           "Shot": ["image"],
                           "Asset": ["image"],
                           "Sequence": ["image"],
-                          "Note": ["created_by", "created_by.HumanUser.image"], 
+                          "Note": ["created_by", "user.HumanUser.image"], 
                           "Version": ["description", "sg_uploaded_movie", "image", "entity"],
                           "PublishedFile": ["description", "image", "entity"],
                           "TankPublishedFile": ["description", "image", "entity"],
