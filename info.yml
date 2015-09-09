@@ -70,7 +70,7 @@ description: "Panel UI with Shotgun information about your scene, yourself and t
 
 # Required minimum versions for this item to run
 requires_shotgun_version:
-requires_core_version: "v0.16.15"
+requires_core_version: "v0.16.21"
 requires_engine_version:
 
 # the frameworks required to run this app
