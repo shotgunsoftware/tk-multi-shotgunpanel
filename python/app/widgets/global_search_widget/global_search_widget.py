@@ -157,7 +157,6 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         :param data: data dictionary passed in from _submit()
         """
         entity_types = {}
-        entity_types["Project"] = []
         entity_types["Asset"] = []
         entity_types["Shot"] = []
         entity_types["Task"] = []

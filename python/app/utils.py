@@ -166,8 +166,7 @@ def create_human_readable_timestamp(datetime_obj):
     Shotgun activity stream. Examples of output:
     
     Recent posts: 10:32
-    Semi Recent Posts: Tuesday
-    This year: 24 June
+    This year: 24 June 10:32
     Last year and earlier: 12 December 2007
     
     :param datetime_obj: Datetime obj to format
@@ -192,15 +191,11 @@ def create_human_readable_timestamp(datetime_obj):
 
     if delta_weeks > 52:
         # more than one year ago - 26 June 2012
-        time_str = datetime_obj.strftime('%d %b %Y')
+        time_str = datetime_obj.strftime('%d %b %Y %H:%M')
     
     elif delta_days > 5:
         # ~ more than one week ago - 26 June
-        time_str = datetime_obj.strftime('%d %b')
-
-    elif delta_days > 0:
-        # more than one day ago - day of week - e.g. Sunday
-        time_str = datetime_obj.strftime('%A')
+        time_str = datetime_obj.strftime('%d %b %H:%M')
     
     else:
         # earlier today - display timestamp - 23:22

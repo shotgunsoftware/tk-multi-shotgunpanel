@@ -641,8 +641,20 @@ class ActivityStreamDataHandler(QtCore.QObject):
         :param msg: Error message
         """
         msg = shotgun_model.sanitize_qt(msg)
-        self._app.log_warning("Could not retrieve activity stream "
-                              "data from Shotgun: %s" % msg)
+        
+        if self._processing_id == uid:
+            self._app.log_warning("Could not retrieve activity stream "
+                                  "data from Shotgun: %s" % msg)
+
+        if uid in self._note_map:
+            self._app.log_warning("Could not retrieve note "
+                                  "data from Shotgun: %s" % msg)
+
+        if uid in self._thumb_map:
+            # one of the jobs we are tracking
+            self._app.log_warning("Could not retrieve thumbnail "
+                                  "data from Shotgun: %s" % msg)
+
     
     def __convert_timestamp_r(self, data):
         """

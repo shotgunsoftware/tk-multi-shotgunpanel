@@ -34,6 +34,7 @@ class ShotgunConfiguration(HookBaseClass):
         if entity_type == "PublishedFile":
             
             values["top_left"] = "<big>{name} v{version_number}</big>"
+            values["top_right"] = "{created_at}"
             values["body"] = """
                 {published_file_type} by {created_by}<br>
                 <b>Comments:</b> {description}

@@ -113,8 +113,12 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
                         [publish_type_field, "is", sg_data[publish_type_field] ],
                       ]
 
-
-            hierarchy = ["created_by"]
+            # the proxy model that is sorting this model will
+            # sort based on id (pk), meaning that more recently 
+            # commited transactions will appear later in the list.
+            # This ensures that publishes with no version number defined
+            # (yes, these exist) are also sorted correctly.
+            hierarchy = ["id"]
 
             self._current_version = sg_data["version_number"]
 
@@ -122,8 +126,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
                                            self._sg_formatter.entity_type, 
                                            filters, 
                                            hierarchy, 
-                                           self._sg_formatter.fields, 
-                                           [{"field_name":"created_at", "direction":"desc"}])
+                                           self._sg_formatter.fields)
             self._refresh_data()
 
 
