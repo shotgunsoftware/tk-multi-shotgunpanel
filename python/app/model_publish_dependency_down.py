@@ -31,6 +31,20 @@ class SgPublishDependencyDownstreamListingModel(SgEntityListingModel):
         # init base class
         SgEntityListingModel.__init__(self, entity_type, parent)        
 
+    def load_data(self, sg_location):
+        """
+        Clears the model and sets it up for a particular entity.
+        Loads any cached data that exists and schedules an async refresh.
+        
+        :param sg_location: Location object representing the *associated*
+               object for which items should be loaded. NOTE! If the model is
+               configured to display tasks, this sg_location could for example
+               point to a Shot for which we want to display tasks.
+        """        
+        # for publishes, sort them by id (e.g. creation date) rather than
+        # by update date.
+        SgEntityListingModel.load_data(self, sg_location, sort_field="id")
+        
     def _get_filters(self):
         """
         Return the filter to be used for the current query

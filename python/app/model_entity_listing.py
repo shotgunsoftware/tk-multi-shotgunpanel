@@ -80,7 +80,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
         """
         return False
 
-    def load_data(self, sg_location, additional_fields=None):
+    def load_data(self, sg_location, additional_fields=None, sort_field=None):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists and schedules an async refresh.
@@ -92,20 +92,30 @@ class SgEntityListingModel(ShotgunOverlayModel):
         :param additional_fields: Additional fields to load apart from those 
                defined in the sg formatter object associated with the entity 
                type.
+        :param sort_field: Field to use to sort the data. The data will be 
+               sorted in descending order (this happens in a proxy model 
+               outside the model itself, so not strictly part of this class, 
+               but rather defined outside in the main dialog). The sort field
+               is the main 'text' field in the model that is set.
         """
         self._sg_location = sg_location
+        
+        # if a sort field has not been specified, default to 
+        # update date (unix time), in descending order
+        sort_field = sort_field or "updated_at"
         
         fields = self._sg_formatter.fields
         if additional_fields:
             fields += additional_fields
             
-        hierarchy = ["updated_at"]
+        hierarchy = [sort_field]
         ShotgunOverlayModel._load_data(self, 
                                        self._sg_formatter.entity_type, 
                                        self._get_filters(), 
                                        hierarchy, 
                                        fields, 
-                                       [{"field_name":"updated_at", "direction":"desc"}],
+                                       [{"field_name": sort_field, 
+                                         "direction": "desc"}],
                                        limit=self.SG_RECORD_LIMIT)
         self._refresh_data()
 

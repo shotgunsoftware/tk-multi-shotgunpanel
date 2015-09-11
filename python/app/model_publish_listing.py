@@ -61,7 +61,8 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         
         SgEntityListingModel.load_data(self, 
                                        sg_location, 
-                                       additional_fields=["version", "task", self._publish_type_field])
+                                       additional_fields=["version", "task", self._publish_type_field],
+                                       sort_field="id")
 
 
 
@@ -72,11 +73,9 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         calculations and other manipulations of the data before it is passed on to the model
         class.
 
-        :param sg_data_list: list of shotgun dictionaries, as retunrned by the find() call.
+        :param sg_data_list: list of shotgun dictionaries, as returned by the find() call.
         :returns: should return a list of shotgun dictionaries, on the same form as the input.
         """
-        app = sgtk.platform.current_bundle()
-
         if not self._show_latest_only:
             # show everything
             new_sg_data_list = sg_data_list
@@ -87,8 +86,8 @@ class SgLatestPublishListingModel(SgEntityListingModel):
     
             # FIRST PASS!
             # get a dict with only the latest versions, grouped by type and task
-            # rely on the fact that versions are returned in asc order from sg.
-            # (see filter query above)
+            # rely on the fact that versions are returned in desc order from sg.
+            # (this is defined in SgEntityListingModel)
             #
             # for example, if there are these publishes:
             # name FOO, version 1, task ANIM, type XXX
@@ -107,6 +106,8 @@ class SgLatestPublishListingModel(SgEntityListingModel):
                     
             unique_data = {}
             
+            # the data is passed from sg in desc order, with the highest version
+            # first.
             for sg_item in sg_data_list:
                 
                 # get the associated type
@@ -121,8 +122,15 @@ class SgLatestPublishListingModel(SgEntityListingModel):
                 if task_link:
                     task_id = task_link["id"]  
     
-                # key publishes in dict by type and name
-                unique_data[ (sg_item["name"], type_id, task_id) ] = sg_item            
+                # get a unique key to track this publish group
+                unique_key = (sg_item["name"], type_id, task_id)
+    
+                # add records only if a record doesn't already exist
+                # the data arrives in desc order, so we know that
+                # if a record already exists, it must have a higher 
+                # version than the current one. So skip current one.
+                if unique_key not in unique_data: 
+                    unique_data[unique_key] = sg_item            
             
             new_sg_data_list = unique_data.values()
         
