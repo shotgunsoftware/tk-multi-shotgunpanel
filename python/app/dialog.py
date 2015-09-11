@@ -38,6 +38,7 @@ from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
 from .model_current_user import SgCurrentUserModel
 from .shotgun_formatter import ShotgunFormatter
+from .note_updater import NoteUpdater
 
 from .modules.schema import CachedShotgunSchema
 
@@ -112,7 +113,10 @@ class AppDialog(QtGui.QWidget):
         self.ui = Ui_Dialog() 
         self.ui.setupUi(self)
 
+        # create a note updater to run operations on notes in the db
+        self._note_updater = NoteUpdater(self._sg_data_retriever, self)
 
+        # hook up a data retriever with all objects needing to talk to sg
         self.ui.search_input.set_data_retriever(self._sg_data_retriever)
         self.ui.note_reply_widget.set_data_retriever(self._sg_data_retriever)    
         self.ui.entity_activity_stream.set_data_retriever(self._sg_data_retriever)
@@ -469,6 +473,8 @@ class AppDialog(QtGui.QWidget):
         self.ui.page_stack.setCurrentIndex(self.NOTE_PAGE_IDX)
         # tell note reply widget to rebuild itself
         self.ui.note_reply_widget.load_data(self._current_location.entity_dict)
+        # check if the note is unread and in that case mark it as read
+        self._note_updater.mark_note_as_read(self._current_location.entity_id)
 
     ###################################################################################################
     # tab callbacks

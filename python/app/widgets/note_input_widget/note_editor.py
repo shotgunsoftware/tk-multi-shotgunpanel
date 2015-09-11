@@ -279,7 +279,7 @@ class NoteEditor(QtGui.QTextEdit):
         depending on what async task has completed.
 
         :param uid: Unique id for request
-        :param request_type: String indentifying the request class
+        :param request_type: String identifying the request class
         :param data: the data that was returned 
         """
         uid = shotgun_model.sanitize_qt(uid) # qstring on pyqt, str on pyside
