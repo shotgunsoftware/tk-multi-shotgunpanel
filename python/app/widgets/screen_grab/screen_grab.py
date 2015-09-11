@@ -92,6 +92,19 @@ class ScreenGrabber(QtGui.QDialog):
         painter.drawLine(mouse_pos.x(), evt.rect().top(),
                          mouse_pos.x(), evt.rect().bottom())
 
+    def keyPressEvent(self, evt):
+        """
+        Key press event
+        """
+        # for some reason I am not totally sure about, it looks like
+        # pressing escape while this dialog is active crashes Maya.
+        # I tried subclassing closeEvent, but it looks like the crashing
+        # is triggered before the code reaches this point.
+        # by sealing the keypress event and not allowing any further processing
+        # of the escape key (or any other key for that matter), the 
+        # behaviour can be successfully avoided.
+        pass
+    
     def mousePressEvent(self, evt):
         """
         Mouse click event
