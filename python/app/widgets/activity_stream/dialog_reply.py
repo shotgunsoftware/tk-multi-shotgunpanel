@@ -16,7 +16,8 @@ from ... import utils
 
 class ReplyDialog(QtGui.QDialog):
     """
-    Widget that replies event stream details for a note
+    Modal dialog that hosts a note reply widget.
+    This is used when someone clicks on the reply button for a note.
     """
     
     def __init__(self, parent, data_retriever, note_id):
@@ -49,12 +50,10 @@ class ReplyDialog(QtGui.QDialog):
         self.close()
 
     def showEvent(self, event):
-        
         QtGui.QDialog.showEvent(self, event)
         self.ui.note_widget.open_editor()
     
     def closeEvent(self, event):
-        
         self.ui.note_widget.destroy()
         # ok to close
         event.accept()

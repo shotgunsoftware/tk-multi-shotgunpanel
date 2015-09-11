@@ -19,8 +19,9 @@ from sgtk import TankError
 
 class ActionManager(object):
     """
-    Specialisation of the base ActionManager class that handles dishing out and 
-    executing QActions based on the hook configuration for the regular loader UI
+    Manager class that is used to generate action menus and dispatch action
+    exeuction into the various action hooks. This provides an interface between
+    the action hooks, action defs in the config, and the rest ot the app.
     """
     
     # the area of the UI that an action is being requested/run for.
@@ -30,6 +31,8 @@ class ActionManager(object):
     def __init__(self, main_dialog):
         """
         Constructor
+        
+        :param main_dialog: Main sg panel dialog object
         """        
         self._app = sgtk.platform.current_bundle()
         self._dialog = main_dialog
@@ -167,7 +170,7 @@ class ActionManager(object):
 
     def _refresh(self, entity):
         """
-        Callback - Shows a shotgun entity in the web browser
+        Internal action callback - refreshes the main dialog UI
         
         :param entity: std sg entity dict with keys type, id and name
         """
@@ -175,7 +178,7 @@ class ActionManager(object):
         
     def _show_in_sg(self, entity):
         """
-        Callback - Shows a shotgun entity in the web browser
+        Internal action callback - Shows a shotgun entity in the web browser
         
         :param entity: std sg entity dict with keys type, id and name
         """
@@ -184,7 +187,7 @@ class ActionManager(object):
 
     def _copy_to_clipboard(self, entity):
         """
-        Callback - Shows a shotgun entity in the web browser
+        Internal action callback - Shows a shotgun entity in the web browser
         
         :param entity: std sg entity dict with keys type, id and name
         """

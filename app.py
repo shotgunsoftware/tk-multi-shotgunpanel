@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Shotgun Software Inc.
+# Copyright (c) 2015 Shotgun Software Inc.
 # 
 # CONFIDENTIAL AND PROPRIETARY
 # 
@@ -21,31 +21,32 @@ class StgkStarterApp(Application):
         """
         Called as the application is being initialized
         """
-        
         # first, we use the special import_module command to access the app module
         # that resides inside the python folder in the app. This is where the actual UI
         # and business logic of the app is kept. By using the import_module command,
         # toolkit's code reload mechanism will work properly.
         app_payload = self.import_module("app")
 
-        # now register a *command*, which is normally a menu entry of some kind on a Shotgun
-        # menu (but it depends on the engine). The engine will manage this command and 
-        # whenever the user requests the command, it will call out to the callback.
-
-        # now register the command with the engine
+        # now register a panel, this is to tell the engine about the our panel ui 
+        # that the engine can automatically create the panel - this happens for
+        # example when a saved window layout is restored in Nuke or at startup.
         self._unique_panel_id = self.engine.register_panel(self.create_panel)
         
-        # register a menu entry
+        # also register a menu entry on the shotgun menu so that users
+        # can launch the panel
         self.engine.register_command("Shotgun Panel...", 
                                      self.create_panel, 
                                      {"type": "panel", "short_name": "shotgun_panel"})
         
     def destroy_app(self):
+        """
+        Called as part engine shutdown
+        """
         self.log_debug("Destroying app...")
 
     def create_panel(self):
         """
-        Shows the main dialog window.
+        Shows the panel UI
         """
         app_payload = self.import_module("app")
         
@@ -55,7 +56,8 @@ class StgkStarterApp(Application):
         except AttributeError, e:
             # just to gracefully handle older engines and older cores
             self.log_warning("Could not execute show_panel method - please upgrade "
-                                     "to latest core and engine! Falling back on show_dialog. Error: %s" % e)
+                             "to latest core and engine! Falling back on show_dialog. "
+                             "Error: %s" % e)
             return self.engine.show_dialog("Shotgun", self, app_payload.AppDialog)
 
 

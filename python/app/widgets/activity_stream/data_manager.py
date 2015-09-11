@@ -25,7 +25,8 @@ shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "sho
  
 class ActivityStreamDataHandler(QtCore.QObject):
     """
-    Data retriever and manager for activity stream data.
+    Data retriever and manager for activity stream data
+    and note replies.
     
     The activity stream is a complex compound of mutable and 
     immutable data. It is cached in a local sqlite database
@@ -44,7 +45,6 @@ class ActivityStreamDataHandler(QtCore.QObject):
      THUMBNAIL_ENTITY, 
      THUMBNAIL_USER,
      THUMBNAIL_ATTACHMENT) = range(4)
-    
     
     update_arrived = QtCore.Signal(list)
     note_arrived = QtCore.Signal(int, int)
@@ -453,7 +453,6 @@ class ActivityStreamDataHandler(QtCore.QObject):
                     # primary entity is a note but we didn't have
                     # the conversation stored!
                     notes[pe["id"]] = [pe]
-                
             
         except:
             # supress and continue
@@ -766,5 +765,3 @@ class ActivityStreamDataHandler(QtCore.QObject):
 
 
         
-
-

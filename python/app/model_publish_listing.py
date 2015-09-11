@@ -18,15 +18,18 @@ from .model_entity_listing import SgEntityListingModel
 
 class SgLatestPublishListingModel(SgEntityListingModel):
     """
-    Model which is like the entity listing model
-    but taylored for publishes. Also handles a mode
-    where only the latest publishes are shown and the
-    rest are culled out.
+    Model which fetches publish objects with the option to collapse
+    the list of returned data so that only the latest version of each
+    publish is shown.
     """
 
     def __init__(self, entity_type, parent):
         """
-        Model which represents the latest publishes for an entity
+        Constructor.
+        
+        :param entity_type: The entity type that should be loaded into this model.
+                            Needs to be a PublishedFile or TankPublishedFile.
+        :param parent: QT parent object
         """
         # should the model only show latest publishes?
         self._show_latest_only = False
@@ -41,7 +44,12 @@ class SgLatestPublishListingModel(SgEntityListingModel):
     def load_data(self, sg_location, show_latest_only):
         """
         Clears the model and sets it up for a particular entity.
-        Loads any cached data that exists.
+        
+        :param sg_location: Location object representing the *associated*
+               object for which items should be loaded. 
+               
+        :param show_latest_only: If true, the listing will be culled so that
+               only latest items are shown.
         """
         # figure out our current entity type
         if self._sg_formatter.entity_type == "PublishedFile":

@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Shotgun Software Inc.
+# Copyright (c) 2015 Shotgun Software Inc.
 # 
 # CONFIDENTIAL AND PROPRIETARY
 # 
@@ -9,15 +9,13 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-import os
-import sys
-import threading
-import datetime
-from . import utils
 from .shotgun_formatter import ShotgunFormatter
 
 class ShotgunLocation(object):
     """
+    Object that wraps around a shotgun entity. This object
+    makes it easy to access settings, formatting details around
+    for any entity, via the sg_formatter property.
     """
     
     def __init__(self, entity_type, entity_id):
@@ -27,19 +25,30 @@ class ShotgunLocation(object):
         
     @property
     def entity_type(self):
+        """
+        Returns the entity type for this object
+        """
         return self._entity_type
     
     @property
     def entity_id(self):
+        """
+        Returns the Shotgun id for this object
+        """
         return self._entity_id
     
     @property
     def entity_dict(self):
+        """
+        Returns an entity dictionary with keys type and id
+        to represent the entity. Note that this dict does NOT
+        include a name key.
+        """
         return {"type": self._entity_type, "id": self._entity_id}
     
     def get_external_url(self):
         """
-        returns the sg url for this entity
+        Returns the sg webapp url for this entity
         """
         app = sgtk.platform.current_bundle()
         
@@ -49,7 +58,6 @@ class ShotgunLocation(object):
                                                                                       proj_id,
                                                                                       self._entity_type, 
                                                                                       self._entity_id)
-        
         else:
             url = "%s/detail/%s/%s" % (self._entity_type, self._entity_id)
     
@@ -57,5 +65,9 @@ class ShotgunLocation(object):
     
     @property
     def sg_formatter(self):
+        """
+        Returns a formatter object with details on how 
+        this object should be displayed and formatted
+        """
         return self._formatter
 

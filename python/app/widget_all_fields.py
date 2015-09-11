@@ -35,6 +35,14 @@ class FieldValueLabel(QtGui.QLabel):
 
 class AllFieldsWidget(QtGui.QWidget):
     """
+    Widget that shows shotgun data in a name-value pair, top down fasion:
+    
+    Status: In Progress
+    Description: Foo Bar
+    Created By: Sam Smith
+    
+    The widget is constructing the contents of this widget using QLabels
+    which will contain clickable hyperlink fields to linked entities.
     """
     
     link_activated = QtCore.Signal(str)
@@ -80,6 +88,11 @@ class AllFieldsWidget(QtGui.QWidget):
             
         
     def set_data(self, sg_data):
+        """
+        Clear any existing data in the widget and populate it with new data
+        
+        :param sg_data: Shotgun data dictionary
+        """
                         
         # first clear existing stuff
         self.clear()

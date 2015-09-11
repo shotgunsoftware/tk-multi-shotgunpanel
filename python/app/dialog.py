@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Shotgun Software Inc.
+# Copyright (c) 2015 Shotgun Software Inc.
 # 
 # CONFIDENTIAL AND PROPRIETARY
 # 
@@ -48,7 +48,8 @@ overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overl
 
 class AppDialog(QtGui.QWidget):
     """
-    Main application dialog window
+    Main application dialog window. This defines the top level UI
+    and binds all UI objects together.
     """
     
     # header indices

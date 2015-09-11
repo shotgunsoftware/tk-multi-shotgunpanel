@@ -20,6 +20,8 @@ from .widget_list_item import ListItemWidget
 class ListItemDelegate(shotgun_view.WidgetDelegate):
     """
     Delegate which 'glues up' the Details Widget with a QT View.
+    
+    This delegate is paired up with the ListItemWidget.
     """
 
     def __init__(self, view, action_manager):

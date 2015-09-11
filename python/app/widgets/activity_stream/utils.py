@@ -14,11 +14,14 @@ from datetime import datetime , timedelta
 
 def create_round_thumbnail(image):
     """
-    Create a circle thumbnail 200px wide
+    Create a circle thumbnail 80px wide, given a thumbnail image
+    
+    :param image: QImage to process
+    :returns: QPixmap object
     """
     CANVAS_SIZE = 80
 
-    # get the 512 base image
+    # make base image
     base_image = QtGui.QPixmap(CANVAS_SIZE, CANVAS_SIZE)
     base_image.fill(QtCore.Qt.transparent)
     
@@ -47,16 +50,34 @@ def create_round_thumbnail(image):
     return base_image
 
 def create_square_48_thumbnail(image):
+    """
+    Given a thumbnail image, create a 48px square image
+    
+    :param image: QImage with thumbnail
+    :returns: QPixmap object
+    """
     return __create_rounded_rect_thumbnail(image, 48, 48, 4)
     
 def create_rectangular_256x144_thumbnail(image):
+    """
+    Given a thumbnail image, create a 256x144px image
+    
+    :param image: QImage with thumbnail
+    :returns: QPixmap object
+    """
     return __create_rounded_rect_thumbnail(image, 256, 144, 5)
 
 def __create_rounded_rect_thumbnail(image, canvas_width, canvas_height, radius):
     """
     Given a qimage shotgun thumbnail, create a publish icon
-    with the thumbnail composited onto a centered otherwise empty canvas. 
-    This will return a 512x400 pixmap object.
+    with the thumbnail composited onto a centered otherwise empty canvas.
+    The thumbnail will be taking up all the space in the image.
+    
+    :param image: QImage to load thumbnail from
+    :param canvas_width: Width of image to generate, in pixels
+    :param canvas_height: Heiht of image to generate, in pixels
+    :param radius: Corner radius of image to generate, in pixels
+    :returns: QPixmap object
     """
     # get the base image
     base_image = QtGui.QPixmap(canvas_width, canvas_height)

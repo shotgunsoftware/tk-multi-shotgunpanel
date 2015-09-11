@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Shotgun Software Inc.
+# Copyright (c) 2015 Shotgun Software Inc.
 # 
 # CONFIDENTIAL AND PROPRIETARY
 # 
@@ -23,6 +23,18 @@ shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shot
 class CachedShotgunSchema(object):
     """
     Wraps around the shotgun schema and caches it for fast lookups.
+
+    Singleton-style setup, so all access method happen via class methods:
+    
+    - get_type_display_name     - Display name for entity type
+    - get_field_display_name    - Display name for field
+    - get_empty_phrase          - String to denote 'no value' for item
+    - get_status_display_name   - Display name for status code
+    
+    This caches the shotgun schema to disk *once* and doesn't check for 
+    further updates. If the cache fails to find a value, the technical 
+    name rather than the display name is returned, so there is graceful
+    fallback.
     """
     __instance = None
     

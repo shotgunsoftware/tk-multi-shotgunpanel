@@ -21,14 +21,22 @@ ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
 class SgEntityDetailsModel(ShotgunOverlayModel):
     """
     Model that represents the details data that is 
-    displayed in the main section of the UI.
+    displayed in the top section of the UI.
+    
+    Emits thumbnail_updated and data_updated signals whenever data 
+    arrived from Shotgun.
+    
+    Data can then be queried via the get_sg_data() and get_pixmap() methods.
     """
+    
     thumbnail_updated = QtCore.Signal()
     data_updated = QtCore.Signal()
 
     def __init__(self, parent):
         """
-        Model which represents the latest publishes for an entity
+        Constructor
+        
+        :param parent: QT parent object
         """
         # init base class
         ShotgunOverlayModel.__init__(self,
@@ -99,11 +107,15 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
     ############################################################################################
     # public interface
 
-
     def load_data(self, sg_location):
         """
         Clears the model and sets it up for a particular entity.
-        Loads any cached data that exists.
+        Loads any cached data that exists and requests an async update.
+        
+        The fields defined in the sg_location.sg_formatter.fields 
+        property will be loaded.
+        
+        :param sg_location: Shotgun Location object of the object to load.
         """
         # set the current location to represent
         self._sg_location = sg_location
@@ -112,11 +124,11 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
 
         hierarchy = ["id"]
         
-        loaded_cache = ShotgunOverlayModel._load_data(self, 
-                                                      sg_location.entity_type, 
-                                                      [["id", "is", sg_location.entity_id]], 
-                                                      hierarchy,
-                                                      fields)
+        ShotgunOverlayModel._load_data(self, 
+                                       sg_location.entity_type, 
+                                       [["id", "is", sg_location.entity_id]], 
+                                       hierarchy,
+                                       fields)
         
         # signal to any views that data now may be available
         self.data_updated.emit()

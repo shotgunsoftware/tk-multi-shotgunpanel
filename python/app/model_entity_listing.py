@@ -29,8 +29,8 @@ class SgEntityListingModel(ShotgunOverlayModel):
     
     The associated object is defined in the shotgun location.
     
-    The type of data that the model generates is defined via the 
-    shotgun formatter
+    The returned data in this model is capped so that it will at
+    the most contain SG_RECORD_LIMIT items.
     """
     
     # maximum number of items to show in the listings
@@ -38,7 +38,10 @@ class SgEntityListingModel(ShotgunOverlayModel):
     
     def __init__(self, entity_type, parent):
         """
-        Model which represents the latest publishes for an entity
+        Constructor.
+        
+        :param entity_type: The entity type that should be loaded into this model.
+        :param parent: QT parent object
         """
         self._sg_location = None
         self._sg_formatter = ShotgunFormatter(entity_type)
@@ -61,21 +64,34 @@ class SgEntityListingModel(ShotgunOverlayModel):
 
     def get_formatter(self):
         """
-        Returns the shotgun location associated with this model
+        Returns the shotgun location associated with this model.
+        This formatter object describes the properties of the items
+        that are being displayed by this model.
         """
         return self._sg_formatter
 
     def is_highlighted(self, model_index):
         """
         Compute if a model index belonging to this model 
-        should be highlighted
+        should be highlighted.
+        
+        This can be subclassed by models that have a special
+        concept which defines highlighting.
         """
         return False
 
     def load_data(self, sg_location, additional_fields=None):
         """
         Clears the model and sets it up for a particular entity.
-        Loads any cached data that exists.
+        Loads any cached data that exists and schedules an async refresh.
+        
+        :param sg_location: Location object representing the *associated*
+               object for which items should be loaded. NOTE! If the model is
+               configured to display tasks, this sg_location could for example
+               point to a Shot for which we want to display tasks.
+        :param additional_fields: Additional fields to load apart from those 
+               defined in the sg formatter object associated with the entity 
+               type.
         """
         self._sg_location = sg_location
         

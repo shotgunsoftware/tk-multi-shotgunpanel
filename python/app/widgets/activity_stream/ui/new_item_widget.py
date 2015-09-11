@@ -54,7 +54,7 @@ class Ui_NewItemWidget(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.date.sizePolicy().hasHeightForWidth())
         self.date.setSizePolicy(sizePolicy)
-        self.date.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.date.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTop|QtCore.Qt.AlignTrailing)
         self.date.setWordWrap(True)
         self.date.setObjectName("date")
         self.horizontalLayout.addWidget(self.date)

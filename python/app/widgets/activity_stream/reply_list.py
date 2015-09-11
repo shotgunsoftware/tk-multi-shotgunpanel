@@ -12,7 +12,6 @@ import sgtk
 import os
 import sys
 from sgtk.platform.qt import QtCore, QtGui
-from ... import utils
 
 from .dialog_reply import ReplyDialog
 
@@ -29,7 +28,13 @@ overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overl
  
 class ReplyListWidget(QtGui.QWidget):
     """
-    Widget that displays a series of replies to a note
+    Top level widget that displays a note conversation.
+    
+    This will first render the body of the note, including the attachments,
+    and then subsequent replies.
+    
+    The same widgets that are being used in the activity stream are
+    being reused in this widget.
     """
     
     # when someone clicks a link or similar
@@ -141,8 +146,6 @@ class ReplyListWidget(QtGui.QWidget):
         self.setVisible(False)
         
         try:
-
-
             self._clear()
     
             note_id = self._sg_entity_dict["id"]            
@@ -160,7 +163,6 @@ class ReplyListWidget(QtGui.QWidget):
             content_widget.setObjectName("note_content_label")
             self.ui.reply_layout.addWidget(content_widget)
             self._general_widgets.append(content_widget)
-            
             
             # we have cached note data
             replies_and_attachments = note_thread_data[1:] 
@@ -205,10 +207,6 @@ class ReplyListWidget(QtGui.QWidget):
         self._app.log_debug("...done")
 
 
-
-
-
-
     ##########################################################################################
     # internal methods
         
@@ -230,8 +228,6 @@ class ReplyListWidget(QtGui.QWidget):
         self._reply_widgets = []
         self._attachment_group_widgets = {}    
         
-        
-        
     def _load_stylesheet(self):
         """
         Loads in a stylesheet from disk
@@ -245,7 +241,6 @@ class ReplyListWidget(QtGui.QWidget):
         finally:
             f.close()
             
-        
     def _get_reply_users(self):
         """
         Returns a list of users who have created replies
@@ -269,7 +264,6 @@ class ReplyListWidget(QtGui.QWidget):
         self._general_widgets.append(reply_button)
         return reply_button
 
-
     def _add_attachment_group(self, attachments, after_note):
         
         curr_attachment_group_widget_id = len(self._attachment_group_widgets)
@@ -286,8 +280,6 @@ class ReplyListWidget(QtGui.QWidget):
         # add it to our mapping dict and increment the counter
         self._attachment_group_widgets[curr_attachment_group_widget_id] = attachment_group
         
-        
-
     def _add_replies(self, replies_and_attachments):
         """
         Add replies and attachment widgets
@@ -325,7 +317,6 @@ class ReplyListWidget(QtGui.QWidget):
             self._add_attachment_group(current_attachments, attachment_is_directly_after_note)
             current_attachments = []            
 
-
     def _process_thumbnail(self, data):
         """
         Populate the UI with the given thumbnail
@@ -353,7 +344,6 @@ class ReplyListWidget(QtGui.QWidget):
                     continue
                 if data["entity"] == reply_widget.created_by:
                     reply_widget.set_thumbnail(image)
-
 
     def _on_reply_clicked(self, note_id):
         

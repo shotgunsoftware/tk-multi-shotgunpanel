@@ -8,11 +8,8 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
-from collections import defaultdict
 from sgtk.platform.qt import QtCore, QtGui
-
 import sgtk
-from . import utils
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
@@ -27,14 +24,21 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
     Model that shows the version history for a publish.
     
     The data fetching pass in this model has a two-pass 
-    setup: First, the list of publishes that are part of the 
-    history for a given publish are fetched. Then, in a second 
-    pass
+    setup: First, the details for the given publish are fetched:
+    version number, type, task etc. Once we have those fields, 
+    the shotgun model is updated to retrieve all associated 
+    publishes.
     """
 
     def __init__(self, entity_type, data_retriever, parent):
         """
-        constructor
+        Constructor.
+        
+        :param entity_type: The entity type that should be loaded into this model.
+                            Needs to be a PublishedFile or TankPublishedFile.
+        :param data_retriever: data retriever object to use when requesting
+                               async sg data 
+        :param parent: QT parent object
         """
         
         # current publish we have loaded
@@ -131,6 +135,10 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
+        
+        :param sg_location: Location object representing the *associated*
+               object for which items should be loaded. For this class, 
+               the location should always represent a published file.
         """        
         self._sg_location = sg_location
         self._current_version = None

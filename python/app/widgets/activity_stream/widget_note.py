@@ -29,7 +29,8 @@ from ... import utils
 
 class NoteWidget(ActivityStreamBaseWidget):
     """
-    Widget that replies event stream details for a note
+    Widget that represents a Note. This widget in turn contains
+    replies and attachments.
     """
     
     def __init__(self, parent):

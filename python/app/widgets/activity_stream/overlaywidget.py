@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Shotgun Software Inc.
+# Copyright (c) 2015 Shotgun Software Inc.
 # 
 # CONFIDENTIAL AND PROPRIETARY
 # 
@@ -14,7 +14,7 @@ from sgtk.platform.qt import QtCore, QtGui
 
 class SmallOverlayWidget(QtGui.QWidget):
     """
-    Simpler spinner widget
+    Simple spinner widget
     """
     
     MODE_OFF = 0
@@ -53,14 +53,12 @@ class SmallOverlayWidget(QtGui.QWidget):
         self.setVisible(True)
         self._mode = self.MODE_ON
 
-
     def hide(self):
         """
         Hide the overlay.
         """
         self._mode = self.MODE_OFF
         self.setVisible(False)
- 
         
     ############################################################################################
     # internal methods
@@ -92,10 +90,6 @@ class SmallOverlayWidget(QtGui.QWidget):
         finally:
             painter.end()
         
-        
-        
-        
-        
 class ResizeEventFilter(QtCore.QObject):
     """
     Event filter which emits a resized signal whenever
@@ -111,4 +105,3 @@ class ResizeEventFilter(QtCore.QObject):
             self.resized.emit()
         # pass it on!
         return False
-        

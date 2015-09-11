@@ -93,11 +93,17 @@ class ScreenGrabber(QtGui.QDialog):
                          mouse_pos.x(), evt.rect().bottom())
 
     def mousePressEvent(self, evt):
+        """
+        Mouse click event
+        """
         if evt.button() == QtCore.Qt.LeftButton:
             # Begin click drag operation
             self._click_pos = evt.globalPos()
 
     def mouseReleaseEvent(self, evt):
+        """ 
+        Mouse release event
+        """
         if evt.button() == QtCore.Qt.LeftButton and self._click_pos is not None:
             # End click drag operation and commit the current capture rect
             self._capture_rect = QtCore.QRect(self._click_pos,
@@ -106,9 +112,15 @@ class ScreenGrabber(QtGui.QDialog):
         self.close()
 
     def mouseMoveEvent(self, evt):
+        """
+        Mouse move event
+        """
         self.repaint()
 
     def showEvent(self, evt):
+        """
+        Show event
+        """
         self._fit_screen_geometry()
         # Start fade in animation
         fade_anim = QtCore.QPropertyAnimation(self, "_opacity_anim_prop", self)
@@ -119,10 +131,16 @@ class ScreenGrabber(QtGui.QDialog):
         fade_anim.start(QtCore.QAbstractAnimation.DeleteWhenStopped)
 
     def _set_opacity(self, value):
+        """
+        Animation callback for opacity
+        """
         self._opacity = value
         self.repaint()
 
     def _get_opacity(self):
+        """
+        Animation callback for opacity
+        """
         return self._opacity
 
     _opacity_anim_prop = QtCore.Property(int, _get_opacity, _set_opacity)
@@ -156,6 +174,10 @@ def screen_capture():
 def screen_capture_file(output_path=None):
     """
     Modally display the screen capture tool, saving to a file.
+    
+    :param output_path: Path to save to. If no path is specified,
+    a temp path is generated.
+    :returns: path where screenshot was saved.
     """
     if output_path is None:
         output_path = tempfile.NamedTemporaryFile(suffix=".png",

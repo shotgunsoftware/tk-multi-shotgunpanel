@@ -62,12 +62,17 @@ class NoteEditor(QtGui.QTextEdit):
         self._completer.activated[QtCore.QModelIndex].connect(self._insert_completion)
 
     def set_data_retriever(self, data_retriever):
-        # create a separate sg data handler for submission
+        """
+        Create a separate sg data handler for submission
+        """
         self.__sg_data_retriever = data_retriever
         self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)        
 
     def destroy(self):
+        """
+        Should be called before the reply widget is closed
+        """
         if self.__sg_data_retriever:
             self.__sg_data_retriever.work_completed.disconnect(self.__on_worker_signal)
             self.__sg_data_retriever.work_failure.disconnect(self.__on_worker_failure)
@@ -250,8 +255,8 @@ class NoteEditor(QtGui.QTextEdit):
         :param data: data dictionary passed in from _submit()
         """
         entity_types = {}
-        entity_types["HumanUser"] = {"filters": [["sg_status_list", "is", "act"]]}
-        entity_types["Group"] = {}
+        entity_types["HumanUser"] = [["sg_status_list", "is", "act"]]
+        entity_types["Group"] = []
         sg_data = sg.text_search(data["text"], entity_types)
         return sg_data
         

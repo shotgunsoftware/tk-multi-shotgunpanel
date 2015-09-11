@@ -29,15 +29,14 @@ from .overlaywidget import SmallOverlayWidget
  
 class ActivityStreamWidget(QtGui.QWidget):
     """
-    Widget that displays a series of replies to a note
+    Widget that displays the Shotgun activity stream for an entity.
     """
     
     MAX_STREAM_LENGTH = 20
     
     # when someone clicks a link or similar
     entity_requested = QtCore.Signal(str, int)
-    playback_requested = QtCore.Signal(dict)
-        
+    playback_requested = QtCore.Signal(dict)    
     
     def __init__(self, parent):
         """
@@ -83,33 +82,23 @@ class ActivityStreamWidget(QtGui.QWidget):
         self._entity_type = None
         self._entity_id = None
         
-        
     def set_data_retriever(self, data_retriever):
         """
-        Set an async data retreiver object to use with this 
-        widget.
+        Set an async data retreiver object to use with this widget.
         """
         self._data_retriever = data_retriever
         self._data_manager.set_data_retriever(data_retriever)
         self.ui.note_widget.set_data_retriever(data_retriever)
         
-    def _load_stylesheet(self):
-        """
-        Loads in a stylesheet from disk
-        """
-        qss_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.qss")
-        try:
-            f = open(qss_file, "rt")
-            qss_data = f.read()
-            # apply to widget (and all its children)
-            self.setStyleSheet(qss_data)
-        finally:
-            f.close()
+    ############################################################################
+    # public interface
         
     def load_data(self, sg_entity_dict):
         """
         Reset the state of the widget and then load up the data
         for the given entity.
+        
+        :param sg_entity_dict: Dictionary with keys type and id.
         """
         self._app.log_debug("Setting up activity stream for entity %s" % sg_entity_dict)
         # clean up everything first
@@ -232,10 +221,26 @@ class ActivityStreamWidget(QtGui.QWidget):
         self._clear()
         return self.ui.note_widget.reset()
         
+        
+    ############################################################################
+    # internals
+        
+    def _load_stylesheet(self):
+        """
+        Loads in a stylesheet from disk
+        """
+        qss_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.qss")
+        try:
+            f = open(qss_file, "rt")
+            qss_data = f.read()
+            # apply to widget (and all its children)
+            self.setStyleSheet(qss_data)
+        finally:
+            f.close()
+        
     def _clear(self):
         """
-        Clear the widget. This will remove all items
-        the UI
+        Clear the widget. This will remove all items the UI
         """
         self._app.log_debug("Clearing UI...")
         # before we begin widget operations, turn off visibility
@@ -378,7 +383,6 @@ class ActivityStreamWidget(QtGui.QWidget):
         # remove the "loading please wait .... widget
         self._clear_loading_widget()
         
-        
         # load in the new data
         # the list of ids is delivered in ascending order
         # and we pop them on to the widget
@@ -403,7 +407,6 @@ class ActivityStreamWidget(QtGui.QWidget):
         # (which only happens on a full load)
         self.__overlay.hide()
             
-
     def _process_thumbnail(self, data):
         """
         New thumbnail has arrived from the data manager
@@ -429,14 +432,10 @@ class ActivityStreamWidget(QtGui.QWidget):
             for (entity_type, entity_id) in reply_users:
                 self._data_manager.request_user_thumbnail(entity_type, entity_id)
             
-            
-            
-            
-            
-            
-
     def _on_reply_clicked(self, note_id):
-        
+        """
+        Callback when someone clicks reply on a given note
+        """
         reply_dialog = ReplyDialog(self, self._data_retriever, note_id)
         
         #position the reply modal dialog above the activity stream scroll area
@@ -454,7 +453,6 @@ class ActivityStreamWidget(QtGui.QWidget):
         finally:
             self.__small_overlay.hide()
         
-    
     def _on_note_submitted(self):
         """
         called when a note has finished submitting
@@ -463,6 +461,9 @@ class ActivityStreamWidget(QtGui.QWidget):
         self._data_manager.rescan()
 
     def _load_shotgun_activity_stream(self):
-        
+        """
+        Called when someone clicks 'show activity stream in shotgun'
+        """
         url = "%s/detail/%s/%s" % (self._app.sgtk.shotgun_url, self._entity_type, self._entity_id)
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+

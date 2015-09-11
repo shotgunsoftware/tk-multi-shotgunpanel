@@ -27,7 +27,7 @@ class VersionLabel(QtGui.QLabel):
     to the caller.   
     """
     
-    # signal fires when the play button was cliecked
+    # signal fires when the play button was clicked
     playback_clicked = QtCore.Signal(dict)
     
     def __init__(self, parent):
@@ -46,7 +46,7 @@ class VersionLabel(QtGui.QLabel):
     def set_shotgun_data(self, sg_data):
         """
         Sets version data associated with this label
-        :"""
+        """
         self._sg_data = sg_data
         
         # based on the data, figure out if the icon should be active or not

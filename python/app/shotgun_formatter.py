@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Shotgun Software Inc.
+# Copyright (c) 2015 Shotgun Software Inc.
 # 
 # CONFIDENTIAL AND PROPRIETARY
 # 
@@ -11,10 +11,7 @@
 import sgtk
 from sgtk import TankError
 from sgtk.platform.qt import QtCore, QtGui
-import os
 import re
-import sys
-import threading
 import datetime
 from . import utils
 
@@ -22,12 +19,14 @@ from .modules.schema import CachedShotgunSchema
 
 class ShotgunFormatter(object):
     """
+    The Shotgun Formatter object holds information on
+    how a particular shotgun entity type should be formatted
+    and displayed.
     
+    A lot of the information accessible from this class comes from
+    the shotgun_fields hook which defines how information should be
+    presented, which fields should be displayed etc.
     """
-    
-    
-    
-    
     
     def __init__(self, entity_type):
         """
@@ -66,8 +65,6 @@ class ShotgunFormatter(object):
         # query payload
         fields.append(self.thumbnail_field)
         
-        
-        
         # include the special quicktime field for versions
         if entity_type == "Version":
             fields.append("sg_uploaded_movie")
@@ -79,9 +76,16 @@ class ShotgunFormatter(object):
     def __repr__(self):
         return "<Shotgun '%s' formatter>" % self._entity_type
         
+    ###############################################################################################
+    # helper methods
+    
     def _resolve_sg_fields(self, token_str):
         """
-        Convenience method. Returns the sg fields for all tokens.
+        Convenience method. Returns the sg fields for all tokens
+        given a token_str
+        
+        :param token_str: String with tokens, e.g. "{code}_{created_by}"
+        :returns: All shotgun fields, e.g. ["code", "created_by"]
         """
         fields = []
         
@@ -119,6 +123,7 @@ class ShotgunFormatter(object):
                                          # printed out, otherwise nothing.
         - {[Name: ]code[<br>]}           # Same but with a post line break
         
+        :param token_str: String with tokens, e.g. "{code}_{created_by}"
         returns: a list of tuples with (full_token, sg_fields, directive, preroll, postroll)
         """    
     
@@ -189,7 +194,20 @@ class ShotgunFormatter(object):
     
     def _sg_field_to_str(self, sg_type, sg_field, value, directive=None):
         """
-        Convert to string
+        Converts a Shotgun field value to a string.
+        
+        Formatting directives can be passed to alter the conversion behaviour:
+        
+        - showtype: Show the type for links, e.g. return "Shot ABC123" instead
+          of just "ABC123"
+          
+        - nolink: don't return a <a href> style hyperlink for links, instead just
+          return a string.
+        
+        :param sg_type: Shotgun data type
+        :param sg_field: Shotgun field name
+        :param value: value to turn into a string
+        :param directive: Formatting directive, see above 
         """         
         str_val = ""
         
@@ -249,6 +267,48 @@ class ShotgunFormatter(object):
         else:
             return True
         
+    def _convert_token_string(self, token_str, sg_data):
+        """
+        Convert a string with {tokens} given a shotgun data dict
+        
+        :param token_str: Token string as defined in the shotgun fields hook
+        :param sg_data: Data dictionary to get values from
+        :returns: string with tokens replaced with actual values
+        """
+        # extract all tokens and process them one after the other
+        for (full_token, sg_fields, directive, pre_roll, post_roll) in self._resolve_tokens(token_str):
+            
+            # get the first sg field value we find
+            # this is usef when we have a fallback syntax in the token string,
+            # for example {artist|created_by}
+            for sg_field in sg_fields: 
+                sg_value = sg_data.get(sg_field)
+                if sg_value:
+                    # got a value so stop looking
+                    break
+            
+            if (sg_value is None or sg_value == []) and ( pre_roll or post_roll ):
+                # shotgun value is empty
+                # if we have a pre or post roll part of the token
+                # then we basicaly just skip the display of both 
+                # those and the value entirely
+                # e.g. Hello {[Shot:]sg_shot} becomes:
+                # for shot abc: 'Hello Shot:abc'
+                # for shot <empty>: 'Hello '             
+                token_str = token_str.replace("{%s}" % full_token, "")
+
+            else:
+                resolved_value = self._sg_field_to_str(sg_data["type"], sg_field, sg_value, directive)
+            
+                # potentially add pre/and post
+                if pre_roll:
+                    resolved_value = "%s%s" % (pre_roll, resolved_value)
+                if post_roll:
+                    resolved_value = "%s%s" % (resolved_value, post_roll)
+                # and replace the token with the value
+                token_str = token_str.replace("{%s}" % full_token, resolved_value)
+        
+        return token_str        
             
     ####################################################################################################
     # properties
@@ -275,15 +335,23 @@ class ShotgunFormatter(object):
     
     @property
     def entity_type(self):
+        """
+        Returns the entity type associated with this formatter
+        """
         return self._entity_type
     
     @property
     def should_open_in_shotgun_web(self):
-        
-        # TODO - we might want to expose this in the hook at some point
+        """
+        Property to indicate if links to this item should 
+        open in the shotgun web app rather than inside the
+        shotgun panel.
+        """
         if self._entity_type == "Playlist":
+            # jump to sg
             return True
         else:
+            # internal link
             return False
     
     @property
@@ -341,12 +409,23 @@ class ShotgunFormatter(object):
             return True        
 
     ####################################################################################################
-    # methods
+    # public methods
 
     def get_link_filters(self, sg_location):
         """
         Returns a filter string which links this type up to a particular 
-        location
+        location.
+        
+        For example, if the current formatter object is describing how to
+        format a Note and the sg_location parameter represents a user,
+        a query is returned that describes how to retrieved all notes
+        associated with that particular user.
+        
+        :param sg_location: Location object describing the object for
+                            which associated items should be retrieved.
+                            
+        :returns: Std shotgun filters that can be used to retrieve 
+                  associated data  
         """ 
         # TODO - we might want to expose this in the hook at some point
         link_filters = []
@@ -396,7 +475,6 @@ class ShotgunFormatter(object):
             else:
                 link_filters.append(["entity", "is", sg_location.entity_dict])
             
-
         elif sg_location.entity_type == "Project":
             
             # tasks are usually associated via a task field rather than via a link field
@@ -412,8 +490,6 @@ class ShotgunFormatter(object):
             else:
                 link_filters.append(["entity", "is", sg_location.entity_dict])
             
-
-            
         else:
             
             if self._entity_type == "Note":
@@ -422,12 +498,15 @@ class ShotgunFormatter(object):
                 link_filters.append(["entity", "is", sg_location.entity_dict])
             
         return link_filters     
-            
-        
 
     def create_thumbnail(self, image, sg_data):
         """
-        Given a path, create a suitable thumbnail and return a pixmap
+        Given a QImage representing a thumbnail and return a formatted
+        pixmap that is suitable for that data type.
+        
+        :param image: QImage representing a shotgun thumbnail
+        :param sg_data: Data associated with the thumbnail
+        :returns: Pixmap object
         """
         if self.entity_type in ["HumanUser", "ApiUser", "ClientUser"]:
             return utils.create_circular_512x400_thumbnail(image)
@@ -449,9 +528,11 @@ class ShotgunFormatter(object):
     @classmethod
     def get_playback_url(cls, sg_data):
         """
-        returns a url to be used for playback
-        """
+        Returns a url to be used for playback
         
+        :param sg_data: Shotgun data dictionary
+        :returns: Screening room url
+        """
         # TODO - we might want to expose this in the hook at some point
         if sg_data.get("type") != "Version":
             return None
@@ -464,57 +545,34 @@ class ShotgunFormatter(object):
 
         return url
 
-    def _convert_token_string(self, token_str, sg_data):
-        """
-        Convert a string with {tokens} given a shotgun data dict
-        """
-        # extract all tokens and process them one after the other
-        for (full_token, sg_fields, directive, pre_roll, post_roll) in self._resolve_tokens(token_str):
-            
-            # get the first sg field value we find
-            # this is usef when we have a fallback syntax in the token string,
-            # for example {artist|created_by}
-            for sg_field in sg_fields: 
-                sg_value = sg_data.get(sg_field)
-                if sg_value:
-                    # got a value so stop looking
-                    break
-            
-            if (sg_value is None or sg_value == []) and ( pre_roll or post_roll ):
-                # shotgun value is empty
-                # if we have a pre or post roll part of the token
-                # then we basicaly just skip the display of both 
-                # those and the value entirely
-                # e.g. Hello {[Shot:]sg_shot} becomes:
-                # for shot abc: 'Hello Shot:abc'
-                # for shot <empty>: 'Hello '             
-                token_str = token_str.replace("{%s}" % full_token, "")
-
-            else:
-                resolved_value = self._sg_field_to_str(sg_data["type"], sg_field, sg_value, directive)
-            
-                # potentially add pre/and post
-                if pre_roll:
-                    resolved_value = "%s%s" % (pre_roll, resolved_value)
-                if post_roll:
-                    resolved_value = "%s%s" % (resolved_value, post_roll)
-                # and replace the token with the value
-                token_str = token_str.replace("{%s}" % full_token, resolved_value)
-        
-        return token_str
-        
-
     def format_raw_value(self, entity_type, field_name, value, directive=None):
         """
         Format a raw shotgun value
+        
+        Formatting directives can be passed to alter the conversion behaviour:
+        
+        - showtype: Show the type for links, e.g. return "Shot ABC123" instead
+          of just "ABC123"
+          
+        - nolink: don't return a <a href> style hyperlink for links, instead just
+          return a string.        
+        
+        :param entity_type: Shotgun entity type
+        :param field_name: Shotgun field name
+        :param value: Raw shotgun value
+        :param directive: Formatting directive 
         """
         return self._sg_field_to_str(entity_type, field_name, value, directive)
 
     def format_entity_details(self, sg_data):
         """
-        Render details
+        Render full details for a Shotgun entity.
+        Formatting settings are read from the shotgun_fields hook.
         
-        returns (header, body)
+        :param sg_data: Shotgun data dictionary. The shotgun fields 
+               returned by the fields parameter need to be included in
+               this data dictionary.
+        :returns: tuple with formatted and resolved (header, body) strings.
         """
         title = self._get_hook_value("get_main_view_definition", "title")
         body = self._get_hook_value("get_main_view_definition", "body")
@@ -526,9 +584,15 @@ class ShotgunFormatter(object):
         
     def format_list_item_details(self, sg_data):
         """
-        Render details
+        Render details for list items to be displayed.
+
+        Formatting settings are read from the shotgun_fields hook.
         
-        returns (top_left, top_right, body) strings
+        :param sg_data: Shotgun data dictionary. The shotgun fields 
+               returned by the fields parameter need to be included in
+               this data dictionary.
+        :returns: tuple with formatted and resolved (top_left, top_right, 
+                  body) strings.
         """
 
         top_left = self._get_hook_value("get_list_item_definition", "top_left")

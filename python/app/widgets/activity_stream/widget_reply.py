@@ -17,7 +17,7 @@ from ... import utils
 
 class ReplyWidget(ActivityStreamBaseWidget):
     """
-    Widget that replies event stream details for a note
+    Widget that shows a reply to a note.
     """
     
     (LARGE_USER_THUMB, SMALL_USER_THUMB) = range(2)

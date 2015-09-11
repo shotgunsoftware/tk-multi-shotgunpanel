@@ -21,7 +21,7 @@ from ... import utils
 
 class ValueUpdateWidget(ActivityStreamBaseWidget):
     """
-    Widget that displays a series of replies to a note
+    Activity stream widget that displays a value update indication. 
     """
     
     def __init__(self, parent):

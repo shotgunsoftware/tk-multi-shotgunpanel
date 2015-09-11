@@ -20,14 +20,22 @@ ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
 
 class SgAllFieldsModel(ShotgunOverlayModel):
     """
-    Model that represents the details data that is 
-    displayed in the main section of the UI.
+    Model that represents all the fields for an entity, as defined
+    by a shotgun location object.
+    
+    Data is loaded in via the load_data(location_object) method and the
+    model will use the sg_location.sg_formatter.all_fields to determine
+    which fields to load in.
+    
+    Once loaded or updated, a data_updated signal is emitted.
     """
     data_updated = QtCore.Signal(dict)
 
     def __init__(self, parent):
         """
-        Model which represents the latest publishes for an entity
+        Constructor
+        
+        :param parent: QT parent object.
         """
         # init base class
         ShotgunOverlayModel.__init__(self,
@@ -53,8 +61,8 @@ class SgAllFieldsModel(ShotgunOverlayModel):
 
     def _on_data_refreshed(self):
         """
-        helper method. dispatches the after-refresh signal
-        so that a data_updated signal is consistenntly sent
+        Helper method. dispatches the after-refresh signal
+        so that a data_updated signal is consistently sent
         out both after the data has been updated and after a cache has been read in
         """
         sg_data = self._get_sg_data()
@@ -62,7 +70,6 @@ class SgAllFieldsModel(ShotgunOverlayModel):
 
     ############################################################################################
     # public interface
-
 
     def load_data(self, sg_location):
         """

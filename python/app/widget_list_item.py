@@ -21,6 +21,9 @@ from .ui.list_item_widget import Ui_ListItemWidget
 
 class ListItemWidget(QtGui.QWidget):
     """
+    Widget that is used to display entries in all the item listings.
+    This widget goes together with the list item delegate and is always
+    manuafactured by the list item delegate.
     """
     
     def __init__(self, parent):

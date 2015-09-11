@@ -1,17 +1,32 @@
+/*
+Copyright (c) 2015 Shotgun Software Inc.
+ 
+CONFIDENTIAL AND PROPRIETARY
+ 
+This work is provided "AS IS" and subject to the Shotgun Pipeline Toolkit 
+Source Code License included in this distribution package. See LICENSE.
+By accessing, using, copying or modifying this work you indicate your 
+agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
+not expressly granted therein are reserved by Shotgun Software Inc.
+*/
 
-/* General rules */
+
+/* Get rid of borders for main Listing Views */
 QListView, QTableView, QScrollArea {
     border: none;
 }
 
 
-/* Styling of tab widget */
+/****************************************************************/
+/* Main tab section                                             */
+
 QTabWidget::pane {
     border-top: 1px solid rgb(255, 255, 255, 20);
     padding-top: 8px;
 }
 
-/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
+/* Style the tab using the tab sub-control. 
+   Note that it reads QTabBar _not_ QTabWidget */
 QTabBar::tab {
     padding-left: 12px;
     padding-right: 12px;
@@ -19,6 +34,7 @@ QTabBar::tab {
     padding-top: 0px;
     border-bottom: 2px solid rgb(255, 255, 255, 5);
 }
+
 QTabBar::tab:hover {
     color: {{SG_HIGHLIGHT_COLOR}};
 }
@@ -27,6 +43,10 @@ QTabBar::tab:selected {
     color: {{SG_HIGHLIGHT_COLOR}};
     border-bottom: 2px solid {{SG_HIGHLIGHT_COLOR}};
 }
+
+/****************************************************************/
+/* Info tab showing all shotgun fields 							*/
+
 
 FieldNameLabel {
     
@@ -47,8 +67,10 @@ FieldValueLabel {
 }
 
 
-/* Navigate to previous page button styling */
+/****************************************************************/
+/* Navigation: Home, previous, next 							*/
 
+/* Navigate to previous page button styling */
 QToolButton#navigation_prev {
     border: none;
     background-color: none;
@@ -70,9 +92,7 @@ QToolButton:Pressed#navigation_prev {
 }
 
 
-
 /* Navigate to next page button styling */
-
 QToolButton#navigation_next {
     border: none;
     background-color: none;
@@ -137,6 +157,9 @@ QPushButton#cancel_search {
     border: none;
 }
 
+/****************************************************************/
+/* Top details area  				 							*/
+
 
 #details_text_header {
     padding-left: 2px;
@@ -147,8 +170,6 @@ QPushButton#cancel_search {
     padding-left: 0px;
     padding-left: 8px;
 }
-
-/* top detail area */
 
 QWidget#top_group {
     background-color: rgba(255, 255, 255, 10%);

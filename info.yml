@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Shotgun Software Inc.
+# Copyright (c) 2015 Shotgun Software Inc.
 # 
 # CONFIDENTIAL AND PROPRIETARY
 # 
@@ -69,7 +69,7 @@ display_name: "Shotgun Panel"
 description: "Panel UI with Shotgun information about your scene, yourself and the things around you."
 
 # Required minimum versions for this item to run
-requires_shotgun_version:
+requires_shotgun_version: "v6.2.0"
 requires_core_version: "v0.16.21"
 requires_engine_version:
 

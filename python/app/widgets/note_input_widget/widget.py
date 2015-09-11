@@ -12,7 +12,6 @@ import os
 import sgtk
 import tempfile
 
-
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 
@@ -45,7 +44,6 @@ class NoteInputWidget(QtGui.QWidget):
         """
         Constructor
         """
- 
         # first, call the base class and let it do its thing.
         QtGui.QWidget.__init__(self, parent)
 
@@ -81,6 +79,7 @@ class NoteInputWidget(QtGui.QWidget):
         # reset state of the UI
         self.reset()
         
+        
     def destroy(self):
         """
         disconnect and prepare for this object
@@ -93,102 +92,19 @@ class NoteInputWidget(QtGui.QWidget):
             self.__sg_data_retriever = None
         
     def set_data_retriever(self, data_retriever):
-        
-        # create a separate sg data handler for submission
+        """
+        Create a separate sg data handler for submission
+        """
         self.__sg_data_retriever = data_retriever
         self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
         
         self.ui.text_entry.set_data_retriever(data_retriever)
         
-    def open_editor(self):
-        """
-        Set the editor into its "open mode"
-        where a user can type in stuff
-        """
-        self.ui.stacked_widget.setCurrentIndex(self._EDITOR_WIDGET_INDEX)
-        self.ui.hint_label.show()
-        self._adjust_ui()        
-        self.ui.text_entry.setFocus()
         
-    def _adjust_ui(self):
-        """
-        adjust the UI to be optimal size depending on view
-        """
-        if self.ui.stacked_widget.currentIndex() == self._NEW_NOTE_WIDGET_INDEX:
-            self.setMinimumSize(QtCore.QSize(0, 80))
-            self.setMaximumSize(QtCore.QSize(16777215, 80))
-             
-        elif self.ui.stacked_widget.currentIndex() == self._EDITOR_WIDGET_INDEX:
-            self.setMinimumSize(QtCore.QSize(0, 120))
-            self.setMaximumSize(QtCore.QSize(16777215, 120))
-             
-        else:
-            self._app.log_warning("cannot adjust unknown ui mode.")             
         
-    
-    def _load_stylesheet(self):
-        """
-        Loads in a stylesheet from disk
-        """
-        qss_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.qss")
-        try:
-            f = open(qss_file, "rt")
-            qss_data = f.read()
-            # apply to widget (and all its children)
-            self.setStyleSheet(qss_data)
-        finally:
-            f.close()
-      
-    def reset(self, force=False):
-        """
-        Rest the state of the widget completely.
-        Clear any input.
-        Prompt for confirmation if there is text.
-        
-        :returns: true if reset was completed, false if reset couldn't be
-                  completed because the user cancelled the operation.
-        """
-        if not force and self.ui.text_entry.toPlainText() != "":
-            
-            # this is similar to what Chrome prompts
-            # when you are about to nagivate away from a page
-            # where you have entered text 
-            status = QtGui.QMessageBox.warning(self, 
-                                              "Confirm Navigation", 
-                                              """<b>Confirm Navigation</b><br><br>
-                                              You haven't submitted your Note yet.<br>
-                                              Do you want to leave without finishing?""", 
-                                              QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if status == QtGui.QMessageBox.No:
-                return False
-        
-        self.ui.text_entry.reset()
-
-        self.ui.stacked_widget.setCurrentIndex(self._NEW_NOTE_WIDGET_INDEX)
-        
-        self._adjust_ui()        
-        
-        # reset data state
-        self._processing_id = None
-        self._pixmap = None
-        
-        # make sure the screenshot button shows the camera icon
-        self.ui.thumbnail.hide()
-        self.ui.hint_label.hide()
-        self.ui.screenshot.setIcon(self._camera_icon)
-        self.ui.screenshot.setToolTip("Take Screenshot")
-        
-        return True
-        
-    def set_current_entity(self, entity_type, entity_id):
-        """
-        Specify the current entity that this widget is linked against
-        
-        :param entity_link: Std entity link dictionary with type and id
-        """
-        self._entity_type = entity_type
-        self._entity_id = entity_id
+    ###########################################################################
+    # internal methods
 
     def mousePressEvent(self, event):
         """
@@ -495,4 +411,98 @@ class NoteInputWidget(QtGui.QWidget):
         
         painter.end()
         
-        return base_image
+        return base_image        
+        
+    def _load_stylesheet(self):
+        """
+        Loads in a stylesheet from disk
+        """
+        qss_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.qss")
+        try:
+            f = open(qss_file, "rt")
+            qss_data = f.read()
+            # apply to widget (and all its children)
+            self.setStyleSheet(qss_data)
+        finally:
+            f.close()
+        
+        
+    ###########################################################################
+    # public interface
+        
+    def open_editor(self):
+        """
+        Set the editor into its "open mode"
+        where a user can type in stuff
+        """
+        self.ui.stacked_widget.setCurrentIndex(self._EDITOR_WIDGET_INDEX)
+        self.ui.hint_label.show()
+        self._adjust_ui()        
+        self.ui.text_entry.setFocus()
+        
+    def _adjust_ui(self):
+        """
+        adjust the UI to be optimal size depending on view
+        """
+        if self.ui.stacked_widget.currentIndex() == self._NEW_NOTE_WIDGET_INDEX:
+            self.setMinimumSize(QtCore.QSize(0, 80))
+            self.setMaximumSize(QtCore.QSize(16777215, 80))
+             
+        elif self.ui.stacked_widget.currentIndex() == self._EDITOR_WIDGET_INDEX:
+            self.setMinimumSize(QtCore.QSize(0, 120))
+            self.setMaximumSize(QtCore.QSize(16777215, 120))
+             
+        else:
+            self._app.log_warning("cannot adjust unknown ui mode.")             
+              
+    def reset(self, force=False):
+        """
+        Rest the state of the widget completely.
+        Clear any input.
+        Prompt for confirmation if there is text.
+        
+        :returns: true if reset was completed, false if reset couldn't be
+                  completed because the user cancelled the operation.
+        """
+        if not force and self.ui.text_entry.toPlainText() != "":
+            
+            # this is similar to what Chrome prompts
+            # when you are about to nagivate away from a page
+            # where you have entered text 
+            status = QtGui.QMessageBox.warning(self, 
+                                              "Confirm Navigation", 
+                                              """<b>Confirm Navigation</b><br><br>
+                                              You haven't submitted your Note yet.<br>
+                                              Do you want to leave without finishing?""", 
+                                              QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if status == QtGui.QMessageBox.No:
+                return False
+        
+        self.ui.text_entry.reset()
+
+        self.ui.stacked_widget.setCurrentIndex(self._NEW_NOTE_WIDGET_INDEX)
+        
+        self._adjust_ui()        
+        
+        # reset data state
+        self._processing_id = None
+        self._pixmap = None
+        
+        # make sure the screenshot button shows the camera icon
+        self.ui.thumbnail.hide()
+        self.ui.hint_label.hide()
+        self.ui.screenshot.setIcon(self._camera_icon)
+        self.ui.screenshot.setToolTip("Take Screenshot")
+        
+        return True
+        
+    def set_current_entity(self, entity_type, entity_id):
+        """
+        Specify the current entity that this widget is linked against
+        
+        :param entity_link: Std entity link dictionary with type and id
+        """
+        self._entity_type = entity_type
+        self._entity_id = entity_id
+
+

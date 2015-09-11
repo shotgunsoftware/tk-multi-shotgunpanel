@@ -23,14 +23,24 @@ ShotgunModel = shotgun_model.ShotgunModel
 
 class SgTaskListingModel(SgEntityListingModel):
     """
-    Model to list tasks
+    Model to list tasks. This subclasses the generic entity listing model 
+    in order to be able to fetch user thumbnails for tasks. 
+    
+    Since tasks can be assigned to multiple people, there isn't a way to get
+    the thumbnail for an assignee at the same time as getting the list of tasks.
+    Therefore, when the task list has arrived, a signal is set to a second
+    model which then fetches the thumbnails for all users assigned to tasks. 
     """
     
     request_user_thumbnails = QtCore.Signal(list)
 
     def __init__(self, entity_type, parent):
         """
-        Model which represents the latest publishes for an entity
+        Constructor.
+        
+        :param entity_type: The entity type that should be loaded into this model.
+                            Needs to be a PublishedFile or TankPublishedFile.
+        :param parent: QT parent object
         """
         # init base class
         SgEntityListingModel.__init__(self, entity_type, parent)
@@ -39,6 +49,17 @@ class SgTaskListingModel(SgEntityListingModel):
         # have a model to pull down user's thumbnails for task assingments
         self._task_assignee_model = TaskAssigneeModel(self)
         self._task_assignee_model.thumbnail_updated.connect(self._on_user_thumb)
+        
+    def destroy(self):
+        """
+        Tear down method
+        """
+        # make sure we gracefully stop the thumbnail model
+        self._task_assignee_model.destroy()
+        self._task_assignee_model = None
+        
+        # call base class
+        SgEntityListingModel.destroy(self)
         
     ############################################################################################
     # public interface
@@ -132,7 +153,7 @@ class SgTaskListingModel(SgEntityListingModel):
 
 class TaskAssigneeModel(ShotgunModel):
     """
-    Model that caches data about the current user
+    Model holds data about a list of task assignees
     """
     # signals
     thumbnail_updated = QtCore.Signal(dict, QtGui.QImage)
@@ -140,11 +161,17 @@ class TaskAssigneeModel(ShotgunModel):
     def __init__(self, parent):
         """
         Constructor
+        
+        :param parent: QT parent object
         """
         # init base class
         ShotgunModel.__init__(self, parent, bg_load_thumbs=True)
         self._app = sgtk.platform.current_bundle()
         self._task_model = parent
+        
+        # connect it with the request_user_thumbnails signal on the 
+        # task model, so that whenever that model requests thumbnails, this
+        # model starts loading that data.
         self._task_model.request_user_thumbnails.connect(self._load_user_thumbnails)
 
     def _load_user_thumbnails(self, user_ids):
@@ -154,7 +181,6 @@ class TaskAssigneeModel(ShotgunModel):
         fields = ["image"]
         self._load_data("HumanUser", [["id", "in", user_ids]], ["id"], fields)    
         self._refresh_data()
-        
 
     def _populate_thumbnail_image(self, item, field, image, path):
         """

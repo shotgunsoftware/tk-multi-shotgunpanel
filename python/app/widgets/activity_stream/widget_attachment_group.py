@@ -9,7 +9,6 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 from sgtk.platform.qt import QtCore, QtGui
-
 import sgtk
 
 from .label_widgets import LargeAttachmentThumbnail, SmallAttachmentThumbnail
@@ -19,7 +18,9 @@ from .ui.attachment_group_widget import Ui_AttachmentGroupWidget
 
 class AttachmentGroupWidget(QtGui.QWidget):
     """
-    Subclassed QLabel to represent a shotgun user.
+    Widget that acts as a container for note attachments.
+    This holds both a scaled down preview and a large size
+    representation of a set of given attachments.
     """
     
     OFFSET_NONE, OFFSET_LARGE_THUMB, OFFSET_SMALL_THUMB = range(3)
@@ -89,11 +90,15 @@ class AttachmentGroupWidget(QtGui.QWidget):
             self._large_thumbnails[data["id"]] = obj
         
     def show_attachments_label(self, status):
-        
+        """
+        Toggle whether the text ATTACHMENTS should be visible or not
+        """
         self.ui.attachments_label.setVisible(status)
         
     def adjust_left_offset(self, offset):
-        
+        """
+        Set left offset
+        """
         if offset == self.OFFSET_NONE:
             self.ui.verticalLayout.setContentsMargins(0, 6, 0, 0)
         elif offset == self.OFFSET_LARGE_THUMB:

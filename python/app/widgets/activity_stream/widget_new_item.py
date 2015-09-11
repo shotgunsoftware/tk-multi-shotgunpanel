@@ -19,7 +19,8 @@ from . import utils
 
 class NewItemWidget(ActivityStreamBaseWidget):
     """
-    Widget that displays a series of replies to a note
+    Activity stream widget that shows a UI representing a newly
+    created object, for example a version or a publish.
     """
     
     def __init__(self, parent):
@@ -153,7 +154,10 @@ class NewItemWidget(ActivityStreamBaseWidget):
 
 class SimpleNewItemWidget(ActivityStreamBaseWidget):
     """
-    Widget that displays a series of replies to a note
+    Similar to the NewItemWidget, but a smaller version of it.
+    This is used for 'less important' newly created items such
+    as tasks. The visual representation is smaller and without
+    a thumbnail, with a smaller user icon.
     """
     
     def __init__(self, parent):

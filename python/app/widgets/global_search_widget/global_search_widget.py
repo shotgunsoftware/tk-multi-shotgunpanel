@@ -69,11 +69,15 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         self.textEdited.connect(self._on_text_changed)
         
     def set_data_retriever(self, data_retriever):
-        
-        # create a separate sg data handler for submission
+        """
+        Create a separate sg data handler for sg queries
+        """
         self.__sg_data_retriever = data_retriever
         self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
+           
+    ############################################################################
+    # internal methods
                 
     def _clear_model(self, add_loading_item = True):
         """
@@ -153,15 +157,15 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         :param data: data dictionary passed in from _submit()
         """
         entity_types = {}
-        entity_types["Project"] = {}
-        entity_types["Asset"] = {}
-        entity_types["Shot"] = {}
-        entity_types["Task"] = {}
-        entity_types["HumanUser"] = {"filters": [["sg_status_list", "is", "act"]]}
-        entity_types["Group"] = {}
-        entity_types["ClientUser"] = {}
-        entity_types["Version"] = {}
-        entity_types["PublishedFile"] = {}
+        entity_types["Project"] = []
+        entity_types["Asset"] = []
+        entity_types["Shot"] = []
+        entity_types["Task"] = []
+        entity_types["HumanUser"] = [["sg_status_list", "is", "act"]]
+        entity_types["Group"] = []
+        entity_types["ClientUser"] = []
+        entity_types["Version"] = []
+        entity_types["PublishedFile"] = []
         
         # constrain by project in the search
         project_ids = []

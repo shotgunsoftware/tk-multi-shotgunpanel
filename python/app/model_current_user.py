@@ -20,15 +20,23 @@ ShotgunModel = shotgun_model.ShotgunModel
 
 class SgCurrentUserModel(ShotgunModel):
     """
-    Model that caches data about the current user
+    Model that caches data about the current user.
+    
+    Emits thumbnail_updated and data_updated signals whenever data 
+    arrived from Shotgun.
+    
+    Data can then be queried via the get_sg_link(), get_sg_data() and 
+    get_pixmap() methods
     """
-    # signals
+    
     thumbnail_updated = QtCore.Signal()
     data_updated = QtCore.Signal()
 
     def __init__(self, parent):
         """
-        Contstructor
+        Constructor
+        
+        :param parent: QT parent object
         """
         # init base class
         ShotgunModel.__init__(self, parent, bg_load_thumbs=True)
@@ -37,33 +45,6 @@ class SgCurrentUserModel(ShotgunModel):
         self._current_user_sg_dict = None
         self.data_refreshed.connect(self._on_data_refreshed)
         
-    def load(self):
-        """
-        Load data about the current user
-        """
-        app = sgtk.platform.current_bundle()
-        sg_user_data = sgtk.util.get_current_user(app.sgtk)
-        
-        if sg_user_data is None:
-            self._app.log_warning("No current user found! Will continue "
-                                  "without a current user.")
-        
-        else:
-            self._current_user_sg_dict = {"type": sg_user_data["type"], 
-                                          "id": sg_user_data["id"]}
-            hierarchy = ["id"]
-            fields = ["image", "login", "name", "department", "firstname", "surname"]
-            ShotgunModel._load_data(self, 
-                                    sg_user_data["type"],
-                                    [["id", "is", sg_user_data["id"]]], 
-                                    hierarchy,
-                                    fields)
-        
-            # signal to any views that data now may be available
-            self.data_updated.emit()
-            self._refresh_data()
-        
-
     def _on_data_refreshed(self):
         """
         Dispatch method that gets called whenever data has been refreshed in the cache
@@ -99,6 +80,33 @@ class SgCurrentUserModel(ShotgunModel):
     ############################################################################################
     # public interface
     
+    def load(self):
+        """
+        Load data about the current user.
+        The user will be picked up from the current context.
+        """
+        app = sgtk.platform.current_bundle()
+        sg_user_data = sgtk.util.get_current_user(app.sgtk)
+        
+        if sg_user_data is None:
+            self._app.log_warning("No current user found! Will continue "
+                                  "without a current user.")
+        
+        else:
+            self._current_user_sg_dict = {"type": sg_user_data["type"], 
+                                          "id": sg_user_data["id"]}
+            hierarchy = ["id"]
+            fields = ["image", "login", "name", "department", "firstname", "surname"]
+            ShotgunModel._load_data(self, 
+                                    sg_user_data["type"],
+                                    [["id", "is", sg_user_data["id"]]], 
+                                    hierarchy,
+                                    fields)
+        
+            # signal to any views that data now may be available
+            self.data_updated.emit()
+            self._refresh_data()
+    
     def get_sg_link(self):
         """
         Returns the entity link for the current user
@@ -112,7 +120,8 @@ class SgCurrentUserModel(ShotgunModel):
         """
         Access current user shotgun data.
         
-        :returns: The sg data dictionary for the associated item, None if not available.
+        :returns: The sg data dictionary for the associated item, 
+                  None if not available.
         """
         if self.rowCount() == 0:
             data = None

@@ -14,7 +14,10 @@ import datetime
 
 def create_round_thumbnail(image):
     """
-    Create a circle thumbnail 200px wide
+    Create a 200 px wide circle thumbnail
+    
+    :param image: QImage representing a thumbnail
+    :returns: Round QPixmap
     """
     CANVAS_SIZE = 200
 
@@ -48,17 +51,18 @@ def create_round_thumbnail(image):
 
 def create_circular_512x400_thumbnail(image, accent=False):
     """
-    Given a qimage shotgun thumbnail, create a publish icon
+    Given a QImage shotgun thumbnail, create a round icon
     with the thumbnail composited onto a centered otherwise empty canvas. 
     This will return a 512x400 pixmap object.
     
     :param image: QImage source image
-    :param accent: Should the image be accentuated. This can be used to indicate an unread state.
+    :param accent: Should the image be accentuated. 
+                   This can be used to indicate an unread or selected state
+    :returns: QPixmap circular thumbnail, 380px wide, on a 
+              512x400 rect backdrop
     """
-
     CANVAS_WIDTH = 512
     CANVAS_HEIGHT = 400
-    
     CIRCLE_SIZE = 380
 
     # get the 512 base image
@@ -104,62 +108,15 @@ def create_circular_512x400_thumbnail(image, accent=False):
         painter.end()
     
     return base_image
-    
-    
-def create_rectangular_640x360_thumbnail(image):
-    """
-    Given a qimage shotgun thumbnail, create a publish icon
-    with the thumbnail composited onto a centered otherwise empty canvas. 
-    This will return a 512x400 pixmap object.
-    """
-    CANVAS_WIDTH = 640
-    CANVAS_HEIGHT = 360
-    CORNER_RADIUS = 10
-
-    # get the base image
-    base_image = QtGui.QPixmap(CANVAS_WIDTH, CANVAS_HEIGHT)
-    base_image.fill(QtCore.Qt.transparent)
-    
-    # now attempt to load the image
-    # pixmap will be a null pixmap if load fails    
-    thumb = QtGui.QPixmap.fromImage(image)
-    
-    if not thumb.isNull():
-            
-        # scale it down to fit inside a frame
-        thumb_scaled = thumb.scaled(CANVAS_WIDTH, 
-                                    CANVAS_HEIGHT, 
-                                    QtCore.Qt.KeepAspectRatioByExpanding, 
-                                    QtCore.Qt.SmoothTransformation)  
-
-        # now composite the thumbnail on top of the base image
-        # bottom align it to make it look nice
-        thumb_img = thumb_scaled.toImage()
-        brush = QtGui.QBrush(thumb_img)
-        
-        painter = QtGui.QPainter(base_image)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.setBrush(brush)
-        painter.setPen(QtGui.QPen())
-        
-        painter.drawRoundedRect(0,  
-                                0, 
-                                CANVAS_WIDTH, 
-                                CANVAS_HEIGHT, 
-                                CORNER_RADIUS, 
-                                CORNER_RADIUS)
-        
-        painter.end()
-    
-    return base_image
-    
-
 
 def create_rectangular_512x400_thumbnail(image):
     """
-    Given a qimage shotgun thumbnail, create a publish icon
+    Given a QImage shotgun thumbnail, create a rectangular icon
     with the thumbnail composited onto a centered otherwise empty canvas. 
     This will return a 512x400 pixmap object.
+    
+    :param image: QImage source image
+    :returns: QPixmap rectangular thumbnail on a 512x400 rect backdrop
     """
     CANVAS_WIDTH = 512
     CANVAS_HEIGHT = 400
@@ -203,14 +160,18 @@ def create_rectangular_512x400_thumbnail(image):
     return base_image
     
 
-
-
-
-
 def create_human_readable_timestamp(datetime_obj):
     """
     Formats a time stamp the way dates are formatted in the 
-    Shotgun activity stream. 
+    Shotgun activity stream. Examples of output:
+    
+    Recent posts: 10:32
+    Semi Recent Posts: Tuesday
+    This year: 24 June
+    Last year and earlier: 12 December 2007
+    
+    :param datetime_obj: Datetime obj to format
+    :returns: date str
     """
     # standard format 
     full_time_str = datetime_obj.strftime('%a %d %b %Y %H:%M') 
