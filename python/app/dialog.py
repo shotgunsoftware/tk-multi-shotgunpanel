@@ -28,6 +28,7 @@ from .delegate_list_item import ListItemDelegate
 from .action_manager import ActionManager
 
 from .model_entity_listing import SgEntityListingModel
+from .model_version_listing import SgVersionModel
 from .model_publish_listing import SgLatestPublishListingModel
 from .model_publish_history import SgPublishHistoryListingModel
 from .model_task_listing import SgTaskListingModel
@@ -142,6 +143,10 @@ class AppDialog(QtGui.QWidget):
         # set previously stored value for "show latest"
         latest_pubs_only = self._settings_manager.retrieve("latest_publishes_only", True)
         self.ui.latest_publishes_only.setChecked(latest_pubs_only)
+
+        # set previously stored value for "show pending"
+        pending_versions_only = self._settings_manager.retrieve("pending_versions_only", False)
+        self.ui.pending_versions_only.setChecked(pending_versions_only)
         
         # navigation
         self.ui.navigation_home.clicked.connect(self._on_home_clicked)
@@ -155,6 +160,7 @@ class AppDialog(QtGui.QWidget):
 
         # latest publishes only
         self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
+        self.ui.pending_versions_only.toggled.connect(self._on_pending_versions_toggled)
         
         # tabs
         self.ui.entity_tab_widget.currentChanged.connect(self._load_entity_tab_data)
@@ -199,7 +205,7 @@ class AppDialog(QtGui.QWidget):
                                   "entity_type": "Note"}
         
         idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_VERSIONS)
-        self._detail_tabs[idx] = {"model_class": SgEntityListingModel,
+        self._detail_tabs[idx] = {"model_class": SgVersionModel,
                                   "delegate_class": ListItemDelegate,
                                   "view": self.ui.entity_version_view,
                                   "entity_type": "Version"}
@@ -477,6 +483,16 @@ class AppDialog(QtGui.QWidget):
         # refresh the publishes tab
         self._load_entity_tab_data(self.ui.entity_tab_widget.currentIndex())
 
+    def _on_pending_versions_toggled(self, checked):
+        """
+        Executed when the 'pending versions only' is toggled
+        """
+        # store setting
+        self._settings_manager.store("pending_versions_only", checked)
+        
+        # refresh the versions tab
+        self._load_entity_tab_data(self.ui.entity_tab_widget.currentIndex())
+
     def _load_entity_tab_data(self, index):
         """
         Loads the data for one of the UI tabs in the entity family
@@ -489,7 +505,8 @@ class AppDialog(QtGui.QWidget):
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
             
         elif index == self.ENTITY_TAB_VERSIONS:
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
+            show_pending_only = self.ui.pending_versions_only.isChecked()
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location, show_pending_only)
         
         elif index == self.ENTITY_TAB_PUBLISHES:
             show_latest_only = self.ui.latest_publishes_only.isChecked()

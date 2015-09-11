@@ -353,7 +353,7 @@
    <item>
     <widget class="QStackedWidget" name="page_stack">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="entity_page">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -369,7 +369,7 @@
           <enum>Qt::NoFocus</enum>
          </property>
          <property name="currentIndex">
-          <number>5</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="entity_activity_tab">
           <attribute name="title">
@@ -429,7 +429,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBox">
+            <widget class="QCheckBox" name="pending_versions_only">
              <property name="text">
               <string>Only show versions pending review</string>
              </property>
@@ -626,7 +626,7 @@
           <enum>Qt::NoFocus</enum>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="version_activity_tab">
           <attribute name="title">
