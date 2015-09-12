@@ -37,6 +37,7 @@ class ReplyWidget(ActivityStreamBaseWidget):
         
         self._data = None
         self._thumbnail_populated = False
+        self._thumbnail_url = None
         
         # make sure clicks propagate upwards in the hierarchy
         self.ui.reply.linkActivated.connect(self._entity_request_from_url)
@@ -58,7 +59,9 @@ class ReplyWidget(ActivityStreamBaseWidget):
         else:
             self._app.log_warning("Unknown thumb style for reply")
         
-        
+    @property
+    def thumbnail_url(self):
+        return self._thumbnail_url
 
     @property
     def thumbnail_populated(self):
@@ -83,6 +86,8 @@ class ReplyWidget(ActivityStreamBaseWidget):
         self._data = data
         
         self.ui.user_thumb.set_shotgun_data(data["user"])
+        
+        self._thumbnail_url = data["user"].get("image")
         
         entity_url = self._generate_entity_url(data["user"], 
                                                this_syntax=False,

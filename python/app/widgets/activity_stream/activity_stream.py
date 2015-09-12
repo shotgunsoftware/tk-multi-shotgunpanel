@@ -128,8 +128,11 @@ class ActivityStreamWidget(QtGui.QWidget):
             # will deadlock the GIL
             self.__overlay.show_message("Loading Shotgun Data...")
 
-        all_reply_users = set()
+        all_reply_users = []
         attachment_requests = []
+        
+        ###############################################################
+        # Phase 1 - render the UI.
         
         # before we begin widget operations, turn off visibility
         # of the whole widget in order to avoid recomputes
@@ -176,7 +179,7 @@ class ActivityStreamWidget(QtGui.QWidget):
                         (note_reply_users, note_attachment_requests) = self._populate_note_widget(w, activity_id, note_id)
                         # extend user and attachment requests to our full list
                         # so that we can request thumbnails for these later...
-                        all_reply_users |= note_reply_users                    
+                        all_reply_users.extend(note_reply_users)                    
                         attachment_requests.extend(note_attachment_requests)
             
             # last, create "loading" widget
@@ -193,6 +196,11 @@ class ActivityStreamWidget(QtGui.QWidget):
             self.setVisible(True)
             self._app.log_debug("...UI building complete!")
                 
+        ###############################################################
+        # Phase 2 - request additional data.
+        # note that we don't interleave these requests with building
+        # the ui - this is to minimise the risk of GIL signal issues
+                
         # request thumbs
         self._app.log_debug("Request thumbnails...")
         for activity_id in ids_to_process:
@@ -203,8 +211,18 @@ class ActivityStreamWidget(QtGui.QWidget):
                                                             attachment_req["attachment_group_id"], 
                                                             attachment_req["attachment_data"])
         
-        for (entity_type, entity_id) in all_reply_users:
-            self._data_manager.request_user_thumbnail(entity_type, entity_id)
+        # now request thumbnails for all usesr who have replied, but 
+        # only once per user
+        reply_users_dup_check = []
+        for reply_user in all_reply_users:
+            
+            unique_user = (reply_user["type"], reply_user["id"]) 
+            
+            if unique_user not in reply_users_dup_check: 
+                reply_users_dup_check.append(unique_user)
+                self._data_manager.request_user_thumbnail(reply_user["type"], 
+                                                          reply_user["id"],
+                                                          reply_user["image"])
         
         self._app.log_debug("...done")
         
@@ -292,12 +310,22 @@ class ActivityStreamWidget(QtGui.QWidget):
     def _populate_note_widget(self, note_widget, activity_id, note_id):
         """
         Load note content and replies into a note widget
+        
+        :param note_widget: Note widget to populate with replies and
+                            attachments.
+        :param activity_id: Activity stream id to load
+        :param note_id: Note id to load
+        
+        :returns: (reply_users, attachment_requests) where reply_users is a 
+                  list of users (dict with type, id, name and image) for each 
+                  of the replies and attachment_requests a list of dicts of 
+                  attahchment request dictionaries
         """
         # set note content            
         note_thread_data = self._data_manager.get_note(note_id)
         
         attachment_requests = []
-        reply_users = set()
+        reply_users = []
         
         if note_thread_data:
             # we have cached note data
@@ -314,8 +342,23 @@ class ActivityStreamWidget(QtGui.QWidget):
             reply_button = note_widget.add_reply_button()
             reply_button.clicked.connect(lambda : self._on_reply_clicked(note_id))
 
-            # request a list of users that have replied
-            reply_users = note_widget.get_reply_users()
+            # get list of users who have replied
+            for item in replies_and_attachments:
+                if item["type"] == "Reply":
+                    # note that the reply data structure is special:
+                    # the 'user' key is not a normal sg link dict, 
+                    # but contains an additional image field to describe
+                    # the thumbnail:
+                    # 
+                    # {'content': 'Reply content...', 
+                    #  'created_at': 1438649419.0, 
+                    #  'type': 'Reply', 
+                    #  'id': 73, 
+                    #  'user': {'image': '...', 
+                    #           'type': 'HumanUser', 
+                    #           'id': 38, 
+                    #           'name': 'Manne Ohrstrom'}}]
+                    reply_users.append(item["user"])
             
             # get all attachment data
             # can request thumbnails post UI build
@@ -417,7 +460,7 @@ class ActivityStreamWidget(QtGui.QWidget):
 
     def _process_new_note(self, activity_id, note_id):
         """
-        New thumbnail has arrived from the data manager
+        A new note has arrived from the data manager
         """
         if activity_id in self._widgets:
             widget = self._widgets[activity_id]
@@ -429,8 +472,10 @@ class ActivityStreamWidget(QtGui.QWidget):
                                                                 attachment_req["attachment_group_id"], 
                                                                 attachment_req["attachment_data"])
             
-            for (entity_type, entity_id) in reply_users:
-                self._data_manager.request_user_thumbnail(entity_type, entity_id)
+            for reply_user in reply_users:
+                self._data_manager.request_user_thumbnail(reply_user["type"], 
+                                                          reply_user["id"], 
+                                                          reply_user["image"])
             
     def _on_reply_clicked(self, note_id):
         """

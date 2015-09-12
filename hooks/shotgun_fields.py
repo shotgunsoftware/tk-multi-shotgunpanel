@@ -147,7 +147,7 @@ class ShotgunConfiguration(HookBaseClass):
             
         elif entity_type == "PublishedFile":
             values = std_values + [ "entity", 
-                                    "name", 
+                                    "name",
                                     "published_file_type",
                                     "task",
                                     "version",

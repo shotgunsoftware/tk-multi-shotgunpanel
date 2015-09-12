@@ -123,7 +123,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
         self._entity_type = entity_type
         self._entity_id = entity_id
         
-        self._app.log_debug("Loading activity stream data "
+        self._app.log_debug("Loading cached note/activity stream data "
                             "for %s %s" % (self._entity_type, self._entity_id))
 
         time_before = time.time()
@@ -215,11 +215,11 @@ class ActivityStreamDataHandler(QtCore.QObject):
         """
         return self._note_threads.get(note_id)
         
-    def request_user_thumbnail(self, entity_type, entity_id):
+    def request_user_thumbnail(self, entity_type, entity_id, url):
         """
         Request the thumbnail for a given user
         """
-        uid = self._sg_data_retriever.request_thumbnail("no_url_given", 
+        uid = self._sg_data_retriever.request_thumbnail(url, 
                                                         entity_type, 
                                                         entity_id, 
                                                         "image",
@@ -232,7 +232,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
     def request_attachment_thumbnail(self, activity_id, attachment_group_id, sg_data):
         """
         Given shotgun data for an attachment, schedule a thumbnail 
-        download
+        download. 
         """
         uid = self._sg_data_retriever.request_thumbnail(sg_data["image"], 
                                                         sg_data["type"], 
@@ -596,7 +596,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
                            "read_by_current_user",
                            "subject",
                            "tasks"],
-              "Reply":      [ "content", "updated_at", "user.HumanUser.image", "user"], 
+              "Reply":      [ "content", "updated_at", "user"], 
               "Attachment": [ "this_file", "image", "attachment_links"]
             }        
         

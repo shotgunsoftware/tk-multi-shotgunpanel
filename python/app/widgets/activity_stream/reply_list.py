@@ -74,26 +74,8 @@ class ReplyListWidget(QtGui.QWidget):
         self._data_manager = ActivityStreamDataHandler(self)
         
         self._data_manager.thumbnail_arrived.connect(self._process_thumbnail)
-        self._data_manager.note_arrived.connect(self._process_new_note)
+        self._data_manager.note_arrived.connect(self._process_note)
         
-
-    def _process_new_note(self, activity_id, note_id):
-        """
-        New thumbnail has arrived from the data manager
-        """
-        self.__overlay.hide()
-        self.load_data(self._sg_entity_dict)
-            
-        # set note content            
-        note_thread_data = self._data_manager.get_note(note_id)
-        
-        if note_thread_data is None:            
-            # anomaly - there should be data at this point.
-            self._app.log_warning("Could not get note data from Shotgun!")
-        else:
-            self._build_replies(note_thread_data)
-            
-
     def set_data_retriever(self, data_retriever):
         """
         Set an async data retreiver object to use with this 
@@ -102,8 +84,6 @@ class ReplyListWidget(QtGui.QWidget):
         self._data_manager.set_data_retriever(data_retriever)
         self._data_retriever = data_retriever
         
-
-          
     ##########################################################################################
     # public interface
         
@@ -119,25 +99,58 @@ class ReplyListWidget(QtGui.QWidget):
             self._app.log_error("Cannot only show replies for Notes.")
             return
 
+        # first ask the data manager to load up cached 
+        # information about our note 
         self._sg_entity_dict = sg_entity_dict
         note_id = self._sg_entity_dict["id"]
-
-        # init data store        
-        self._app.log_debug("Setting up db manager....")
         self._data_manager.load_data("Note", note_id)
+
+        # now attempt to render the note based on cached data
+        data_shown = self._process_note(activity_id=None, note_id=note_id)
         
+        if not data_shown:
+            # no data yet in cache. So pop up an overlay and rescan        
+            self.__overlay.show_message("Loading Shotgun Data...")
+            self._data_manager.rescan()
+
+        # note! note how we don't fetch any updates for a note - we only
+        # trigger a load in the case where no note data is present in the 
+        # cache db. This is done with the assumption that the activity stream
+        # has already pulled down updates for this object. This assumption 
+        # may not be true if the note widget is used in isolation without
+        # using the activity widget.
+
+
+    ##########################################################################################
+    # internal methods
+
+    def _process_note(self, activity_id, note_id):
+        """
+        Callback that gets executed when note data arrives from
+        the data manager.
+        
+        :param activiy_id: Activity stream id that this note is 
+                           associated with. Note that in this case,
+                           when we have requested a note outside
+                           the context of the activity stream, this
+                           value is undefined.
+        :param note_id: Note id for the note for which data is available
+                        in the data manager.
+                        
+        :returns: True if note info was built, false if not.
+        """
+        # build the UI - first hide the loading overlay in case its visible 
+        self.__overlay.hide()
+            
         # set note content            
         note_thread_data = self._data_manager.get_note(note_id)
         
-        if note_thread_data is None:
-            
-            # no data yet!
-            self.__overlay.show_message("Loading Shotgun Data...")
-            self._data_manager.rescan()
-        
+        if note_thread_data is None:            
+            # no data in data store yet for this note
+            return False
         else:
-            
             self._build_replies(note_thread_data)
+            return True
 
     def _build_replies(self, note_thread_data):
 
@@ -146,6 +159,10 @@ class ReplyListWidget(QtGui.QWidget):
         self.setVisible(False)
         
         try:
+            
+            ###############################################################
+            # Phase 1 - render the UI.
+            
             self._clear()
     
             note_id = self._sg_entity_dict["id"]            
@@ -168,7 +185,7 @@ class ReplyListWidget(QtGui.QWidget):
             replies_and_attachments = note_thread_data[1:] 
                         
             # now add replies
-            self._add_replies(replies_and_attachments)
+            self._add_replies_and_attachments(replies_and_attachments)
             
             # add a reply button and connect it
             reply_button = self._add_reply_button()
@@ -180,6 +197,11 @@ class ReplyListWidget(QtGui.QWidget):
             self.ui.reply_layout.addWidget(expanding_widget)
             self.ui.reply_layout.setStretchFactor(expanding_widget, 1)
             self._general_widgets.append(expanding_widget)
+    
+            ###############################################################
+            # Phase 2 - request additional data.
+            # note that we don't interleave these requests with building
+            # the ui - this is to minimise the risk of GIL signal issues
     
             # get all attachment data
             # can request thumbnails post UI build
@@ -197,8 +219,35 @@ class ReplyListWidget(QtGui.QWidget):
                                                                 attachment_req["attachment_group_id"], 
                                                                 attachment_req["attachment_data"])
             
-            for (entity_type, entity_id) in self._get_reply_users():
-                self._data_manager.request_user_thumbnail(entity_type, entity_id)
+            # now go through the shotgun data
+            # for each reply, request a thumbnail.
+            requested_items = []
+            for item in replies_and_attachments:
+                if item["type"] == "Reply":
+                    # note that the reply data structure is special:
+                    # the 'user' key is not a normal sg link dict, 
+                    # but contains an additional image field to describe
+                    # the thumbnail:
+                    # 
+                    # {'content': 'Reply content...', 
+                    #  'created_at': 1438649419.0, 
+                    #  'type': 'Reply', 
+                    #  'id': 73, 
+                    #  'user': {'image': '...', 
+                    #           'type': 'HumanUser', 
+                    #           'id': 38, 
+                    #           'name': 'Manne Ohrstrom'}}]
+                    reply_author = item["user"]
+                    
+                    uniqueness_key = (reply_author["type"], reply_author["id"])
+                    if uniqueness_key not in requested_items:
+                        # this thumbnail has not been requested yet    
+                        if reply_author.get("image"):
+                            # there is a thumbnail for this user!
+                            requested_items.append(uniqueness_key)
+                            self._data_manager.request_user_thumbnail(reply_author["type"], 
+                                                                      reply_author["id"],
+                                                                      reply_author["image"])
             
         finally:
             # make the window visible again and trigger a redraw
@@ -206,9 +255,6 @@ class ReplyListWidget(QtGui.QWidget):
             
         self._app.log_debug("...done")
 
-
-    ##########################################################################################
-    # internal methods
         
     def _clear(self):
         """
@@ -241,20 +287,10 @@ class ReplyListWidget(QtGui.QWidget):
         finally:
             f.close()
             
-    def _get_reply_users(self):
-        """
-        Returns a list of users who have created replies
-        
-        :returns: tuple with (entity_type, entity_id)
-        """
-        users = []
-        for reply_widget in self._reply_widgets:
-            created_by_tuple = (reply_widget.created_by["type"], 
-                                reply_widget.created_by["id"])
-            users.append(created_by_tuple)
-        return set(users)    
-    
     def _add_reply_button(self):
+        """
+        Add a reply button to the stream of widgets
+        """
 
         reply_button = ClickableTextLabel(self)
         reply_button.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTop)
@@ -265,10 +301,14 @@ class ReplyListWidget(QtGui.QWidget):
         return reply_button
 
     def _add_attachment_group(self, attachments, after_note):
+        """
+        Add an attachments group to the stream of widgets
+        """
         
         curr_attachment_group_widget_id = len(self._attachment_group_widgets)
         attachment_group = AttachmentGroupWidget(self, attachments)        
-        # show an ATTACHMENTS header
+        
+        # show an 'ATTACHMENTS' header
         attachment_group.show_attachments_label(True)        
         
         
@@ -280,9 +320,12 @@ class ReplyListWidget(QtGui.QWidget):
         # add it to our mapping dict and increment the counter
         self._attachment_group_widgets[curr_attachment_group_widget_id] = attachment_group
         
-    def _add_replies(self, replies_and_attachments):
+    def _add_replies_and_attachments(self, replies_and_attachments):
         """
-        Add replies and attachment widgets
+        Add replies and attachment widgets to the stream of widgets
+        
+        :param replies_and_attachments: List of Shotgun data dictionary.
+               These are eithere reply entities or attachment entities.
         """
         
         current_attachments = []
@@ -291,7 +334,7 @@ class ReplyListWidget(QtGui.QWidget):
         for item in replies_and_attachments:
 
             if item["type"] == "Reply":
-                                
+                
                 # first, wrap up attachments
                 if len(current_attachments) > 0:                    
                     self._add_attachment_group(current_attachments, attachment_is_directly_after_note)
@@ -319,13 +362,21 @@ class ReplyListWidget(QtGui.QWidget):
 
     def _process_thumbnail(self, data):
         """
+        Callback that gets called when a new thumbnail is available.
         Populate the UI with the given thumbnail
         
-        :param image: QImage with thumbnail data
+        :param data: dictionary with keys:
+                     - thumbnail_type: thumbnail enum constant:
+                            ActivityStreamDataHandler.THUMBNAIL_CREATED_BY
+                            ActivityStreamDataHandler.THUMBNAIL_ENTITY
+                            ActivityStreamDataHandler.THUMBNAIL_ATTACHMENT
+                     - activity_id: Activity stream id that this update relates
+                       to. Note requests (which don't have an associated 
+                       id, will use -1 to indicate this). 
+                     
+        
+        QImage with thumbnail data
         :param thumbnail_type: thumbnail enum constant:
-            ActivityStreamDataHandler.THUMBNAIL_CREATED_BY
-            ActivityStreamDataHandler.THUMBNAIL_ENTITY
-            ActivityStreamDataHandler.THUMBNAIL_ATTACHMENT
         """        
         thumbnail_type = data["thumbnail_type"]
         activity_id = data["activity_id"]

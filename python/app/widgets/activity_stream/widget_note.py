@@ -162,20 +162,6 @@ class NoteWidget(ActivityStreamBaseWidget):
             self._add_attachment_group(current_attachments, attachment_is_directly_after_note)
             current_attachments = []                                
         
-    def get_reply_users(self):
-        """
-        Returns a list of users who have created replies
-        
-        :returns: tuple with (entity_type, entity_id)
-        """
-        users = []
-        for reply_widget in self._reply_widgets:
-            created_by_tuple = (reply_widget.created_by["type"], 
-                                reply_widget.created_by["id"])
-            users.append(created_by_tuple)
-        return set(users)
-        
-        
     def _add_attachment_group(self, attachments, after_note):
         """
         
