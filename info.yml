@@ -1,0 +1,80 @@
+# Copyright (c) 2015 Shotgun Software Inc.
+# 
+# CONFIDENTIAL AND PROPRIETARY
+# 
+# This work is provided "AS IS" and subject to the Shotgun Pipeline Toolkit 
+# Source Code License included in this distribution package. See LICENSE.
+# By accessing, using, copying or modifying this work you indicate your 
+# agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
+# not expressly granted therein are reserved by Shotgun Software Inc.
+
+# Metadata defining the behaviour and requirements for this engine
+
+# expected fields in the configuration file for this engine
+configuration:
+
+    shotgun_fields_hook:
+        type: hook
+        default_value: "{self}/shotgun_fields.py"
+        description: Hook which controls how values are presented
+
+    actions_hook:
+        type: hook
+        default_value: "{self}/{engine_name}_actions.py"
+        description: Hook which contains all methods for action management.
+        
+#    global_search_entity_types:
+#        type: str
+#        description: Comma separated list of entity types to 
+#                     appear in the global search
+#        default_value: Shot, Asset, Sequence, Version, PublishedFile, 
+#                       HumanUser, Group 
+
+
+    action_mappings:
+        type: dict
+        description: Associates shotgun objects with actions. The actions are all defined
+                     inside the actions hook, so a number of actions are available by default
+                     and in addition to this you can add your own actions if you like.
+        default_value: 
+            Task:
+                - { actions: [assign_task], filters: {} }
+
+            Version:
+                - { actions: [play_in_rv], filters: {} }
+                
+        default_value_tk-nuke:
+            PublishedFile:
+                - { actions: [read_node], filters: { published_file_type: Rendered Image} }
+                - { actions: [script_import], filters: { published_file_type: Nuke Script} }
+            
+        default_value_tk-maya:
+            PublishedFile:
+                - { actions: [reference, import], filters: { published_file_type: Maya Scene} }
+                - { actions: [texture_node], filters: { published_file_type: Rendered Image} }
+                - { actions: [texture_node], filters: { published_file_type: Photoshop Image} }
+                - { actions: [udim_texture_node], filters: { published_file_type: UDIM Image} }
+    
+
+
+# this app works in all engines - it does not contain 
+# any host application specific commands
+supported_engines: 
+
+# the Shotgun fields that this engine needs in order to operate correctly
+requires_shotgun_fields:
+        
+# More verbose description of this item 
+display_name: "Shotgun Panel"
+description: "Panel UI with Shotgun information about your scene, yourself and the things around you."
+
+# Required minimum versions for this item to run
+requires_shotgun_version: "v6.2.0"
+requires_core_version: "v0.16.21"
+requires_engine_version:
+
+# the frameworks required to run this app
+frameworks:
+    - {"name": "tk-framework-shotgunutils", "version": "v2.x.x"}
+    - {"name": "tk-framework-qtwidgets", "version": "v1.x.x"}
+    
