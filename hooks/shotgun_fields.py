@@ -235,9 +235,9 @@ class ShotgunConfiguration(HookBaseClass):
                 <big>Status: {sg_status_list}</big><br><br>
             
                 {[For ]entity::showtype}<br>
-                {[Start: ]start_date}{[ Due: ]due_date}<br><br>
+                Assigned to: {task_assignees}<br>
                 
-                Assigned to: {task_assignees}
+                {[Start: ]start_date}{[ Due: ]due_date}
                 """
                 
         elif entity_type == "Asset":

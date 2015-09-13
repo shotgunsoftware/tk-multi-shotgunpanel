@@ -22,7 +22,10 @@ class ShotgunLocation(object):
         self._entity_type = entity_type
         self._entity_id = entity_id
         self._formatter = ShotgunFormatter(self._entity_type)
-        
+    
+        # The ui tab index currently focused on for this location
+        self.tab_index = 0
+            
     @property
     def entity_type(self):
         """

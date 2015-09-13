@@ -401,6 +401,7 @@ class AppDialog(QtGui.QWidget):
     def focus_entity(self):
         """
         Move UI to entity mode. Load up tabs.
+        Based on the current location, focus in on the current tab
         """
         # set the right widget to show
         self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)
@@ -434,38 +435,43 @@ class AppDialog(QtGui.QWidget):
         else:
             self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, "Tasks")
         
-        # load up tab data
-        # reset to the default tab
-        default_tab = self.ENTITY_TAB_ACTIVITY_STREAM
-        self.ui.entity_tab_widget.setCurrentIndex(default_tab)
-        self._load_entity_tab_data(default_tab)
+        # get the tab index associated with the location and
+        # show that tab. This means that the 'current tab' is
+        # remembered as you step through history
+        tab_idx_for_location = self._current_location.tab_index
+        self.ui.entity_tab_widget.setCurrentIndex(tab_idx_for_location)
+        self._load_entity_tab_data(tab_idx_for_location)
 
 
     def focus_publish(self):
         """
         Move UI to entity mode. Load up tabs.
+        Based on the current location, focus in on the current tab
         """
         # set the right widget to show
         self.ui.page_stack.setCurrentIndex(self.PUBLISH_PAGE_IDX)
-        
-        # reset to the default tab
-        self.ui.publish_tab_widget.setCurrentIndex(self.PUBLISH_TAB_HISTORY)
-        
-        # load up tab data
-        self._load_publish_tab_data(self.PUBLISH_TAB_HISTORY)
+
+        # get the tab index associated with the location and
+        # show that tab. This means that the 'current tab' is
+        # remembered as you step through history
+        tab_idx_for_location = self._current_location.tab_index
+        self.ui.publish_tab_widget.setCurrentIndex(tab_idx_for_location)
+        self._load_publish_tab_data(tab_idx_for_location)
 
     def focus_version(self):
         """
         Move UI to entity mode. Load up tabs.
+        Based on the current location, focus in on the current tab
         """
         # set the right widget to show
         self.ui.page_stack.setCurrentIndex(self.VERSION_PAGE_IDX)
 
-        # reset to the default tab
-        self.ui.version_tab_widget.setCurrentIndex(self.VERSION_TAB_ACTIVITY_STREAM)
-        
-        # load up tab data
-        self._load_version_tab_data(self.VERSION_TAB_ACTIVITY_STREAM)
+        # get the tab index associated with the location and
+        # show that tab. This means that the 'current tab' is
+        # remembered as you step through history
+        tab_idx_for_location = self._current_location.tab_index
+        self.ui.version_tab_widget.setCurrentIndex(tab_idx_for_location)
+        self._load_version_tab_data(tab_idx_for_location)
         
     def focus_note(self):
         """
@@ -504,7 +510,9 @@ class AppDialog(QtGui.QWidget):
     def _load_entity_tab_data(self, index):
         """
         Loads the data for one of the UI tabs in the entity family
-        """        
+        """
+        
+        self._current_location.tab_index = index
         
         if index == self.ENTITY_TAB_ACTIVITY_STREAM:
             self.ui.entity_activity_stream.load_data(self._current_location.entity_dict )
@@ -533,6 +541,8 @@ class AppDialog(QtGui.QWidget):
         """
         Load the data for one of the tabs in the version family
         """
+        
+        self._current_location.tab_index = index
 
         if index == self.VERSION_TAB_ACTIVITY_STREAM:
             self.ui.version_activity_stream.load_data(self._current_location.entity_dict)
@@ -553,6 +563,9 @@ class AppDialog(QtGui.QWidget):
         """
         Load the data for one of the tabs in the publish family.
         """
+        
+        self._current_location.tab_index = index
+        
         if index == self.PUBLISH_TAB_HISTORY:
             self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(self._current_location)
 
