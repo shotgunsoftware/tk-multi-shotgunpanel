@@ -113,6 +113,14 @@ class ActivityStreamWidget(QtGui.QWidget):
         self.ui.note_widget.set_current_entity(self._entity_type, 
                                                self._entity_id)
 
+        # to mimic the behavior in shotgun - which seems quite strange and
+        # inconsistent for users, we need to disable to note dialog for 
+        # these cases
+        if self._entity_type in ["ApiUser", "HumanUser", "ClientUser"]:
+            self.ui.note_widget.setVisible(False)
+        else:
+            self.ui.note_widget.setVisible(True)
+
         # now load cached data for the given entity
         self._app.log_debug("Setting up db manager....")
         self._data_manager.load_data(self._entity_type, self._entity_id)

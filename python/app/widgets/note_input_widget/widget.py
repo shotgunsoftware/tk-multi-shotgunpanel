@@ -223,15 +223,44 @@ class NoteInputWidget(QtGui.QWidget):
         # engines currently react to log_debug() async.
         
         # step 1 - extend out the link dictionary according to specific logic.
-        # - if link is a version, then also include the item the version is linked to and the version's task
+        # - if link is a version, then also include the item the version 
+        #   is linked to and the version's task
+        
         # - if a link is a task, find its link and use that as the main link. 
         #   set the task to be linked up to the tasks field.
-        note_tasks = []
-        note_links = []
         
+        # - if link is a user, group or script then address the note TO 
+        #   that user rather associating the user with the note. 
+        
+        
+        # first establish defaults        
+        project = data["project"]
+        addressings_to = data["recipient_links"]
+        note_links = []
+        note_tasks = []
+        
+        
+        # now apply specific logic
         entity_link = data["entity"]
         
-        if entity_link["type"] == "Version":
+        if entity_link["type"] in ["HumanUser", "ApiUser", "Group"]:            
+            # for users, scripts and groups,
+            # address the note TO the entity
+            addressings_to.append(entity_link)
+
+            # Also link the note to the user. This is to get the 
+            # activity stream logic to work.
+            # note that because we don't have the display name for the entity,
+            # we need to retrieve this
+            sg_entity = sg.find_one(entity_link["type"], 
+                                    [["id", "is", entity_link["id"] ]], 
+                                    ["cached_display_name"])
+            note_links += [{"id": entity_link["id"], 
+                           "type": entity_link["type"], 
+                           "name": sg_entity["cached_display_name"] }] 
+            
+        
+        elif entity_link["type"] == "Version":
             # if we are adding a note to a version, link it with the version 
             # and the entity that the version is linked to.
             # if the version has a task, link the task to the note too.  
@@ -269,10 +298,15 @@ class NoteInputWidget(QtGui.QWidget):
             # no special logic. Just link the note to the current entity.
             # note that because we don't have the display name for the entity,
             # we need to retrieve this
-            sg_entity = sg.find_one(entity_link["type"], [["id", "is", entity_link["id"] ]], ["cached_display_name"])
+            sg_entity = sg.find_one(entity_link["type"], 
+                                    [["id", "is", entity_link["id"] ]], 
+                                    ["cached_display_name"])
             note_links += [{"id": entity_link["id"], 
                            "type": entity_link["type"], 
                            "name": sg_entity["cached_display_name"] }] 
+        
+        
+        
         
         # step 2 - generate the subject line. The following
         # convention exists for this:
@@ -302,8 +336,8 @@ class NoteInputWidget(QtGui.QWidget):
         # this is an entity - so create a note and link it
         sg_note_data = sg.create("Note", {"content": data["text"],
                                           "subject": title, 
-                                          "project": data["project"],
-                                          "addressings_to": data["recipient_links"],
+                                          "project": project,
+                                          "addressings_to": addressings_to,
                                           "note_links": note_links,
                                           "tasks": note_tasks })
         

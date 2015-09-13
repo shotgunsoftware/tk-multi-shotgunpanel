@@ -227,8 +227,9 @@ class NoteWidget(ActivityStreamBaseWidget):
         # set the main note text
         self.ui.content.setText(data["content"])
         
-        # format note links
-        links_html = self.__generate_note_links_table(data["note_links"])
+        # format note links        
+        html_link_box_data = data["note_links"] + data["tasks"]
+        links_html = self.__generate_note_links_table(html_link_box_data)
 
         self.ui.links.setText(links_html)
 
