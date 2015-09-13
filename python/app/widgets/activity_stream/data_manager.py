@@ -33,7 +33,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
     for performance.
     """
     
-    DATBASE_FORMAT_VERSION = 17
+    DATBASE_FORMAT_VERSION = 18
     
     # max number of items to pull from shotgun
     # typically the updates are incremental and hence smaller
@@ -107,7 +107,27 @@ class ActivityStreamDataHandler(QtCore.QObject):
     ###########################################################################
     # public interface
 
-    def load_data(self, entity_type, entity_id):
+    def load_note_data(self, note_id):
+        """
+        Clear the data currently cached and load data for a note.
+        
+        :param note_id: note id to load into the data manager
+        """
+        self.__reset()
+        
+        # set up new object         
+        self._entity_type = "Note"
+        self._entity_id = note_id
+        
+        self._app.log_debug("Loading cached note data for %s" % note_id)
+
+        # load note thread only
+        note_data = self.__get_note_thread_data(note_id)
+        if note_data:
+            self._note_threads[note_id] = note_data        
+
+
+    def load_activity_data(self, entity_type, entity_id, limit=200):
         """
         Clear the data currently cached and load data for a new 
         entity.
@@ -115,7 +135,9 @@ class ActivityStreamDataHandler(QtCore.QObject):
         :param entity_type: entity type to load
         :param entity_id: entity id to load
         
-        :returns: number of activity records loaded from cache
+        :returns: A list of activity ids available in the cache.
+                  The data returned is always in ascending order with 
+                  older items first.
         """
         self.__reset()
         
@@ -123,33 +145,24 @@ class ActivityStreamDataHandler(QtCore.QObject):
         self._entity_type = entity_type
         self._entity_id = entity_id
         
-        self._app.log_debug("Loading cached note/activity stream data "
-                            "for %s %s" % (self._entity_type, self._entity_id))
+        self._app.log_debug("Loading max %s cached activity stream data entries "
+                            "for %s %s" % (limit, self._entity_type, self._entity_id))
 
         time_before = time.time()
         self._app.log_debug("Loading cached data...")
         
-        if entity_type == "Note":
-            # load note thread only
-            note_id = self._entity_id
-            note_data = self.__get_note_thread_data(note_id)
-            if note_data:
-                self._note_threads[note_id] = note_data
-            records_loaded = len(self._note_threads)
-            
-        else:
-            # load activity stream and associated notes
-            (self._activity_data, self._note_threads) = self.__get_db_activity_stream_records(self._entity_type, self._entity_id)
-            records_loaded = len(self._activity_data)
-        
+        # load activity stream and associated notes
+        (self._activity_data, self._note_threads) = self.__get_db_activity_stream_records(self._entity_type, 
+                                                                                          self._entity_id,
+                                                                                          limit)
         time_diff = (time.time() - time_before)
         self._app.log_debug("...loading complete! %s "
                             "events and %s notes loaded in "
                             "%4fs" % (len(self._activity_data), len(self._note_threads), time_diff))
             
-        return records_loaded
-
-
+        # sort keys in ascending order and return
+        sorted_keys = sorted(self._activity_data.keys())
+        return sorted_keys
 
     def rescan(self):
         """
@@ -181,43 +194,29 @@ class ActivityStreamDataHandler(QtCore.QObject):
             self._processing_id = self._sg_data_retriever.execute_method(self._get_activity_stream, data)        
         
 
-    def get_activity_ids(self, limit=None):
-        """
-        Returns a list of activity ids available in the cache.
-        The data returned is always in ascending order with 
-        older items first.
-        
-        :returns: list of integers
-        """
-        # sort keys in ascending order
-        sorted_keys = sorted(self._activity_data.keys())
-        
-        if limit:
-            # see how many we should chop off
-            items_to_chop = len(sorted_keys) - limit
-            if items_to_chop > 0:
-                # remove items from the front of the list
-                # since the list is sorted in ascending order,
-                # these are the earliest ones.
-                sorted_keys = sorted_keys[items_to_chop:]
-        
-        return sorted_keys
-
     def get_activity_data(self, activity_id):
         """
-        Returns the data for a given activity id
+        Returns the data for a given activity id,
+        none if the data has not been cached.
         """
         return self._activity_data.get(activity_id)
 
     def get_note(self, note_id):
         """
-        Returns the note for a given activity id
+        Returns the note data for a given activity id,
+        none if the data has not been cached.
         """
         return self._note_threads.get(note_id)
         
     def request_user_thumbnail(self, entity_type, entity_id, url):
         """
-        Request the thumbnail for a given user
+        Request the thumbnail for a given user.
+        Once the thumbnail is available, a thumbnail_arrived
+        will be emitted
+        
+        :param entity_type: ClientUser, ApiUser or HumanUser
+        :param entity_id: Shotgun id
+        :param url: Thumbnail url
         """
         uid = self._sg_data_retriever.request_thumbnail(url, 
                                                         entity_type, 
@@ -247,8 +246,23 @@ class ActivityStreamDataHandler(QtCore.QObject):
         
     def request_activity_thumbnails(self, activity_id):
         """
-        Request thumbs for an event
-        Depending the event type, multiple thumbs may be returned.
+        Request thumbs for an activity stream event.
+        
+        This method will analyze the event and emit zero or more 
+        asynchronous thumbnail requests, which will result in
+        thumbnail_arrived signals being emitted later when the 
+        requested thumbnails are available. Please note that a 
+        single activity stream id may result in multiple thumbnails
+        being requested.
+        
+        - For notes, a created_by thumbnail based on the note
+          author is requested.
+          
+        - For other new items, a created by thumbnail as well
+          as a thumbnail for the associated item.  
+        
+        :param activity_id: Event stream activity id for which to 
+               request thumbnails.  
         """
         activity_data = self.get_activity_data(activity_id)
          
@@ -256,22 +270,39 @@ class ActivityStreamDataHandler(QtCore.QObject):
         entity = activity_data["primary_entity"]        
         
         if entity and entity["type"] == "Note":
+
             # special logic for notes - for these, the created by thumbnail
             # is who created the *note* rather than who created the activity
             # entry. This ie because when someone replies to a note, the
             # activity will be created by the reply-er but we still want to
             # display the thumbnail of the original author of the note.  
-            if "user.HumanUser.image" in entity:
-                # note has a created-by field populated
-                # (some data oddly enough doesn't!)
+            if entity.get("user.HumanUser.image"):
                 uid = self._sg_data_retriever.request_thumbnail(entity["user.HumanUser.image"], 
-                                                                entity["created_by"]["id"], 
-                                                                entity["created_by"]["type"], 
+                                                                entity["user"]["id"], 
+                                                                entity["user"]["type"], 
                                                                 "image",
                                                                 load_image=True)
                 self._thumb_map[uid] = {"activity_id": activity_id, 
                                         "thumbnail_type": self.THUMBNAIL_CREATED_BY}
                 
+            elif entity.get("user.ClientUser.image"):
+                uid = self._sg_data_retriever.request_thumbnail(entity["user.ClientUser.image"], 
+                                                                entity["user"]["id"], 
+                                                                entity["user"]["type"], 
+                                                                "image",
+                                                                load_image=True)
+                self._thumb_map[uid] = {"activity_id": activity_id, 
+                                        "thumbnail_type": self.THUMBNAIL_CREATED_BY}
+
+            elif entity.get("user.ApiUser.image"):
+                uid = self._sg_data_retriever.request_thumbnail(entity["user.ApiUser.image"], 
+                                                                entity["user"]["id"], 
+                                                                entity["user"]["type"], 
+                                                                "image",
+                                                                load_image=True)
+                self._thumb_map[uid] = {"activity_id": activity_id, 
+                                        "thumbnail_type": self.THUMBNAIL_CREATED_BY}
+
             else:
                 self._app.log_warning("No thumbnail found for this note!")
             
@@ -393,9 +424,13 @@ class ActivityStreamDataHandler(QtCore.QObject):
         return note_data
        
  
-    def __get_db_activity_stream_records(self, entity_type, entity_id, limit=1000):
+    def __get_db_activity_stream_records(self, entity_type, entity_id, limit):
         """
-        Returns the activity stream for a particular record.
+        Returns the cached activity stream for a particular record.
+        
+        :param entity_type: Entity type to load
+        :param entity_id: Entity id to load
+        :param limit: Max records to load
         """
         activities = {}
         notes = {}
@@ -584,15 +619,16 @@ class ActivityStreamDataHandler(QtCore.QObject):
         
         entity_fields ={ 
             "Note":       ["addressings_cc", 
-                           "addressings_to",
-                           "playlist", 
+                           "addressings_to", 
                            "user",
                            "content",
                            "body",
                            "note_links",
-                           "created_by",
-                           "created_by.HumanUser.image",
+                           "user.HumanUser.image",
+                           "user.ApiUser.image",
+                           "user.ClientUser.image",
                            "created_at",
+                           "client_note",
                            "read_by_current_user",
                            "subject",
                            "tasks"],
@@ -618,11 +654,22 @@ class ActivityStreamDataHandler(QtCore.QObject):
         entity_id = data["entity_id"]
         min_id = data["highest_id"]
         
+        # the additional fields required here are fields which are needed
+        # for generic data rendering of the activity stream - e.g.
+        # thumbnails, version playback data etc.
+        #
+        # in the case of notes and replies, the entire payload of the note
+        # (content, subject etc) is loaded up separately so we don't need
+        # to fetch that data here as additional fields.
+        
         entity_fields = {"Task": ["created_at", "task_assignees", "entity"],
                           "Shot": ["image"],
                           "Asset": ["image"],
                           "Sequence": ["image"],
-                          "Note": ["created_by", "user.HumanUser.image"], 
+                          "Note": ["user",
+                                   "user.HumanUser.image",
+                                   "user.ApiUser.image",
+                                   "user.ClientUser.image"], 
                           "Version": ["description", "sg_uploaded_movie", "image", "entity"],
                           "PublishedFile": ["description", "image", "entity"],
                           "TankPublishedFile": ["description", "image", "entity"],
@@ -714,17 +761,13 @@ class ActivityStreamDataHandler(QtCore.QObject):
                 # add to our local in-memory cache
                 self._activity_data[ activity_id ] = update
                 
-                # now for items where there is just the note created
-                # and no note updates yet, we haevn't pulled down
-                # the entire conversation separately (no need as we 
-                # already have all the info in the activity stream data).
-                # In this case, turn the primary entity in the stream
-                # (which represents the note entity itself) into the 
-                # first item in a note data list.                
+                # in the case of all note related activity stream items
+                # - both an initial note and a reply -
+                # issue a note fetch call straight away to fetch 
+                # the payload of the note data.
                 if (update["update_type"] == "create" and \
                     update["primary_entity"]["type"] == "Note") or \
                     update["update_type"] == "create_reply":
-                    # for all notes, grab their data from shotgun
                     
                     note_id = update["primary_entity"]["id"]
                     self._app.log_debug("Requesting note thread download "
@@ -736,7 +779,8 @@ class ActivityStreamDataHandler(QtCore.QObject):
 
                     # map the unique id with the update id so we can merge the 
                     # two later as the data arrives 
-                    self._note_map[note_uid] = {"update_id": activity_id, "note_id": note_id}
+                    self._note_map[note_uid] = {"update_id": activity_id, 
+                                                "note_id": note_id}
             
             self._app.log_debug("Processed %s updates" % len(updates))
             

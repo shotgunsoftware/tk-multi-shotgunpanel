@@ -57,7 +57,7 @@ class ShotgunConfiguration(HookBaseClass):
             values["top_left"] = "<big>{content}</big>"
             values["top_right"] = "{sg_status_list}"
             values["body"] = """
-                Assigned to {task_assignees}<br> 
+                {[Assigned to ]task_assignees[<br>]} 
                 {[<br>Start: ]start_date}
                 {[<br>Due: ]due_date}
                 """            
@@ -166,6 +166,7 @@ class ShotgunConfiguration(HookBaseClass):
                                      "step",
                                      "start_date",
                                      "sg_status_list",
+                                     "project",
                                      "content"] 
 
         else:
@@ -234,9 +235,8 @@ class ShotgunConfiguration(HookBaseClass):
             
                 <big>Status: {sg_status_list}</big><br><br>
             
-                {[For ]entity::showtype}<br>
-                Assigned to: {task_assignees}<br>
-                
+                {[For ]entity::showtype[<br>]}
+                {[Assigned to: ]task_assignees[<br>]}
                 {[Start: ]start_date}{[ Due: ]due_date}
                 """
                 

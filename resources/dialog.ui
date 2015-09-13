@@ -78,7 +78,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Click to go to your work area.</string>
+             <string>Click to go to your work area</string>
             </property>
            </widget>
           </item>
@@ -97,7 +97,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Click to go back.</string>
+             <string>Click to go back</string>
             </property>
            </widget>
           </item>
@@ -116,7 +116,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Click to go forward.</string>
+             <string>Click to go forward</string>
             </property>
            </widget>
           </item>
@@ -154,7 +154,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Search for things in Shotgun.</string>
+             <string>Search for things in Shotgun</string>
             </property>
            </widget>
           </item>

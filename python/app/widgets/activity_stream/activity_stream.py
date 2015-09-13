@@ -123,11 +123,9 @@ class ActivityStreamWidget(QtGui.QWidget):
 
         # now load cached data for the given entity
         self._app.log_debug("Setting up db manager....")
-        self._data_manager.load_data(self._entity_type, self._entity_id)
-
-        # get list of activity events that are already cached locally
-        ids_to_process = self._data_manager.get_activity_ids(self.MAX_STREAM_LENGTH)
-        self._app.log_debug("Db returned %s events" % len(ids_to_process))
+        ids_to_process = self._data_manager.load_activity_data(self._entity_type, 
+                                                               self._entity_id,
+                                                               self.MAX_STREAM_LENGTH)
 
         if len(ids_to_process) == 0:
             # nothing cached - show spinner!
@@ -150,7 +148,7 @@ class ActivityStreamWidget(QtGui.QWidget):
 
             # we are building the widgets bottom up.
             # first of all, insert a widget that will expand so that 
-            # it consumes all un-used space. This is to keep other
+            # it consumes all unused space. This is to keep other
             # widgets from growing when there are only a few widgets
             # available in the scroll area.
             self._app.log_debug("Adding expanding base widget...")            

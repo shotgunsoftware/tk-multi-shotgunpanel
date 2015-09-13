@@ -103,7 +103,7 @@ class ReplyListWidget(QtGui.QWidget):
         # information about our note 
         self._sg_entity_dict = sg_entity_dict
         note_id = self._sg_entity_dict["id"]
-        self._data_manager.load_data("Note", note_id)
+        self._data_manager.load_note_data(note_id)
 
         # now attempt to render the note based on cached data
         data_shown = self._process_note(activity_id=None, note_id=note_id)
