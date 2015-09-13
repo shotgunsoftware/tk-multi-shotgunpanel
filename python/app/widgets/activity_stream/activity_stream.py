@@ -230,16 +230,7 @@ class ActivityStreamWidget(QtGui.QWidget):
         self._app.log_debug("Ask db manager to ask shotgun for updates...")
         self._data_manager.rescan()
         self._app.log_debug("...done")
-        
-    
-    def reset(self):
-        """
-        Reset the widget
-        """
-        self._clear()
-        return self.ui.note_widget.reset()
-        
-        
+            
     ############################################################################
     # internals
         
@@ -421,14 +412,37 @@ class ActivityStreamWidget(QtGui.QWidget):
         """
         New activity items have arrived from from the data manager
         """
-        self._app.log_debug("Process new data slot called for %s events" % len(activity_ids))
+        self._app.log_debug("Process new data slot called "
+                            "for %s activity events" % len(activity_ids))
                 
         # remove the "loading please wait .... widget
         self._clear_loading_widget()
         
+        
+        # note! For an item which hasn't been previously been cached or
+        # hasn't been visited for some time, there may be a lot more than
+        # MAX_STREAM_LENGTH updates. In this case, truncate the stream.
+        # this will result in a UI where you may have a maxmimum of 
+        # MAX_STREAM_LENGTH * 2 items (already loaded + new) and there
+        # may be gaps in activity data because we always want to show
+        # the latest data, so when we cull, it happens in the 'middle'
+        # of the stream, resulting in existing data, the a potential gap
+        # and then MAX_STREAM_LENGTH items.
+        #
+        # Note that this is in the UI only, so a refresh of the page 
+        # would immediately rectify the discrepancy.  
+        
         # load in the new data
         # the list of ids is delivered in ascending order
         # and we pop them on to the widget
+
+        if len(activity_ids) > self.MAX_STREAM_LENGTH:
+            self._app.log_debug("Capping the %s new activity items down to "
+                                "%s items" % (len(activity_ids), self.MAX_STREAM_LENGTH))
+        
+            # transform [10,11,12,13,14,15,16,17] -> [15,16,17]
+            activity_ids = activity_ids[-self.MAX_STREAM_LENGTH:]
+        
         for activity_id in activity_ids:
             self._app.log_debug("Creating new widget...")
             w = self._create_activity_widget(activity_id)

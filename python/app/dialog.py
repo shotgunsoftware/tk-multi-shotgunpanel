@@ -47,6 +47,8 @@ settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overlay_widget")
 
+# maximum size of the details field in the top part of the UI
+MAX_LEN_UPPER_BODY_DETAILS = 1200
 
 class AppDialog(QtGui.QWidget):
     """
@@ -601,6 +603,19 @@ class AppDialog(QtGui.QWidget):
             (header, body) = formatter.format_entity_details(sg_data) 
             self.ui.details_text_header.setText(header)
             self.ui.details_text_header.setToolTip(header)
+            
+            # if the body text is extremely long, cap it forceully
+            # this is so that the header portion of the UI doesn't grow
+            # indefinitely
+            if len(body) > MAX_LEN_UPPER_BODY_DETAILS:
+                body = body[:MAX_LEN_UPPER_BODY_DETAILS]
+                body += "..."
+                tooltip = """<b>Capped Content</b><br>
+                             The contents of this field was very long 
+                             and has therefore been capped. For full details, 
+                             please jump to Shotgun via the actions menu.""" 
+                self.ui.details_text_middle.setToolTip(tooltip)
+            
             self.ui.details_text_middle.setText(body)
             
         else:
@@ -674,16 +689,7 @@ class AppDialog(QtGui.QWidget):
     def _navigate_to(self, shotgun_location):
         """
         Update the UI to point at the given shotgun location object
-        """
-        
-        # clear any note UIs that may exist. If they return 
-        # false, this is an indication that the process
-        # was cancelled by the user and that the navigation won't happen
-        if not self.ui.version_activity_stream.reset():
-            return
-        if not self.ui.entity_activity_stream.reset():
-            return
-        
+        """        
         # chop off history at the point we are currently
         self._history_items = self._history_items[:self._history_index]
         # add new record

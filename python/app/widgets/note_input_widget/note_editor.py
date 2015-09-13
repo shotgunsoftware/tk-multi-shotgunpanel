@@ -82,7 +82,7 @@ class NoteEditor(QtGui.QTextEdit):
     ##########################################################################################
     # public interface
     
-    def reset(self):
+    def clear(self):
         """
         Clear editor state
         """
