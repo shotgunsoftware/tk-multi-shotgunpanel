@@ -144,7 +144,7 @@ class SearchResultDelegate(shotgun_view.WidgetDelegate):
     
             links = data["links"]
             # note users return weird data so ignore it.
-            if links and links[0] != "" and links[0] != "HumanUser":
+            if links and links[0] != "" and links[0] != "HumanUser" and links[0] != "ClientUser":
                 # there is a referenced entity
                 et_url = self._url_for_entity_type(links[0])
                 if et_url:

@@ -253,8 +253,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
         activity_data = self.get_activity_data(activity_id)
          
         created_by = activity_data["created_by"] 
-        entity = activity_data["primary_entity"]
-        
+        entity = activity_data["primary_entity"]        
         
         if entity and entity["type"] == "Note":
             # special logic for notes - for these, the created by thumbnail
@@ -272,6 +271,7 @@ class ActivityStreamDataHandler(QtCore.QObject):
                                                                 load_image=True)
                 self._thumb_map[uid] = {"activity_id": activity_id, 
                                         "thumbnail_type": self.THUMBNAIL_CREATED_BY}
+                
             else:
                 self._app.log_warning("No thumbnail found for this note!")
             

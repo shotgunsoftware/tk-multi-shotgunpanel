@@ -192,12 +192,22 @@ class ShotgunConfiguration(HookBaseClass):
                 Department: {department}
                 """
 
+        if entity_type == "ClientUser": 
+            values["title"] = "{name}"
+            
+            values["body"] = """<br>
+                <b>Shotgun Client User</b><br><br>
+                Email: {email}
+                """
+
         if entity_type == "ApiUser": 
-            values["title"] = "Script {firstname}"
+            values["title"] = "{firstname}"
             
             values["body"] = """
+                <b>Shotgun Api Script</b><br><br>
+                Script Version: {lastname}<br>
                 Maintainer: {email}<br>
-                Version: {lastname}
+                Description: {description}
                 """
 
         if entity_type == "Group": 
@@ -247,7 +257,7 @@ class ShotgunConfiguration(HookBaseClass):
             values["body"] = """
                 Note by {created_by} {[(Task ]tasks[)]}<br>
                 Written on {created_at}<br>
-                {[Addressed to:]addressings_to}{[, CC: ]addressings_cc}<br>
+                {[Addressed to: ]addressings_to}{[, CC: ]addressings_cc}<br>
                 <br>
                 Associated With:<br>{note_links::showtype}
                 """

@@ -162,7 +162,8 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         entity_types["Task"] = []
         entity_types["HumanUser"] = [["sg_status_list", "is", "act"]]
         entity_types["Group"] = []
-        entity_types["ClientUser"] = []
+        entity_types["ClientUser"] = [["sg_status_list", "is", "act"]]
+        entity_types["ApiUser"] = []
         entity_types["Version"] = []
         entity_types["PublishedFile"] = []
         

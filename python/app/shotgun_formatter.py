@@ -376,17 +376,14 @@ class ShotgunFormatter(object):
         """
         Should the note tab be shown for this
         """
-        if self.entity_type in ["ApiUser"]:
-            return False
-        else:
-            return True        
+        return True        
 
     @property
     def show_publishes_tab(self):
         """
         Should the publishes tab be shown for this
         """
-        if self.entity_type in ["Group"]:
+        if self.entity_type in ["Group", "ClientUser"]:
             return False
         else:
             return True        
@@ -396,7 +393,7 @@ class ShotgunFormatter(object):
         """
         Should the publishes tab be shown for this
         """
-        if self.entity_type in ["Group"]:
+        if self.entity_type in ["Group", "ClientUser"]:
             return False
         else:
             return True        
@@ -406,7 +403,7 @@ class ShotgunFormatter(object):
         """
         Should the tasks tab be shown for this
         """
-        if self.entity_type in ["ApiUser", "Group", "Task"]:
+        if self.entity_type in ["ApiUser", "Group", "Task", "ClientUser"]:
             return False
         else:
             return True        
@@ -433,7 +430,7 @@ class ShotgunFormatter(object):
         # TODO - we might want to expose this in the hook at some point
         link_filters = []
         
-        if sg_location.entity_type in ["HumanUser", "ClientUser", "ApiUser", "Group"]:
+        if sg_location.entity_type in ["HumanUser"]:
             # the logic for users is different
             # here we want give an overview of their work
             # for the current project 
@@ -448,21 +445,42 @@ class ShotgunFormatter(object):
                 # show notes that are TO me, CC me or on tasks which I have been
                 # assigned. Use advanced filters for this one so we can use OR
                 
-                link_filters = {
+                link_filters= {
                     "logical_operator": "or", 
                     "conditions": [
+                        {"path": "created_by", "values": [sg_location.entity_dict], "relation": "is"},
                         {"path": "addressings_cc.Group.users", "values": [sg_location.entity_dict], "relation": "in"},
                         {"path": "addressings_to.Group.users", "values": [sg_location.entity_dict], "relation": "in"},
                         {"path": "replies.Reply.user", "values": [sg_location.entity_dict], "relation": "is"},
                         {"path": "addressings_cc", "values": [sg_location.entity_dict], "relation": "in"},                       
                         {"path": "addressings_to", "values": [sg_location.entity_dict], "relation": "in"},
                         {"path": "tasks.Task.task_assignees", "values": [sg_location.entity_dict], "relation": "in"} 
-                        ] }                
+                        ] }     
                 
             else:
                 # for other things, show items created by me
                 link_filters.append(["created_by", "is", sg_location.entity_dict])
             
+        elif sg_location.entity_type in ["ClientUser", "ApiUser", "Group"]:
+            # the logic for users is different
+            # here we want give an overview of their work
+            # for the current project
+            
+            if self._entity_type == "Note":
+                # show notes that are TO me, or CC me or stuff I have replied to
+                link_filters= {
+                    "logical_operator": "or", 
+                    "conditions": [
+                        {"path": "replies.Reply.user", "values": [sg_location.entity_dict], "relation": "is"},
+                        {"path": "created_by", "values": [sg_location.entity_dict], "relation": "is"},
+                        {"path": "addressings_cc", "values": [sg_location.entity_dict], "relation": "in"},                       
+                        {"path": "addressings_to", "values": [sg_location.entity_dict], "relation": "in"}, 
+                        ] }     
+            
+            else: 
+                link_filters.append(["project", "is", self._app.context.project])
+                link_filters.append(["created_by", "is", sg_location.entity_dict])
+        
         elif sg_location.entity_type == "Task":
             
             # tasks are usually associated via a task field rather than via a link field
