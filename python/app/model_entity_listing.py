@@ -168,7 +168,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
         :param field: The Shotgun field which the thumbnail is associated with.
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """        
-        if field != self._sg_formatter.thumbnail_field: 
+        if field not in self._sg_formatter.thumbnail_fields: 
             # there may be other thumbnails being loaded in as part of the data flow
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.

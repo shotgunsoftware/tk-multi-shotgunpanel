@@ -49,18 +49,18 @@ def create_round_thumbnail(image):
     
     return base_image
 
-def create_circular_512x400_thumbnail(image, accent=False):
+def create_round_512x400_note_thumbnail(image, client=False, unread=False):
     """
     Given a QImage shotgun thumbnail, create a round icon
     with the thumbnail composited onto a centered otherwise empty canvas. 
     This will return a 512x400 pixmap object.
     
     :param image: QImage source image
-    :param accent: Should the image be accentuated. 
-                   This can be used to indicate an unread or selected state
+    :param client: indicates that this is a client note
+    :param unread: indicates that this is an unread note 
     :returns: QPixmap circular thumbnail, 380px wide, on a 
               512x400 rect backdrop
-    """
+    """    
     CANVAS_WIDTH = 512
     CANVAS_HEIGHT = 400
     CIRCLE_SIZE = 380
@@ -89,12 +89,7 @@ def create_circular_512x400_thumbnail(image, accent=False):
         painter = QtGui.QPainter(base_image)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setBrush(brush)
-        
-        if accent:
-            pen = QtGui.QPen(QtGui.QColor("#2C93E2"))
-            pen.setWidth(18)
-            painter.setPen(pen)
-        
+                
         # figure out the offset height wise in order to center the thumb        
         
         # center it
@@ -103,7 +98,17 @@ def create_circular_512x400_thumbnail(image, accent=False):
         
         # note how we have to compensate for the corner radius
         painter.translate(inlay_offset_w, inlay_offset_h)
-        painter.drawEllipse(0, 0, CIRCLE_SIZE, CIRCLE_SIZE) 
+        painter.drawEllipse(0, 0, CIRCLE_SIZE, CIRCLE_SIZE)
+
+        if unread:
+            UNREAD_NOTE_INDICATOR = QtGui.QPixmap(":/tk_multi_infopanel/unread_indicator.png")
+            painter.drawPixmap(-10, -10, UNREAD_NOTE_INDICATOR)
+        
+        painter.translate(0, 250)
+        
+        if client:
+            CLIENT_NOTE_INDICATOR = QtGui.QPixmap(":/tk_multi_infopanel/client_note_indicator.png")
+            painter.drawPixmap(0, 0, CLIENT_NOTE_INDICATOR)
         
         painter.end()
     

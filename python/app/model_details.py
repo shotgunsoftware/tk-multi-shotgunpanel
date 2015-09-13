@@ -94,7 +94,7 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """
         
-        if field != self._sg_location.sg_formatter.thumbnail_field: 
+        if field not in self._sg_location.sg_formatter.thumbnail_fields: 
             # there may be other thumbnails being loaded in as part of the data flow
             # (in particular, created_by.HumanUser.image) - these ones we just want to 
             # ignore and not display.
@@ -120,7 +120,7 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         # set the current location to represent
         self._sg_location = sg_location
           
-        fields = sg_location.sg_formatter.fields + [sg_location.sg_formatter.thumbnail_field]
+        fields = sg_location.sg_formatter.fields + sg_location.sg_formatter.thumbnail_fields
 
         hierarchy = ["id"]
         

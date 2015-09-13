@@ -63,13 +63,14 @@ class ShotgunFormatter(object):
         
         # also include the thumbnail field so that it gets retrieved as part of the general 
         # query payload
-        fields.append(self.thumbnail_field)
+        fields.extend(self.thumbnail_fields)
         
         # include the special quicktime field for versions
         if entity_type == "Version":
             fields.append("sg_uploaded_movie")
         if entity_type == "Note":
             fields.append("read_by_current_user")
+            fields.append("client_note")
         
         self._token_fields = set(fields)
         
@@ -324,14 +325,16 @@ class ShotgunFormatter(object):
             return self._rect_default_icon
             
     @property
-    def thumbnail_field(self):
+    def thumbnail_fields(self):
         """
-        Returns the field name to use when look for thumbnails
+        Returns the field names to use when looking for thumbnails
         """
         if self.entity_type == "Note":
-            return "user.HumanUser.image"
+            return ["user.HumanUser.image", 
+                    "user.ClientUser.image", 
+                    "user.ApiUser.image"]
         else:
-            return "image"
+            return ["image"]
     
     @property
     def entity_type(self):
@@ -508,19 +511,29 @@ class ShotgunFormatter(object):
         :param sg_data: Data associated with the thumbnail
         :returns: Pixmap object
         """
-        if self.entity_type in ["HumanUser", "ApiUser", "ClientUser"]:
-            return utils.create_circular_512x400_thumbnail(image)
+        if self.entity_type in ["HumanUser", "ApiUser"]:
+            return utils.create_round_512x400_note_thumbnail(image)
         
+        elif self.entity_type == "ClientUser":
+            return utils.create_round_512x400_note_thumbnail(image, client=True)
+
         elif self.entity_type == "Note":
+            
+            client_note = sg_data.get("client_note") or False 
+            
             if sg_data["read_by_current_user"] == "unread":
-                return utils.create_circular_512x400_thumbnail(image, accent=True)
+                unread=True
             else:
-                return utils.create_circular_512x400_thumbnail(image, accent=False)
+                unread=False
+                
+            return utils.create_round_512x400_note_thumbnail(image,  
+                                                             client_note,
+                                                             unread)
         
         elif self.entity_type == "Task" and sg_data["type"] == "HumanUser":
             # a user icon for a task
             # todo: refcator this logic to make it clearer
-            return utils.create_circular_512x400_thumbnail(image)
+            return utils.create_round_512x400_note_thumbnail(image)
         
         else:
             return utils.create_rectangular_512x400_thumbnail(image)
