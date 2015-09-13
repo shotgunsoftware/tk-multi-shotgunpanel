@@ -55,9 +55,9 @@ class ShotgunConfiguration(HookBaseClass):
         elif entity_type == "Task":
             
             values["top_left"] = "<big>{content}</big>"
+            values["top_right"] = "{sg_status_list}"
             values["body"] = """
-                Assigned to {task_assignees}<br>
-                Status: {sg_status_list}
+                Assigned to {task_assignees}<br> 
                 {[<br>Start: ]start_date}
                 {[<br>Due: ]due_date}
                 """            
@@ -129,6 +129,9 @@ class ShotgunConfiguration(HookBaseClass):
                                     "email", 
                                     "firstname", 
                                     "lastname"] 
+
+        elif entity_type == "Group":
+            values = base_values + ["users"] 
 
         elif entity_type == "Version":
             values = std_values + ["user",
@@ -211,9 +214,10 @@ class ShotgunConfiguration(HookBaseClass):
                 """
 
         if entity_type == "Group": 
-            values["title"] = "Group {code}"
+            values["title"] = "{code}"
             
             values["body"] = """
+                <b>Group of users</b><br><br>
                 Members: {users}
                 """
             

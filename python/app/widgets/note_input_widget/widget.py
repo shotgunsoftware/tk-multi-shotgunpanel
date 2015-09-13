@@ -77,7 +77,7 @@ class NoteInputWidget(QtGui.QWidget):
         self.ui.close.clicked.connect(self.close_clicked)
 
         # reset state of the UI
-        self.reset()
+        self.clear()
         
         
     def destroy(self):
@@ -116,7 +116,7 @@ class NoteInputWidget(QtGui.QWidget):
         """
         Cancel editing, no questions asked 
         """
-        self.reset(force=True)
+        self.clear()
 
     def _screenshot_or_clear(self):
         """
@@ -360,8 +360,7 @@ class NoteInputWidget(QtGui.QWidget):
         if self._processing_id == uid:
             # all done!
             self.__overlay.hide()
-            self.ui.text_entry.reset()
-            self.reset()
+            self.clear()
             self._app.log_debug("Update call complete! Return data: %s" % data)
             self.data_updated.emit()
             
@@ -455,30 +454,11 @@ class NoteInputWidget(QtGui.QWidget):
         else:
             self._app.log_warning("cannot adjust unknown ui mode.")             
               
-    def reset(self, force=False):
+    def clear(self):
         """
-        Rest the state of the widget completely.
-        Clear any input.
-        Prompt for confirmation if there is text.
-        
-        :returns: true if reset was completed, false if reset couldn't be
-                  completed because the user cancelled the operation.
+        Clear any input and state        
         """
-        if not force and self.ui.text_entry.toPlainText() != "":
-            
-            # this is similar to what Chrome prompts
-            # when you are about to nagivate away from a page
-            # where you have entered text 
-            status = QtGui.QMessageBox.warning(self, 
-                                              "Confirm Navigation", 
-                                              """<b>Confirm Navigation</b><br><br>
-                                              You haven't submitted your Note yet.<br>
-                                              Do you want to leave without finishing?""", 
-                                              QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if status == QtGui.QMessageBox.No:
-                return False
-        
-        self.ui.text_entry.reset()
+        self.ui.text_entry.clear()
 
         self.ui.stacked_widget.setCurrentIndex(self._NEW_NOTE_WIDGET_INDEX)
         

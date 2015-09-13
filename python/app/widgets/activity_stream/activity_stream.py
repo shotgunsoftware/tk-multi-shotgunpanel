@@ -230,16 +230,7 @@ class ActivityStreamWidget(QtGui.QWidget):
         self._app.log_debug("Ask db manager to ask shotgun for updates...")
         self._data_manager.rescan()
         self._app.log_debug("...done")
-        
-    
-    def reset(self):
-        """
-        Reset the widget
-        """
-        self._clear()
-        return self.ui.note_widget.reset()
-        
-        
+            
     ############################################################################
     # internals
         
