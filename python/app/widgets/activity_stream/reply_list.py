@@ -125,6 +125,10 @@ class ReplyListWidget(QtGui.QWidget):
         :param note_id: Note id for the note for which data is available
                         in the data manager.
         """
+        
+        self._app.log_debug("Retrieved new data notification for "
+                            "activity id %s, note id %s" % (activity_id, note_id))
+        
         # set note content            
         note_thread_data = self._data_manager.get_note(note_id)
         
