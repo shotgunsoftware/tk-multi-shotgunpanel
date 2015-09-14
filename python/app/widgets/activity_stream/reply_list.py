@@ -24,8 +24,6 @@ from .widget_attachment_group import AttachmentGroupWidget
 from .widget_reply import ReplyWidget
 from .overlaywidget import SmallOverlayWidget
  
-overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overlay_widget")
- 
 class ReplyListWidget(QtGui.QWidget):
     """
     Top level widget that displays a note conversation.
@@ -68,7 +66,6 @@ class ReplyListWidget(QtGui.QWidget):
         
         # small overlay
         self.__small_overlay = SmallOverlayWidget(self)
-        self.__overlay = overlay_module.ShotgunOverlayWidget(self)
         
         # create a data manager to handle backend
         self._data_manager = ActivityStreamDataHandler(self)
@@ -96,7 +93,7 @@ class ReplyListWidget(QtGui.QWidget):
         self._app.log_debug("Loading replies for %s" % sg_entity_dict)
         
         if sg_entity_dict["type"] != "Note":
-            self._app.log_error("Cannot only show replies for Notes.")
+            self._app.log_error("Can only show replies for Notes.")
             return
 
         # first ask the data manager to load up cached 
@@ -106,11 +103,7 @@ class ReplyListWidget(QtGui.QWidget):
         self._data_manager.load_note_data(note_id)
 
         # now attempt to render the note based on cached data
-        data_shown = self._process_note(activity_id=None, note_id=note_id)
-        
-        if not data_shown:
-            # no data yet in cache. So pop up an overlay and rescan        
-            self.__overlay.show_message("Loading Shotgun Data...")
+        self._process_note(activity_id=None, note_id=note_id)
         
         # and read in any updates in the background
         self._data_manager.rescan()
@@ -131,21 +124,12 @@ class ReplyListWidget(QtGui.QWidget):
                            value is undefined.
         :param note_id: Note id for the note for which data is available
                         in the data manager.
-                        
-        :returns: True if note info was built, false if not.
         """
-        # build the UI - first hide the loading overlay in case its visible 
-        self.__overlay.hide()
-            
         # set note content            
         note_thread_data = self._data_manager.get_note(note_id)
         
-        if note_thread_data is None:            
-            # no data in data store yet for this note
-            return False
-        else:
+        if note_thread_data:            
             self._build_replies(note_thread_data)
-            return True
 
     def _build_replies(self, note_thread_data):
 
@@ -391,21 +375,28 @@ class ReplyListWidget(QtGui.QWidget):
                     reply_widget.set_thumbnail(image)
 
     def _on_reply_clicked(self, note_id):
+        """
+        Callback when someone clicks reply to note
         
-        # TODO - refactor to not have dupe code
+        :param note_id: Note id to reply to
+        """
         
+        # TODO - refactor to avoid having this code in two places
+        
+        # create reply dialog window
         reply_dialog = ReplyDialog(self, self._data_retriever, note_id)
         
-        #position the reply modal dialog above the activity stream scroll area
+        # position the reply modal dialog above the activity stream scroll area
         pos = self.mapToGlobal(self.ui.reply_scroll_area.pos())
         x_pos = pos.x() + (self.ui.reply_scroll_area.width() / 2) - (reply_dialog.width() / 2) - 10         
         y_pos = pos.y() + (self.ui.reply_scroll_area.height() / 2) - (reply_dialog.height() / 2) - 20
         reply_dialog.move(x_pos, y_pos)
         
-        # and pop it
+        # show the dialog, and while it's showing,
+        # enable a transparent overlay on top of the existing replies
+        # in order to make the reply window stand out.
         try:
             self.__small_overlay.show()
-        
             if reply_dialog.exec_() == QtGui.QDialog.Accepted:
                 self._data_manager.rescan()
         finally:
