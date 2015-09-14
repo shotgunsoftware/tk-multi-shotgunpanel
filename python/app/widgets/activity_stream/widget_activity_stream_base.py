@@ -70,15 +70,9 @@ class ActivityStreamBaseWidget(QtGui.QWidget):
         self._target_entity_id = data["primary_entity"]["id"]
         self._activity_id = data["id"]
         
-    def set_thumbnail(self, image, thumbnail_type):
+    def set_thumbnail(self, data):
         """
         Populate the UI with the given thumbnail
-        
-        :param image: QImage with thumbnail data
-        :param thumbnail_type: thumbnail enum constant:
-            ActivityStreamDataHandler.THUMBNAIL_CREATED_BY
-            ActivityStreamDataHandler.THUMBNAIL_ENTITY
-            ActivityStreamDataHandler.THUMBNAIL_ATTACHMENT
         """
         # each deriving class should implement this
         raise NotImplementedError

@@ -9,10 +9,7 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 from sgtk.platform.qt import QtCore, QtGui
-
 from .ui.reply_dialog import Ui_ReplyDialog
-
-from ... import utils
 
 class ReplyDialog(QtGui.QDialog):
     """

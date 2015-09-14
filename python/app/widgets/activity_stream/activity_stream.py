@@ -32,6 +32,7 @@ class ActivityStreamWidget(QtGui.QWidget):
     Widget that displays the Shotgun activity stream for an entity.
     """
     
+    # max number of items to show in the activity stream.
     MAX_STREAM_LENGTH = 20
     
     # when someone clicks a link or similar
@@ -165,7 +166,6 @@ class ActivityStreamWidget(QtGui.QWidget):
             sg_stream_button.setFocusPolicy(QtCore.Qt.NoFocus)
             sg_stream_button.clicked.connect(self._load_shotgun_activity_stream)
             
-            
             self.ui.activity_stream_layout.addWidget(sg_stream_button)
             self._other_widgets.append(sg_stream_button)
     
@@ -173,12 +173,18 @@ class ActivityStreamWidget(QtGui.QWidget):
             # old items first order...
             self._app.log_debug("Adding activity widgets...")
             for activity_id in ids_to_process:
-                w = self._create_activity_widget(activity_id)      
+                w = self._create_activity_widget(activity_id)
+                # note that not all activity data entries generate
+                # a widget in our factory method.      
                 if w:
+                    # a widget was generated! Insert it into
+                    # the widget layouts etc.
                     self._widgets[activity_id] = w
                     self.ui.activity_stream_layout.addWidget(w)        
             
                     # run extra init for notes
+                    # this is to fetch the actual note payload - 
+                    # content, replies, attachments etc.
                     if isinstance(w, NoteWidget):
                         data = self._data_manager.get_activity_data(activity_id)
                         note_id = data["primary_entity"]["id"]

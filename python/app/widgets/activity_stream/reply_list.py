@@ -111,14 +111,9 @@ class ReplyListWidget(QtGui.QWidget):
         if not data_shown:
             # no data yet in cache. So pop up an overlay and rescan        
             self.__overlay.show_message("Loading Shotgun Data...")
-            self._data_manager.rescan()
-
-        # note! note how we don't fetch any updates for a note - we only
-        # trigger a load in the case where no note data is present in the 
-        # cache db. This is done with the assumption that the activity stream
-        # has already pulled down updates for this object. This assumption 
-        # may not be true if the note widget is used in isolation without
-        # using the activity widget.
+        
+        # and read in any updates in the background
+        self._data_manager.rescan()
 
 
     ##########################################################################################
@@ -291,7 +286,6 @@ class ReplyListWidget(QtGui.QWidget):
         """
         Add a reply button to the stream of widgets
         """
-
         reply_button = ClickableTextLabel(self)
         reply_button.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTop)
         reply_button.setText("Reply to this Note")

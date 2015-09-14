@@ -71,6 +71,8 @@ class ShotgunFormatter(object):
         if entity_type == "Note":
             fields.append("read_by_current_user")
             fields.append("client_note")
+        if entity_type == "PublishedFile":
+            fields.append("path")
         
         self._token_fields = set(fields)
         

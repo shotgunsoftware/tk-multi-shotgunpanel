@@ -144,10 +144,13 @@ class ActionManager(object):
         copy_url = QtGui.QAction("Copy Shotgun url to clipboard", None)
         copy_url.triggered[()].connect(lambda f=sg_data: self._copy_to_clipboard(f))
 
+        show_docs = QtGui.QAction("Documentation", None)
+        show_docs.triggered[()].connect(self._show_docs)
+
         separator = QtGui.QAction(None)
         separator.setSeparator(True)
         
-        return [refresh, view_in_sg, copy_url, separator]
+        return [refresh, view_in_sg, copy_url, show_docs, separator]
     
     ########################################################################################
     # callbacks
@@ -164,9 +167,20 @@ class ActionManager(object):
                                           name=action_name, 
                                           params=params, 
                                           sg_data=sg_data)
+            
+            # refresh UI
+            self._dialog.setup_ui()
+            
         except Exception, e:
             self._app.log_exception("Could not execute execute_action hook.")
             QtGui.QMessageBox.critical(None, "Hook Error", "Error: %s" % e)
+
+    def _show_docs(self):
+        """
+        Internal action callback - Launch app documentation
+        """        
+        self._app.log_debug("Opening url %s..." % self._app.documentation_url)
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(self._app.documentation_url))
 
     def _refresh(self, entity):
         """

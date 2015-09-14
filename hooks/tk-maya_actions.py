@@ -13,9 +13,9 @@ Hook that loads defines all the available actions, broken down by publish type.
 """
 import sgtk
 import os
-#import pymel.core as pm
-#import maya.cmds as cmds
-#import maya.mel as mel
+import pymel.core as pm
+import maya.cmds as cmds
+import maya.mel as mel
 
 HookBaseClass = sgtk.get_hook_baseclass()
 
@@ -73,12 +73,6 @@ class MayaActions(HookBaseClass):
                                       "caption": "Assign Task to yourself", 
                                       "description": "Assign this task to yourself."} )
 
-        if "play_in_rv" in actions:
-            action_instances.append( {"name": "play_in_rv", 
-                                      "params": None,
-                                      "caption": "Play in RV", 
-                                      "description": "Play this version in Screening Room for RV."} )
-        
         if "reference" in actions:
             action_instances.append( {"name": "reference", 
                                       "params": None,
@@ -121,19 +115,29 @@ class MayaActions(HookBaseClass):
         app.log_debug("Execute action called for action %s. "
                       "Parameters: %s. Publish Data: %s" % (name, params, sg_data))
         
-        # resolve path
-        path = self.get_publish_path(sg_data)
-        
+        if name == "assign_task":
+            if app.context.user is None:
+                raise Exception("Cannot establish current user!")
+            
+            data = app.shotgun.find_one("Task", [["id", "is", sg_data["id"]]], ["task_assignees"] )
+            assignees = data["task_assignees"] or []
+            assignees.append(app.context.user)
+            app.shotgun.update("Task", sg_data["id"], {"task_assignees": assignees})
+            
         if name == "reference":
+            path = self.get_publish_path(sg_data)
             self._create_reference(path, sg_data)
 
         if name == "import":
+            path = self.get_publish_path(sg_data)
             self._do_import(path, sg_data)
         
         if name == "texture_node":
+            path = self.get_publish_path(sg_data)
             self._create_texture_node(path, sg_data)
             
         if name == "udim_texture_node":
+            path = self.get_publish_path(sg_data)
             self._create_udim_texture_node(path, sg_data)
                         
            

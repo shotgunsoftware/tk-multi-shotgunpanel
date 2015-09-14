@@ -11,12 +11,10 @@
 import sgtk
 from sgtk.platform.qt import QtCore, QtGui
 
-
 class SmallOverlayWidget(QtGui.QWidget):
     """
     Simple spinner widget
     """
-    
     MODE_OFF = 0
     MODE_ON = 1
     

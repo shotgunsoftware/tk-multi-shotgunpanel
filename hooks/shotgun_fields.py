@@ -74,6 +74,7 @@ class ShotgunConfiguration(HookBaseClass):
         # supported by all normal fields
         base_values = ["id", 
                        "type", 
+                       "tag_list",
                        "created_by", 
                        "created_at", 
                        "updated_by",
@@ -99,6 +100,18 @@ class ShotgunConfiguration(HookBaseClass):
         
         elif entity_type == "Sequence":
             values = std_values + ["shots", "assets"] 
+
+        elif entity_type == "Project":
+            values = base_values + ["sg_description", 
+                                    "archived",
+                                    "code",
+                                    "due",
+                                    "name",
+                                    "sg_start",
+                                    "sg_status",
+                                    "tank_name",
+                                    "sg_type",
+                                    "users"] 
 
         elif entity_type == "Asset":
             values = std_values + ["sg_asset_type", 
@@ -243,16 +256,18 @@ class ShotgunConfiguration(HookBaseClass):
         elif entity_type == "Asset":
             values["body"] = """
                 Asset Type: {sg_asset_type}<br>
-                Status: {sg_status_list}
+                Status: {sg_status_list}<br>
+                Description: {description}
                 """
                     
         elif entity_type == "Project":
             values["title"] = "Project {name}"
             
             values["body"] = """
-                Status: {sg_status}<br>
+                <b>Status: {sg_status}<br>
                 {[Start Date: ]start_date[<br>]}
                 {[End Date: ]end_date[<br>]}
+                Description: {sg_description}
                 """
                 
         elif entity_type == "Note":

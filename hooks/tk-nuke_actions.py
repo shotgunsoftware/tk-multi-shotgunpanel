@@ -70,12 +70,6 @@ class NukeActions(HookBaseClass):
                                       "caption": "Assign Task to yourself", 
                                       "description": "Assign this task to yourself."} )
 
-        if "play_in_rv" in actions:
-            action_instances.append( {"name": "play_in_rv", 
-                                      "params": None,
-                                      "caption": "Play in RV", 
-                                      "description": "Play this version in Screening Room for RV."} )
-
         if "read_node" in actions:
             action_instances.append( {"name": "read_node", 
                                       "params": None,
@@ -106,13 +100,23 @@ class NukeActions(HookBaseClass):
         app.log_debug("Execute action called for action %s. "
                       "Parameters: %s. Publish Data: %s" % (name, params, sg_data))
         
-        # resolve path - forward slashes on all platforms in Nuke
-        path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
+        if name == "assign_task":
+            if app.context.user is None:
+                raise Exception("Cannot establish current user!")
+            
+            data = app.shotgun.find_one("Task", [["id", "is", sg_data["id"]]], ["task_assignees"] )
+            assignees = data["task_assignees"] or []
+            assignees.append(app.context.user)
+            app.shotgun.update("Task", sg_data["id"], {"task_assignees": assignees})
         
         if name == "read_node":
+            # resolve path - forward slashes on all platforms in Nuke
+            path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
             self._create_read_node(path, sg_data)
         
         if name == "script_import":
+            # resolve path - forward slashes on all platforms in Nuke
+            path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
             self._import_script(path, sg_data)
            
     ##############################################################################################################
