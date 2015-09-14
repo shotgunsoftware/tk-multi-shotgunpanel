@@ -53,14 +53,14 @@ class NukeActions(HookBaseClass):
         one object is returned for an action, use the params key to pass additional 
         data into the run_action hook.
         
-        :param sg_publish_data: Shotgun data dictionary with all the standard publish fields.
+        :param sg_data: Shotgun data dictionary with all the standard publish fields.
         :param actions: List of action strings which have been defined in the app configuration.
         :param ui_area: String denoting the UI Area (see above).
         :returns List of dictionaries, each with keys name, params, caption and description
         """
         app = self.parent
         app.log_debug("Generate actions called for UI element %s. "
-                      "Actions: %s. Publish Data: %s" % (ui_area, actions, sg_publish_data))
+                      "Actions: %s. Publish Data: %s" % (ui_area, actions, sg_data))
         
         action_instances = []
 

@@ -23,14 +23,6 @@ configuration:
         default_value: "{self}/{engine_name}_actions.py"
         description: Hook which contains all methods for action management.
         
-#    global_search_entity_types:
-#        type: str
-#        description: Comma separated list of entity types to 
-#                     appear in the global search
-#        default_value: Shot, Asset, Sequence, Version, PublishedFile, 
-#                       HumanUser, Group 
-
-
     action_mappings:
         type: dict
         description: Associates shotgun objects with actions. The actions are all defined
