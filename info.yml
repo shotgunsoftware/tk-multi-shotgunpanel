@@ -32,9 +32,6 @@ configuration:
             Task:
                 - { actions: [assign_task], filters: {} }
 
-            Version:
-                - { actions: [play_in_rv], filters: {} }
-                
         default_value_tk-nuke:
             PublishedFile:
                 - { actions: [read_node], filters: { published_file_type: Rendered Image} }
