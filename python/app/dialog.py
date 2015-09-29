@@ -40,11 +40,10 @@ from .model_current_user import SgCurrentUserModel
 from .shotgun_formatter import ShotgunFormatter
 from .note_updater import NoteUpdater
 
-from .modules.schema import CachedShotgunSchema
-
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings")
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
+shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
 overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overlay_widget")
 
 # maximum size of the details field in the top part of the UI
@@ -109,7 +108,7 @@ class AppDialog(QtGui.QWidget):
         self._sg_data_retriever.start()
                 
         # register the data fetcher with the global schema manager
-        CachedShotgunSchema.register_data_retriever(self._sg_data_retriever)
+        shotgun_globals.register_data_retriever(self._sg_data_retriever)
                 
         # now load in the UI that was created in the UI designer
         self.ui = Ui_Dialog() 
@@ -345,7 +344,7 @@ class AppDialog(QtGui.QWidget):
             #
             # TODO: might have to clear selection models here
             
-            CachedShotgunSchema.unregister_data_retriever(self._sg_data_retriever)
+            shotgun_globals.unregister_data_retriever(self._sg_data_retriever)
             
             self._sg_data_retriever.work_completed.disconnect()
             self._sg_data_retriever.work_failure.disconnect()

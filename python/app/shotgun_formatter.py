@@ -15,7 +15,7 @@ import re
 import datetime
 from . import utils
 
-from .modules.schema import CachedShotgunSchema
+shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
 
 class ShotgunFormatter(object):
     """
@@ -215,7 +215,7 @@ class ShotgunFormatter(object):
         str_val = ""
         
         if value is None:            
-            return CachedShotgunSchema.get_empty_phrase(sg_type, sg_field)
+            return shotgun_globals.get_empty_phrase(sg_type, sg_field)
         
         elif isinstance(value, dict) and set(["type", "id", "name"]) == set(value.keys()):
             # entity link
@@ -225,7 +225,7 @@ class ShotgunFormatter(object):
                 
                 # get the nice name from our schema
                 # this is so that it says "Level" instead of "CustomEntity013"
-                entity_type_display_name = CachedShotgunSchema.get_type_display_name(value["type"])                
+                entity_type_display_name = shotgun_globals.get_type_display_name(value["type"])                
                 link_name = "%s %s" % (entity_type_display_name, value["name"])
             else:
                 # links are just "ABC123"
@@ -251,7 +251,7 @@ class ShotgunFormatter(object):
             (str_val, _) = utils.create_human_readable_timestamp(created_datetime) 
             
         elif sg_field == "sg_status_list":
-            str_val = CachedShotgunSchema.get_status_display_name(value, name_only=True)
+            str_val = shotgun_globals.get_status_display_name(value)
             
         else:
             str_val = str(value)

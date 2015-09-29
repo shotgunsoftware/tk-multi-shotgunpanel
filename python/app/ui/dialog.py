@@ -391,8 +391,9 @@ class Ui_Dialog(object):
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_publish_tab), QtGui.QApplication.translate("Dialog", "Publishes", None, QtGui.QApplication.UnicodeUTF8))
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_info_tab), QtGui.QApplication.translate("Dialog", "Info", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..widgets.activity_stream import ReplyListWidget, ActivityStreamWidget
+from ..qtwidgets import ReplyListWidget, ActivityStreamWidget
+from ..qtwidgets import VersionLabel
+from ..qtwidgets import GlobalSearchWidget
+
 from ..widget_all_fields import AllFieldsWidget
-from ..widgets.version_label import VersionLabel
-from ..widgets.global_search_widget import GlobalSearchWidget
 from . import resources_rc

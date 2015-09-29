@@ -16,9 +16,9 @@ from sgtk.platform.qt import QtCore, QtGui
 # import the shotgun_model and view modules from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun_view")
+shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
 
 from .ui.all_fields_widget import Ui_AllFieldsWidget
-from .modules.schema import CachedShotgunSchema
 from .shotgun_formatter import ShotgunFormatter
 
 class FieldNameLabel(QtGui.QLabel):
@@ -109,7 +109,7 @@ class AllFieldsWidget(QtGui.QWidget):
             # so we can sort them in alphabetic order based on this
             display_names = {}
             for field_name in sg_data.keys():
-                display_name = CachedShotgunSchema.get_field_display_name(formatter.entity_type, field_name)
+                display_name = shotgun_globals.get_field_display_name(formatter.entity_type, field_name)
                 display_names[display_name] = field_name
             
             # now create new items - order alphabetically

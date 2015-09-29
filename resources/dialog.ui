@@ -725,23 +725,23 @@
   <customwidget>
    <class>VersionLabel</class>
    <extends>QLabel</extends>
-   <header>..widgets.version_label</header>
+   <header>..qtwidgets</header>
   </customwidget>
   <customwidget>
    <class>ReplyListWidget</class>
    <extends>QWidget</extends>
-   <header>..widgets.activity_stream</header>
+   <header>..qtwidgets</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>GlobalSearchWidget</class>
    <extends>QLineEdit</extends>
-   <header>..widgets.global_search_widget</header>
+   <header>..qtwidgets</header>
   </customwidget>
   <customwidget>
    <class>ActivityStreamWidget</class>
    <extends>QWidget</extends>
-   <header>..widgets.activity_stream</header>
+   <header>..qtwidgets</header>
    <container>1</container>
   </customwidget>
   <customwidget>
