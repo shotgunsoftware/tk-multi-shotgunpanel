@@ -170,7 +170,10 @@ class NoteInputWidget(QtGui.QWidget):
         data["text"] = self.ui.text_entry.toPlainText()
         data["recipient_links"] = self.ui.text_entry.get_recipient_links()
         data["entity"] = {"id": self._entity_id, "type": self._entity_type }
-        data["project"] = self._app.context.project
+
+        if self._app.context is not None:
+            data["project"] = self._app.context.project
+
         # ask the data retriever to execute an async callback
         self._processing_id = self.__sg_data_retriever.execute_method(self._async_submit, data)
         
@@ -234,7 +237,7 @@ class NoteInputWidget(QtGui.QWidget):
         
         
         # first establish defaults        
-        project = data["project"]
+        project = data.get("project")
         addressings_to = data["recipient_links"]
         note_links = []
         note_tasks = []
@@ -334,12 +337,18 @@ class NoteInputWidget(QtGui.QWidget):
             title += " on %s" % (", ".join(note_names))
 
         # this is an entity - so create a note and link it
-        sg_note_data = sg.create("Note", {"content": data["text"],
-                                          "subject": title, 
-                                          "project": project,
-                                          "addressings_to": addressings_to,
-                                          "note_links": note_links,
-                                          "tasks": note_tasks })
+        sg_data = {
+            "content": data["text"],
+            "subject": title, 
+            "addressings_to": addressings_to,
+            "note_links": note_links,
+            "tasks": note_tasks,
+        }
+
+        if project is not None:
+            sg_data["project"] = project
+
+        sg_note_data = sg.create("Note", sg_data)
         
         self.__upload_thumbnail(sg_note_data, sg, data)
         

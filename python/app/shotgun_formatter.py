@@ -432,11 +432,18 @@ class ShotgunFormatter(object):
         # TODO - we might want to expose this in the hook at some point
         link_filters = []
         
+        # pull current user from the context if we can
+        if self._app.context is None:
+            current_user = sgtk.util.get_current_user(self._app.sgtk)
+        else:
+            current_user = self._app.context.user
+
         if sg_location.entity_type in ["HumanUser"]:
             # the logic for users is different
             # here we want give an overview of their work
             # for the current project 
-            link_filters.append(["project", "is", self._app.context.project])
+            if self._app.context is not None and self._app.context.project is not None:
+                link_filters.append(["project", "is", self._app.context.project])
             
             if self._entity_type == "Task":
                 # show tasks i am assigned to
@@ -444,8 +451,8 @@ class ShotgunFormatter(object):
                 link_filters.append(["sg_status_list", "is_not", "final"])
                 
             elif self._entity_type == "Note" and \
-                 sg_location.entity_type == self._app.context.user.get("type") and \
-                 sg_location.entity_id == self._app.context.user.get("id"):
+                 sg_location.entity_type == current_user.get("type") and \
+                 sg_location.entity_id == current_user.get("id"):
                 # not just any user, but this is ME!
                 # show notes that are TO me, CC me or on tasks which I have been
                 # assigned. Use advanced filters for this one so we can use OR
@@ -497,9 +504,10 @@ class ShotgunFormatter(object):
                         {"path": "created_by", "values": [sg_location.entity_dict], "relation": "is"},
                         ] }     
             
-            else: 
-                link_filters.append(["project", "is", self._app.context.project])
+            else:
                 link_filters.append(["created_by", "is", sg_location.entity_dict])
+                if self._app.context is not None:
+                    link_filters.append(["project", "is", self._app.context.project])
         
         elif sg_location.entity_type == "Task":
             

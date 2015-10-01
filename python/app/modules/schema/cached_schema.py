@@ -120,7 +120,10 @@ class CachedShotgunSchema(object):
         if not self._schema_loaded and not self._schema_requested: 
             # schema is not requested and not loaded.
             # so download it from shotgun!
-            sg_project_id = self._app.context.project["id"]
+            if self._app.context is None or self._app.context.project is None:
+                sg_project_id = None
+            else:
+                sg_project_id = self._app.context.project["id"]
                     
             self._app.log_debug("Starting to download new metaschema from Shotgun...")
             

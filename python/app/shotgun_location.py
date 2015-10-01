@@ -55,11 +55,13 @@ class ShotgunLocation(object):
         """
         app = sgtk.platform.current_bundle()
         
-        if self._entity_type == "Playlist":
+        # For now use context project if it is set
+        # Should switch to pulling the Playlist's project if context is None
+        if app.context is not None and self._entity_type == "Playlist":
             proj_id = app.context.project["id"]
-            url = "%s/page/media_center?project_id=%d&entity_type=%s&entity_id=%d" % (app.sgtk.shotgun_url, 
+            url = "%s/page/media_center?project_id=%d&entity_type=%s&entity_id=%d" % (app.sgtk.shotgun_url,
                                                                                       proj_id,
-                                                                                      self._entity_type, 
+                                                                                      self._entity_type,
                                                                                       self._entity_id)
         else:
             url = "%s/detail/%s/%s" % (self._entity_type, self._entity_id)

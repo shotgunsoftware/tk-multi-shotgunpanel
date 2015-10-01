@@ -169,7 +169,7 @@ class GlobalSearchWidget(QtGui.QLineEdit):
         
         # constrain by project in the search
         project_ids = []
-        if self._app.context.project:
+        if self._app.context is not None and self._app.context.project:
             project_ids.append(self._app.context.project["id"])
         
         # run the query

@@ -750,7 +750,13 @@ class AppDialog(QtGui.QWidget):
         """
         # get entity portion of context
         ctx = self._app.context
-        if ctx.task:
+
+        # if there is no context or this is the empty context navigate to the current user
+        if ctx is None or ctx.project is None:
+            current_user = sgtk.util.get_current_user(self._app.sgtk)
+            sg_location = ShotgunLocation(current_user["type"], current_user["id"])
+
+        elif ctx.task:
             sg_location = ShotgunLocation(ctx.task["type"], ctx.task["id"])
 
         elif ctx.entity:
