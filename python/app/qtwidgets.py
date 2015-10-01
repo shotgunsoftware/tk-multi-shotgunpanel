@@ -15,17 +15,17 @@ easily from with Qt Designer
 
 import sgtk
 
-activity_stream = sgtk.platform.current_bundle().import_module("activity_stream")
+activity_stream = sgtk.platform.import_framework("tk-framework-qtwidgets", "activity_stream")
 ActivityStreamWidget = activity_stream.ActivityStreamWidget
 ReplyListWidget = activity_stream.ActivityStreamWidget
 
-note_input_widget = sgtk.platform.current_bundle().import_module("note_input_widget")
+note_input_widget = sgtk.platform.import_framework("tk-framework-qtwidgets", "note_input_widget")
 NoteInputWidget = note_input_widget.NoteInputWidget
 
-version_label = sgtk.platform.current_bundle().import_module("version_label")
+version_label = sgtk.platform.import_framework("tk-framework-qtwidgets", "version_label")
 VersionLabel = version_label.VersionLabel
 
-global_search_widget = sgtk.platform.current_bundle().import_module("global_search_widget")
+global_search_widget = sgtk.platform.import_framework("tk-framework-qtwidgets", "global_search_widget")
 GlobalSearchWidget = global_search_widget.GlobalSearchWidget
 
 
