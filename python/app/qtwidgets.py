@@ -17,7 +17,7 @@ import sgtk
 
 activity_stream = sgtk.platform.import_framework("tk-framework-qtwidgets", "activity_stream")
 ActivityStreamWidget = activity_stream.ActivityStreamWidget
-ReplyListWidget = activity_stream.ActivityStreamWidget
+ReplyListWidget = activity_stream.ReplyListWidget
 
 note_input_widget = sgtk.platform.import_framework("tk-framework-qtwidgets", "note_input_widget")
 NoteInputWidget = note_input_widget.NoteInputWidget
