@@ -13,10 +13,6 @@ import datetime
 
 from sgtk.platform.qt import QtCore, QtGui
  
-# import the shotgun_model and view modules from the shotgun utils framework
-shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "views")
-
 from .ui.list_item_widget import Ui_ListItemWidget
 
 class ListItemWidget(QtGui.QWidget):
@@ -86,7 +82,6 @@ class ListItemWidget(QtGui.QWidget):
         :param selected: True if selected, false if not
         """
         if selected:
-            print "set selected!"
             self.ui.box.setStyleSheet(self._css_selected)
         
     def set_highlighted(self, highlighted):

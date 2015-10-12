@@ -17,7 +17,7 @@ shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "views")
 
 from .widget_list_item import ListItemWidget
 
-class ListItemDelegate(shotgun_view.WidgetDelegate):
+class ListItemDelegate(shotgun_view.EditSelectedWidgetDelegate):
     """
     Delegate which 'glues up' the Details Widget with a QT View.
     
@@ -31,7 +31,7 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
         :param view: The view where this delegate is being used
         :param action_manager: Action manager instance
         """                
-        shotgun_view.WidgetDelegate.__init__(self, view)
+        shotgun_view.EditSelectedWidgetDelegate.__init__(self, view)
         self._action_manager = action_manager
         
     def _create_widget(self, parent):
