@@ -12,7 +12,7 @@ import os
 
 HookBaseClass = sgtk.get_hook_baseclass()
 
-class ShotgunConfiguration(HookBaseClass):
+class ShotgunFields(HookBaseClass):
     """
     Controls the field configuration for the Shotgun Panel.
     
