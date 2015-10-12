@@ -695,13 +695,17 @@ class AppDialog(QtGui.QWidget):
         if url is None:
             return
         
-        if url.startswith("http"):
-            QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
-            
-        else:
-            (entity_type, entity_id) = url.split(":")
+        if url.startswith("sgtk:"):
+            # this is an internal url on the form sgtk:EntityType:entity_id
+            (_, entity_type, entity_id) = url.split(":")
             entity_id = int(entity_id)
             self._navigate_to_entity(entity_type, entity_id)            
+            
+        else:
+            # all other links are dispatched to the OS
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+            
+
 
     ###################################################################################################
     # navigation

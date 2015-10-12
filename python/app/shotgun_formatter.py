@@ -234,10 +234,10 @@ class ShotgunFormatter(object):
             if not self._generates_links(value["type"]) or directive == "nolink":
                 str_val = link_name
             else:
-                str_val = "<a href='%s:%s' style='text-decoration: none; color: %s'>%s</a>" % (value["type"], 
-                                                                                               value["id"],
-                                                                                               self._app.style_constants["SG_HIGHLIGHT_COLOR"], 
-                                                                                               link_name)
+                str_val = "<a href='sgtk:%s:%s' style='text-decoration: none; color: %s'>%s</a>" % (value["type"], 
+                                                                                                    value["id"],
+                                                                                                    self._app.style_constants["SG_HIGHLIGHT_COLOR"], 
+                                                                                                    link_name)
         
         elif isinstance(value, list):
             # list of items
