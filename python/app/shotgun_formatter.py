@@ -256,7 +256,8 @@ class ShotgunFormatter(object):
             color_str = shotgun_globals.get_status_color(value)
             if color_str:
                 # append colored box to indicate status color
-                str_val += "&nbsp;<span style='color: rgb(%s)'>&#9608;</span>" % color_str
+                str_val = ("<span style='color: rgb(%s)'>"
+                           "&#9608;</span>&nbsp;%s" % (color_str, str_val))
             
         else:
             str_val = str(value)
