@@ -20,8 +20,8 @@ from sgtk import TankError
 class ActionManager(object):
     """
     Manager class that is used to generate action menus and dispatch action
-    exeuction into the various action hooks. This provides an interface between
-    the action hooks, action defs in the config, and the rest ot the app.
+    execution into the various action hooks. This provides an interface between
+    the action hooks, action defs in the config, and the rest of the app.
     """
     
     # the area of the UI that an action is being requested/run for.
@@ -134,6 +134,8 @@ class ActionManager(object):
     def _get_default_detail_actions(self, sg_data):
         """
         Returns a list of default actions for the detail area
+        
+        :param sg_data: Shotgun data directory
         """
         refresh = QtGui.QAction("Refresh", None)
         refresh.triggered[()].connect(lambda f=sg_data: self._refresh(f))
@@ -158,8 +160,13 @@ class ActionManager(object):
     def _execute_hook(self, action_name, sg_data, params):
         """
         callback - executes a hook
+        
+        :param action_name: Name of action to execute
+        :param sg_data: Shotgun data dictionary
+        :param params: action parameters passed in from the hook
         """
-        self._app.log_debug("Calling scene load hook for %s. Params: %s. Sg data: %s" % (action_name, params, sg_data))
+        self._app.log_debug("Calling action hook for %s. "
+                            "Params: %s. Sg data: %s" % (action_name, params, sg_data))
         
         try:
             self._app.execute_hook_method("actions_hook", 
@@ -173,7 +180,7 @@ class ActionManager(object):
             
         except Exception, e:
             self._app.log_exception("Could not execute execute_action hook.")
-            QtGui.QMessageBox.critical(None, "Hook Error", "Error: %s" % e)
+            QtGui.QMessageBox.critical(None, "Action Error", "Error: %s" % e)
 
     def _show_docs(self):
         """

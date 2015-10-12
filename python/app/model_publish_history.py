@@ -61,7 +61,6 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
     ############################################################################################
     # slots
 
-
     def __on_worker_failure(self, uid, msg):
         """
         Asynchronous callback - the worker thread errored.
@@ -74,7 +73,6 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
             full_msg = "Error retrieving data from Shotgun: %s" % msg        
             self._show_overlay_error_message(full_msg)
         
-
     def __on_worker_signal(self, uid, request_type, data):
         """
         Signaled whenever the worker completes something.
@@ -129,8 +127,6 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
                                            self._sg_formatter.fields)
             self._refresh_data()
 
-
-
     ############################################################################################
     # public interface
 
@@ -170,7 +166,6 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
                                                                   filters, 
                                                                   fields)
         
-
     def is_highlighted(self, model_index):
         """
         Compute if a model index belonging to this model 

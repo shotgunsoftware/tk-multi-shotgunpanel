@@ -13,8 +13,8 @@ from sgtk.platform import Application
 
 class ShotgunPanelApp(Application):
     """
-    The app entry point. This class is responsible for intializing and tearing down
-    the application, handle menu registration etc.
+    The app entry point. This class is responsible for registering 
+    menu command and panel callbacks.
     """
     
     def init_app(self):
@@ -36,7 +36,8 @@ class ShotgunPanelApp(Application):
         # can launch the panel
         self.engine.register_command("Shotgun Panel...", 
                                      self.create_panel, 
-                                     {"type": "panel", "short_name": "shotgun_panel"})
+                                     {"type": "panel", 
+                                      "short_name": "shotgun_panel"})
         
     def destroy_app(self):
         """
@@ -59,5 +60,3 @@ class ShotgunPanelApp(Application):
                              "to latest core and engine! Falling back on show_dialog. "
                              "Error: %s" % e)
             return self.engine.show_dialog("Shotgun", self, app_payload.AppDialog)
-
-

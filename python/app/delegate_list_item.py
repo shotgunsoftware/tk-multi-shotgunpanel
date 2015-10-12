@@ -21,7 +21,14 @@ class ListItemDelegate(shotgun_view.EditSelectedWidgetDelegate):
     """
     Delegate which 'glues up' the Details Widget with a QT View.
     
-    This delegate is paired up with the ListItemWidget.
+    It is used in most of the item listings in the Panel:
+    
+    - list of notes
+    - list of publishes
+    - list of versions
+    - list of tasks
+
+    It is paired up with the ListItemWidget.
     """
 
     def __init__(self, view, action_manager):

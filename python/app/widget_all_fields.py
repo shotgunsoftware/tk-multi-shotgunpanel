@@ -9,8 +9,6 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-import datetime
-
 from sgtk.platform.qt import QtCore, QtGui
  
 # import the shotgun_model and view modules from the shotgun utils framework
@@ -44,7 +42,6 @@ class AllFieldsWidget(QtGui.QWidget):
     The widget is constructing the contents of this widget using QLabels
     which will contain clickable hyperlink fields to linked entities.
     """
-    
     link_activated = QtCore.Signal(str)
     
     def __init__(self, parent):
@@ -86,7 +83,6 @@ class AllFieldsWidget(QtGui.QWidget):
             # make the window visible again and trigger a redraw
             self.setVisible(True)
             
-        
     def set_data(self, sg_data):
         """
         Clear any existing data in the widget and populate it with new data
@@ -149,5 +145,3 @@ class AllFieldsWidget(QtGui.QWidget):
         finally:
             # make the window visible again and trigger a redraw
             self.setVisible(True)
-
-        

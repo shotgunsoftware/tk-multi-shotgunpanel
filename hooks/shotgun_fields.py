@@ -7,20 +7,38 @@
 # By accessing, using, copying or modifying this work you indicate your 
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
 # not expressly granted therein are reserved by Shotgun Software Inc.
-
-"""
-Hook that controls how Shotgun data should be displayed in the info panel app. 
-"""
 import sgtk
 import os
 
 HookBaseClass = sgtk.get_hook_baseclass()
 
 class ShotgunConfiguration(HookBaseClass):
+    """
+    Controls the field configuration for the Shotgun Panel.
+    
+    Via this hook, the visual appearance of the Shotgun Panel can be controlled.
+    When the shotgun panel displays a UI element, it will call this hook 
+    in order to determine how that particular object should be formatted.
+    
+    Formatting is returned in the form of templated strings, for example:
+    
+        <b>By:</b> {created_by}{[<br><b>Description:</b> ]description}
+    
+    For a complete reference of the options available, see the documentation.
+    """
         
     def get_list_item_definition(self, entity_type):
         """
-        Controls the rendering of items in the listings.
+        Controls the rendering of items in the various item listings.
+        
+        Should return a dictionary with the following keys:
+        
+        - top_left: content to display in the top left area of the item
+        - top_right: content to display in the top right area of the item
+        - body: content to display in the main area of the item
+        
+        :param entity_type: Shotgun entity type to provide a template for
+        :returns: Dictionary containing template strings
         """
         
         # define a set of defaults
@@ -67,8 +85,11 @@ class ShotgunConfiguration(HookBaseClass):
     
     def get_all_fields(self, entity_type):
         """
-        Define which fields should be displayed in the info tab
-        for a given entity
+        Define which fields should be displayed in the 'info' tab
+        for a given entity type. 
+        
+        :param entity_type: Shotgun entity type to provide a template for
+        :returns: List of Shotgun fields
         """
         
         # supported by all normal fields
@@ -191,7 +212,17 @@ class ShotgunConfiguration(HookBaseClass):
 
     def get_main_view_definition(self, entity_type):
         """
-        Define which info is shown in the detail section 
+        Define which info is shown in the top-level detail section
+        for an item of a given entity type.
+        
+        Should return a dictionary with the following keys:
+        
+        - title: top level title string, displayed next to the 
+                 navigation buttons.
+        - body: content to display in the main info area
+        
+        :param entity_type: Shotgun entity type to provide a template for
+        :returns: Dictionary containing template strings
         """
         
         values = {
