@@ -22,8 +22,8 @@ ReplyListWidget = activity_stream.ActivityStreamWidget
 note_input_widget = sgtk.platform.import_framework("tk-framework-qtwidgets", "note_input_widget")
 NoteInputWidget = note_input_widget.NoteInputWidget
 
-version_label = sgtk.platform.import_framework("tk-framework-qtwidgets", "version_label")
-VersionLabel = version_label.VersionLabel
+playback_label = sgtk.platform.import_framework("tk-framework-qtwidgets", "playback_label")
+ShotgunPlaybackLabel = playback_label.ShotgunPlaybackLabel
 
 global_search_widget = sgtk.platform.import_framework("tk-framework-qtwidgets", "global_search_widget")
 GlobalSearchWidget = global_search_widget.GlobalSearchWidget

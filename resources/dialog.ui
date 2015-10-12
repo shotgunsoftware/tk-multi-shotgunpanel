@@ -257,7 +257,7 @@
            <number>4</number>
           </property>
           <item>
-           <widget class="VersionLabel" name="details_thumb">
+           <widget class="ShotgunPlaybackLabel" name="details_thumb">
             <property name="minimumSize">
              <size>
               <width>96</width>
@@ -723,7 +723,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>VersionLabel</class>
+   <class>ShotgunPlaybackLabel</class>
    <extends>QLabel</extends>
    <header>..qtwidgets</header>
   </customwidget>
