@@ -24,7 +24,12 @@ class SgAllFieldsModel(ShotgunOverlayModel):
     which fields to load in.
     
     Once loaded or updated, a data_updated signal is emitted.
+    
+    :signal data_updated(dict): Signal emitted when shotgun data has arrived.
+        the signal carries with it a dictionary of Shotgun data, as specified
+        by the location object passed in to :meth:`load_data()`.
     """
+    
     data_updated = QtCore.Signal(dict)
 
     def __init__(self, parent):
