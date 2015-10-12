@@ -178,9 +178,10 @@ class TaskAssigneeModel(ShotgunModel):
         """
         Load thumbnails for all user ids
         """        
-        fields = ["image"]
-        self._load_data("HumanUser", [["id", "in", user_ids]], ["id"], fields)    
-        self._refresh_data()
+        if len(user_ids) > 0:
+            fields = ["image"]
+            self._load_data("HumanUser", [["id", "in", user_ids]], ["id"], fields)    
+            self._refresh_data()
 
     def _populate_thumbnail_image(self, item, field, image, path):
         """
