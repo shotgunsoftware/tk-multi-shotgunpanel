@@ -93,6 +93,7 @@ class AppDialog(QtGui.QWidget):
         self._app = sgtk.platform.current_bundle()
         
         self._action_manager = ActionManager(self)
+        self._action_manager.refresh_request.connect(self.setup_ui)
 
         # set up an asynchronous shotgun retriever to pull down data
         self._sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)

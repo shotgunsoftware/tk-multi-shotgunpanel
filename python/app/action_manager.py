@@ -17,25 +17,27 @@ from tank_vendor import shotgun_api3
 from sgtk import TankError
 
 
-class ActionManager(object):
+class ActionManager(QtCore.QObject):
     """
     Manager class that is used to generate action menus and dispatch action
     execution into the various action hooks. This provides an interface between
     the action hooks, action defs in the config, and the rest of the app.
     """
     
+    # emitted when the user requests a refresh via the actions system
+    refresh_request = QtCore.Signal()
+    
     # the area of the UI that an action is being requested/run for.
     UI_AREA_MAIN = 0x1
     UI_AREA_DETAILS = 0x2
     
-    def __init__(self, main_dialog):
+    def __init__(self, parent):
         """
         Constructor
+        """
+        QtCore.QObject.__init__(self, parent)
         
-        :param main_dialog: Main sg panel dialog object
-        """        
         self._app = sgtk.platform.current_bundle()
-        self._dialog = main_dialog
     
     def get_actions(self, sg_data, ui_area):
         """
@@ -176,7 +178,7 @@ class ActionManager(object):
                                           sg_data=sg_data)
             
             # refresh UI
-            self._dialog.setup_ui()
+            self.refresh_request.emit()
             
         except Exception, e:
             self._app.log_exception("Could not execute execute_action hook.")
@@ -195,7 +197,7 @@ class ActionManager(object):
         
         :param entity: std sg entity dict with keys type, id and name
         """
-        self._dialog.setup_ui()
+        self.refresh_request.emit()
         
     def _show_in_sg(self, entity):
         """
@@ -208,7 +210,7 @@ class ActionManager(object):
 
     def _copy_to_clipboard(self, entity):
         """
-        Internal action callback - Shows a shotgun entity in the web browser
+        Internal action callback - copy shotgun url to clipboard
         
         :param entity: std sg entity dict with keys type, id and name
         """
