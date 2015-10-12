@@ -299,7 +299,7 @@ class AppDialog(QtGui.QWidget):
             # set up model
             tab_dict["view"].setModel(tab_dict["sort_proxy"])            
             # set up a global on-click handler for
-            tab_dict["view"].doubleClicked.connect(self._on_entity_clicked)
+            tab_dict["view"].doubleClicked.connect(self._on_entity_doubleclicked)
             # create delegate
             tab_dict["delegate"] = DelegateClass(tab_dict["view"], self._action_manager)
             # hook up delegate renderer with view
@@ -646,7 +646,7 @@ class AppDialog(QtGui.QWidget):
             
     ###################################################################################################
     # UI callbacks
-    def _on_entity_clicked(self, model_index):
+    def _on_entity_doubleclicked(self, model_index):
         """
         Someone clicked an entity
         """

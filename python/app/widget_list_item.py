@@ -86,8 +86,8 @@ class ListItemWidget(QtGui.QWidget):
         :param selected: True if selected, false if not
         """
         if selected:
+            print "set selected!"
             self.ui.box.setStyleSheet(self._css_selected)
-            self.ui.button.setVisible(True)
         
     def set_highlighted(self, highlighted):
         """
