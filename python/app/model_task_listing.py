@@ -27,7 +27,11 @@ class SgTaskListingModel(SgEntityListingModel):
     Since tasks can be assigned to multiple people, there isn't a way to get
     the thumbnail for an assignee at the same time as getting the list of tasks.
     Therefore, when the task list has arrived, a signal is set to a second
-    model which then fetches the thumbnails for all users assigned to tasks. 
+    model which then fetches the thumbnails for all users assigned to tasks.
+    
+    :signal request_user_thumbnails(list): Emitted when this class is signalling
+        that it needs thumbnails for users. A list of user ids for which 
+        thumbnails are needed are passed as arguments with the signal. 
     """
     
     request_user_thumbnails = QtCore.Signal(list)
@@ -65,7 +69,7 @@ class SgTaskListingModel(SgEntityListingModel):
     def _on_data_refreshed(self):
         """
         helper method. dispatches the after-refresh signal
-        so that a data_updated signal is consistenntly sent
+        so that a data_updated signal is consistently sent
         out both after the data has been updated and after a cache has been read in
         """
         if self._sg_location.entity_type != "HumanUser":
@@ -148,12 +152,24 @@ class SgTaskListingModel(SgEntityListingModel):
             item.setIcon(QtGui.QIcon(icon))
 
 
-
 class TaskAssigneeModel(ShotgunModel):
     """
-    Model holds data about a list of task assignees
+    Helper class used by SgTaskListingModel. Because tasks in Shotgun 
+    can be assigned to more than one person, it is not straight forward 
+    to determine a assignee based thumbnail for tasks. This model is used
+    as a helper to retrieve user thumbnails for task assignees so that the
+    SgTaskListingModel can present them as belonging to the tasks.
+    
+    This model works as a very simple thumbnail creation facility:
+    it's connected to a task listing model's request_user_thumbnails signal
+    and whenever this fires, it retrieves those thumbnails from shotgun
+    and emits a thumbnail_updated signal for each one of them.
+    
+    :signal thumbnail_updated(dict, QImage): Emitted whenever a thumbnail
+        is available. the dictionary contains shotgun data about the user
+        and the thumbnail and the QImage holds the actual thumbnail object.
     """
-    # signals
+    
     thumbnail_updated = QtCore.Signal(dict, QtGui.QImage)
 
     def __init__(self, parent):
@@ -174,7 +190,9 @@ class TaskAssigneeModel(ShotgunModel):
 
     def _load_user_thumbnails(self, user_ids):
         """
-        Load thumbnails for all user ids
+        Load thumbnails for all the given user ids
+        
+        :param user_ids: List of user ids
         """        
         if len(user_ids) > 0:
             fields = ["image"]
@@ -201,6 +219,7 @@ class TaskAssigneeModel(ShotgunModel):
 
         :param item: QStandardItem which is associated with the given thumbnail
         :param field: The Shotgun field which the thumbnail is associated with.
+        :param image: Image object representing the thumbnail
         :param path: A path on disk to the thumbnail. This is a file in jpeg format.
         """        
         self._current_pixmap = utils.create_round_thumbnail(image)
