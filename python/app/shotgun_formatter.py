@@ -253,6 +253,11 @@ class ShotgunFormatter(object):
         elif sg_field == "sg_status_list":
             str_val = shotgun_globals.get_status_display_name(value)
             
+            color_str = shotgun_globals.get_status_color(value)
+            if color_str:
+                # append colored box to indicate status color
+                str_val += "&nbsp;<span style='color: rgb(%s)'>&#9608;</span>" % color_str
+            
         else:
             str_val = str(value)
             # make sure it gets formatted correctly in html
