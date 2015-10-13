@@ -9,28 +9,21 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-import datetime
-import os
-import sys
 from sgtk.platform.qt import QtCore, QtGui
-from tank_vendor import shotgun_api3
-from sgtk import TankError
 
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-
-
 
 class NoteUpdater(QtCore.QObject):
     """
     Class that operates asynchronously on notes.
     """
-    
     def __init__(self, data_retriever, parent):
         """
         Constructor
         
-        :param main_dialog: Main sg panel dialog object
+        :param data_retriever: Data retriever to use for shotgun requests
+        :param parent: QT parent object 
         """     
         QtCore.QObject.__init__(self, parent)   
         
@@ -41,7 +34,6 @@ class NoteUpdater(QtCore.QObject):
 
         self._data_retriever.work_completed.connect(self.__on_worker_signal)
         self._data_retriever.work_failure.connect(self.__on_worker_failure)        
-
 
     def __on_worker_failure(self, uid, msg):
         """

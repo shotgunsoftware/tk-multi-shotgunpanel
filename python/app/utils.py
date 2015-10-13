@@ -164,7 +164,6 @@ def create_rectangular_512x400_thumbnail(image):
     
     return base_image
     
-
 def create_human_readable_timestamp(datetime_obj):
     """
     Formats a time stamp the way dates are formatted in the 
@@ -193,7 +192,6 @@ def create_human_readable_timestamp(datetime_obj):
     delta_weeks        = delta.days // 7
     delta_days         = delta.days
 
-
     if delta_weeks > 52:
         # more than one year ago - 26 June 2012
         time_str = datetime_obj.strftime('%d %b %Y %H:%M')
@@ -207,4 +205,4 @@ def create_human_readable_timestamp(datetime_obj):
         time_str = datetime_obj.strftime('%H:%M')
                  
     return (time_str, full_time_str)
-                     
+    

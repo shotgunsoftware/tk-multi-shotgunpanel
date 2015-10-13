@@ -8,11 +8,8 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
-from collections import defaultdict
 from sgtk.platform.qt import QtCore, QtGui
-
 import sgtk
-from . import utils
 
 from .model_entity_listing import SgEntityListingModel
 
@@ -38,8 +35,6 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         # init base class
         SgEntityListingModel.__init__(self, entity_type, parent)
         
-    ############################################################################################
-    # public interface
 
     def load_data(self, sg_location, show_latest_only):
         """

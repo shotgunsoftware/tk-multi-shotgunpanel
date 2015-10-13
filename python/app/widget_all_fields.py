@@ -9,16 +9,14 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-import datetime
-
 from sgtk.platform.qt import QtCore, QtGui
  
 # import the shotgun_model and view modules from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun_view")
+shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "views")
+shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
 
 from .ui.all_fields_widget import Ui_AllFieldsWidget
-from .modules.schema import CachedShotgunSchema
 from .shotgun_formatter import ShotgunFormatter
 
 class FieldNameLabel(QtGui.QLabel):
@@ -44,7 +42,6 @@ class AllFieldsWidget(QtGui.QWidget):
     The widget is constructing the contents of this widget using QLabels
     which will contain clickable hyperlink fields to linked entities.
     """
-    
     link_activated = QtCore.Signal(str)
     
     def __init__(self, parent):
@@ -86,7 +83,6 @@ class AllFieldsWidget(QtGui.QWidget):
             # make the window visible again and trigger a redraw
             self.setVisible(True)
             
-        
     def set_data(self, sg_data):
         """
         Clear any existing data in the widget and populate it with new data
@@ -109,7 +105,7 @@ class AllFieldsWidget(QtGui.QWidget):
             # so we can sort them in alphabetic order based on this
             display_names = {}
             for field_name in sg_data.keys():
-                display_name = CachedShotgunSchema.get_field_display_name(formatter.entity_type, field_name)
+                display_name = shotgun_globals.get_field_display_name(formatter.entity_type, field_name)
                 display_names[display_name] = field_name
             
             # now create new items - order alphabetically
@@ -149,5 +145,3 @@ class AllFieldsWidget(QtGui.QWidget):
         finally:
             # make the window visible again and trigger a redraw
             self.setVisible(True)
-
-        

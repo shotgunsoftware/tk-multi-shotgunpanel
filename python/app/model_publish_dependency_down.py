@@ -8,7 +8,6 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
-
 from sgtk.platform.qt import QtCore, QtGui
 import sgtk
 
@@ -20,17 +19,8 @@ class SgPublishDependencyDownstreamListingModel(SgEntityListingModel):
     but taylored for displaying downstream dependencies for a given publish
     """
     
-    def __init__(self, entity_type, parent):
-        """
-        Constructor.
-        
-        :param entity_type: The entity type that should be loaded into this model.
-                            Needs to be a PublishedFile or TankPublishedFile.
-        :param parent: QT parent object
-        """
-        # init base class
-        SgEntityListingModel.__init__(self, entity_type, parent)        
-
+    # note: no constructor implemented - use base class version
+    
     def load_data(self, sg_location):
         """
         Clears the model and sets it up for a particular entity.

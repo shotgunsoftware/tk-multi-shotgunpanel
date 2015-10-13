@@ -9,24 +9,15 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-import tank
-import os
-import sys
-import datetime
-import threading
 
 # by importing QT from sgtk rather than directly, we ensure that
 # the code will be compatible with both PySide and PyQt.
 from sgtk.platform.qt import QtCore, QtGui
 from .ui.dialog import Ui_Dialog
 
-from . import utils
-
 from .shotgun_location import ShotgunLocation
-
 from .delegate_list_item import ListItemDelegate
 from .action_manager import ActionManager
-
 from .model_entity_listing import SgEntityListingModel
 from .model_version_listing import SgVersionModel
 from .model_publish_listing import SgLatestPublishListingModel
@@ -40,11 +31,10 @@ from .model_current_user import SgCurrentUserModel
 from .shotgun_formatter import ShotgunFormatter
 from .note_updater import NoteUpdater
 
-from .modules.schema import CachedShotgunSchema
-
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings")
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
+shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
 overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overlay_widget")
 
 # maximum size of the details field in the top part of the UI
@@ -103,13 +93,14 @@ class AppDialog(QtGui.QWidget):
         self._app = sgtk.platform.current_bundle()
         
         self._action_manager = ActionManager(self)
+        self._action_manager.refresh_request.connect(self.setup_ui)
 
         # set up an asynchronous shotgun retriever to pull down data
         self._sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)
         self._sg_data_retriever.start()
                 
         # register the data fetcher with the global schema manager
-        CachedShotgunSchema.register_data_retriever(self._sg_data_retriever)
+        shotgun_globals.register_data_retriever(self._sg_data_retriever)
                 
         # now load in the UI that was created in the UI designer
         self.ui = Ui_Dialog() 
@@ -300,7 +291,7 @@ class AppDialog(QtGui.QWidget):
             # set up model
             tab_dict["view"].setModel(tab_dict["sort_proxy"])            
             # set up a global on-click handler for
-            tab_dict["view"].doubleClicked.connect(self._on_entity_clicked)
+            tab_dict["view"].doubleClicked.connect(self._on_entity_doubleclicked)
             # create delegate
             tab_dict["delegate"] = DelegateClass(tab_dict["view"], self._action_manager)
             # hook up delegate renderer with view
@@ -344,8 +335,7 @@ class AppDialog(QtGui.QWidget):
             # as items are being removed in the models
             #
             # TODO: might have to clear selection models here
-            
-            CachedShotgunSchema.unregister_data_retriever(self._sg_data_retriever)
+            shotgun_globals.unregister_data_retriever(self._sg_data_retriever)
             
             self._sg_data_retriever.work_completed.disconnect()
             self._sg_data_retriever.work_failure.disconnect()
@@ -490,6 +480,8 @@ class AppDialog(QtGui.QWidget):
     def _on_latest_publishes_toggled(self, checked):
         """
         Executed when the latest publishes checkbox is toggled
+        
+        :param checked: boolean indicating if the latest publishes box is checked.
         """
         # store setting
         self._settings_manager.store("latest_publishes_only", checked)
@@ -500,6 +492,8 @@ class AppDialog(QtGui.QWidget):
     def _on_pending_versions_toggled(self, checked):
         """
         Executed when the 'pending versions only' is toggled
+        
+        :param checked: boolean indicating if the pending versions only box is checked.
         """
         # store setting
         self._settings_manager.store("pending_versions_only", checked)
@@ -510,8 +504,9 @@ class AppDialog(QtGui.QWidget):
     def _load_entity_tab_data(self, index):
         """
         Loads the data for one of the UI tabs in the entity family
-        """
         
+        :param index: entity tab index to load
+        """
         self._current_location.tab_index = index
         
         if index == self.ENTITY_TAB_ACTIVITY_STREAM:
@@ -540,8 +535,9 @@ class AppDialog(QtGui.QWidget):
     def _load_version_tab_data(self, index):
         """
         Load the data for one of the tabs in the version family
-        """
         
+        :param index: version tab index to load
+        """
         self._current_location.tab_index = index
 
         if index == self.VERSION_TAB_ACTIVITY_STREAM:
@@ -562,8 +558,9 @@ class AppDialog(QtGui.QWidget):
     def _load_publish_tab_data(self, index):
         """
         Load the data for one of the tabs in the publish family.
-        """
         
+        :param index: publish tab index to load
+        """
         self._current_location.tab_index = index
         
         if index == self.PUBLISH_TAB_HISTORY:
@@ -587,7 +584,7 @@ class AppDialog(QtGui.QWidget):
 
     def _update_current_user(self):        
         """        
-        Update the current user icon        
+        Update the current user icon     
         """
         curr_user_pixmap = self._current_user_model.get_pixmap()        
                 
@@ -599,12 +596,16 @@ class AppDialog(QtGui.QWidget):
         if sg_data:        
             self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])
 
-
-    def _refresh_details_thumbnail(self):        
+    def _refresh_details_thumbnail(self):
+        """
+        Callback called when the details thumbnail is available
+        """ 
         self.ui.details_thumb.setPixmap(self._details_model.get_pixmap())
 
     def _refresh_details(self):
-        
+        """
+        Callback called when data for the top details section has arrived
+        """
         formatter = self._current_location.sg_formatter        
         sg_data = self._details_model.get_sg_data()
         
@@ -643,11 +644,9 @@ class AppDialog(QtGui.QWidget):
         for a in self._actions:
             self._menu.addAction(a)
             
-            
-            
     ###################################################################################################
     # UI callbacks
-    def _on_entity_clicked(self, model_index):
+    def _on_entity_doubleclicked(self, model_index):
         """
         Someone clicked an entity
         """
@@ -657,7 +656,12 @@ class AppDialog(QtGui.QWidget):
 
     def _navigate_to_entity(self, entity_type, entity_id):
         """
-        Navigate to a particular entity 
+        Navigate to a particular entity.
+        A history entry will be created and inserted into the
+        history navigation stack. 
+        
+        :param entity_type: Shotgun entity type
+        :param entity_id: Shotgun entity id
         """
         sg_location = ShotgunLocation(entity_type, entity_id)
         if sg_location.sg_formatter.should_open_in_shotgun_web:
@@ -679,22 +683,29 @@ class AppDialog(QtGui.QWidget):
             self._app.log_warning("Cannot play back version %s - "
                                   "no playback url defined." % version_data["id"])
         
-        
-
     def _on_link_clicked(self, url):
         """
-        When someone clicks a url
+        Callback called when someone clicks a url.
+        
+        Urls for internal navigation are on the form 'Shot:123', 
+        e.g. EntityType:entity_id  
+        
+        :param url: Url to navigate to.
         """
         if url is None:
             return
         
-        if url.startswith("http"):
-            QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
-            
-        else:
-            (entity_type, entity_id) = url.split(":")
+        if url.startswith("sgtk:"):
+            # this is an internal url on the form sgtk:EntityType:entity_id
+            (_, entity_type, entity_id) = url.split(":")
             entity_id = int(entity_id)
             self._navigate_to_entity(entity_type, entity_id)            
+            
+        else:
+            # all other links are dispatched to the OS
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+            
+
 
     ###################################################################################################
     # navigation
@@ -702,6 +713,8 @@ class AppDialog(QtGui.QWidget):
     def _navigate_to(self, shotgun_location):
         """
         Update the UI to point at the given shotgun location object
+        
+        :param shotgun_location: Shotgun location object
         """        
         # chop off history at the point we are currently
         self._history_items = self._history_items[:self._history_index]
@@ -746,7 +759,7 @@ class AppDialog(QtGui.QWidget):
         
     def _on_home_clicked(self):
         """
-        Navigates home
+        Navigate home
         """
         # get entity portion of context
         ctx = self._app.context
@@ -763,7 +776,7 @@ class AppDialog(QtGui.QWidget):
         
     def _on_next_clicked(self):
         """
-        Navigates to the next item in the history
+        Navigate to the next item in the history
         """
         self._history_index += 1
         # get the data for this guy (note: index are one based)
@@ -772,11 +785,10 @@ class AppDialog(QtGui.QWidget):
 
         # and set up the UI for this new location
         self.setup_ui()
-
         
     def _on_prev_clicked(self):
         """
-        Navigates back in history
+        Navigate back in history
         """
         self._history_index += -1
         # get the data for this guy (note: index are one based)
@@ -785,7 +797,6 @@ class AppDialog(QtGui.QWidget):
 
         # and set up the UI for this new location
         self.setup_ui()
-        
 
     def _on_search_clicked(self):
         """

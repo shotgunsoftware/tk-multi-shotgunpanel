@@ -17,25 +17,27 @@ from tank_vendor import shotgun_api3
 from sgtk import TankError
 
 
-class ActionManager(object):
+class ActionManager(QtCore.QObject):
     """
     Manager class that is used to generate action menus and dispatch action
-    exeuction into the various action hooks. This provides an interface between
-    the action hooks, action defs in the config, and the rest ot the app.
+    execution into the various action hooks. This provides an interface between
+    the action hooks, action defs in the config, and the rest of the app.
     """
+    
+    # emitted when the user requests a refresh via the actions system
+    refresh_request = QtCore.Signal()
     
     # the area of the UI that an action is being requested/run for.
     UI_AREA_MAIN = 0x1
     UI_AREA_DETAILS = 0x2
     
-    def __init__(self, main_dialog):
+    def __init__(self, parent):
         """
         Constructor
+        """
+        QtCore.QObject.__init__(self, parent)
         
-        :param main_dialog: Main sg panel dialog object
-        """        
         self._app = sgtk.platform.current_bundle()
-        self._dialog = main_dialog
     
     def get_actions(self, sg_data, ui_area):
         """
@@ -134,6 +136,8 @@ class ActionManager(object):
     def _get_default_detail_actions(self, sg_data):
         """
         Returns a list of default actions for the detail area
+        
+        :param sg_data: Shotgun data directory
         """
         refresh = QtGui.QAction("Refresh", None)
         refresh.triggered[()].connect(lambda f=sg_data: self._refresh(f))
@@ -158,8 +162,13 @@ class ActionManager(object):
     def _execute_hook(self, action_name, sg_data, params):
         """
         callback - executes a hook
+        
+        :param action_name: Name of action to execute
+        :param sg_data: Shotgun data dictionary
+        :param params: action parameters passed in from the hook
         """
-        self._app.log_debug("Calling scene load hook for %s. Params: %s. Sg data: %s" % (action_name, params, sg_data))
+        self._app.log_debug("Calling action hook for %s. "
+                            "Params: %s. Sg data: %s" % (action_name, params, sg_data))
         
         try:
             self._app.execute_hook_method("actions_hook", 
@@ -169,11 +178,11 @@ class ActionManager(object):
                                           sg_data=sg_data)
             
             # refresh UI
-            self._dialog.setup_ui()
+            self.refresh_request.emit()
             
         except Exception, e:
             self._app.log_exception("Could not execute execute_action hook.")
-            QtGui.QMessageBox.critical(None, "Hook Error", "Error: %s" % e)
+            QtGui.QMessageBox.critical(None, "Action Error", "Error: %s" % e)
 
     def _show_docs(self):
         """
@@ -188,7 +197,7 @@ class ActionManager(object):
         
         :param entity: std sg entity dict with keys type, id and name
         """
-        self._dialog.setup_ui()
+        self.refresh_request.emit()
         
     def _show_in_sg(self, entity):
         """
@@ -201,7 +210,7 @@ class ActionManager(object):
 
     def _copy_to_clipboard(self, entity):
         """
-        Internal action callback - Shows a shotgun entity in the web browser
+        Internal action callback - copy shotgun url to clipboard
         
         :param entity: std sg entity dict with keys type, id and name
         """

@@ -8,9 +8,7 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
-from collections import defaultdict
 from sgtk.platform.qt import QtCore, QtGui
-
 import sgtk
 from . import utils
 
@@ -23,7 +21,7 @@ class SgCurrentUserModel(ShotgunModel):
     Model that caches data about the current user.
     
     Emits thumbnail_updated and data_updated signals whenever data 
-    arrived from Shotgun.
+    arrives from Shotgun.
     
     Data can then be queried via the get_sg_link(), get_sg_data() and 
     get_pixmap() methods

@@ -15,7 +15,7 @@ import re
 import datetime
 from . import utils
 
-from .modules.schema import CachedShotgunSchema
+shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
 
 class ShotgunFormatter(object):
     """
@@ -215,7 +215,7 @@ class ShotgunFormatter(object):
         str_val = ""
         
         if value is None:            
-            return CachedShotgunSchema.get_empty_phrase(sg_type, sg_field)
+            return shotgun_globals.get_empty_phrase(sg_type, sg_field)
         
         elif isinstance(value, dict) and set(["type", "id", "name"]) == set(value.keys()):
             # entity link
@@ -225,7 +225,7 @@ class ShotgunFormatter(object):
                 
                 # get the nice name from our schema
                 # this is so that it says "Level" instead of "CustomEntity013"
-                entity_type_display_name = CachedShotgunSchema.get_type_display_name(value["type"])                
+                entity_type_display_name = shotgun_globals.get_type_display_name(value["type"])                
                 link_name = "%s %s" % (entity_type_display_name, value["name"])
             else:
                 # links are just "ABC123"
@@ -234,10 +234,10 @@ class ShotgunFormatter(object):
             if not self._generates_links(value["type"]) or directive == "nolink":
                 str_val = link_name
             else:
-                str_val = "<a href='%s:%s' style='text-decoration: none; color: %s'>%s</a>" % (value["type"], 
-                                                                                               value["id"],
-                                                                                               self._app.style_constants["SG_HIGHLIGHT_COLOR"], 
-                                                                                               link_name)
+                str_val = "<a href='sgtk:%s:%s' style='text-decoration: none; color: %s'>%s</a>" % (value["type"], 
+                                                                                                    value["id"],
+                                                                                                    self._app.style_constants["SG_HIGHLIGHT_COLOR"], 
+                                                                                                    link_name)
         
         elif isinstance(value, list):
             # list of items
@@ -251,7 +251,13 @@ class ShotgunFormatter(object):
             (str_val, _) = utils.create_human_readable_timestamp(created_datetime) 
             
         elif sg_field == "sg_status_list":
-            str_val = CachedShotgunSchema.get_status_display_name(value, name_only=True)
+            str_val = shotgun_globals.get_status_display_name(value)
+            
+            color_str = shotgun_globals.get_status_color(value)
+            if color_str:
+                # append colored box to indicate status color
+                str_val = ("<span style='color: rgb(%s)'>"
+                           "&#9608;</span>&nbsp;%s" % (color_str, str_val))
             
         else:
             str_val = str(value)

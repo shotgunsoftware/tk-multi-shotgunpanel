@@ -18,7 +18,6 @@ class SgVersionModel(SgEntityListingModel):
     Special model for versions so that we can control
     how to display items with different review status.
     """
-    
     def __init__(self, entity_type, parent):
         """
         Constructor.

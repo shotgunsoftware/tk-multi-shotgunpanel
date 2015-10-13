@@ -13,9 +13,9 @@ import os
 HookBaseClass = sgtk.get_hook_baseclass()
 
 class FlameActions(HookBaseClass):
-    
-    ##############################################################################################################
-    # public interface - to be overridden by deriving classes 
+    """
+    Shotgun Panel Actions for Flame
+    """
     
     def generate_actions(self, sg_data, actions, ui_area):
         """
@@ -30,10 +30,7 @@ class FlameActions(HookBaseClass):
         This method needs to return detailed data for those actions, in the form of a list
         of dictionaries, each with name, params, caption and description keys.
         
-        Because you are operating on a particular object, you may tailor the output 
-        (caption, tooltip etc) to contain custom information suitable for this publish.
-        
-        The ui_area parameter is a string and indicates where the publish is to be shown. 
+        The ui_area parameter is a string and indicates where the item is to be shown. 
         
         - If it will be shown in the main browsing area, "main" is passed. 
         - If it will be shown in the details area, "details" is passed.
@@ -45,7 +42,7 @@ class FlameActions(HookBaseClass):
         """
         app = self.parent
         app.log_debug("Generate actions called for UI element %s. "
-                      "Actions: %s. Publish Data: %s" % (ui_area, actions, sg_data))
+                      "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data))
         
         action_instances = []
         
@@ -69,7 +66,7 @@ class FlameActions(HookBaseClass):
         """
         app = self.parent
         app.log_debug("Execute action called for action %s. "
-                      "Parameters: %s. Publish Data: %s" % (name, params, sg_data))
+                      "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data))
         
         if name == "assign_task":
             if app.context.user is None:

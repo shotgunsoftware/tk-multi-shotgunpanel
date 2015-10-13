@@ -7,10 +7,6 @@
 # By accessing, using, copying or modifying this work you indicate your 
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
 # not expressly granted therein are reserved by Shotgun Software Inc.
-
-"""
-Hook that loads defines all the available actions, broken down by publish type. 
-"""
 import sgtk
 import os
 import pymel.core as pm
@@ -20,9 +16,9 @@ import maya.mel as mel
 HookBaseClass = sgtk.get_hook_baseclass()
 
 class MayaActions(HookBaseClass):
-    
-    ##############################################################################################################
-    # public interface - to be overridden by deriving classes 
+    """
+    Shotgun Panel Actions for Maya
+    """
     
     def generate_actions(self, sg_data, actions, ui_area):
         """
@@ -37,22 +33,19 @@ class MayaActions(HookBaseClass):
         This method needs to return detailed data for those actions, in the form of a list
         of dictionaries, each with name, params, caption and description keys.
         
-        Because you are operating on a particular object, you may tailor the output 
-        (caption, tooltip etc) to contain custom information suitable for this publish.
-        
-        The ui_area parameter is a string and indicates where the publish is to be shown. 
+        The ui_area parameter is a string and indicates where the item is to be shown. 
         
         - If it will be shown in the main browsing area, "main" is passed. 
         - If it will be shown in the details area, "details" is passed.
                 
-        :param sg_data: Shotgun data dictionary with all the standard publish fields.
+        :param sg_data: Shotgun data dictionary with all the standard shotgun fields.
         :param actions: List of action strings which have been defined in the app configuration.
         :param ui_area: String denoting the UI Area (see above).
         :returns List of dictionaries, each with keys name, params, caption and description
         """
         app = self.parent
         app.log_debug("Generate actions called for UI element %s. "
-                      "Actions: %s. Publish Data: %s" % (ui_area, actions, sg_data))
+                      "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data))
         
         action_instances = []
         
@@ -102,7 +95,7 @@ class MayaActions(HookBaseClass):
         """
         app = self.parent
         app.log_debug("Execute action called for action %s. "
-                      "Parameters: %s. Publish Data: %s" % (name, params, sg_data))
+                      "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data))
         
         if name == "assign_task":
             if app.context.user is None:

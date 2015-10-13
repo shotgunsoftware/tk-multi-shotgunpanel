@@ -114,7 +114,7 @@ class Ui_Dialog(object):
         self.verticalLayout_7.setSpacing(0)
         self.verticalLayout_7.setContentsMargins(-1, 4, -1, -1)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
-        self.details_thumb = VersionLabel(self.top_group)
+        self.details_thumb = ShotgunPlaybackLabel(self.top_group)
         self.details_thumb.setMinimumSize(QtCore.QSize(96, 75))
         self.details_thumb.setMaximumSize(QtCore.QSize(96, 75))
         self.details_thumb.setText("")
@@ -391,8 +391,9 @@ class Ui_Dialog(object):
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_publish_tab), QtGui.QApplication.translate("Dialog", "Publishes", None, QtGui.QApplication.UnicodeUTF8))
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_info_tab), QtGui.QApplication.translate("Dialog", "Info", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..widgets.activity_stream import ReplyListWidget, ActivityStreamWidget
+from ..qtwidgets import ReplyListWidget, ActivityStreamWidget
+from ..qtwidgets import ShotgunPlaybackLabel
+from ..qtwidgets import GlobalSearchWidget
+
 from ..widget_all_fields import AllFieldsWidget
-from ..widgets.version_label import VersionLabel
-from ..widgets.global_search_widget import GlobalSearchWidget
 from . import resources_rc

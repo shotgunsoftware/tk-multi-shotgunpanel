@@ -13,15 +13,22 @@ from sgtk.platform.qt import QtCore, QtGui
  
 # import the shotgun_model and view modules from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun_view")
+shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "views")
 
 from .widget_list_item import ListItemWidget
 
-class ListItemDelegate(shotgun_view.WidgetDelegate):
+class ListItemDelegate(shotgun_view.EditSelectedWidgetDelegate):
     """
     Delegate which 'glues up' the Details Widget with a QT View.
     
-    This delegate is paired up with the ListItemWidget.
+    It is used in most of the item listings in the Panel:
+    
+    - list of notes
+    - list of publishes
+    - list of versions
+    - list of tasks
+
+    It is paired up with the ListItemWidget.
     """
 
     def __init__(self, view, action_manager):
@@ -31,7 +38,7 @@ class ListItemDelegate(shotgun_view.WidgetDelegate):
         :param view: The view where this delegate is being used
         :param action_manager: Action manager instance
         """                
-        shotgun_view.WidgetDelegate.__init__(self, view)
+        shotgun_view.EditSelectedWidgetDelegate.__init__(self, view)
         self._action_manager = action_manager
         
     def _create_widget(self, parent):

@@ -8,11 +8,9 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
-from collections import defaultdict
-from sgtk.platform.qt import QtCore, QtGui
 
+from sgtk.platform.qt import QtCore, QtGui
 import sgtk
-from . import utils
 from .shotgun_formatter import ShotgunFormatter
 
 # import the shotgun_model module from the shotgun utils framework
@@ -20,7 +18,6 @@ shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "sho
 ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
 
 class SgEntityListingModel(ShotgunOverlayModel):
-
     """
     Model used to display long listings of data in the tabs.
     

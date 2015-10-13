@@ -9,21 +9,14 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-import datetime
-
-from sgtk.platform.qt import QtCore, QtGui
- 
-# import the shotgun_model and view modules from the shotgun utils framework
-shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun_view")
-
+from sgtk.platform.qt import QtCore, QtGui 
 from .ui.list_item_widget import Ui_ListItemWidget
 
 class ListItemWidget(QtGui.QWidget):
     """
     Widget that is used to display entries in all the item listings.
     This widget goes together with the list item delegate and is always
-    manuafactured by the list item delegate.
+    manufactured by the list item delegate.
     """
     
     def __init__(self, parent):
@@ -87,7 +80,6 @@ class ListItemWidget(QtGui.QWidget):
         """
         if selected:
             self.ui.box.setStyleSheet(self._css_selected)
-            self.ui.button.setVisible(True)
         
     def set_highlighted(self, highlighted):
         """

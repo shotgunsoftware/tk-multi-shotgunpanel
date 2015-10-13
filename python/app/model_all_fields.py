@@ -7,12 +7,8 @@
 # By accessing, using, copying or modifying this work you indicate your
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
-
-from collections import defaultdict
 from sgtk.platform.qt import QtCore, QtGui
-
 import sgtk
-from . import utils
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
@@ -28,7 +24,12 @@ class SgAllFieldsModel(ShotgunOverlayModel):
     which fields to load in.
     
     Once loaded or updated, a data_updated signal is emitted.
+    
+    :signal data_updated(dict): Signal emitted when shotgun data has arrived.
+        the signal carries with it a dictionary of Shotgun data, as specified
+        by the location object passed in to :meth:`load_data()`.
     """
+    
     data_updated = QtCore.Signal(dict)
 
     def __init__(self, parent):
