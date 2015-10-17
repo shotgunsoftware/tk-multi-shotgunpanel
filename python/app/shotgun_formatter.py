@@ -68,6 +68,7 @@ class ShotgunFormatter(object):
         # include the special quicktime field for versions
         if entity_type == "Version":
             fields.append("sg_uploaded_movie")
+            fields.append("sg_path_to_frames")
         if entity_type == "Note":
             fields.append("read_by_current_user")
             fields.append("client_note")

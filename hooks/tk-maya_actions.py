@@ -49,12 +49,13 @@ class MayaActions(HookBaseClass):
         
         action_instances = []
         
-        if "assign_task" in actions:
-            action_instances.append( {"name": "assign_task", 
-                                      "params": None,
-                                      "caption": "Assign Task to yourself", 
-                                      "description": "Assign this task to yourself."} )
-
+        try:
+            # call base class first
+            action_instances += HookBaseClass.generate_actions(self, sg_data, actions, ui_area)
+        except AttributeError, e:
+            # base class doesn't have the method, so ignore and continue
+            pass        
+        
         if "reference" in actions:
             action_instances.append( {"name": "reference", 
                                       "params": None,
@@ -97,31 +98,28 @@ class MayaActions(HookBaseClass):
         app.log_debug("Execute action called for action %s. "
                       "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data))
         
-        if name == "assign_task":
-            if app.context.user is None:
-                raise Exception("Cannot establish current user!")
-            
-            data = app.shotgun.find_one("Task", [["id", "is", sg_data["id"]]], ["task_assignees"] )
-            assignees = data["task_assignees"] or []
-            assignees.append(app.context.user)
-            app.shotgun.update("Task", sg_data["id"], {"task_assignees": assignees})
-            
         if name == "reference":
             path = self.get_publish_path(sg_data)
             self._create_reference(path, sg_data)
 
-        if name == "import":
+        elif name == "import":
             path = self.get_publish_path(sg_data)
             self._do_import(path, sg_data)
         
-        if name == "texture_node":
+        elif name == "texture_node":
             path = self.get_publish_path(sg_data)
             self._create_texture_node(path, sg_data)
             
-        if name == "udim_texture_node":
+        elif name == "udim_texture_node":
             path = self.get_publish_path(sg_data)
             self._create_udim_texture_node(path, sg_data)
-                        
+        
+        else:
+            try:
+                HookBaseClass.execute_action(self, name, params, sg_data)
+            except AttributeError, e:
+                # base class doesn't have the method, so ignore and continue
+                pass                          
            
     ##############################################################################################################
     # helper methods which can be subclassed in custom hooks to fine tune the behaviour of things

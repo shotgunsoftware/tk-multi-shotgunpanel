@@ -20,7 +20,9 @@ configuration:
 
     actions_hook:
         type: hook
-        default_value: "{self}/{engine_name}_actions.py"
+        default_value: "{self}/general_actions.py"
+        default_value_tk-nuke: "{self}/general_actions.py:{self}/{engine_name}_actions.py"
+        default_value_tk-maya: "{self}/general_actions.py:{self}/{engine_name}_actions.py"
         description: Hook which contains all methods for action management.
         
     action_mappings:
@@ -31,14 +33,28 @@ configuration:
         default_value: 
             Task:
                 - { actions: [assign_task], filters: {} }
+            Version:
+                - { actions: [quicktime_clipboard, sequence_clipboard], filters: {} }
+            PublishedFile:
+                - { actions: [publish_clipboard], filters: {} }
 
         default_value_tk-nuke:
+            Task:
+                - { actions: [assign_task], filters: {} }
+            Version:
+                - { actions: [quicktime_clipboard, sequence_clipboard], filters: {} }
             PublishedFile:
+                - { actions: [publish_clipboard], filters: {} }
                 - { actions: [read_node], filters: { published_file_type: Rendered Image} }
                 - { actions: [script_import], filters: { published_file_type: Nuke Script} }
             
         default_value_tk-maya:
+            Task:
+                - { actions: [assign_task], filters: {} }    
+            Version:
+                - { actions: [quicktime_clipboard, sequence_clipboard], filters: {} }
             PublishedFile:
+                - { actions: [publish_clipboard], filters: {} }
                 - { actions: [reference, import], filters: { published_file_type: Maya Scene} }
                 - { actions: [texture_node], filters: { published_file_type: Rendered Image} }
                 - { actions: [texture_node], filters: { published_file_type: Photoshop Image} }

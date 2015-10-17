@@ -45,13 +45,14 @@ class NukeActions(HookBaseClass):
                       "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data))
         
         action_instances = []
-
-        if "assign_task" in actions:
-            action_instances.append( {"name": "assign_task", 
-                                      "params": None,
-                                      "caption": "Assign Task to yourself", 
-                                      "description": "Assign this task to yourself."} )
-
+        
+        try:
+            # call base class first
+            action_instances += HookBaseClass.generate_actions(self, sg_data, actions, ui_area)
+        except AttributeError, e:
+            # base class doesn't have the method, so ignore and continue
+            pass        
+        
         if "read_node" in actions:
             action_instances.append( {"name": "read_node", 
                                       "params": None,
@@ -81,24 +82,23 @@ class NukeActions(HookBaseClass):
         app.log_debug("Execute action called for action %s. "
                       "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data))
         
-        if name == "assign_task":
-            if app.context.user is None:
-                raise Exception("Cannot establish current user!")
-            
-            data = app.shotgun.find_one("Task", [["id", "is", sg_data["id"]]], ["task_assignees"] )
-            assignees = data["task_assignees"] or []
-            assignees.append(app.context.user)
-            app.shotgun.update("Task", sg_data["id"], {"task_assignees": assignees})
-        
         if name == "read_node":
             # resolve path - forward slashes on all platforms in Nuke
             path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
             self._create_read_node(path, sg_data)
         
-        if name == "script_import":
+        elif name == "script_import":
             # resolve path - forward slashes on all platforms in Nuke
             path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
             self._import_script(path, sg_data)
+
+        else:
+            try:
+                HookBaseClass.execute_action(self, name, params, sg_data)
+            except AttributeError, e:
+                # base class doesn't have the method, so ignore and continue
+                pass            
+            
            
     ##############################################################################################################
     # helper methods which can be subclassed in custom hooks to fine tune the behavior of things
