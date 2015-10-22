@@ -448,7 +448,7 @@ class ShotgunFormatter(object):
             if self._entity_type == "Task":
                 # show tasks i am assigned to
                 link_filters.append(["task_assignees", "in", [sg_location.entity_dict]])
-                link_filters.append(["sg_status_list", "is_not", "final"])
+                link_filters.append(["sg_status_list", "is_not", "fin"])
                 
             elif self._entity_type == "Note" and \
                  sg_location.entity_type == self._app.context.user.get("type") and \
