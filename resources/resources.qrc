@@ -1,0 +1,29 @@
+<RCC>
+  <qresource prefix="tk_multi_infopanel">
+    <file>default_user_thumb.png</file>
+    <file>bye_for_now.png</file>
+    <file>down_arrow.png</file>
+    <file>rect_512x400.png</file>
+    <file>round_512x400.png</file>
+    <file>no_items_found.png</file>
+    <file>home.png</file>
+    <file>home_hover.png</file>
+    <file>home_pressed.png</file>
+    <file>home_disabled.png</file>
+    <file>search.png</file>
+    <file>search_hover.png</file>
+    <file>search_pressed.png</file>
+    <file>search_disabled.png</file>
+    <file>right_arrow_hover.png</file>
+    <file>right_arrow_pressed.png</file>
+    <file>right_arrow.png</file>
+    <file>right_arrow_disabled.png</file>
+    <file>left_arrow_hover.png</file>
+    <file>left_arrow_pressed.png</file>
+    <file>left_arrow.png</file>
+    <file>left_arrow_disabled.png</file>
+    <file>default_user.png</file>
+    <file>client_note_indicator.png</file>
+    <file>unread_indicator.png</file>
+  </qresource>
+</RCC>
