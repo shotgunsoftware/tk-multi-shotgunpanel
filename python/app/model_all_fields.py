@@ -42,8 +42,7 @@ class SgAllFieldsModel(ShotgunOverlayModel):
         ShotgunOverlayModel.__init__(self,
                                      parent,
                                      overlay_widget=parent,
-                                     download_thumbs=False,
-                                     schema_generation=3)
+                                     download_thumbs=False)
         
         self._sg_location = None                
         self.data_refreshed.connect(self._on_data_refreshed)

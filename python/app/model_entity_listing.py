@@ -50,7 +50,6 @@ class SgEntityListingModel(ShotgunOverlayModel):
                                      parent,
                                      overlay_widget=parent,
                                      download_thumbs=True,
-                                     schema_generation=5,
                                      bg_load_thumbs=True)
 
         self.data_refreshed.connect(self._on_data_arrived)

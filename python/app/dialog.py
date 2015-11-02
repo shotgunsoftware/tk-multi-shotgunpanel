@@ -354,8 +354,8 @@ class AppDialog(QtGui.QWidget):
             for tab_dict in self._detail_tabs.values():
                 tab_dict["model"].destroy()            
 
-        except:
-            self._app.log_exception("Error running Info panel App closeEvent()")
+        except Exception, e:
+            self._app.log_exception("Error running Shotgun Panel App closeEvent()")
                 
         # close splash
         self._overlay.hide()

@@ -16,7 +16,7 @@ from .model_entity_listing import SgEntityListingModel
 class SgPublishDependencyDownstreamListingModel(SgEntityListingModel):
     """
     Model which is like the entity listing model
-    but taylored for displaying downstream dependencies for a given publish
+    but tailored for displaying downstream dependencies for a given publish
     """
     
     # note: no constructor implemented - use base class version

@@ -39,14 +39,11 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         ShotgunOverlayModel.__init__(self,
                                      parent,
                                      overlay_widget=parent,
-                                     download_thumbs=True,
-                                     schema_generation=3,
+                                     download_thumbs=True, 
                                      bg_load_thumbs=True)
         
         self._sg_location = None
-        
         self._current_pixmap = None
-                
         self.data_refreshed.connect(self._on_data_refreshed)
 
     def _on_data_refreshed(self):

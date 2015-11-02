@@ -122,7 +122,6 @@ class ListItemWidget(QtGui.QWidget):
         :param header: Header text as string
         :param body: Body text as string
         """
-        #self.setToolTip("%s<br>%s" % (header_left, body))        
         self.ui.list_item_top_left.setText(header_left)
         self.ui.list_item_top_right.setText(header_right)
         self.ui.list_item_body.setText(body)
