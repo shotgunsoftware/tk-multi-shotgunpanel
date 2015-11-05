@@ -36,7 +36,7 @@ class SgTaskListingModel(SgEntityListingModel):
     
     request_user_thumbnails = QtCore.Signal(list)
 
-    def __init__(self, entity_type, parent):
+    def __init__(self, entity_type, parent, bg_task_manager):
         """
         Constructor.
         
@@ -45,11 +45,11 @@ class SgTaskListingModel(SgEntityListingModel):
         :param parent: QT parent object
         """
         # init base class
-        SgEntityListingModel.__init__(self, entity_type, parent)
+        SgEntityListingModel.__init__(self, entity_type, parent, bg_task_manager)
         self.data_refreshed.connect(self._on_data_refreshed)
         
         # have a model to pull down user's thumbnails for task assingments
-        self._task_assignee_model = TaskAssigneeModel(self)
+        self._task_assignee_model = TaskAssigneeModel(self, bg_task_manager)
         self._task_assignee_model.thumbnail_updated.connect(self._on_user_thumb)
         
     def destroy(self):
@@ -172,14 +172,17 @@ class TaskAssigneeModel(ShotgunModel):
     
     thumbnail_updated = QtCore.Signal(dict, QtGui.QImage)
 
-    def __init__(self, parent):
+    def __init__(self, parent, bg_task_manager):
         """
         Constructor
         
         :param parent: QT parent object
         """
         # init base class
-        ShotgunModel.__init__(self, parent, bg_load_thumbs=True)
+        ShotgunModel.__init__(self, 
+                              parent, 
+                              bg_load_thumbs=True, 
+                              bg_task_manager=bg_task_manager)
         self._app = sgtk.platform.current_bundle()
         self._task_model = parent
         

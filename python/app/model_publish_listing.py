@@ -20,7 +20,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
     publish is shown.
     """
 
-    def __init__(self, entity_type, parent):
+    def __init__(self, entity_type, parent, bg_task_manager):
         """
         Constructor.
         
@@ -33,7 +33,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         self._publish_type_field = None
 
         # init base class
-        SgEntityListingModel.__init__(self, entity_type, parent)
+        SgEntityListingModel.__init__(self, entity_type, parent, bg_task_manager)
         
 
     def load_data(self, sg_location, show_latest_only):

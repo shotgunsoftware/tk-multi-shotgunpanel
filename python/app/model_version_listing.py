@@ -18,7 +18,7 @@ class SgVersionModel(SgEntityListingModel):
     Special model for versions so that we can control
     how to display items with different review status.
     """
-    def __init__(self, entity_type, parent):
+    def __init__(self, entity_type, parent, bg_task_manager):
         """
         Constructor.
         
@@ -29,7 +29,7 @@ class SgVersionModel(SgEntityListingModel):
         self._show_pending_only = False
         
         # init base class
-        SgEntityListingModel.__init__(self, entity_type, parent)
+        SgEntityListingModel.__init__(self, entity_type, parent, bg_task_manager)
 
     def _get_filters(self):
         """

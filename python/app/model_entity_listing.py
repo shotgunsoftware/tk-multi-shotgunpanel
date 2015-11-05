@@ -33,7 +33,7 @@ class SgEntityListingModel(ShotgunOverlayModel):
     # maximum number of items to show in the listings
     SG_RECORD_LIMIT = 50
     
-    def __init__(self, entity_type, parent):
+    def __init__(self, entity_type, parent, bg_task_manager):
         """
         Constructor.
         
@@ -50,7 +50,8 @@ class SgEntityListingModel(ShotgunOverlayModel):
                                      parent,
                                      overlay_widget=parent,
                                      download_thumbs=True,
-                                     bg_load_thumbs=True)
+                                     bg_load_thumbs=True,
+                                     bg_task_manager=bg_task_manager)
 
         self.data_refreshed.connect(self._on_data_arrived)
         self.cache_loaded.connect(self._on_data_arrived)

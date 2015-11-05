@@ -32,6 +32,7 @@ from .shotgun_formatter import ShotgunFormatter
 from .note_updater import NoteUpdater
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
+task_manager = sgtk.platform.import_framework("tk-framework-shotgunutils", "task_manager")
 settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings")
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
@@ -95,8 +96,15 @@ class AppDialog(QtGui.QWidget):
         self._action_manager = ActionManager(self)
         self._action_manager.refresh_request.connect(self.setup_ui)
 
+        # create a background task manager
+        self._task_manager = task_manager.BackgroundTaskManager(self, 
+                                                                start_processing=True, 
+                                                                max_threads=1)
+
         # set up an asynchronous shotgun retriever to pull down data
-        self._sg_data_retriever = shotgun_data.ShotgunDataRetriever(self)
+        
+        self._sg_data_retriever = shotgun_data.ShotgunDataRetriever(self, 
+                                                                    bg_task_manager=self._task_manager)
         self._sg_data_retriever.start()
                 
         # register the data fetcher with the global schema manager
@@ -165,14 +173,14 @@ class AppDialog(QtGui.QWidget):
         self.ui.publish_tab_widget.currentChanged.connect(self._load_publish_tab_data)
         
         # model to get the current user's details
-        self._current_user_model = SgCurrentUserModel(self)        
+        self._current_user_model = SgCurrentUserModel(self, self._task_manager)        
         self._current_user_model.thumbnail_updated.connect(self._update_current_user)        
         self._current_user_model.data_updated.connect(self._update_current_user)        
         self._current_user_model.load()
         self.ui.current_user.clicked.connect(self._on_user_home_clicked)
         
         # top detail section
-        self._details_model = SgEntityDetailsModel(self.ui.top_group)
+        self._details_model = SgEntityDetailsModel(self.ui.top_group, self._task_manager)
         self._details_model.data_updated.connect(self._refresh_details)
         self._details_model.thumbnail_updated.connect(self._refresh_details_thumbnail)
 
@@ -267,11 +275,13 @@ class AppDialog(QtGui.QWidget):
                 # special case for the version history model
                 tab_dict["model"] = ModelClass(tab_dict["entity_type"], 
                                                self._sg_data_retriever, 
-                                               tab_dict["view"])
+                                               tab_dict["view"],
+                                               self._task_manager)
                 
             else:
                 tab_dict["model"] = ModelClass(tab_dict["entity_type"], 
-                                               tab_dict["view"])
+                                               tab_dict["view"],
+                                               self._task_manager)
                 
             # create proxy for sorting
             tab_dict["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
@@ -298,15 +308,15 @@ class AppDialog(QtGui.QWidget):
             tab_dict["view"].setItemDelegate(tab_dict["delegate"])
         
         # set up the all fields tabs
-        self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_widget)     
+        self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_widget, self._task_manager)     
         self._entity_details_model.data_updated.connect(self.ui.entity_info_widget.set_data)
         self.ui.entity_info_widget.link_activated.connect(self._on_link_clicked)
            
-        self._version_details_model = SgAllFieldsModel(self.ui.version_info_widget)        
+        self._version_details_model = SgAllFieldsModel(self.ui.version_info_widget, self._task_manager)        
         self._version_details_model.data_updated.connect(self.ui.version_info_widget.set_data)
         self.ui.version_info_widget.link_activated.connect(self._on_link_clicked)
         
-        self._publish_details_model = SgAllFieldsModel(self.ui.publish_info_widget)        
+        self._publish_details_model = SgAllFieldsModel(self.ui.publish_info_widget, self._task_manager)
         self._publish_details_model.data_updated.connect(self.ui.publish_info_widget.set_data)
         self.ui.publish_info_widget.link_activated.connect(self._on_link_clicked)
         
@@ -329,6 +339,9 @@ class AppDialog(QtGui.QWidget):
         QtCore.QCoreApplication.processEvents()
 
         try:
+            
+            # shut down main threadpool
+            self._task_manager.shut_down()
             
             # clear the selection in the main views. 
             # this is to avoid re-triggering selection

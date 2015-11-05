@@ -30,7 +30,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
     publishes.
     """
 
-    def __init__(self, entity_type, data_retriever, parent):
+    def __init__(self, entity_type, data_retriever, parent, bg_task_manager):
         """
         Constructor.
         
@@ -50,7 +50,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         self._sg_query_id = None
         
         # init base class
-        SgEntityListingModel.__init__(self, entity_type, parent)
+        SgEntityListingModel.__init__(self, entity_type, parent, bg_task_manager)
 
         self._app = sgtk.platform.current_bundle()
         

@@ -32,7 +32,7 @@ class SgAllFieldsModel(ShotgunOverlayModel):
     
     data_updated = QtCore.Signal(dict)
 
-    def __init__(self, parent):
+    def __init__(self, parent, bg_task_manager):
         """
         Constructor
         
@@ -42,7 +42,8 @@ class SgAllFieldsModel(ShotgunOverlayModel):
         ShotgunOverlayModel.__init__(self,
                                      parent,
                                      overlay_widget=parent,
-                                     download_thumbs=False)
+                                     download_thumbs=False,
+                                     bg_task_manager=bg_task_manager)
         
         self._sg_location = None                
         self.data_refreshed.connect(self._on_data_refreshed)

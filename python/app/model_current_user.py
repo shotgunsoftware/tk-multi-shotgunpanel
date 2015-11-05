@@ -30,14 +30,17 @@ class SgCurrentUserModel(ShotgunModel):
     thumbnail_updated = QtCore.Signal()
     data_updated = QtCore.Signal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, bg_task_manager):
         """
         Constructor
         
         :param parent: QT parent object
         """
         # init base class
-        ShotgunModel.__init__(self, parent, bg_load_thumbs=True)
+        ShotgunModel.__init__(self, 
+                              parent, 
+                              bg_load_thumbs=True, 
+                              bg_task_manager=bg_task_manager)
         self._app = sgtk.platform.current_bundle()
         self._current_pixmap = None
         self._current_user_sg_dict = None
