@@ -18,11 +18,11 @@ class NoteUpdater(QtCore.QObject):
     """
     Class that operates asynchronously on notes.
     """
-    def __init__(self, data_retriever, parent):
+    def __init__(self, task_manager, parent):
         """
         Constructor
         
-        :param data_retriever: Data retriever to use for shotgun requests
+        :param data_retriever: Task manager to use for background work
         :param parent: QT parent object 
         """     
         QtCore.QObject.__init__(self, parent)   
@@ -30,10 +30,11 @@ class NoteUpdater(QtCore.QObject):
         self._guids = []
         
         self._app = sgtk.platform.current_bundle()
-        self._data_retriever = data_retriever
-
-        self._data_retriever.work_completed.connect(self.__on_worker_signal)
-        self._data_retriever.work_failure.connect(self.__on_worker_failure)        
+        self.__sg_data_retriever = shotgun_data.ShotgunDataRetriever(self, 
+                                                                     bg_task_manager=task_manager)        
+        self.__sg_data_retriever.start()
+        self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
+        self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)      
 
     def __on_worker_failure(self, uid, msg):
         """
@@ -71,7 +72,7 @@ class NoteUpdater(QtCore.QObject):
         :param note_id: Shotgun note id to operate on
         """
         data = {"note_id": note_id }
-        uid = self._data_retriever.execute_method(self._mark_note_as_read, data)
+        uid = self.__sg_data_retriever.execute_method(self._mark_note_as_read, data)
         self._guids.append(uid)
         
     def _mark_note_as_read(self, sg, data):

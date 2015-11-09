@@ -99,29 +99,23 @@ class AppDialog(QtGui.QWidget):
         # create a background task manager
         self._task_manager = task_manager.BackgroundTaskManager(self, 
                                                                 start_processing=True, 
-                                                                max_threads=1)
+                                                                max_threads=2)
 
-        # set up an asynchronous shotgun retriever to pull down data
-        
-        self._sg_data_retriever = shotgun_data.ShotgunDataRetriever(self, 
-                                                                    bg_task_manager=self._task_manager)
-        self._sg_data_retriever.start()
-                
         # register the data fetcher with the global schema manager
-        shotgun_globals.register_data_retriever(self._sg_data_retriever)
+        shotgun_globals.register_bg_task_manager(self._task_manager)
                 
         # now load in the UI that was created in the UI designer
         self.ui = Ui_Dialog() 
         self.ui.setupUi(self)
 
         # create a note updater to run operations on notes in the db
-        self._note_updater = NoteUpdater(self._sg_data_retriever, self)
+        self._note_updater = NoteUpdater(self._task_manager, self)
 
         # hook up a data retriever with all objects needing to talk to sg
-        self.ui.search_input.set_data_retriever(self._sg_data_retriever)
-        self.ui.note_reply_widget.set_data_retriever(self._sg_data_retriever)    
-        self.ui.entity_activity_stream.set_data_retriever(self._sg_data_retriever)
-        self.ui.version_activity_stream.set_data_retriever(self._sg_data_retriever)
+        self.ui.search_input.set_bg_task_manager(self._task_manager)
+        self.ui.note_reply_widget.set_bg_task_manager(self._task_manager)    
+        self.ui.entity_activity_stream.set_bg_task_manager(self._task_manager)
+        self.ui.version_activity_stream.set_bg_task_manager(self._task_manager)
 
         # set up action menu
         self._menu = QtGui.QMenu()
@@ -271,17 +265,9 @@ class AppDialog(QtGui.QWidget):
             self._app.log_debug("Creating %r..." % ModelClass)
             
             # create model 
-            if idx == (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_HISTORY):
-                # special case for the version history model
-                tab_dict["model"] = ModelClass(tab_dict["entity_type"], 
-                                               self._sg_data_retriever, 
-                                               tab_dict["view"],
-                                               self._task_manager)
-                
-            else:
-                tab_dict["model"] = ModelClass(tab_dict["entity_type"], 
-                                               tab_dict["view"],
-                                               self._task_manager)
+            tab_dict["model"] = ModelClass(tab_dict["entity_type"], 
+                                           tab_dict["view"],
+                                           self._task_manager)
                 
             # create proxy for sorting
             tab_dict["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
@@ -340,20 +326,9 @@ class AppDialog(QtGui.QWidget):
 
         try:
             
-            # shut down main threadpool
-            self._task_manager.shut_down()
-            
-            # clear the selection in the main views. 
-            # this is to avoid re-triggering selection
-            # as items are being removed in the models
-            #
-            # TODO: might have to clear selection models here
-            shotgun_globals.unregister_data_retriever(self._sg_data_retriever)
-            
-            self._sg_data_retriever.work_completed.disconnect()
-            self._sg_data_retriever.work_failure.disconnect()
-            self._sg_data_retriever.stop()
-            
+            # register the data fetcher with the global schema manager
+            shotgun_globals.unregister_bg_task_manager(self._task_manager)
+                                    
             # shut down main details model
             self._details_model.destroy()
             self._current_user_model.destroy()
@@ -366,6 +341,9 @@ class AppDialog(QtGui.QWidget):
             # gracefully close all tab model connections
             for tab_dict in self._detail_tabs.values():
                 tab_dict["model"].destroy()            
+
+            # shut down main threadpool
+            self._task_manager.shut_down()                
 
         except Exception, e:
             self._app.log_exception("Error running Shotgun Panel App closeEvent()")

@@ -30,7 +30,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
     publishes.
     """
 
-    def __init__(self, entity_type, data_retriever, parent, bg_task_manager):
+    def __init__(self, entity_type, parent, bg_task_manager):
         """
         Constructor.
         
@@ -54,7 +54,9 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
 
         self._app = sgtk.platform.current_bundle()
         
-        self.__sg_data_retriever = data_retriever
+        self.__sg_data_retriever = shotgun_data.ShotgunDataRetriever(self, 
+                                                                     bg_task_manager=bg_task_manager)        
+        self.__sg_data_retriever.start()
         self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
 
