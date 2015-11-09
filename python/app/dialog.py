@@ -124,10 +124,17 @@ class AppDialog(QtGui.QWidget):
         self.ui.entity_activity_stream.set_data_retriever(self._sg_data_retriever)
         self.ui.version_activity_stream.set_data_retriever(self._sg_data_retriever)
 
-        # set up action menu
-        self._menu = QtGui.QMenu()
+        # set up action menu. parent it to the action button to prevent cases
+        # where it shows up elsewhere on screen (as in Houdini)
+        self._menu = QtGui.QMenu(self.ui.action_button)
         self._actions = []
         self.ui.action_button.setMenu(self._menu)        
+
+        # this forces the menu to be right aligned with the button. This is
+        # preferable since many DCCs show the embed panel on the far right. In
+        # houdini at least, before forcing this layout direction, the menu was
+        # showing up partially offscreen.
+        self.ui.action_button.setLayoutDirection(QtCore.Qt.RightToLeft)
         
         # our current object we are currently displaying
         self._current_location = None
