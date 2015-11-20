@@ -28,6 +28,7 @@ from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
 from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
 from .model_current_user import SgCurrentUserModel
+from .not_found_overlay import NotFoundModelOverlay
 from .shotgun_formatter import ShotgunFormatter
 from .note_updater import NoteUpdater
 
@@ -305,7 +306,7 @@ class AppDialog(QtGui.QWidget):
             # hook up delegate renderer with view
             tab_dict["view"].setItemDelegate(tab_dict["delegate"])
             # and set up a spinner overlay
-            tab_dict["overlay"] = ShotgunModelOverlayWidget(tab_dict["model"], tab_dict["view"])
+            tab_dict["overlay"] = NotFoundModelOverlay(tab_dict["model"], tab_dict["view"])
         
         # set up the all fields tabs
         self._entity_details_model = SgAllFieldsModel(self, self._task_manager)
