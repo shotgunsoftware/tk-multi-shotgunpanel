@@ -15,7 +15,7 @@ import sgtk
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 
-ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
+ShotgunModel = shotgun_model.ShotgunModel
 
 from .model_entity_listing import SgEntityListingModel
 
@@ -122,11 +122,11 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
 
             self._current_version = sg_data["version_number"]
 
-            ShotgunOverlayModel._load_data(self, 
-                                           self._sg_formatter.entity_type, 
-                                           filters, 
-                                           hierarchy, 
-                                           self._sg_formatter.fields)
+            ShotgunModel._load_data(self, 
+                                    self._sg_formatter.entity_type, 
+                                    filters, 
+                                    hierarchy, 
+                                    self._sg_formatter.fields)
             self._refresh_data()
 
     ############################################################################################
