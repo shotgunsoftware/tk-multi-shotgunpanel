@@ -43,17 +43,12 @@ class SgEntityListingModel(ShotgunModel):
         self._sg_location = None
         self._sg_formatter = ShotgunFormatter(entity_type)
         
-        self._no_items_overlay = QtGui.QPixmap(":/tk_multi_infopanel/no_items_found.png")
-                
         # init base class
         ShotgunModel.__init__(self,
                               parent,
                               download_thumbs=True,
                               bg_load_thumbs=True,
                               bg_task_manager=bg_task_manager)
-
-        self.data_refreshed.connect(self._on_data_arrived)
-        self.cache_loaded.connect(self._on_data_arrived)
 
     ############################################################################################
     # public interface
@@ -117,13 +112,6 @@ class SgEntityListingModel(ShotgunModel):
 
     ############################################################################################
     # protected methods
-    
-    def _on_data_arrived(self):
-        """
-        Called when data has arrived
-        """
-        if len(self.entity_ids) == 0:
-            self._show_overlay_pixmap(self._no_items_overlay)
     
     def _get_filters(self):
         """
