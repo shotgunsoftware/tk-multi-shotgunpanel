@@ -196,9 +196,9 @@ class AppDialog(QtGui.QWidget):
         self.ui.details_text_middle.linkActivated.connect(self._on_link_clicked)
         self.ui.details_thumb.playback_clicked.connect(self._playback_version)
         
-        self.ui.note_reply_widget.entity_requested.connect(self._navigate_to_entity)
-        self.ui.entity_activity_stream.entity_requested.connect(self._navigate_to_entity)
-        self.ui.version_activity_stream.entity_requested.connect(self._navigate_to_entity)
+        self.ui.note_reply_widget.entity_requested.connect(self.navigate_to_entity)
+        self.ui.entity_activity_stream.entity_requested.connect(self.navigate_to_entity)
+        self.ui.version_activity_stream.entity_requested.connect(self.navigate_to_entity)
 
         self.ui.entity_activity_stream.playback_requested.connect(self._playback_version)
         self.ui.version_activity_stream.playback_requested.connect(self._playback_version)
@@ -336,6 +336,9 @@ class AppDialog(QtGui.QWidget):
         """        
         
         self._app.log_debug("CloseEvent Received. Begin shutting down UI.")
+
+        # tell main app instance that we are closing
+        self._app._on_dialog_close(self)
 
         # register a shutdown overlay
         splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/bye_for_now.png")
@@ -663,7 +666,7 @@ class AppDialog(QtGui.QWidget):
         sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
         self._navigate_to(sg_location)
 
-    def _navigate_to_entity(self, entity_type, entity_id):
+    def navigate_to_entity(self, entity_type, entity_id):
         """
         Navigate to a particular entity.
         A history entry will be created and inserted into the
@@ -708,7 +711,7 @@ class AppDialog(QtGui.QWidget):
             # this is an internal url on the form sgtk:EntityType:entity_id
             (_, entity_type, entity_id) = url.split(":")
             entity_id = int(entity_id)
-            self._navigate_to_entity(entity_type, entity_id)            
+            self.navigate_to_entity(entity_type, entity_id)            
             
         else:
             # all other links are dispatched to the OS
