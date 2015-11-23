@@ -13,9 +13,9 @@ import sgtk
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
+ShotgunModel = shotgun_model.ShotgunModel
 
-class SgEntityDetailsModel(ShotgunOverlayModel):
+class SgEntityDetailsModel(ShotgunModel):
     """
     Model that represents the details data that is 
     displayed in the top section of the UI.
@@ -36,12 +36,11 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
         :param parent: QT parent object
         """
         # init base class
-        ShotgunOverlayModel.__init__(self,
-                                     parent,
-                                     overlay_widget=parent,
-                                     download_thumbs=True, 
-                                     bg_load_thumbs=True,
-                                     bg_task_manager=bg_task_manager)
+        ShotgunModel.__init__(self,
+                              parent,
+                              download_thumbs=True, 
+                              bg_load_thumbs=True,
+                              bg_task_manager=bg_task_manager)
         
         self._sg_location = None
         self._current_pixmap = None
@@ -119,11 +118,11 @@ class SgEntityDetailsModel(ShotgunOverlayModel):
 
         hierarchy = ["id"]
         
-        ShotgunOverlayModel._load_data(self, 
-                                       sg_location.entity_type, 
-                                       [["id", "is", sg_location.entity_id]], 
-                                       hierarchy,
-                                       fields)
+        ShotgunModel._load_data(self, 
+                                sg_location.entity_type, 
+                                [["id", "is", sg_location.entity_id]], 
+                                hierarchy,
+                                fields)
         
         # signal to any views that data now may be available
         self.data_updated.emit()

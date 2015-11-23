@@ -12,9 +12,9 @@ import sgtk
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-ShotgunOverlayModel = shotgun_model.ShotgunOverlayModel
+ShotgunModel = shotgun_model.ShotgunModel
 
-class SgAllFieldsModel(ShotgunOverlayModel):
+class SgAllFieldsModel(ShotgunModel):
     """
     Model that represents all the fields for an entity, as defined
     by a shotgun location object.
@@ -39,11 +39,10 @@ class SgAllFieldsModel(ShotgunOverlayModel):
         :param parent: QT parent object.
         """
         # init base class
-        ShotgunOverlayModel.__init__(self,
-                                     parent,
-                                     overlay_widget=parent,
-                                     download_thumbs=False,
-                                     bg_task_manager=bg_task_manager)
+        ShotgunModel.__init__(self, 
+                              parent, 
+                              download_thumbs=False, 
+                              bg_task_manager=bg_task_manager)
         
         self._sg_location = None                
         self.data_refreshed.connect(self._on_data_refreshed)
@@ -83,7 +82,7 @@ class SgAllFieldsModel(ShotgunOverlayModel):
         filters = [ ["id", "is", self._sg_location.entity_id ] ]
         hierarchy = ["id"]
 
-        ShotgunOverlayModel._load_data(self, 
+        ShotgunModel._load_data(self, 
                                        sg_location.sg_formatter.entity_type, 
                                        filters,
                                        hierarchy, 
