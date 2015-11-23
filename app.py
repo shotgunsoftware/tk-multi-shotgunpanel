@@ -62,8 +62,8 @@ class ShotgunPanelApp(Application):
           the panel if it doesn't already exist. If it exists it will be given user focus. Note that
           on engines without panel support implemented, this flag will be equivalent to DIALOG
           below.
-        - DIALOG - launch the panel as a dialog. A dialog may co-exist with a panel. if a dialog
-          already exists, this is given focus.
+        - DIALOG - launch the panel as a dialog. A dialog may co-exist with a panel. If a dialog
+          already exists, it is given focus.
         - NEW_DIALOG - launch the panel as a dialog without attempting to reuse any 
           existing dialogs that may have been created in previous calls.
         
@@ -114,8 +114,7 @@ class ShotgunPanelApp(Application):
             self.log_warning("Could not execute show_panel method - please upgrade "
                              "to latest core and engine! Falling back on show_dialog. "
                              "Error: %s" % e)
-            widget = self.engine.show_dialog("Shotgun", self, app_payload.AppDialog)
-            self._current_dialog = widget
+            widget = self.create_dialog()
             
         return widget
 
@@ -124,9 +123,9 @@ class ShotgunPanelApp(Application):
         Shows the panel as a dialog.
         
         Contrary to the create_panel() method, multiple calls
-        to this method will result in multiple browser windows appearing. 
+        to this method will result in multiple windows appearing. 
         
-        :returns: The widget associated with the panel. 
+        :returns: The widget associated with the dialog. 
         """
         app_payload = self.import_module("app")
         widget = self.engine.show_dialog("Shotgun", self, app_payload.AppDialog)
