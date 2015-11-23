@@ -46,15 +46,19 @@ class GeneralActions(HookBaseClass):
         
         action_instances = []
         
-        import pprint
-        pprint.pprint(sg_data)
-        
         if "assign_task" in actions:
             action_instances.append( 
                 {"name": "assign_task", 
                   "params": None,
                   "caption": "Assign Task to yourself", 
                   "description": "Assign this task to yourself."} )
+
+        if "task_to_ip" in actions:
+            action_instances.append( 
+                {"name": "task_to_ip", 
+                  "params": None,
+                  "caption": "Set to In Progress", 
+                  "description": "Set the task status to In Progress."} )
 
         if "quicktime_clipboard" in actions:
             
@@ -111,7 +115,10 @@ class GeneralActions(HookBaseClass):
             assignees = data["task_assignees"] or []
             assignees.append(app.context.user)
             app.shotgun.update("Task", sg_data["id"], {"task_assignees": assignees})
-        
+
+        elif name == "task_to_ip":        
+            app.shotgun.update("Task", sg_data["id"], {"sg_status_list": "ip"})
+
         elif name == "quicktime_clipboard":
             self._copy_to_clipboard(sg_data["sg_path_to_movie"])
             
@@ -133,3 +140,7 @@ class GeneralActions(HookBaseClass):
         app.clipboard().setText(text)
         
            
+
+    
+
+        

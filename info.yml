@@ -32,7 +32,7 @@ configuration:
                      and in addition to this you can add your own actions if you like.
         default_value: 
             Task:
-                - { actions: [assign_task], filters: {} }
+                - { actions: [assign_task, task_to_ip], filters: {} }
             Version:
                 - { actions: [quicktime_clipboard, sequence_clipboard], filters: {} }
             PublishedFile:
@@ -40,7 +40,7 @@ configuration:
 
         default_value_tk-nuke:
             Task:
-                - { actions: [assign_task], filters: {} }
+                - { actions: [assign_task, task_to_ip], filters: {} }
             Version:
                 - { actions: [quicktime_clipboard, sequence_clipboard], filters: {} }
             PublishedFile:
@@ -50,7 +50,7 @@ configuration:
             
         default_value_tk-maya:
             Task:
-                - { actions: [assign_task], filters: {} }    
+                - { actions: [assign_task, task_to_ip], filters: {} }    
             Version:
                 - { actions: [quicktime_clipboard, sequence_clipboard], filters: {} }
             PublishedFile:
