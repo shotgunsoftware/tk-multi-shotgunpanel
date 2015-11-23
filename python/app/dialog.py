@@ -28,6 +28,7 @@ from .model_publish_dependency_up import SgPublishDependencyUpstreamListingModel
 from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
 from .model_current_user import SgCurrentUserModel
+from .not_found_overlay import NotFoundModelOverlay
 from .shotgun_formatter import ShotgunFormatter
 from .note_updater import NoteUpdater
 
@@ -36,7 +37,9 @@ task_manager = sgtk.platform.import_framework("tk-framework-shotgunutils", "task
 settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings")
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
+
 overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overlay_widget")
+ShotgunModelOverlayWidget = overlay_module.ShotgunModelOverlayWidget
 
 # maximum size of the details field in the top part of the UI
 MAX_LEN_UPPER_BODY_DETAILS = 1200
@@ -181,7 +184,10 @@ class AppDialog(QtGui.QWidget):
         self.ui.current_user.clicked.connect(self._on_user_home_clicked)
         
         # top detail section
-        self._details_model = SgEntityDetailsModel(self.ui.top_group, self._task_manager)
+        self._details_model = SgEntityDetailsModel(self, self._task_manager)
+        self._details_overlay = ShotgunModelOverlayWidget(self._details_model, 
+                                                          self.ui.top_group)
+        
         self._details_model.data_updated.connect(self._refresh_details)
         self._details_model.thumbnail_updated.connect(self._refresh_details_thumbnail)
 
@@ -299,9 +305,14 @@ class AppDialog(QtGui.QWidget):
             tab_dict["delegate"] = DelegateClass(tab_dict["view"], self._action_manager)
             # hook up delegate renderer with view
             tab_dict["view"].setItemDelegate(tab_dict["delegate"])
+            # and set up a spinner overlay
+            tab_dict["overlay"] = NotFoundModelOverlay(tab_dict["model"], tab_dict["view"])
         
         # set up the all fields tabs
-        self._entity_details_model = SgAllFieldsModel(self.ui.entity_info_widget, self._task_manager)     
+        self._entity_details_model = SgAllFieldsModel(self, self._task_manager)
+        self._entity_details_overlay = ShotgunModelOverlayWidget(self._entity_details_model, 
+                                                                 self.ui.entity_info_widget)
+             
         self._entity_details_model.data_updated.connect(self.ui.entity_info_widget.set_data)
         self.ui.entity_info_widget.link_activated.connect(self._on_link_clicked)
            
