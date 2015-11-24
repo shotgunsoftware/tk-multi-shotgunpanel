@@ -35,10 +35,9 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         Constructor.
         
         :param entity_type: The entity type that should be loaded into this model.
-                            Needs to be a PublishedFile or TankPublishedFile.
-        :param data_retriever: data retriever object to use when requesting
-                               async sg data 
+                            Needs to be a PublishedFile or TankPublishedFile.        
         :param parent: QT parent object
+        :param bg_task_manager: task manager used to process data         
         """
         
         # current publish we have loaded
@@ -47,7 +46,11 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         # the version number for the current publish
         self._current_version = None
         
+        # tracking the background task
         self._sg_query_id = None
+        
+        # overlay for reporting errors
+        self._overlay = None
         
         # init base class
         SgEntityListingModel.__init__(self, entity_type, parent, bg_task_manager)
@@ -59,6 +62,15 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         self.__sg_data_retriever.start()
         self.__sg_data_retriever.work_completed.connect(self.__on_worker_signal)
         self.__sg_data_retriever.work_failure.connect(self.__on_worker_failure)
+
+    def set_overlay(self, overlay):
+        """
+        Specify a overlay object for progress reporting
+        
+        :param overlay: Overlay object
+        :type  overlay: :class:`~tk-framework-qtwidgets:overlay_widget.ShotgunOverlayWidget`
+        """
+        self._overlay = overlay
 
     ############################################################################################
     # slots
@@ -73,7 +85,8 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         if uid == self._sg_query_id: 
             self._app.log_warning("History model query error: %s" % msg)
             full_msg = "Error retrieving data from Shotgun: %s" % msg        
-            self._show_overlay_error_message(full_msg)
+            if self._overlay:
+                self._overlay.show_error_message(full_msg)
         
     def __on_worker_signal(self, uid, request_type, data):
         """
@@ -86,13 +99,14 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
 
         if self._sg_query_id == uid:
             # hide spinner
-            self._hide_overlay_info()        
+            if self._overlay:
+                self._overlay.hide()        
 
             # process the data
             sg_records = data["sg"]
             
-            if len(sg_records) != 1:
-                self._show_overlay_error_message("Publish could not be found!")
+            if len(sg_records) != 1 and self._overlay:
+                self._overlay.show_error_message("Publish could not be found!")
             
             sg_data = sg_records[0]
 

@@ -308,6 +308,10 @@ class AppDialog(QtGui.QWidget):
             # and set up a spinner overlay
             tab_dict["overlay"] = NotFoundModelOverlay(tab_dict["model"], tab_dict["view"])
         
+            if ModelClass == SgPublishHistoryListingModel:
+                # this class needs special access to the overlay
+                tab_dict["model"].set_overlay(tab_dict["overlay"])
+        
         # set up the all fields tabs
         self._entity_details_model = SgAllFieldsModel(self, self._task_manager)
         self._entity_details_overlay = ShotgunModelOverlayWidget(self._entity_details_model, 
