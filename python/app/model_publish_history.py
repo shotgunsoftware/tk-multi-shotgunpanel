@@ -160,9 +160,6 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
                   "project",
                   publish_type_field]
         
-        # start spinning
-        self._show_overlay_spinner()
-        
         # get publish details async
         self._sg_query_id = self.__sg_data_retriever.execute_find(self._sg_formatter.entity_type, 
                                                                   filters, 
