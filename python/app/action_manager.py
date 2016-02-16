@@ -183,6 +183,8 @@ class ActionManager(QtCore.QObject):
         except Exception, e:
             self._app.log_exception("Could not execute execute_action hook.")
             QtGui.QMessageBox.critical(None, "Action Error", "Error: %s" % e)
+        else:
+            self._app.log_metric("%s action" % (action_name,))
 
     def _show_docs(self):
         """
