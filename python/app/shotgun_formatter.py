@@ -412,7 +412,7 @@ class ShotgunFormatter(object):
         """
         Should the tasks tab be shown for this
         """
-        if self.entity_type in ["ApiUser", "Group", "Task", "ClientUser"]:
+        if self.entity_type in ["ApiUser", "Group", "ClientUser"]:
             return False
         else:
             return True        
@@ -520,6 +520,9 @@ class ShotgunFormatter(object):
             elif self._entity_type in ["PublishedFile", "TankPublishedFile"]:
                 link_filters.append(["task", "is", sg_location.entity_dict])
 
+            elif self._entity_type == "Task":
+                link_filters.append(['sibling_tasks', 'is', sg_location.entity_dict])
+                
             else:
                 link_filters.append(["entity", "is", sg_location.entity_dict])
             
