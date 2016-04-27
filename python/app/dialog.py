@@ -124,7 +124,13 @@ class AppDialog(QtGui.QWidget):
         # where it shows up elsewhere on screen (as in Houdini)
         self._menu = QtGui.QMenu(self.ui.action_button)
         self._actions = []
-        self.ui.action_button.setMenu(self._menu)        
+        self.ui.action_button.setMenu(self._menu)
+
+        # If Toolkit can't determine the current user, add a tooltip to the current_user
+        # button and disable it since it won't work.
+        if sgtk.util.get_current_user(self._app.sgtk) is None:
+            self.ui.current_user.setEnabled(False)
+            self.ui.current_user.setToolTip("The current user is unknown.")
 
         # this forces the menu to be right aligned with the button. This is
         # preferable since many DCCs show the embed panel on the far right. In
