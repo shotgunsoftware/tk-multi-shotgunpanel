@@ -20,11 +20,40 @@ class ShotgunFields(HookBaseClass):
     When the shotgun panel displays a UI element, it will call this hook 
     in order to determine how that particular object should be formatted.
     
-    Formatting is returned in the form of templated strings, for example:
-    
+    Formatting is returned in the form of templated strings, for example::
+
         <b>By:</b> {created_by}{[<br><b>Description:</b> ]description}
-    
-    For a complete reference of the options available, see the documentation.
+
+    {dynamic} tokens are on the following form::
+
+        {[preroll]shotgun.field.name|sg_field_name_fallback::directive[postroll]}
+
+    Basic Examples:
+
+        - Simple format: {code}
+
+        - Deep links: {sg_sequence.Sequence.code}
+
+        - If artist is null, use created_by: {artist|created_by}
+
+    Directives are also supported - these are used by the formatting logic
+    and include the following:
+
+        - {sg_sequence::showtype} - This will generate a link saying
+          'Sequence ABC123' instead of just 'ABC123' like it does by default
+
+        - {sg_sequence::nolink} - No url link will be created
+
+    Optional pre/post roll - if a value is null, pre- and post-strings are
+    omitted from the final result. Examples of this syntax:
+
+        - {[Name: ]code} - If code is set, 'Name: xxx' will be
+          printed out, otherwise nothing.
+
+        - {[Name: ]code[<br>]} - Same as above but with a post line break
+
+    For a high level reference of the options available,
+    see the app documentation.
     """
         
     def get_list_item_definition(self, entity_type):
