@@ -779,15 +779,28 @@ class AppDialog(QtGui.QWidget):
         """
         # get entity portion of context
         ctx = self._app.context
+
+        # determine home by looking at various locations
+        # - first look for a current task
+        # - then a current entity
+        # - failing that a project
+        # - as a last fallback (for site contexts) use the user
+
         if ctx.task:
             sg_location = ShotgunLocation(ctx.task["type"], ctx.task["id"])
 
         elif ctx.entity:
             sg_location = ShotgunLocation(ctx.entity["type"], ctx.entity["id"])
                     
-        else:
+        elif ctx.project:
             sg_location = ShotgunLocation(ctx.project["type"], ctx.project["id"])
-            
+
+        elif ctx.user:
+            sg_location = ShotgunLocation(ctx.user["type"], ctx.user["id"])
+
+        else:
+            raise NotImplementedError("The shotgun panel requires a non-empty context.")
+
         self._navigate_to(sg_location)
         
     def _on_next_clicked(self):
