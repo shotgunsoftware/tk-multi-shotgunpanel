@@ -25,5 +25,6 @@
     <file>default_user.png</file>
     <file>client_note_indicator.png</file>
     <file>unread_indicator.png</file>
+    <file>splash.png</file>
   </qresource>
 </RCC>

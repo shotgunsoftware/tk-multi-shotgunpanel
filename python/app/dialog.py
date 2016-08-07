@@ -331,6 +331,12 @@ class AppDialog(QtGui.QWidget):
         # kick off
         self._on_home_clicked()
 
+        # register a startup splash screen
+        splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/splash.png")
+        self._overlay.show_message_pixmap(splash_pix)
+        QtCore.QCoreApplication.processEvents()
+        QtCore.QTimer.singleShot(3000, self._overlay.hide)
+
 
     def closeEvent(self, event):
         """
