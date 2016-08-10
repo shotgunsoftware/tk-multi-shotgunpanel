@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialog.ui'
 #
-#      by: pyside-uic 0.2.13 running on PySide 1.1.1
+#      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -391,9 +391,6 @@ class Ui_Dialog(object):
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_publish_tab), QtGui.QApplication.translate("Dialog", "Publishes", None, QtGui.QApplication.UnicodeUTF8))
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_info_tab), QtGui.QApplication.translate("Dialog", "Info", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..qtwidgets import ReplyListWidget, ActivityStreamWidget
-from ..qtwidgets import ShotgunPlaybackLabel
-from ..qtwidgets import GlobalSearchWidget
-
+from ..qtwidgets import ShotgunPlaybackLabel, ActivityStreamWidget, ReplyListWidget, GlobalSearchWidget
 from ..widget_all_fields import AllFieldsWidget
 from . import resources_rc
