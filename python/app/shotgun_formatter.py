@@ -11,7 +11,6 @@
 import sgtk
 from sgtk import TankError
 from sgtk.platform.qt import QtCore, QtGui
-from sgtk.platform import get_hyperlink_html
 import re
 import datetime
 from . import utils
@@ -236,11 +235,9 @@ class ShotgunFormatter(object):
             if not self._generates_links(value["type"]) or directive == "nolink":
                 str_val = link_name
             else:
-                str_val = get_hyperlink_html(
-                    "sgtk:%s:%s" % (value["type"], value["id"]),
-                    link_name,
-                    self._app.style_constants["SG_HIGHLIGHT_COLOR"],
-                    bold=False,
+                str_val = self._app.frameworks["tk-framework-qtwidgets"].get_hyperlink_html(
+                    url="sgtk:%s:%s" % (value["type"], value["id"]),
+                    name=link_name,
                 )
         
         elif isinstance(value, list):
