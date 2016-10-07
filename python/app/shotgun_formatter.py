@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Shotgun Software Inc.
+# Copyright (c) 2016 Shotgun Software Inc.
 # 
 # CONFIDENTIAL AND PROPRIETARY
 # 
@@ -15,7 +15,14 @@ import re
 import datetime
 from . import utils
 
-shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
+shotgun_globals = sgtk.platform.import_framework(
+    "tk-framework-shotgunutils",
+    "shotgun_globals",
+)
+qtwidgets_utils = sgtk.platform.import_framework(
+    "tk-framework-qtwidgets",
+    "utils",
+)
 
 class ShotgunFormatter(object):
     """
@@ -235,7 +242,7 @@ class ShotgunFormatter(object):
             if not self._generates_links(value["type"]) or directive == "nolink":
                 str_val = link_name
             else:
-                str_val = self._app.frameworks["tk-framework-qtwidgets"].get_hyperlink_html(
+                str_val = qtwidgets_utils.get_hyperlink_html(
                     url="sgtk:%s:%s" % (value["type"], value["id"]),
                     name=link_name,
                 )
