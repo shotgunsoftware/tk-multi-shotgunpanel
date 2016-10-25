@@ -30,6 +30,8 @@ class ShotgunPanelApp(Application):
         # toolkit's code reload mechanism will work properly.
         app_payload = self.import_module("app")
 
+        self._emitter = app_payload.Emitter()
+
         # now register a panel, this is to tell the engine about the our panel ui 
         # that the engine can automatically create the panel - this happens for
         # example when a saved window layout is restored in Nuke or at startup.
@@ -45,6 +47,30 @@ class ShotgunPanelApp(Application):
                                      self.create_panel, 
                                      {"type": "panel", 
                                       "short_name": "shotgun_panel"})
+
+    @property
+    def emitter(self):
+        """
+        The Emitter object utilized by the app. Any QSignals emitted
+        by the app will come from this object.
+        """
+        return self._emitter
+
+    @property
+    def context_change_allowed(self):
+        """
+        Specifies that context changes are allowed.
+        """
+        return True
+
+    def post_context_change(self, old_context, new_context):
+        """
+        Runs after a successful change of context.
+
+        :param old_context: The context prior to the context change.
+        :param new_context: The new context after the context change.
+        """
+        self.emitter.context_changed.emit(old_context, new_context)
         
     def navigate(self, entity_type, entity_id, mode):
         """

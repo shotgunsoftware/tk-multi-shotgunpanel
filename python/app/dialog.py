@@ -95,6 +95,9 @@ class AppDialog(QtGui.QWidget):
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
+
+        # We need to listen for context changes reported by the parent app.
+        self._app.emitter.context_changed.connect(self._on_context_change)
         
         self._action_manager = ActionManager(self)
         self._action_manager.refresh_request.connect(self.setup_ui)
@@ -731,6 +734,16 @@ class AppDialog(QtGui.QWidget):
 
     ###################################################################################################
     # navigation
+
+    def _on_context_change(self, old_context, new_context):
+        """
+        Handles a context change.
+
+        :param old_context: The context that was switched away from.
+        :param new_context: The context change that was switched to.
+        """
+        sg_location = self._location_from_context(new_context)
+        self._navigate_to(sg_location)
     
     def _navigate_to(self, shotgun_location):
         """
@@ -785,28 +798,7 @@ class AppDialog(QtGui.QWidget):
         """
         # get entity portion of context
         ctx = self._app.context
-
-        # determine home by looking at various locations
-        # - first look for a current task
-        # - then a current entity
-        # - failing that a project
-        # - as a last fallback (for site contexts) use the user
-
-        if ctx.task:
-            sg_location = ShotgunLocation(ctx.task["type"], ctx.task["id"])
-
-        elif ctx.entity:
-            sg_location = ShotgunLocation(ctx.entity["type"], ctx.entity["id"])
-                    
-        elif ctx.project:
-            sg_location = ShotgunLocation(ctx.project["type"], ctx.project["id"])
-
-        elif ctx.user:
-            sg_location = ShotgunLocation(ctx.user["type"], ctx.user["id"])
-
-        else:
-            raise NotImplementedError("The shotgun panel requires a non-empty context.")
-
+        sg_location = self._location_from_context(ctx)
         self._navigate_to(sg_location)
         
     def _on_next_clicked(self):
@@ -856,3 +848,38 @@ class AppDialog(QtGui.QWidget):
         self.ui.search_input.setText("")
         sg_location = ShotgunLocation(entity_type, entity_id)            
         self._navigate_to(sg_location)
+
+    ##################################################################################################
+    # utility methods
+
+    def _location_from_context(self, ctx):
+        """
+        Interprets the given Context and constructs the apporpriate
+        ShotgunLocation for it.
+
+        :param ctx: The Context to interpret.
+
+        :returns: The resulting ShotgunLocation.
+        """
+        # determine home by looking at various locations
+        # - first look for a current task
+        # - then a current entity
+        # - failing that a project
+        # - as a last fallback (for site contexts) use the user
+
+        if ctx.task:
+            sg_location = ShotgunLocation(ctx.task["type"], ctx.task["id"])
+
+        elif ctx.entity:
+            sg_location = ShotgunLocation(ctx.entity["type"], ctx.entity["id"])
+                    
+        elif ctx.project:
+            sg_location = ShotgunLocation(ctx.project["type"], ctx.project["id"])
+
+        elif ctx.user:
+            sg_location = ShotgunLocation(ctx.user["type"], ctx.user["id"])
+
+        else:
+            raise NotImplementedError("The shotgun panel requires a non-empty context.")
+
+        return sg_location

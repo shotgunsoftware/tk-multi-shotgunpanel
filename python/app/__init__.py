@@ -9,3 +9,4 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 from .dialog import AppDialog
+from .emitter import Emitter
