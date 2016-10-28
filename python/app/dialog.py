@@ -742,8 +742,17 @@ class AppDialog(QtGui.QWidget):
         :param old_context: The context that was switched away from.
         :param new_context: The context change that was switched to.
         """
-        sg_location = self._location_from_context(new_context)
-        self._navigate_to(sg_location)
+        # This is mimicing the behavior of the panel in the days before
+        # on-the-fly context changing. If this widget is being retained
+        # even when it's "closed", like we do in modern versions of tk-maya,
+        # we'll see the context change reflected in the panel when it's
+        # relaunched. If it's already visible when the context change
+        # occurs, then we leave it alone. This behavior is likely to be
+        # tweaked or changed entirely with further development.
+        if self.isVisible():
+            return
+        else:
+            self._navigate_to(self._location_from_context(self._app.context))
     
     def _navigate_to(self, shotgun_location):
         """
