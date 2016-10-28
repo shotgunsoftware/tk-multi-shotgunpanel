@@ -752,7 +752,7 @@ class AppDialog(QtGui.QWidget):
         if self.isVisible():
             return
         else:
-            self._navigate_to(self._location_from_context(self._app.context))
+            self._navigate_to(ShotgunLocation.from_context(self._app.context))
     
     def _navigate_to(self, shotgun_location):
         """
@@ -805,9 +805,7 @@ class AppDialog(QtGui.QWidget):
         """
         Navigate home
         """
-        # get entity portion of context
-        ctx = self._app.context
-        sg_location = self._location_from_context(ctx)
+        sg_location = ShotgunLocation.from_context(self._app.context)
         self._navigate_to(sg_location)
         
     def _on_next_clicked(self):
@@ -857,38 +855,3 @@ class AppDialog(QtGui.QWidget):
         self.ui.search_input.setText("")
         sg_location = ShotgunLocation(entity_type, entity_id)            
         self._navigate_to(sg_location)
-
-    ##################################################################################################
-    # utility methods
-
-    def _location_from_context(self, ctx):
-        """
-        Interprets the given Context and constructs the apporpriate
-        ShotgunLocation for it.
-
-        :param ctx: The Context to interpret.
-
-        :returns: The resulting ShotgunLocation.
-        """
-        # determine home by looking at various locations
-        # - first look for a current task
-        # - then a current entity
-        # - failing that a project
-        # - as a last fallback (for site contexts) use the user
-
-        if ctx.task:
-            sg_location = ShotgunLocation(ctx.task["type"], ctx.task["id"])
-
-        elif ctx.entity:
-            sg_location = ShotgunLocation(ctx.entity["type"], ctx.entity["id"])
-                    
-        elif ctx.project:
-            sg_location = ShotgunLocation(ctx.project["type"], ctx.project["id"])
-
-        elif ctx.user:
-            sg_location = ShotgunLocation(ctx.user["type"], ctx.user["id"])
-
-        else:
-            raise NotImplementedError("The shotgun panel requires a non-empty context.")
-
-        return sg_location
