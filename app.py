@@ -38,6 +38,10 @@ class ShotgunPanelApp(Application):
         # keep track of the last dialog we have created
         # in order to support the DIALOG mode for the navigate() method
         self._current_dialog = None
+
+        # Keep track of the singleton panel widget. This is used on context
+        # changes to automatically navigate to the new context.
+        self._current_panel = None
         
         # also register a menu entry on the shotgun menu so that users
         # can launch the panel
@@ -45,6 +49,27 @@ class ShotgunPanelApp(Application):
                                      self.create_panel, 
                                      {"type": "panel", 
                                       "short_name": "shotgun_panel"})
+
+    @property
+    def context_change_allowed(self):
+        """
+        Specifies that context changes are allowed.
+        """
+        return True
+
+    def post_context_change(self, old_context, new_context):
+        """
+        Runs after a successful change of context.
+
+        :param old_context: The context prior to the context change.
+        :param new_context: The new context after the context change.
+        """
+        # TODO: It's likely that we'll be implementing a "pinned" behavior
+        # for the panel widget in the future. In that case, we'll need to
+        # check here to see if the panel has been pinned by the user, and
+        # if it has NOT navigate it to home.
+        if self._current_panel:
+            self._current_panel.navigate_to_context(new_context)
         
     def navigate(self, entity_type, entity_id, mode):
         """
@@ -88,7 +113,7 @@ class ShotgunPanelApp(Application):
         elif mode == self.PANEL:
             # show panel and navigate
             w = self.create_panel()
-            w.navigate_to_entity(entity_type, entity_id)                
+            w.navigate_to_entity(entity_type, entity_id)
     
     def destroy_app(self):
         """
@@ -115,6 +140,8 @@ class ShotgunPanelApp(Application):
                              "to latest core and engine! Falling back on show_dialog. "
                              "Error: %s" % e)
             widget = self.create_dialog()
+        else:
+            self._current_panel = widget
             
         return widget
 

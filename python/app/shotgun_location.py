@@ -25,6 +25,40 @@ class ShotgunLocation(object):
     
         # The ui tab index currently focused on for this location
         self.tab_index = 0
+
+    @classmethod
+    def from_context(cls, ctx):
+        """
+        Interprets the given Context and constructs the apporpriate
+        ShotgunLocation for it.
+
+        :param ctx: The Context to interpret.
+
+        :returns: The resulting ShotgunLocation.
+        """
+        # determine home by looking at various locations
+        # - first look for a current task
+        # - then a current entity
+        # - failing that a project
+        # - as a last fallback (for site contexts) use the user
+
+        if ctx.task:
+            sg_location = cls(ctx.task["type"], ctx.task["id"])
+
+        elif ctx.entity:
+            sg_location = cls(ctx.entity["type"], ctx.entity["id"])
+                    
+        elif ctx.project:
+            sg_location = cls(ctx.project["type"], ctx.project["id"])
+
+        elif ctx.user:
+            sg_location = cls(ctx.user["type"], ctx.user["id"])
+
+        else:
+            raise NotImplementedError("The Shotgun panel requires a non-empty context.")
+
+        return sg_location
+
             
     @property
     def entity_type(self):
