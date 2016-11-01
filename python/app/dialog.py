@@ -95,9 +95,6 @@ class AppDialog(QtGui.QWidget):
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
-
-        # We need to listen for context changes reported by the parent app.
-        self._app.emitter.context_changed.connect(self._on_context_change)
         
         self._action_manager = ActionManager(self)
         self._action_manager.refresh_request.connect(self.setup_ui)
@@ -735,24 +732,13 @@ class AppDialog(QtGui.QWidget):
     ###################################################################################################
     # navigation
 
-    def _on_context_change(self, old_context, new_context):
+    def navigate_to_context(self, context):
         """
-        Handles a context change.
+        Navigates to the given context.
 
-        :param old_context: The context that was switched away from.
-        :param new_context: The context change that was switched to.
+        :param context: The context to navigate to.
         """
-        # This is mimicing the behavior of the panel in the days before
-        # on-the-fly context changing. If this widget is being retained
-        # even when it's "closed", like we do in modern versions of tk-maya,
-        # we'll see the context change reflected in the panel when it's
-        # relaunched. If it's already visible when the context change
-        # occurs, then we leave it alone. This behavior is likely to be
-        # tweaked or changed entirely with further development.
-        if self.isVisible():
-            return
-        else:
-            self._navigate_to(ShotgunLocation.from_context(self._app.context))
+        self._navigate_to(ShotgunLocation.from_context(context))
     
     def _navigate_to(self, shotgun_location):
         """
