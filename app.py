@@ -69,7 +69,13 @@ class ShotgunPanelApp(Application):
         # check here to see if the panel has been pinned by the user, and
         # if it has NOT navigate it to home.
         if self._current_panel:
-            self._current_panel.navigate_to_context(new_context)
+            try:
+                self._current_panel.navigate_to_context(new_context)
+            except RuntimeError:
+                self.log_debug(
+                    "Current panel widget has been garbage collected, so"
+                    "unable to navigate to the new context."
+                )
         
     def navigate(self, entity_type, entity_id, mode):
         """
