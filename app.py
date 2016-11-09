@@ -171,4 +171,8 @@ class ShotgunPanelApp(Application):
         it is about to close.
         """
         if dialog == self._current_dialog:
+            self.log_debug("Current dialog has been closed, clearing reference.")
             self._current_dialog = None
+        elif dialog == self._current_panel:
+            self.log_debug("Current panel has been closed, clearing reference.")
+            self._current_panel = None
