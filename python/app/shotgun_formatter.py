@@ -47,7 +47,7 @@ class ShotgunFormatter(object):
         
         # read in the hook data into a dict
         self._hook_data = {}
-        
+
         self._hook_data["get_list_item_definition"] = self._app.execute_hook_method("shotgun_fields_hook", 
                                                                                   "get_list_item_definition", 
                                                                                   entity_type=entity_type)
@@ -58,7 +58,7 @@ class ShotgunFormatter(object):
         
         self._hook_data["get_main_view_definition"] = self._app.execute_hook_method("shotgun_fields_hook", 
                                                                                     "get_main_view_definition", 
-                                                                                    entity_type=entity_type)        
+                                                                                    entity_type=entity_type)
         
         # extract a list of fields given all the different {tokens} defined
         fields = []
@@ -449,9 +449,16 @@ class ShotgunFormatter(object):
         if sg_location.entity_type in ["HumanUser"]:
             # the logic for users is different
             # here we want give an overview of their work
-            # for the current project 
-            link_filters.append(["project", "is", self._app.context.project])
-            
+            # for the current project
+
+            context_project = self._app.context.project
+
+            # When the current project is None, the user is in site context and
+            # we want to get the requested fields for all user's projects.
+            filter_operator = "is" if context_project else "is_not"
+
+            link_filters.append(["project", filter_operator, context_project])
+
             if self._entity_type == "Task":
                 # show tasks i am assigned to
                 link_filters.append(["task_assignees", "in", [sg_location.entity_dict]])
