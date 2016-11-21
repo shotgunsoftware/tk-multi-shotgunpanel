@@ -453,11 +453,10 @@ class ShotgunFormatter(object):
 
             context_project = self._app.context.project
 
-            # When the current project is None, the user is in site context and
-            # we want to get the requested fields for all user's projects.
-            filter_operator = "is" if context_project else "is_not"
-
-            link_filters.append(["project", filter_operator, context_project])
+            # When the current project is None, the user is in site context and we want to get
+            # the requested fields for all user's tasks, notes, versions and publishes.
+            if context_project:
+                link_filters.append(["project", "is", context_project])
 
             if self._entity_type == "Task":
                 # show tasks i am assigned to
