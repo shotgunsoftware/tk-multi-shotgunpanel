@@ -10,6 +10,11 @@ agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 not expressly granted therein are reserved by Shotgun Software Inc.
 */
 
+/* Use open sans font across the app if core supports it */
+QWidget {
+    font-family: "Open Sans";
+    font-style: "Regular";
+}
 
 /* Get rid of borders for main Listing Views */
 QListView, QTableView, QScrollArea {
