@@ -8,8 +8,10 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
+import os
 
 from sgtk.platform import Application
+
 
 class ShotgunPanelApp(Application):
     """
@@ -45,10 +47,25 @@ class ShotgunPanelApp(Application):
         
         # also register a menu entry on the shotgun menu so that users
         # can launch the panel
-        self.engine.register_command("Shotgun Panel...", 
-                                     self.create_panel, 
-                                     {"type": "panel", 
-                                      "short_name": "shotgun_panel"})
+        self.engine.register_command(
+            "Shotgun Panel...",
+            self.create_panel,
+            {
+                "type": "panel",
+                "short_name": "shotgun_panel",
+
+                # dark themed icon for engines that recognize this format
+                "icons": {
+                    "dark": {
+                        "png": os.path.join(
+                            os.path.dirname(__file__),
+                            "resources",
+                            "shotgun_panel_menu_icon.png"
+                        )
+                    }
+                }
+            }
+        )
 
     @property
     def context_change_allowed(self):
