@@ -21,6 +21,8 @@ class ShotgunPanelApp(Application):
     
     # window launch mode constants used by the navigate() method
     (PANEL, DIALOG, NEW_DIALOG) = range(3)
+
+    documentation_url = "https://support.shotgunsoftware.com/hc/en-us/articles/219033098-Shotgun-Panel"
     
     def init_app(self):
         """
