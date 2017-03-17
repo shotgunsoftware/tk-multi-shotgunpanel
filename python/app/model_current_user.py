@@ -88,11 +88,14 @@ class SgCurrentUserModel(ShotgunModel):
         """
         app = sgtk.platform.current_bundle()
         sg_user_data = sgtk.util.get_current_user(app.sgtk)
-        
+
         if sg_user_data is None:
-            self._app.log_warning("No current user found! Will continue "
-                                  "without a current user.")
-        
+            self._app.log_warning(
+                "Shotgun Panel can't determine the identity of the current user. "
+                "It won't be able to display the current user's information."
+            )
+            self._app.log_debug("Authenticated user: %r" % sgtk.get_authenticated_user())
+
         else:
             self._current_user_sg_dict = {"type": sg_user_data["type"], 
                                           "id": sg_user_data["id"]}

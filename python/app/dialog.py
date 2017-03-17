@@ -124,7 +124,7 @@ class AppDialog(QtGui.QWidget):
         # where it shows up elsewhere on screen (as in Houdini)
         self._menu = QtGui.QMenu(self.ui.action_button)
         self._actions = []
-        self.ui.action_button.setMenu(self._menu)        
+        self.ui.action_button.setMenu(self._menu)
 
         # this forces the menu to be right aligned with the button. This is
         # preferable since many DCCs show the embed panel on the far right. In
@@ -605,18 +605,25 @@ class AppDialog(QtGui.QWidget):
     # top detail area callbacks
 
     def _update_current_user(self):        
-        """        
-        Update the current user icon     
         """
-        curr_user_pixmap = self._current_user_model.get_pixmap()        
-                
-        # QToolbutton needs a QIcon      
-        self.ui.current_user.setIcon(QtGui.QIcon(curr_user_pixmap))        
-                
-        # updat the reply icon                
-        sg_data = self._current_user_model.get_sg_data()        
-        if sg_data:        
-            self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])
+        Update the current user icon
+        """
+        # Do not test for data availability from the model, since
+        if self._current_user_model.get_sg_link():
+            curr_user_pixmap = self._current_user_model.get_pixmap()        
+
+            # QToolbutton needs a QIcon
+            self.ui.current_user.setIcon(QtGui.QIcon(curr_user_pixmap))
+
+            # updat the reply icon
+            sg_data = self._current_user_model.get_sg_data()        
+            if sg_data:        
+                self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])
+        else:
+            # If Toolkit can't determine the current user, add a tooltip to the current_user
+            # button and disable it since it won't work.
+            self.ui.current_user.setEnabled(False)
+            self.ui.current_user.setToolTip("The current user is unknown.")
 
     def _refresh_details_thumbnail(self):
         """
