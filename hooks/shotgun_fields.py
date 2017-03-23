@@ -256,8 +256,8 @@ class ShotgunFields(HookBaseClass):
         
         values = {
             "title": "{type} {code}",
-            "body": "Created by: {created_by}",
-            }
+            "body": "Status: {sg_status_list}<br>Description: {description}"
+        }
         
         
         if entity_type == "HumanUser": 
@@ -298,8 +298,9 @@ class ShotgunFields(HookBaseClass):
         elif entity_type == "Shot":
             values["body"] = """
                 Sequence: {sg_sequence}<br>
-                Status: {sg_status_list}<br><br>
+                Status: {sg_status_list}<br>
                 {[Cut In: ]sg_cut_in[  ]}{[Cut Out:]sg_cut_out[  ]}{[Duration: ]sg_cut_duration}<br>
+                {[Description: ]description}
                 """
     
         elif entity_type == "Task":
