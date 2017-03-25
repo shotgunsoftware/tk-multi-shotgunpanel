@@ -16,6 +16,7 @@ from sgtk.platform.qt import QtCore, QtGui
 from .ui.dialog import Ui_Dialog
 
 from .shotgun_location import ShotgunLocation
+from .model_hierarchy import ShotgunHierarchyModel
 from .delegate_list_item import ListItemDelegate
 from .action_manager import ActionManager
 from .model_entity_listing import SgEntityListingModel
@@ -49,7 +50,7 @@ class AppDialog(QtGui.QWidget):
     Main application dialog window. This defines the top level UI
     and binds all UI objects together.
     """
-    
+
     # header indices
     NAVIGATION_HEADER_IDX = 0
     SEARCH_HEADER_IDX = 1
@@ -62,11 +63,12 @@ class AppDialog(QtGui.QWidget):
     
     # tab indices
     ENTITY_TAB_ACTIVITY_STREAM = 0
-    ENTITY_TAB_NOTES = 1
-    ENTITY_TAB_VERSIONS = 2
-    ENTITY_TAB_PUBLISHES = 3
-    ENTITY_TAB_TASKS = 4
-    ENTITY_TAB_INFO = 5
+    ENTITY_TAB_TREE_HIERARCHY = 1
+    ENTITY_TAB_NOTES = 2
+    ENTITY_TAB_VERSIONS = 3
+    ENTITY_TAB_PUBLISHES = 4
+    ENTITY_TAB_TASKS = 5
+    ENTITY_TAB_INFO = 6
     
     PUBLISH_TAB_HISTORY = 0
     PUBLISH_TAB_CONTAINS = 1
@@ -166,6 +168,17 @@ class AppDialog(QtGui.QWidget):
         self.ui.search.clicked.connect(self._on_search_clicked)
         self.ui.cancel_search.clicked.connect(self._cancel_search)
         self.ui.search_input.entity_selected.connect(self._on_search_item_selected)
+
+        # hierarchy
+        self._hierarchy_model = ShotgunHierarchyModel(self, bg_task_manager=self._task_manager)
+        self._hierarchy_proxy = QtGui.QSortFilterProxyModel(self)
+        self._hierarchy_proxy.setSourceModel(self._hierarchy_model)
+        # Sort alphabetically
+        self._hierarchy_proxy.sort(0)
+        self._hierarchy_proxy.setDynamicSortFilter(True)
+        self.ui.entity_hierarchy_tree.setModel(self._hierarchy_proxy)
+        # double click navigates
+        self.ui.entity_hierarchy_tree.doubleClicked.connect(self._on_tree_doubleclicked)
 
         # latest publishes only
         self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
@@ -335,7 +348,7 @@ class AppDialog(QtGui.QWidget):
         splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/splash.png")
         self._overlay.show_message_pixmap(splash_pix)
         QtCore.QCoreApplication.processEvents()
-        QtCore.QTimer.singleShot(3000, self._overlay.hide)
+        QtCore.QTimer.singleShot(2000, self._overlay.hide)
 
 
     def closeEvent(self, event):
@@ -417,36 +430,42 @@ class AppDialog(QtGui.QWidget):
         """
         # set the right widget to show
         self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)
-        
+
         #################################################################################
         # temp tab handling! Replace with smarter, better solution!
         
         formatter = self._current_location.sg_formatter
-        
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_NOTES, formatter.show_notes_tab)
-        if not formatter.show_notes_tab:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, "")
-        else:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, "Notes")
- 
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_VERSIONS, formatter.show_versions_tab)
-        if not formatter.show_versions_tab:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, "")
-        else:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, "Versions")
- 
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_PUBLISHES, formatter.show_publishes_tab)
-        if not formatter.show_publishes_tab:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, "")
-        else:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, "Publishes")
 
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_TASKS, formatter.show_tasks_tab)
-        if not formatter.show_tasks_tab:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, "")
-        else:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, "Tasks")
-        
+        (enabled, caption) = formatter.show_activity_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_ACTIVITY_STREAM, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_ACTIVITY_STREAM, caption)
+
+        (enabled, caption) = formatter.show_notes_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_NOTES, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, caption)
+
+        (enabled, caption) = formatter.show_versions_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_VERSIONS, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, caption)
+
+        (enabled, caption) = formatter.show_publishes_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_PUBLISHES, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, caption)
+
+        (enabled, caption) = formatter.show_tasks_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_TASKS, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, caption)
+
+        (enabled, caption) = formatter.show_info_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_INFO, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_INFO, caption)
+
+        # set the description
+        self.ui.entity_note_label.setText(formatter.notes_description)
+        self.ui.entity_task_label.setText(formatter.tasks_description)
+        self.ui.entity_version_label.setText(formatter.versions_description)
+        self.ui.entity_publish_label.setText(formatter.publishes_description)
+
         # get the tab index associated with the location and
         # show that tab. This means that the 'current tab' is
         # remembered as you step through history
@@ -470,6 +489,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.publish_tab_widget.setCurrentIndex(tab_idx_for_location)
         self._load_publish_tab_data(tab_idx_for_location)
 
+
     def focus_version(self):
         """
         Move UI to entity mode. Load up tabs.
@@ -484,7 +504,12 @@ class AppDialog(QtGui.QWidget):
         tab_idx_for_location = self._current_location.tab_index
         self.ui.version_tab_widget.setCurrentIndex(tab_idx_for_location)
         self._load_version_tab_data(tab_idx_for_location)
-        
+
+        # set the description
+        formatter = self._current_location.sg_formatter
+        self.ui.version_note_label.setText(formatter.notes_description)
+        self.ui.version_publish_label.setText(formatter.publishes_description)
+
     def focus_note(self):
         """
         Move UI to note mode. Load up tabs.
@@ -533,8 +558,11 @@ class AppDialog(QtGui.QWidget):
         
         if index == self.ENTITY_TAB_ACTIVITY_STREAM:
             self.ui.entity_activity_stream.load_data(self._current_location.entity_dict )
-        
-        elif index == self.ENTITY_TAB_NOTES:            
+
+        elif index == self.ENTITY_TAB_TREE_HIERARCHY:
+            self._hierarchy_model.set_location(self._current_location)
+
+        elif index == self.ENTITY_TAB_NOTES:
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
             
         elif index == self.ENTITY_TAB_VERSIONS:
@@ -670,11 +698,45 @@ class AppDialog(QtGui.QWidget):
     # UI callbacks
     def _on_entity_doubleclicked(self, model_index):
         """
-        Someone clicked an entity
+        Someone doubleclicked an entity
         """
         sg_item = shotgun_model.get_sg_data(model_index)
         sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
         self._navigate_to(sg_location)
+
+    def _on_tree_doubleclicked(self, model_index):
+        """
+        Someone doubleclicked in the tree
+        """
+        sg_item = shotgun_model.get_sg_data(model_index)
+        # the raw data coming back is on the following form:
+        #
+        # {
+        #   'target_entities': {
+        #       'additional_filter_presets': [{
+        #           'path': '/Project/515/Asset/id/17146',
+        #           'preset_name': 'NAV_ENTRIES',
+        #           'seed': {
+        #               'field': 'entity',
+        #               'type': 'PublishedFile'
+        #               }
+        #           }],
+        #       'type': 'PublishedFile'
+        #   },
+        #   'path': '/Project/515/Asset/id/17146',
+        #   'has_children': False,
+        #   'ref': {
+        #       'kind': 'entity',
+        #       'value': {'type': 'Asset', 'id': 17146}
+        #   },
+        #   'label': 'clown4'
+        # }
+
+        if sg_item["ref"]["kind"] == "entity":
+            entity_type = sg_item["ref"]["value"]["type"]
+            entity_id = sg_item["ref"]["value"]["id"]
+            sg_location = ShotgunLocation(entity_type, entity_id)
+            self._navigate_to(sg_location)
 
     def navigate_to_entity(self, entity_type, entity_id):
         """

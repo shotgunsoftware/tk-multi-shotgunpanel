@@ -369,7 +369,7 @@
           <enum>Qt::NoFocus</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="entity_activity_tab">
           <attribute name="title">
@@ -384,6 +384,26 @@
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="entity_tree_tab">
+          <attribute name="title">
+           <string>Tree</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_23">
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QTreeView" name="entity_hierarchy_tree">
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="headerHidden">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="entity_note_tab">
           <attribute name="title">
            <string>Notes</string>
@@ -392,6 +412,16 @@
            <property name="margin">
             <number>0</number>
            </property>
+           <item>
+            <widget class="QLabel" name="entity_note_label">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QListView" name="entity_note_view">
              <property name="verticalScrollMode">
@@ -415,6 +445,16 @@
            <property name="margin">
             <number>0</number>
            </property>
+           <item>
+            <widget class="QLabel" name="entity_version_label">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QListView" name="entity_version_view">
              <property name="verticalScrollMode">
@@ -445,6 +485,16 @@
            <property name="margin">
             <number>0</number>
            </property>
+           <item>
+            <widget class="QLabel" name="entity_publish_label">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QListView" name="entity_publish_view">
              <property name="verticalScrollMode">
@@ -479,6 +529,16 @@
             <number>0</number>
            </property>
            <item>
+            <widget class="QLabel" name="entity_task_label">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QListView" name="entity_task_view">
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -495,7 +555,7 @@
          </widget>
          <widget class="QWidget" name="entity_info_tab">
           <attribute name="title">
-           <string>Info</string>
+           <string>Details</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <property name="margin">
@@ -535,6 +595,16 @@
             <number>0</number>
            </property>
            <item>
+            <widget class="QLabel" name="publish_history_label">
+             <property name="text">
+              <string>The version history for this publish.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QListView" name="publish_history_view">
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -557,6 +627,16 @@
            <property name="margin">
             <number>0</number>
            </property>
+           <item>
+            <widget class="QLabel" name="publish_upstream_label">
+             <property name="text">
+              <string>Publishes being referenced by this publish.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QListView" name="publish_upstream_view">
              <property name="verticalScrollMode">
@@ -581,6 +661,16 @@
             <number>0</number>
            </property>
            <item>
+            <widget class="QLabel" name="publish_downstream_label">
+             <property name="text">
+              <string>Publishes that are referencing this publish.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QListView" name="publish_downstream_view">
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -597,7 +687,7 @@
          </widget>
          <widget class="QWidget" name="publish_info_tab">
           <attribute name="title">
-           <string>Info</string>
+           <string>Details</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_19">
            <property name="margin">
@@ -650,6 +740,16 @@
             <number>0</number>
            </property>
            <item>
+            <widget class="QLabel" name="version_note_label">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QListView" name="version_note_view">
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -673,6 +773,16 @@
             <number>0</number>
            </property>
            <item>
+            <widget class="QLabel" name="version_publish_label">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QListView" name="version_publish_view">
              <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -689,7 +799,7 @@
          </widget>
          <widget class="QWidget" name="version_info_tab">
           <attribute name="title">
-           <string>Info</string>
+           <string>Details</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_21">
            <property name="margin">

@@ -17,7 +17,7 @@ QWidget {
 }
 
 /* Get rid of borders for main Listing Views */
-QListView, QTableView, QScrollArea {
+QListView, QTableView, QTreeView, QScrollArea {
     border: none;
 }
 
@@ -30,8 +30,8 @@ QTabWidget::pane {
     padding-top: 8px;
 }
 
-/* Style the tab using the tab sub-control. 
-   Note that it reads QTabBar _not_ QTabWidget */
+
+/* Style the tab using the tab sub-control. */
 QTabBar::tab {
     padding-left: 12px;
     padding-right: 12px;
@@ -39,6 +39,7 @@ QTabBar::tab {
     padding-top: 0px;
     border-bottom: 2px solid rgb(255, 255, 255, 5);
 }
+
 
 QTabBar::tab:hover {
     color: {{SG_HIGHLIGHT_COLOR}};
@@ -48,6 +49,17 @@ QTabBar::tab:selected {
     color: {{SG_HIGHLIGHT_COLOR}};
     border-bottom: 2px solid {{SG_HIGHLIGHT_COLOR}};
 }
+
+/* helper text below labels */
+#entity_note_label, #entity_version_label, #entity_publish_label,
+#entity_task_label, #publish_history_label, #publish_upstream_label,
+#publish_downstream_label, #version_note_label, #version_publish_label
+{
+    font-size: 10px;
+    font-weight: 100;
+    font-style: italic;
+}
+
 
 /****************************************************************/
 /* Info tab showing all shotgun fields 							*/
@@ -169,6 +181,7 @@ QPushButton#cancel_search {
 #details_text_header {
     padding-left: 2px;
     font-size: 16px;
+    font-weight: 100;
 }
 
 #details_text_middle {
@@ -191,4 +204,18 @@ QPushButton#current_user {
 
 #list_item_top_right {
     color: rgba(200, 200, 200, 40%);
+}
+
+
+/****************************************************************/
+/* Styling for the nav tree. */
+
+QTreeView::item {
+    padding: 6px;
+}
+
+QTreeView {
+    font-size: 12px;
+    font-weight: 100;
+    padding: 10px;
 }

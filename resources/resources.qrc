@@ -10,6 +10,10 @@
     <file>home_hover.png</file>
     <file>home_pressed.png</file>
     <file>home_disabled.png</file>
+    <file>hierarchy.png</file>
+    <file>hierarchy_hover.png</file>
+    <file>hierarchy_pressed.png</file>
+    <file>hierarchy_disabled.png</file>
     <file>search.png</file>
     <file>search_hover.png</file>
     <file>search_pressed.png</file>

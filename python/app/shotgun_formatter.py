@@ -388,11 +388,21 @@ class ShotgunFormatter(object):
         return list(self._token_fields)
 
     @property
+    def show_activity_tab(self):
+        """
+        Should the note tab be shown for this
+        """
+        if self.entity_type in ["Group", "ClientUser", "HumanUser", "Script"]:
+            return (False, "")
+        else:
+            return (True, "Activity")
+
+    @property
     def show_notes_tab(self):
         """
         Should the note tab be shown for this
         """
-        return True        
+        return (True, "Notes")
 
     @property
     def show_publishes_tab(self):
@@ -400,9 +410,9 @@ class ShotgunFormatter(object):
         Should the publishes tab be shown for this
         """
         if self.entity_type in ["Group", "ClientUser"]:
-            return False
+            return (False, "")
         else:
-            return True        
+            return (True, "Publishes")
 
     @property
     def show_versions_tab(self):
@@ -410,19 +420,72 @@ class ShotgunFormatter(object):
         Should the publishes tab be shown for this
         """
         if self.entity_type in ["Group", "ClientUser"]:
-            return False
+            return (False, "")
         else:
-            return True        
+            return (True, "Versions")
 
     @property
     def show_tasks_tab(self):
         """
         Should the tasks tab be shown for this
         """
-        if self.entity_type in ["ApiUser", "Group", "ClientUser"]:
-            return False
+        if self.entity_type in ["ApiUser", "Group", "ClientUser", "Task"]:
+            return (False, "")
+        elif self.entity_type == "Project":
+            return (True, "My Tasks")
         else:
-            return True        
+            return (True, "Tasks")
+
+    @property
+    def show_info_tab(self):
+        """
+        Should the info tab be shown for this
+        """
+        if self.entity_type == "Project":
+            return (False, "")
+        else:
+            return (True, "Details")
+
+    @property
+    def notes_description(self):
+        """
+        Current description for notes
+        """
+        if self._entity_type == "Project":
+            return "Notes for the entire project, in update order."
+        else:
+            return "Notes for this item, in update order."
+
+    @property
+    def publishes_description(self):
+        """
+        Current description for publishes
+        """
+        if self._entity_type == "Project":
+            return "Publishes for the entire project, in update order."
+        else:
+            return "Publishes for this item, in update order."
+
+    @property
+    def versions_description(self):
+        """
+        Current description for versions
+        """
+        if self._entity_type == "Project":
+            return "All review versions submitted for the project."
+        else:
+            return "Review versions for this item."
+
+    @property
+    def tasks_description(self):
+        """
+        Current description for tasks
+        """
+        if self._entity_type == "Project":
+            return "All your tasks for this project."
+        else:
+            return "All tasks for this item."
+
 
     ####################################################################################################
     # public methods
@@ -550,6 +613,11 @@ class ShotgunFormatter(object):
             
             elif self._entity_type in ["PublishedFile", "TankPublishedFile"]:
                 link_filters.append(["project", "is", sg_location.entity_dict])
+
+            elif self._entity_type == "Task":
+                # my tasks tab on project
+                link_filters.append(["task_assignees", "in", [self._app.context.user]])
+                link_filters.append(["sg_status_list", "is_not", "fin"])
 
             else:
                 link_filters.append(["entity", "is", sg_location.entity_dict])
