@@ -939,7 +939,10 @@ class AppDialog(QtGui.QWidget):
             self._app.shotgun.update(
                 "Task",
                 entity_id,
-                {"task_assignees": [self._app.context.user]},
+                {
+                    "task_assignees": [self._app.context.user],
+                    "sg_status_list": "ip"
+                },
                 multi_entity_update_modes={"task_assignees": "add"}
             )
 

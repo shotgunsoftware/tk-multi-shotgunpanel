@@ -104,7 +104,8 @@ class ShotgunFields(HookBaseClass):
             values["top_left"] = "<big>{content}</big>"
             values["top_right"] = "{sg_status_list}"
             values["body"] = """
-                {[Assigned to ]task_assignees[<br>]} 
+                {[Assigned to ]task_assignees[<br>]}
+                {entity::showtype[<br>]}
                 {[<br>Start: ]start_date}
                 {[<br>Due: ]due_date}
                 """            
@@ -202,11 +203,19 @@ class ShotgunFields(HookBaseClass):
                                    "sg_first_frame", 
                                    "frame_count",
                                    "frame_range",
+                                   "sg_uploaded_movie_frame_rate",
+                                   "sg_path_to_geometry",
                                    "sg_last_frame",
                                    "entity",
                                    "sg_path_to_frames",
                                    "sg_path_to_movie",
                                    "playlists",
+                                   "client_approved_by",
+                                   "client_approved_at",
+                                   "client_approved",
+                                   "cuts",
+                                   "delivery_sg_versions_deliveries",
+                                   "sg_department",
                                    "published_files",
                                    "sg_task",
                                    "sg_version_type"]
@@ -300,7 +309,7 @@ class ShotgunFields(HookBaseClass):
                 Sequence: {sg_sequence}<br>
                 Status: {sg_status_list}<br>
                 {[Cut In: ]sg_cut_in[  ]}{[Cut Out:]sg_cut_out[  ]}{[Duration: ]sg_cut_duration}<br>
-                {[Description: ]description}
+                Description: {description}
                 """
     
         elif entity_type == "Task":
@@ -309,7 +318,7 @@ class ShotgunFields(HookBaseClass):
             
                 <big>Status: {sg_status_list}</big><br><br>
             
-                {[For ]entity::showtype[<br>]}
+                {entity::showtype[<br>]}
                 {[Assigned to: ]task_assignees[<br>]}
                 {[Start: ]start_date}{[ Due: ]due_date}
                 """
@@ -361,14 +370,14 @@ class ShotgunFields(HookBaseClass):
             values["title"] = "{code}"
             
             values["body"] = """
-                <b>Version for Review</b><br>
-                For {entity::showtype}{[, Task ]sg_task} <br>
+                {entity::showtype}{[, Task ]sg_task} <br>
+                Status: {sg_status_list}<br>
                 Created by {user|created_by} on {created_at}<br>
-                
+                {[<br>Client approved by: ]client_approved_by[<br>]}
                 {[<br>In Playlists: ]playlists[<br>]}
-                
+
                 <br>
-                <b>Comments:</b><br>{description}                
+                <b>Comments: </b>{description}
                 """
             
     
