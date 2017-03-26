@@ -82,6 +82,13 @@ class ListItemWidget(QtGui.QWidget):
         # add work area button
         self._work_area_button = WorkAreaButtonListItem(self.ui.box)
 
+    @property
+    def work_area_button(self):
+        """
+        The special button which controls the work area
+        """
+        return self._work_area_button
+
     def set_selected(self, selected):
         """
         Adjust the style sheet to indicate selection or not

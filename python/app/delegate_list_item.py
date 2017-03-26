@@ -29,7 +29,13 @@ class ListItemDelegate(shotgun_view.EditSelectedWidgetDelegate):
     - list of tasks
 
     It is paired up with the ListItemWidget.
+
+    :signal change_work_area(str, int): Fires when someone clicks the change
+        work area button. Arguments passed are the entity type and entity id
+
     """
+
+    change_work_area = QtCore.Signal(str, int)
 
     def __init__(self, view, action_manager):
         """
@@ -68,6 +74,8 @@ class ListItemDelegate(shotgun_view.EditSelectedWidgetDelegate):
         sg_item = shotgun_model.get_sg_data(model_index)
         actions = self._action_manager.get_actions(sg_item, self._action_manager.UI_AREA_MAIN)
         widget.set_actions(actions)
+
+        widget.work_area_button.change_work_area.connect(self.change_work_area.emit)
 
     def _on_before_paint(self, widget, model_index, style_options):
         """

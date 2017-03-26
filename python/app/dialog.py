@@ -317,6 +317,7 @@ class AppDialog(QtGui.QWidget):
             tab_dict["view"].doubleClicked.connect(self._on_entity_doubleclicked)
             # create delegate
             tab_dict["delegate"] = DelegateClass(tab_dict["view"], self._action_manager)
+            tab_dict["delegate"].change_work_area.connect(self._change_work_area)
             # hook up delegate renderer with view
             tab_dict["view"].setItemDelegate(tab_dict["delegate"])
             # and set up a spinner overlay
@@ -344,6 +345,7 @@ class AppDialog(QtGui.QWidget):
 
         # the set work area overlay
         self._work_area_button = WorkAreaButtonDetailsArea(self.ui.top_group)
+        self._work_area_button.change_work_area.connect(self._change_work_area)
 
         # kick off
         self._on_home_clicked()
@@ -914,3 +916,15 @@ class AppDialog(QtGui.QWidget):
         self.ui.search_input.setText("")
         sg_location = ShotgunLocation(entity_type, entity_id)            
         self._navigate_to(sg_location)
+
+    def _change_work_area(self, entity_type, entity_id):
+        """
+
+        @param entity_type:
+        @param entity_id:
+        @return:
+        """
+        ctx = self._app.sgtk.context_from_entity(entity_type, entity_id)
+        sgtk.platform.change_context(ctx)
+
+        self._on_home_clicked()

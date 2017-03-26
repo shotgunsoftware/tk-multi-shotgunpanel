@@ -24,7 +24,7 @@ class WorkAreaButton(QtGui.QToolButton):
     WIDGET_HEIGHT = 30
     WIDGET_WIDTH_COLLAPSED = 30
 
-    clicked = QtCore.Signal(str, int)
+    change_work_area = QtCore.Signal(str, int)
 
     def __init__(self, right_side_offset, bottom_offset, parent):
         """
@@ -69,7 +69,6 @@ class WorkAreaButton(QtGui.QToolButton):
         self._caption = "Undefined"
         self._width = 100
         self._expanding = True
-
 
         self.clicked.connect(self._on_click)
 
@@ -127,8 +126,8 @@ class WorkAreaButton(QtGui.QToolButton):
 
 
     def _on_click(self):
-
-        self.clicked.emit(self._entity_type, self._entity_id)
+        print "emit click"
+        self.change_work_area.emit(self._entity_type, self._entity_id)
 
 
     def leaveEvent(self, evt):
