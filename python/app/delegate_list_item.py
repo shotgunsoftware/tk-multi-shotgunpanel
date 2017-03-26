@@ -68,6 +68,9 @@ class ListItemDelegate(shotgun_view.EditSelectedWidgetDelegate):
         sg_item = shotgun_model.get_sg_data(model_index)
         actions = self._action_manager.get_actions(sg_item, self._action_manager.UI_AREA_MAIN)
         widget.set_actions(actions)
+
+        # set up the switch work area
+        widget.set_up_work_area(sg_item["type"], sg_item["id"])
     
     def _on_before_paint(self, widget, model_index, style_options):
         """

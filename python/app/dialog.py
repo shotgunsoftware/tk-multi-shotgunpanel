@@ -32,6 +32,7 @@ from .model_current_user import SgCurrentUserModel
 from .not_found_overlay import NotFoundModelOverlay
 from .shotgun_formatter import ShotgunFormatter
 from .note_updater import NoteUpdater
+from .work_area_button import WorkAreaButtonDetailsArea
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 task_manager = sgtk.platform.import_framework("tk-framework-shotgunutils", "task_manager")
@@ -340,7 +341,10 @@ class AppDialog(QtGui.QWidget):
         self._publish_details_model = SgAllFieldsModel(self.ui.publish_info_widget, self._task_manager)
         self._publish_details_model.data_updated.connect(self.ui.publish_info_widget.set_data)
         self.ui.publish_info_widget.link_activated.connect(self._on_link_clicked)
-        
+
+        # the set work area overlay
+        self._work_area_button = WorkAreaButtonDetailsArea(self.ui.top_group)
+
         # kick off
         self._on_home_clicked()
 
@@ -349,6 +353,8 @@ class AppDialog(QtGui.QWidget):
         self._overlay.show_message_pixmap(splash_pix)
         QtCore.QCoreApplication.processEvents()
         QtCore.QTimer.singleShot(2000, self._overlay.hide)
+
+
 
 
     def closeEvent(self, event):
@@ -420,7 +426,12 @@ class AppDialog(QtGui.QWidget):
 
         # update the details area
         self._details_model.load_data(self._current_location)
-        
+
+        # update the work area button
+        self._work_area_button.set_up(
+            self._current_location.entity_type,
+            self._current_location.entity_id
+        )
         
 
     def focus_entity(self):

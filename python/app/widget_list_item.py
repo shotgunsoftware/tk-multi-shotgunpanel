@@ -11,6 +11,7 @@
 import sgtk
 from sgtk.platform.qt import QtCore, QtGui 
 from .ui.list_item_widget import Ui_ListItemWidget
+from .work_area_button import WorkAreaButtonListItem
 
 class ListItemWidget(QtGui.QWidget):
     """
@@ -78,6 +79,9 @@ class ListItemWidget(QtGui.QWidget):
         # showing up partially offscreen.
         self.ui.button.setLayoutDirection(QtCore.Qt.RightToLeft)
 
+        # add work area button
+        self._work_area_button = WorkAreaButtonListItem(self.ui.box)
+
     def set_selected(self, selected):
         """
         Adjust the style sheet to indicate selection or not
@@ -111,6 +115,15 @@ class ListItemWidget(QtGui.QWidget):
             self._actions = actions
             for a in self._actions:
                 self._menu.addAction(a)
+
+    def set_up_work_area(self, entity_type, entity_id):
+        """
+        Sets up the set work area button
+
+        :param entity_type: shotgun type to set up work area for
+        :param entity_id:  Shotgun id to set up work area for
+        """
+        self._work_area_button.set_up(entity_type, entity_id)
 
     def set_thumbnail(self, pixmap):
         """
