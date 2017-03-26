@@ -16,7 +16,15 @@ import sgtk
 class WorkAreaButton(QtGui.QToolButton):
     """
     Work area widget
+
+    :signal clicked(str, int): Fires when someone clicks the change
+        work area button. Arguments passed are the entity type and entity id
     """
+
+    WIDGET_HEIGHT = 30
+    WIDGET_WIDTH_COLLAPSED = 30
+
+    clicked = QtCore.Signal(str, int)
 
     def __init__(self, right_side_offset, bottom_offset, parent):
         """
@@ -32,7 +40,12 @@ class WorkAreaButton(QtGui.QToolButton):
         self._right_side_offset = right_side_offset
         self._bottom_offset = bottom_offset
 
-        self.setGeometry(QtCore.QRect(0, 0, 30, 30))
+        self.setGeometry(QtCore.QRect(
+            0,
+            0,
+            self.WIDGET_WIDTH_COLLAPSED,
+            self.WIDGET_HEIGHT
+        ))
 
         self.icon = QtGui.QIcon()
         self.icon.addPixmap(
@@ -53,6 +66,11 @@ class WorkAreaButton(QtGui.QToolButton):
         self._entity_id = None
         self._is_current = False
 
+        self._caption = "Undefined"
+        self._width = 100
+        self._expanding = True
+
+
         self.clicked.connect(self._on_click)
 
     def set_up(self, entity_type, entity_id):
@@ -72,31 +90,62 @@ class WorkAreaButton(QtGui.QToolButton):
             # button can clicked
             self.setEnabled(True)
 
+    def _configure(self, caption_text, width, expanding):
+        """
+
+        :param caption_text:
+        :param width:
+        :param expanding:
+        """
+        self._caption = caption_text
+        self._width = width
+        self._expanding = expanding
+        self.__init_default_state()
+
+
+    def __init_default_state(self):
+
+        if self._expanding:
+            self.setText("")
+            self.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+            self.setGeometry(QtCore.QRect(
+                self.parentWidget().width() - self.WIDGET_WIDTH_COLLAPSED - self._right_side_offset,
+                self.parentWidget().height() - self.WIDGET_HEIGHT - self._bottom_offset,
+                self.WIDGET_WIDTH_COLLAPSED,
+                self.WIDGET_HEIGHT
+            ))
+        else:
+            self.setText(self._caption)
+            self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+            self.setGeometry(QtCore.QRect(
+                self.parentWidget().width() - self._width - self._right_side_offset,
+                self.parentWidget().height() - self.WIDGET_HEIGHT - self._bottom_offset,
+                self._width,
+                self.WIDGET_HEIGHT
+            ))
+
+
+
     def _on_click(self):
 
-        print "click"
+        self.clicked.emit(self._entity_type, self._entity_id)
 
 
     def leaveEvent(self, evt):
-        self.setText("")
-        self.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
-        self.setGeometry(QtCore.QRect(
-            self.parentWidget().width() - 30 - self._right_side_offset,
-            self.parentWidget().height() - 30 - self._bottom_offset,
-            30,
-            30
-        ))
+        if self._expanding:
+            self.__init_default_state()
         return super(WorkAreaButton, self).leaveEvent(evt)
 
     def enterEvent(self, evt):
-        self.setText("Set Work Area")
-        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.setGeometry(QtCore.QRect(
-            self.parentWidget().width() - 100 - self._right_side_offset,
-            self.parentWidget().height() - 30 - self._bottom_offset,
-            100,
-            30
-        ))
+        if self._expanding:
+            self.setText(self._caption)
+            self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+            self.setGeometry(QtCore.QRect(
+                self.parentWidget().width() - self._width - self._right_side_offset,
+                self.parentWidget().height() - self.WIDGET_HEIGHT - self._bottom_offset,
+                self._width,
+                self.WIDGET_HEIGHT
+            ))
         return super(WorkAreaButton, self).enterEvent(evt)
 
 
@@ -165,6 +214,8 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
                     background-color: #05AB6C;
                 }
             """)
+
+            self._configure("Current Work Area", 125, expanding=False)
         else:
             self.setStyleSheet("""
                 QToolButton {
@@ -182,6 +233,7 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
                     background-color: #0AA3F8;
                 }
             """)
+            self._configure("Set Work Area", 105, expanding=True)
 
 
 class WorkAreaButtonListItem(WorkAreaButton):
@@ -192,7 +244,7 @@ class WorkAreaButtonListItem(WorkAreaButton):
         :param view: View to place overlay on top of.
         """
         super(WorkAreaButtonListItem, self).__init__(
-            right_side_offset=4,
+            right_side_offset=6,
             bottom_offset=10,
             parent=parent
         )
@@ -204,7 +256,7 @@ class WorkAreaButtonListItem(WorkAreaButton):
                 font-size: 11px;
                 font-weight: 100;
                 border-radius: 3px;
-                background-color: rgba(0, 0, 0, 0%);
+                background-color: rgba(0, 0, 0, 10%);
             }
             QToolButton:pressed {
                 color: #ccc;
@@ -214,6 +266,7 @@ class WorkAreaButtonListItem(WorkAreaButton):
                 background-color: #0AA3F8;
             }
         """)
+        self._configure("Set Work Area", 105, expanding=True)
 
     def set_up(self, entity_type, entity_id):
 
