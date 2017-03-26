@@ -278,6 +278,8 @@ class WorkAreaButtonListItem(WorkAreaButton):
 
 
 
+
+
 class ResizeEventFilter(QtCore.QObject):
     """
     Utility and helper.
