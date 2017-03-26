@@ -27,6 +27,8 @@ class WorkAreaButton(QtGui.QToolButton):
 
         self._bundle = sgtk.platform.current_bundle()
 
+        self.setVisible(False)
+
         self._right_side_offset = right_side_offset
         self._bottom_offset = bottom_offset
 
@@ -53,15 +55,12 @@ class WorkAreaButton(QtGui.QToolButton):
 
         self.clicked.connect(self._on_click)
 
-
-
     def set_up(self, entity_type, entity_id):
         self._entity_id = entity_id
         self._entity_type = entity_type
 
         # figure out if this is the current project
         context = self._bundle.context
-
         context_entity = context.task or context.entity or context.project or None
 
         if context_entity and context_entity["type"] == entity_type and context_entity["id"] == entity_id:
@@ -123,30 +122,66 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
         :param model: Shotgun Model to monitor
         :param view: View to place overlay on top of.
         """
-        super(WorkAreaButtonDetailsArea, self).__init__(10, 10, parent)
+        super(WorkAreaButtonDetailsArea, self).__init__(
+            right_side_offset=10,
+            bottom_offset=10,
+            parent=parent
+        )
         self.setObjectName("work_area_button_details_area")
 
-        self.setStyleSheet("""
+    def set_up(self, entity_type, entity_id):
+        """
 
-            QToolButton {
-                color: #fff;
-                font-size: 11px;
-                font-weight: 100;
-                border-radius: 3px;
-                background-color: rgba(0, 200, 200, 20%);
-            }
+        @param entity_type:
+        @param entity_id:
+        @return:
+        """
+        super(WorkAreaButtonDetailsArea, self).set_up(entity_type, entity_id)
 
-            QToolButton:pressed {
-                background-color: blue;
-                color: #ccc;
-            }
+        non_work_area_types = [
+            "PublishedFile",
+            "TankPublishedFile",
+            "Version",
+            "Note",
+            "Group",
+            "HumanUser",
+            "ScriptUser",
+            "ClientUser",
+        ]
 
-            QToolButton:hover
-            {
-                background-color: #05AB6C;
-            }
+        if entity_type in non_work_area_types:
+            self.setVisible(False)
+        else:
+            self.setVisible(True)
 
-        """)
+        if self._is_current:
+            # green button with no hover or click
+            self.setStyleSheet("""
+                QToolButton {
+                    color: #fff;
+                    font-size: 11px;
+                    font-weight: 100;
+                    border-radius: 3px;
+                    background-color: #05AB6C;
+                }
+            """)
+        else:
+            self.setStyleSheet("""
+                QToolButton {
+                    color: #fff;
+                    font-size: 11px;
+                    font-weight: 100;
+                    border-radius: 3px;
+                    background-color: rgba(200, 200, 200, 20%);
+                }
+                QToolButton:pressed {
+                    color: #ccc;
+                }
+                QToolButton:hover
+                {
+                    background-color: #0AA3F8;
+                }
+            """)
 
 
 class WorkAreaButtonListItem(WorkAreaButton):
@@ -156,30 +191,39 @@ class WorkAreaButtonListItem(WorkAreaButton):
         :param model: Shotgun Model to monitor
         :param view: View to place overlay on top of.
         """
-        super(WorkAreaButtonListItem, self).__init__(4, 10, parent)
+        super(WorkAreaButtonListItem, self).__init__(
+            right_side_offset=4,
+            bottom_offset=10,
+            parent=parent
+        )
         self.setObjectName("work_area_button_list_item")
 
         self.setStyleSheet("""
-
             QToolButton {
                 color: #fff;
                 font-size: 11px;
                 font-weight: 100;
                 border-radius: 3px;
-                background-color: rgba(200, 200, 200, 0%);
+                background-color: rgba(0, 0, 0, 0%);
             }
-
             QToolButton:pressed {
-                background-color: blue;
                 color: #ccc;
             }
-
             QToolButton:hover
             {
-                background-color: #05AB6C;
+                background-color: #0AA3F8;
             }
-
         """)
+
+    def set_up(self, entity_type, entity_id):
+
+        super(WorkAreaButtonListItem, self).set_up(entity_type, entity_id)
+
+        if entity_type != "Task":
+            self.setVisible(False)
+        else:
+            self.setVisible(True)
+
 
 
 class ResizeEventFilter(QtCore.QObject):

@@ -69,9 +69,6 @@ class ListItemDelegate(shotgun_view.EditSelectedWidgetDelegate):
         actions = self._action_manager.get_actions(sg_item, self._action_manager.UI_AREA_MAIN)
         widget.set_actions(actions)
 
-        # set up the switch work area
-        widget.set_up_work_area(sg_item["type"], sg_item["id"])
-    
     def _on_before_paint(self, widget, model_index, style_options):
         """
         Called by the base class when the associated widget should be
@@ -103,7 +100,10 @@ class ListItemDelegate(shotgun_view.EditSelectedWidgetDelegate):
         (header_left, header_right, body) = sg_formatter.format_list_item_details(sg_item)
 
         widget.set_text(header_left, header_right, body)
-        
+
+        # set up the switch work area
+        widget.set_up_work_area(sg_item["type"], sg_item["id"])
+
         
     def sizeHint(self, style_options, model_index):
         """
