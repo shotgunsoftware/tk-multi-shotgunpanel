@@ -449,6 +449,10 @@ class AppDialog(QtGui.QWidget):
         
         formatter = self._current_location.sg_formatter
 
+        (enabled, caption) = formatter.show_tree_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_TREE_HIERARCHY, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TREE_HIERARCHY, caption)
+
         (enabled, caption) = formatter.show_activity_tab
         self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_ACTIVITY_STREAM, enabled)
         self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_ACTIVITY_STREAM, caption)

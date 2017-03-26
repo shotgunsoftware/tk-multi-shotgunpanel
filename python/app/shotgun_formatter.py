@@ -388,11 +388,35 @@ class ShotgunFormatter(object):
         return list(self._token_fields)
 
     @property
+    def show_tree_tab(self):
+        """
+        Should the note tab be shown for this
+        """
+        if self.entity_type in [
+            "Group",
+            "Department",
+            "ClientUser",
+            "HumanUser",
+            "ScriptUser",
+            "ApiUser"
+        ]:
+            return (False, "")
+        else:
+            return (True, "Tree")
+
+    @property
     def show_activity_tab(self):
         """
         Should the note tab be shown for this
         """
-        if self.entity_type in ["Group", "ClientUser", "HumanUser", "Script"]:
+        if self.entity_type in [
+            "Group",
+            "Department",
+            "ClientUser",
+            "HumanUser",
+            "ScriptUser",
+            "ApiUser"
+        ]:
             return (False, "")
         else:
             return (True, "Activity")
@@ -409,7 +433,7 @@ class ShotgunFormatter(object):
         """
         Should the publishes tab be shown for this
         """
-        if self.entity_type in ["Group", "ClientUser"]:
+        if self.entity_type in ["Group", "ClientUser", "Department"]:
             return (False, "")
         else:
             return (True, "Publishes")
@@ -419,7 +443,7 @@ class ShotgunFormatter(object):
         """
         Should the publishes tab be shown for this
         """
-        if self.entity_type in ["Group", "ClientUser"]:
+        if self.entity_type in ["Group", "ClientUser", "Department"]:
             return (False, "")
         else:
             return (True, "Versions")
@@ -429,7 +453,7 @@ class ShotgunFormatter(object):
         """
         Should the tasks tab be shown for this
         """
-        if self.entity_type in ["ApiUser", "Group", "ClientUser", "Task"]:
+        if self.entity_type in ["ScriptUser", "ApiUser", "Department", "Group", "ClientUser", "Task"]:
             return (False, "")
         elif self.entity_type == "Project":
             return (True, "My Tasks")

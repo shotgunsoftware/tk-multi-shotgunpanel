@@ -194,7 +194,14 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
             "Group",
             "HumanUser",
             "ScriptUser",
+            "ApiUser",
             "ClientUser",
+            "Department",
+            "Cut",
+            "CutItem",
+            "Delivery",
+            "Playlist",
+            "Ticket"
         ]
 
         if entity_type in non_work_area_types:
