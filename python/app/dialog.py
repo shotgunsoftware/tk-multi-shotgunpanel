@@ -330,8 +330,10 @@ class AppDialog(QtGui.QWidget):
         
         # set up the all fields tabs
         self._entity_details_model = SgAllFieldsModel(self, self._task_manager)
-        self._entity_details_overlay = ShotgunModelOverlayWidget(self._entity_details_model, 
-                                                                 self.ui.entity_info_widget)
+        self._entity_details_overlay = ShotgunModelOverlayWidget(
+            self._entity_details_model,
+            self.ui.entity_info_widget
+        )
              
         self._entity_details_model.data_updated.connect(self.ui.entity_info_widget.set_data)
         self.ui.entity_info_widget.link_activated.connect(self._on_link_clicked)
@@ -356,8 +358,6 @@ class AppDialog(QtGui.QWidget):
         self._overlay.show_message_pixmap(splash_pix)
         QtCore.QCoreApplication.processEvents()
         QtCore.QTimer.singleShot(2000, self._overlay.hide)
-
-
 
 
     def closeEvent(self, event):
@@ -488,9 +488,15 @@ class AppDialog(QtGui.QWidget):
         # show that tab. This means that the 'current tab' is
         # remembered as you step through history
         tab_idx_for_location = self._current_location.tab_index
+        if not self.ui.entity_tab_widget.isTabEnabled(tab_idx_for_location):
+            # the index is not a visible tab
+            # instead first the first left-most enabled tab
+            tab_idx_for_location = 0
+            while not self.ui.entity_tab_widget.isTabEnabled(tab_idx_for_location):
+                tab_idx_for_location +=1
+
         self.ui.entity_tab_widget.setCurrentIndex(tab_idx_for_location)
         self._load_entity_tab_data(tab_idx_for_location)
-
 
     def focus_publish(self):
         """
@@ -506,7 +512,6 @@ class AppDialog(QtGui.QWidget):
         tab_idx_for_location = self._current_location.tab_index
         self.ui.publish_tab_widget.setCurrentIndex(tab_idx_for_location)
         self._load_publish_tab_data(tab_idx_for_location)
-
 
     def focus_version(self):
         """
@@ -575,7 +580,7 @@ class AppDialog(QtGui.QWidget):
         self._current_location.tab_index = index
         
         if index == self.ENTITY_TAB_ACTIVITY_STREAM:
-            self.ui.entity_activity_stream.load_data(self._current_location.entity_dict )
+            self.ui.entity_activity_stream.load_data(self._current_location.entity_dict)
 
         elif index == self.ENTITY_TAB_TREE_HIERARCHY:
             self._hierarchy_model.set_location(self._current_location)
@@ -585,11 +590,17 @@ class AppDialog(QtGui.QWidget):
             
         elif index == self.ENTITY_TAB_VERSIONS:
             show_pending_only = self.ui.pending_versions_only.isChecked()
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location, show_pending_only)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(
+                self._current_location,
+                show_pending_only
+            )
         
         elif index == self.ENTITY_TAB_PUBLISHES:
             show_latest_only = self.ui.latest_publishes_only.isChecked()
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location, show_latest_only)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(
+                self._current_location,
+                show_latest_only
+            )
             
         elif index == self.ENTITY_TAB_TASKS:
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
@@ -615,7 +626,10 @@ class AppDialog(QtGui.QWidget):
             self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location)
 
         elif index == self.VERSION_TAB_PUBLISHES:        
-            self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location, show_latest_only=False)
+            self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(
+                self._current_location,
+                show_latest_only=False
+            )
             
         elif index == self.VERSION_TAB_INFO:
             self._version_details_model.load_data(self._current_location)
