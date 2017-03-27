@@ -13,6 +13,10 @@
 # expected fields in the configuration file for this engine
 configuration:
 
+    enable_context_switch:
+        type: bool
+        default_value: false
+
     shotgun_fields_hook:
         type: hook
         default_value: "{self}/shotgun_fields.py"

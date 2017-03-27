@@ -183,6 +183,10 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
         @param entity_id:
         @return:
         """
+        if not self._bundle.get_setting("enable_context_switch"):
+            # context switch button not enabled
+            return
+
         super(WorkAreaButtonDetailsArea, self).set_up(entity_type, entity_id)
 
         non_work_area_types = [
@@ -221,6 +225,16 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
             """)
 
             self._configure("Current Work Area", 125, expanding=False)
+
+            self.setToolTip(
+                "This is your current work area.\n"
+                "The work you do will be associated with this item in Shotgun."
+            )
+
+        elif not self._is_current and entity_type == "Project":
+            # don't show the ctx selector for Projects
+            self.setVisible(False)
+
         else:
             self.setStyleSheet("""
                 QToolButton {
@@ -240,6 +254,15 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
             """)
             self._configure("Set Work Area", 105, expanding=True)
 
+            if entity_type == "Task":
+                self.setToolTip(
+                    "Click to set your work area to the given task.\n"
+                    "You will be assigned to the task and it will be set to in progress."
+                )
+            else:
+                self.setToolTip("Click to open the Set Work Area Selector")
+
+
 
 class WorkAreaButtonListItem(WorkAreaButton):
 
@@ -254,6 +277,11 @@ class WorkAreaButtonListItem(WorkAreaButton):
             parent=parent
         )
         self.setObjectName("work_area_button_list_item")
+
+        self.setToolTip(
+            "Click to set your work area to the given task.\n"
+            "You will be assigned to the task and it will be set to in progress."
+        )
 
         self.setStyleSheet("""
             QToolButton {
@@ -275,12 +303,19 @@ class WorkAreaButtonListItem(WorkAreaButton):
 
     def set_up(self, entity_type, entity_id):
 
-        super(WorkAreaButtonListItem, self).set_up(entity_type, entity_id)
+        if not self._bundle.get_setting("enable_context_switch"):
+            # context switch button not enabled
+            return
 
         if entity_type != "Task":
             self.setVisible(False)
+            # fast exit
+            return
         else:
             self.setVisible(True)
+
+        super(WorkAreaButtonListItem, self).set_up(entity_type, entity_id)
+
 
 
 
