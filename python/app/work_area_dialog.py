@@ -20,6 +20,9 @@ shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "s
 
 class WorkAreaDialog(QtGui.QDialog):
 
+    ENTITY_TYPE_ROLE = QtCore.Qt.UserRole + 1001
+    ENTITY_ID_ROLE = QtCore.Qt.UserRole + 1002
+
     def __init__(self, entity_type, entity_id, parent):
         """
         :param model: Shotgun Model to monitor
@@ -30,6 +33,9 @@ class WorkAreaDialog(QtGui.QDialog):
         # now load in the UI that was created in the UI designer
         self.ui = Ui_WorkAreaDialog()
         self.ui.setupUi(self)
+
+        # double clicking an item in the list closes the dialog
+        self.ui.task_list.itemDoubleClicked.connect(self.accept)
 
         self._bundle = sgtk.platform.current_bundle()
 
@@ -48,6 +54,12 @@ class WorkAreaDialog(QtGui.QDialog):
         self._main_item = QtGui.QListWidgetItem(entity_name, self.ui.task_list)
         self._main_item.setToolTip(main_item.get("description") or "No description found.")
 
+        self._main_item.setData(self.ENTITY_TYPE_ROLE, entity_type)
+        self._main_item.setData(self.ENTITY_ID_ROLE, entity_id)
+
+        # selected by default
+        self._main_item.setSelected(True)
+
         tasks = self._bundle.shotgun.find(
             "Task",
             [["entity", "is", {"type": entity_type, "id": entity_id}]],
@@ -58,8 +70,9 @@ class WorkAreaDialog(QtGui.QDialog):
             task_name = "Task %s on %s" % (task["content"], entity_name)
             if task["task_assignees"]:
                 task_name += " (%s)" % ", ".join([x["name"] for x in task["task_assignees"]])
-            QtGui.QListWidgetItem(task_name, self.ui.task_list)
-
+            task_item = QtGui.QListWidgetItem(task_name, self.ui.task_list)
+            task_item.setData(self.ENTITY_TYPE_ROLE, task["type"])
+            task_item.setData(self.ENTITY_ID_ROLE, task["id"])
 
         self.new_task = QtGui.QWidget(self)
         self.new_task.setObjectName("new_task")
@@ -88,6 +101,24 @@ class WorkAreaDialog(QtGui.QDialog):
 
         self.task_name.installEventFilter(self)
 
+    def is_new_task(self):
+        return self._new_item.isSelected()
+
+    @property
+    def new_task_name(self):
+        return self.task_name.text()
+
+    @property
+    def new_step_id(self):
+        return self.step_combo.itemData(self.step_combo.currentIndex())
+
+    @property
+    def selected_entity(self):
+        current_item = self.ui.task_list.currentItem()
+        return (
+            current_item.data(self.ENTITY_TYPE_ROLE),
+            current_item.data(self.ENTITY_ID_ROLE)
+        )
 
     def eventFilter(self, obj, event):
         """

@@ -922,16 +922,12 @@ class AppDialog(QtGui.QWidget):
         sg_location = ShotgunLocation(entity_type, entity_id)            
         self._navigate_to(sg_location)
 
-    def _change_work_area(self, entity_type, entity_id):
-        """
 
-        @param entity_type:
-        @param entity_id:
-        @return:
-        """
+    def _do_work_area_switch(self, entity_type, entity_id):
+
+        self._app.log_debug("Switching context to %s %s" % (entity_type, entity_id))
+
         if entity_type == "Task":
-            # direct assignment
-            self._app.log_debug("Switching context to %s %s" % (entity_type, entity_id))
 
             # assign current user
             self._app.log_debug(
@@ -947,15 +943,55 @@ class AppDialog(QtGui.QWidget):
                 multi_entity_update_modes={"task_assignees": "add"}
             )
 
-            ctx = self._app.sgtk.context_from_entity(entity_type, entity_id)
-            sgtk.platform.change_context(ctx)
+        ctx = self._app.sgtk.context_from_entity(entity_type, entity_id)
+        sgtk.platform.change_context(ctx)
+        self._on_home_clicked()
 
-            self._on_home_clicked()
+
+    def _change_work_area(self, entity_type, entity_id):
+        """
+
+        @param entity_type:
+        @param entity_id:
+        @return:
+        """
+        if entity_type == "Task":
+            self._do_work_area_switch(entity_type, entity_id)
+
         else:
 
             dialog = WorkAreaDialog(entity_type, entity_id, self)
             res = dialog.exec_()
-            print res
+            if res == QtGui.QDialog.Accepted:
+
+                if dialog.is_new_task():
+                    # create new task and assign!
+                    entity_data = self._app.shotgun.find_one(
+                        entity_type,
+                        [["id", "is", entity_id]],
+                        ["project"]
+                    )
+                    task_data = self._app.shotgun.create(
+                        "Task",
+                        {
+                            "content": dialog.new_task_name,
+                            "step": {"type": "Step", "id": dialog.new_step_id},
+                            "task_assignees": [self._app.context.user],
+                            "sg_status_list": "ip",
+                            "entity": {"type": entity_type, "id": entity_id},
+                            "project": entity_data["project"]
+                        }
+                    )
+
+                    (entity_type, entity_id) = (task_data["type"], task_data["id"])
+
+                else:
+                    (entity_type, entity_id) = dialog.selected_entity
+
+                self._do_work_area_switch(entity_type, entity_id)
+
+
+
 
 
 

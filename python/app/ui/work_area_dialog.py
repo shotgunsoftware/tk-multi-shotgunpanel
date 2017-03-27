@@ -40,20 +40,28 @@ class Ui_WorkAreaDialog(object):
         self.task_list = QtGui.QListWidget(WorkAreaDialog)
         self.task_list.setObjectName("task_list")
         self.verticalLayout.addWidget(self.task_list)
-        self.buttonBox = QtGui.QDialogButtonBox(WorkAreaDialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
-        self.verticalLayout.addWidget(self.buttonBox)
+        self.horizontalLayout_2 = QtGui.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem)
+        self.cancel = QtGui.QPushButton(WorkAreaDialog)
+        self.cancel.setObjectName("cancel")
+        self.horizontalLayout_2.addWidget(self.cancel)
+        self.ok = QtGui.QPushButton(WorkAreaDialog)
+        self.ok.setObjectName("ok")
+        self.horizontalLayout_2.addWidget(self.ok)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
 
         self.retranslateUi(WorkAreaDialog)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), WorkAreaDialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), WorkAreaDialog.reject)
+        QtCore.QObject.connect(self.cancel, QtCore.SIGNAL("clicked()"), WorkAreaDialog.reject)
+        QtCore.QObject.connect(self.ok, QtCore.SIGNAL("clicked()"), WorkAreaDialog.accept)
         QtCore.QMetaObject.connectSlotsByName(WorkAreaDialog)
 
     def retranslateUi(self, WorkAreaDialog):
         WorkAreaDialog.setWindowTitle(QtGui.QApplication.translate("WorkAreaDialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
         self.top_text.setText(QtGui.QApplication.translate("WorkAreaDialog", "Choose your work area", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel.setText(QtGui.QApplication.translate("WorkAreaDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
+        self.ok.setText(QtGui.QApplication.translate("WorkAreaDialog", "Ok", None, QtGui.QApplication.UnicodeUTF8))
 
 from . import resources_rc
 from . import resources_rc

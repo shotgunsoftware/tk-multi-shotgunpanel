@@ -126,7 +126,6 @@ class WorkAreaButton(QtGui.QToolButton):
 
 
     def _on_click(self):
-        print "emit click"
         self.change_work_area.emit(self._entity_type, self._entity_id)
 
 
