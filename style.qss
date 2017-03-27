@@ -221,5 +221,47 @@ QTreeView {
 }
 
 
+/****************************************************************/
+/* Styling for the choose work area dialog. */
 
+WorkAreaDialog #top_text {
+    font-size: 18px;
+    font-weight: 100;
+    color: #fff;
+    margin-left: 10px;
+}
+
+WorkAreaDialog #top_frame {
+    border-radius: 3px;
+    background-color: #05AB6C;
+}
+
+WorkAreaDialog #task_list {
+    font-size: 14px;
+    font-weight: 100;
+}
+
+
+WorkAreaDialog #task_list::item {
+    padding: 10px;
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    background-color: rgba(255, 255, 255, 10%);
+}
+
+WorkAreaDialog #task_list::item:selected {
+    background-color: {{SG_HIGHLIGHT_COLOR}};
+}
+
+WorkAreaDialog #task_name {
+    font-size: 14px;
+    font-weight: 100;
+    border: none;
+}
+
+WorkAreaDialog #step_combo {
+    font-size: 14px;
+    font-weight: 100;
+}
 

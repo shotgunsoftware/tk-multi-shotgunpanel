@@ -33,6 +33,7 @@ from .not_found_overlay import NotFoundModelOverlay
 from .shotgun_formatter import ShotgunFormatter
 from .note_updater import NoteUpdater
 from .work_area_button import WorkAreaButtonDetailsArea
+from .work_area_dialog import WorkAreaDialog
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 task_manager = sgtk.platform.import_framework("tk-framework-shotgunutils", "task_manager")
@@ -951,5 +952,10 @@ class AppDialog(QtGui.QWidget):
 
             self._on_home_clicked()
         else:
-            print "pop ui"
+
+            dialog = WorkAreaDialog(entity_type, entity_id, self)
+            res = dialog.exec_()
+            print res
+
+
 

@@ -6,7 +6,8 @@
     <file>rect_512x400.png</file>
     <file>round_512x400.png</file>
     <file>no_items_found.png</file>
-    <file>rings.png</file>
+    <file>rings_large.png</file>
+      <file>rings.png</file>
       <file>home.png</file>
     <file>home_hover.png</file>
     <file>home_pressed.png</file>
