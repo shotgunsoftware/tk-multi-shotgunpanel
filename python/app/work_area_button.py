@@ -15,7 +15,13 @@ import sgtk
 
 class WorkAreaButton(QtGui.QToolButton):
     """
-    Work area widget
+    UX for switching work area.
+
+    This displays a "change work area" button which a user can interact with
+    The button is designed to expand so that it is subtle until a user
+    hovers over it.
+
+    This is an abstract classes, implementations can be found further down.
 
     :signal clicked(str, int): Fires when someone clicks the change
         work area button. Arguments passed are the entity type and entity id
@@ -28,15 +34,17 @@ class WorkAreaButton(QtGui.QToolButton):
 
     def __init__(self, right_side_offset, bottom_offset, parent):
         """
-        :param model: Shotgun Model to monitor
-        :param view: View to place overlay on top of.
+        :param right_side_offset: Right hand side offset in pixels
+        :param bottom_offset: Bottom offset in pixels
+        :param parent: The model parent.
+        :type parent: :class:`~PySide.QtGui.QObject`
         """
         super(WorkAreaButton, self).__init__(parent)
 
         self._bundle = sgtk.platform.current_bundle()
 
+        # button is invisible by default
         self.setVisible(False)
-
         self._right_side_offset = right_side_offset
         self._bottom_offset = bottom_offset
 
@@ -68,11 +76,18 @@ class WorkAreaButton(QtGui.QToolButton):
 
         self._caption = "Undefined"
         self._width = 100
-        self._expanding = True
+        self._always_expanded = False
 
         self.clicked.connect(self._on_click)
 
     def set_up(self, entity_type, entity_id):
+        """
+        Sets up the button for a given entity.
+        Typically implemented by subclasses.
+
+        :param entity_type: Entity type to set up button for
+        :param entity_id: Entity id to set up button for
+        """
         self._entity_id = entity_id
         self._entity_type = entity_type
 
@@ -89,31 +104,24 @@ class WorkAreaButton(QtGui.QToolButton):
             # button can clicked
             self.setEnabled(True)
 
-    def _configure(self, caption_text, width, expanding):
+    def _configure(self, caption_text, width, always_expanded):
         """
+        Configures the state of the button.
 
-        :param caption_text:
-        :param width:
-        :param expanding:
+        :param caption_text: The text to display when the button is expanded
+        :param width: with in pixels of the button when expanded
+        :param always_expanded: if true the button should always be expanded
         """
         self._caption = caption_text
         self._width = width
-        self._expanding = expanding
+        self._always_expanded = always_expanded
         self.__init_default_state()
 
-
     def __init_default_state(self):
-
-        if self._expanding:
-            self.setText("")
-            self.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
-            self.setGeometry(QtCore.QRect(
-                self.parentWidget().width() - self.WIDGET_WIDTH_COLLAPSED - self._right_side_offset,
-                self.parentWidget().height() - self.WIDGET_HEIGHT - self._bottom_offset,
-                self.WIDGET_WIDTH_COLLAPSED,
-                self.WIDGET_HEIGHT
-            ))
-        else:
+        """
+        Sets up the default "rest" state of the button
+        """
+        if self._always_expanded:
             self.setText(self._caption)
             self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
             self.setGeometry(QtCore.QRect(
@@ -123,19 +131,28 @@ class WorkAreaButton(QtGui.QToolButton):
                 self.WIDGET_HEIGHT
             ))
 
-
+        else:
+            self.setText("")
+            self.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+            self.setGeometry(QtCore.QRect(
+                self.parentWidget().width() - self.WIDGET_WIDTH_COLLAPSED - self._right_side_offset,
+                self.parentWidget().height() - self.WIDGET_HEIGHT - self._bottom_offset,
+                self.WIDGET_WIDTH_COLLAPSED,
+                self.WIDGET_HEIGHT
+            ))
 
     def _on_click(self):
+        """
+        Executed when the button is clicked
+        """
         self.change_work_area.emit(self._entity_type, self._entity_id)
 
-
-    def leaveEvent(self, evt):
-        if self._expanding:
-            self.__init_default_state()
-        return super(WorkAreaButton, self).leaveEvent(evt)
-
     def enterEvent(self, evt):
-        if self._expanding:
+        """
+        QT Mouse enter event
+        """
+        if not self._always_expanded:
+            # expand button
             self.setText(self._caption)
             self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
             self.setGeometry(QtCore.QRect(
@@ -146,6 +163,14 @@ class WorkAreaButton(QtGui.QToolButton):
             ))
         return super(WorkAreaButton, self).enterEvent(evt)
 
+    def leaveEvent(self, evt):
+        """
+        QT Mouse leave event
+        """
+        if not self._always_expanded:
+            # collapse button
+            self.__init_default_state()
+        return super(WorkAreaButton, self).leaveEvent(evt)
 
     def _on_parent_resized(self):
         """
@@ -163,11 +188,14 @@ class WorkAreaButton(QtGui.QToolButton):
 
 
 class WorkAreaButtonDetailsArea(WorkAreaButton):
+    """
+    Work area button designed for the top details area.
+    """
 
     def __init__(self, parent):
         """
-        :param model: Shotgun Model to monitor
-        :param view: View to place overlay on top of.
+        :param parent: The model parent.
+        :type parent: :class:`~PySide.QtGui.QObject`
         """
         super(WorkAreaButtonDetailsArea, self).__init__(
             right_side_offset=10,
@@ -178,10 +206,10 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
 
     def set_up(self, entity_type, entity_id):
         """
+        Sets up the button for a given entity.
 
-        @param entity_type:
-        @param entity_id:
-        @return:
+        :param entity_type: Entity type to set up button for
+        :param entity_id: Entity id to set up button for
         """
         if not self._bundle.get_setting("enable_context_switch"):
             # context switch button not enabled
@@ -224,7 +252,7 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
                 }
             """)
 
-            self._configure("Current Work Area", 125, expanding=False)
+            self._configure("Current Work Area", 125, always_expanded=True)
 
             self.setToolTip(
                 "This is your current work area.\n"
@@ -252,7 +280,7 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
                     background-color: #0AA3F8;
                 }
             """)
-            self._configure("Set Work Area", 105, expanding=True)
+            self._configure("Set Work Area", 105, always_expanded=False)
 
             if entity_type == "Task":
                 self.setToolTip(
@@ -265,11 +293,14 @@ class WorkAreaButtonDetailsArea(WorkAreaButton):
 
 
 class WorkAreaButtonListItem(WorkAreaButton):
+    """
+    Work area button for the delegate list items.
+    """
 
     def __init__(self, parent):
         """
-        :param model: Shotgun Model to monitor
-        :param view: View to place overlay on top of.
+        :param parent: The model parent.
+        :type parent: :class:`~PySide.QtGui.QObject`
         """
         super(WorkAreaButtonListItem, self).__init__(
             right_side_offset=6,
@@ -299,10 +330,15 @@ class WorkAreaButtonListItem(WorkAreaButton):
                 background-color: #0AA3F8;
             }
         """)
-        self._configure("Set Work Area", 105, expanding=True)
+        self._configure("Set Work Area", 105, always_expanded=False)
 
     def set_up(self, entity_type, entity_id):
+        """
+        Sets up the button for a given entity.
 
+        :param entity_type: Entity type to set up button for
+        :param entity_id: Entity id to set up button for
+        """
         if not self._bundle.get_setting("enable_context_switch"):
             # context switch button not enabled
             return
@@ -315,10 +351,6 @@ class WorkAreaButtonListItem(WorkAreaButton):
             self.setVisible(True)
 
         super(WorkAreaButtonListItem, self).set_up(entity_type, entity_id)
-
-
-
-
 
 
 class ResizeEventFilter(QtCore.QObject):

@@ -1001,7 +1001,7 @@ class AppDialog(QtGui.QWidget):
 
             if res == QtGui.QDialog.Accepted:
 
-                if dialog.is_new_task():
+                if dialog.is_new_task:
                     # user wants to create a new task
 
                     # basic validation

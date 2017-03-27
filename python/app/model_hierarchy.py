@@ -11,16 +11,21 @@
 import sgtk
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
-
 SimpleShotgunHierarchyModel = shotgun_model.SimpleShotgunHierarchyModel
 
 
 class ShotgunHierarchyModel(SimpleShotgunHierarchyModel):
     """
-    Hierarchy tree model for an item.
+    Hierarchy navigation model.
+
+    Intended to be attached to a navigation tree view.
+
+    Shows a hierarchy of published files. The rationale here is that
+    when you are in a DCC, your primary objective is to publish files, so
+    the hierarchy should outline items *for which files can be published.*
     """
 
-    def __init__(self, parent, bg_task_manager=None):
+    def __init__(self, parent, bg_task_manager):
         """
         Initializes a Shotgun Hierarchy model instance and loads a hierarchy
         that leads to entities that are linked via the ``PublishedFile.entity`` field.
@@ -28,7 +33,6 @@ class ShotgunHierarchyModel(SimpleShotgunHierarchyModel):
         :param parent: The model parent.
         :type parent: :class:`~PySide.QtGui.QObject`
         :param bg_task_manager: Background task manager to use for any asynchronous work.
-                                If this is ``None`` a task manager will be created as needed.
         :type bg_task_manager: :class:`~task_manager.BackgroundTaskManager`
         """
         SimpleShotgunHierarchyModel.__init__(self, parent, bg_task_manager=bg_task_manager)
@@ -43,19 +47,14 @@ class ShotgunHierarchyModel(SimpleShotgunHierarchyModel):
 
         self._bundle = sgtk.platform.current_bundle()
 
-
     def set_location(self, sg_location):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists and schedules an async refresh.
 
-        :param sg_location: Location object representing the *associated*
-               object for which items should be loaded. NOTE! If the model is
-               configured to display tasks, this sg_location could for example
-               point to a Shot for which we want to display tasks.
+        :param sg_location: Location object which should be selected/focused.
         """
-        # TODO - when tree system supports navigation, make sure
-        # the location is selected in the tree
+        # TODO - when tree system supports entity->path resolution, implement selection
 
         if self._bundle.context.project:
             # todo - refactor when we have the new entity resolution methods
