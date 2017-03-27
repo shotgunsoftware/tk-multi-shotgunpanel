@@ -16,6 +16,8 @@ configuration:
     enable_context_switch:
         type: bool
         default_value: false
+        description: Flag to control whether the context switch UI
+                     should be displayed or not.
 
     shotgun_fields_hook:
         type: hook

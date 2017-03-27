@@ -9,6 +9,7 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
+import pprint
 
 # by importing QT from sgtk rather than directly, we ensure that
 # the code will be compatible with both PySide and PyQt.
@@ -46,6 +47,9 @@ ShotgunModelOverlayWidget = overlay_module.ShotgunModelOverlayWidget
 
 # maximum size of the details field in the top part of the UI
 MAX_LEN_UPPER_BODY_DETAILS = 1200
+
+# milliseconds to show splash
+SPLASH_UI_TIME_MILLISECONDS = 2000
 
 class AppDialog(QtGui.QWidget):
     """
@@ -357,7 +361,7 @@ class AppDialog(QtGui.QWidget):
         splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/splash.png")
         self._overlay.show_message_pixmap(splash_pix)
         QtCore.QCoreApplication.processEvents()
-        QtCore.QTimer.singleShot(2000, self._overlay.hide)
+        QtCore.QTimer.singleShot(SPLASH_UI_TIME_MILLISECONDS, self._overlay.hide)
 
 
     def closeEvent(self, event):
@@ -730,7 +734,7 @@ class AppDialog(QtGui.QWidget):
     # UI callbacks
     def _on_entity_doubleclicked(self, model_index):
         """
-        Someone doubleclicked an entity
+        Someone double clicked an entity
         """
         sg_item = shotgun_model.get_sg_data(model_index)
         sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
@@ -738,7 +742,7 @@ class AppDialog(QtGui.QWidget):
 
     def _on_tree_doubleclicked(self, model_index):
         """
-        Someone doubleclicked in the tree
+        Someone double clicked in the navigation tree
         """
         sg_item = shotgun_model.get_sg_data(model_index)
         # the raw data coming back is on the following form:
@@ -763,7 +767,6 @@ class AppDialog(QtGui.QWidget):
         #   },
         #   'label': 'clown4'
         # }
-
         if sg_item["ref"]["kind"] == "entity":
             entity_type = sg_item["ref"]["value"]["type"]
             entity_id = sg_item["ref"]["value"]["id"]
@@ -937,8 +940,18 @@ class AppDialog(QtGui.QWidget):
         self._navigate_to(sg_location)
 
 
-    def _do_work_area_switch(self, entity_type, entity_id):
+    ###################################################################################################
+    # context switch
 
+    def _do_work_area_switch(self, entity_type, entity_id):
+        """
+        Switches context and navigates to the new context.
+        If the context is a task, the current user is assigned
+        and the task is set to IP.
+
+        :param entity_type: Entity type to switch to
+        :param entity_id: Entity id to switch to
+        """
         self._app.log_debug("Switching context to %s %s" % (entity_type, entity_id))
 
         if entity_type == "Task":
@@ -964,48 +977,62 @@ class AppDialog(QtGui.QWidget):
 
     def _change_work_area(self, entity_type, entity_id):
         """
+        High level context switch ux logic.
 
-        @param entity_type:
-        @param entity_id:
-        @return:
+        If the entity type is a Task, the context switch
+        happens immediately.
+
+        For all other cases, a UI is displayed, allowing
+        the user to select or create a new task.
+
+        :param entity_type: Entity type to switch to
+        :param entity_id: Entity id to switch to
         """
         if entity_type == "Task":
+            # for tasks, switch context directly
             self._do_work_area_switch(entity_type, entity_id)
 
         else:
-
+            # display the task selection/creation UI
             dialog = WorkAreaDialog(entity_type, entity_id, self)
+
+            # show modal
             res = dialog.exec_()
+
             if res == QtGui.QDialog.Accepted:
 
                 if dialog.is_new_task():
+                    # user wants to create a new task
+
+                    # basic validation
+                    if not dialog.new_task_name:
+                        self._app.log_error("Please name your task!")
+                        return
+
                     # create new task and assign!
+                    self._app.log_debug("Resolving shotgun project...")
                     entity_data = self._app.shotgun.find_one(
                         entity_type,
                         [["id", "is", entity_id]],
                         ["project"]
                     )
-                    task_data = self._app.shotgun.create(
-                        "Task",
-                        {
-                            "content": dialog.new_task_name,
-                            "step": {"type": "Step", "id": dialog.new_step_id},
-                            "task_assignees": [self._app.context.user],
-                            "sg_status_list": "ip",
-                            "entity": {"type": entity_type, "id": entity_id},
-                            "project": entity_data["project"]
-                        }
-                    )
 
+                    sg_data = {
+                        "content": dialog.new_task_name,
+                        "step": {"type": "Step", "id": dialog.new_step_id},
+                        "task_assignees": [self._app.context.user],
+                        "sg_status_list": "ip",
+                        "entity": {"type": entity_type, "id": entity_id},
+                        "project": entity_data["project"]
+                    }
+
+                    self._app.log_debug("Creating new task:\n%s" % pprint.pprint(sg_data))
+                    task_data = self._app.shotgun.create("Task", sg_data)
                     (entity_type, entity_id) = (task_data["type"], task_data["id"])
 
                 else:
+                    # user selected a task in the UI
                     (entity_type, entity_id) = dialog.selected_entity
 
                 self._do_work_area_switch(entity_type, entity_id)
-
-
-
-
-
 
