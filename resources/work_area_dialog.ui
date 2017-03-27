@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Select your work area</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/tk_multi_infopanel/rings.png</normaloff>:/tk_multi_infopanel/rings.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

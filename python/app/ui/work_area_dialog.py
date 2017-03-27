@@ -12,6 +12,9 @@ class Ui_WorkAreaDialog(object):
     def setupUi(self, WorkAreaDialog):
         WorkAreaDialog.setObjectName("WorkAreaDialog")
         WorkAreaDialog.resize(443, 467)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/rings.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        WorkAreaDialog.setWindowIcon(icon)
         self.verticalLayout = QtGui.QVBoxLayout(WorkAreaDialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.top_frame = QtGui.QFrame(WorkAreaDialog)
@@ -58,7 +61,7 @@ class Ui_WorkAreaDialog(object):
         QtCore.QMetaObject.connectSlotsByName(WorkAreaDialog)
 
     def retranslateUi(self, WorkAreaDialog):
-        WorkAreaDialog.setWindowTitle(QtGui.QApplication.translate("WorkAreaDialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
+        WorkAreaDialog.setWindowTitle(QtGui.QApplication.translate("WorkAreaDialog", "Select your work area", None, QtGui.QApplication.UnicodeUTF8))
         self.top_text.setText(QtGui.QApplication.translate("WorkAreaDialog", "Choose your work area", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel.setText(QtGui.QApplication.translate("WorkAreaDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.ok.setText(QtGui.QApplication.translate("WorkAreaDialog", "Ok", None, QtGui.QApplication.UnicodeUTF8))
