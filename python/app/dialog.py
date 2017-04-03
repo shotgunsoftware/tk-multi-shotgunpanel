@@ -954,21 +954,21 @@ class AppDialog(QtGui.QWidget):
         """
         self._app.log_debug("Switching context to %s %s" % (entity_type, entity_id))
 
-        if entity_type == "Task":
-
-            # assign current user
-            self._app.log_debug(
-                "Ensuring user %s is assigned to task %s" % (self._app.context.user, entity_id)
-            )
-            self._app.shotgun.update(
-                "Task",
-                entity_id,
-                {
-                    "task_assignees": [self._app.context.user],
-                    "sg_status_list": "ip"
-                },
-                multi_entity_update_modes={"task_assignees": "add"}
-            )
+        # if entity_type == "Task":
+        #
+        #     # assign current user
+        #     self._app.log_debug(
+        #         "Ensuring user %s is assigned to task %s" % (self._app.context.user, entity_id)
+        #     )
+        #     self._app.shotgun.update(
+        #         "Task",
+        #         entity_id,
+        #         {
+        #             "task_assignees": [self._app.context.user],
+        #             "sg_status_list": "ip"
+        #         },
+        #         multi_entity_update_modes={"task_assignees": "add"}
+        #     )
 
         ctx = self._app.sgtk.context_from_entity(entity_type, entity_id)
         sgtk.platform.change_context(ctx)

@@ -402,7 +402,7 @@ class ShotgunFormatter(object):
         ]:
             return (False, "")
         else:
-            return (True, "Tree")
+            return (True, "Browse")
 
     @property
     def show_activity_tab(self):
@@ -477,6 +477,8 @@ class ShotgunFormatter(object):
         """
         if self._entity_type == "Project":
             return "Notes for the entire project, in update order."
+        elif self._entity_type == "HumanUser":
+            return "Notes created or addressed to this user."
         else:
             return "Notes for this item, in update order."
 
@@ -487,6 +489,8 @@ class ShotgunFormatter(object):
         """
         if self._entity_type == "Project":
             return "Publishes for the entire project, in update order."
+        elif self._entity_type == "HumanUser":
+            return "Publishes by this user."
         else:
             return "Publishes for this item, in update order."
 
@@ -496,7 +500,7 @@ class ShotgunFormatter(object):
         Current description for versions
         """
         if self._entity_type == "Project":
-            return "All review versions submitted for the project."
+            return "All review versions submitted for this project."
         else:
             return "Review versions for this item."
 

@@ -52,14 +52,14 @@ class WorkAreaDialog(QtGui.QDialog):
         else:
             entity_name = "Unnamed %s" % shotgun_globals.get_type_display_name(entity_type)
 
-        # insert main item
-        self._main_item = QtGui.QListWidgetItem(entity_name, self.ui.task_list)
-        self._main_item.setToolTip(main_item.get("description") or "No description found.")
-        self._main_item.setData(self.ENTITY_TYPE_ROLE, entity_type)
-        self._main_item.setData(self.ENTITY_ID_ROLE, entity_id)
-
-        # make this selected by default
-        self._main_item.setSelected(True)
+        # # insert main item
+        # self._main_item = QtGui.QListWidgetItem(entity_name, self.ui.task_list)
+        # self._main_item.setToolTip(main_item.get("description") or "No description found.")
+        # self._main_item.setData(self.ENTITY_TYPE_ROLE, entity_type)
+        # self._main_item.setData(self.ENTITY_ID_ROLE, entity_id)
+        #
+        # # make this selected by default
+        # self._main_item.setSelected(True)
 
         # now get all tasks from Shotgun
         tasks = self._bundle.shotgun.find(
