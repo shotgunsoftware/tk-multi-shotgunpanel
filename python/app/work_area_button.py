@@ -57,7 +57,7 @@ class WorkAreaButton(QtGui.QToolButton):
 
         self.icon = QtGui.QIcon()
         self.icon.addPixmap(
-            QtGui.QPixmap(":/tk_multi_infopanel/rings.png"),
+            QtGui.QPixmap(":/tk_multi_infopanel/pin.png"),
             QtGui.QIcon.Normal,
             QtGui.QIcon.Off
         )

@@ -87,88 +87,22 @@ FieldValueLabel {
 /****************************************************************/
 /* Navigation: Home, previous, next 							*/
 
-/* Navigate to previous page button styling */
-QToolButton#navigation_prev {
+QToolButton {
     border: none;
-    background-color: none;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url(:/tk_multi_infopanel/left_arrow.png);
 }
 
-QToolButton:disabled#navigation_prev {
-    background-image: url(:/tk_multi_infopanel/left_arrow_disabled.png);
-}
-
-QToolButton:hover#navigation_prev {
-    background-image: url(:/tk_multi_infopanel/left_arrow_hover.png);
-}
-
-QToolButton:Pressed#navigation_prev {
-    background-image: url(:/tk_multi_infopanel/left_arrow_pressed.png);
-}
-
-
-/* Navigate to next page button styling */
-QToolButton#navigation_next {
+QToolButton:hover {
     border: none;
-    background-color: none;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url(:/tk_multi_infopanel/right_arrow.png);
+    border-radius: 2px;
+    background-color: rgba(200, 200, 200, 18%);
 }
 
-QToolButton:disabled#navigation_next {
-    background-image: url(:/tk_multi_infopanel/right_arrow_disabled.png);
-}
-
-QToolButton:hover#navigation_next {
-    background-image: url(:/tk_multi_infopanel/right_arrow_hover.png);
-}
-
-QToolButton:Pressed#navigation_next {
-    background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
-}
-
-/* Search button styling */
-QToolButton#search {
+QToolButton:pressed {
     border: none;
-    background-color: none;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url(:/tk_multi_infopanel/search.png);
+    border-radius: 2px;
+    background-color: rgba(200, 200, 200, 35%);
 }
 
-QToolButton:disabled#search {
-    background-image: url(:/tk_multi_infopanel/search_disabled.png);
-}
-
-QToolButton:hover#search {
-    background-image: url(:/tk_multi_infopanel/search_hover.png);
-}
-
-QToolButton:Pressed#search  {
-    background-image: url(:/tk_multi_infopanel/search_pressed.png);
-}
-
-/* Home button styling */
-QToolButton#navigation_home{
-    border: none;
-    background-color: none;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url(:/tk_multi_infopanel/home.png);
-}
-
-QToolButton:hover#navigation_home{
-    background-image: url(:/tk_multi_infopanel/home_hover.png);
-}
-
-QToolButton:Pressed#navigation_home{
-    background-image: url(:/tk_multi_infopanel/home_pressed.png);
-}
-
-/* cancel search button */
 
 QPushButton#cancel_search {
     border: none;
