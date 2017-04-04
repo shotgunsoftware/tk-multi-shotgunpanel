@@ -225,20 +225,17 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Click to go to your work area</string>
+               <string>Browse and Search</string>
               </property>
               <property name="icon">
                <iconset resource="resources.qrc">
-                <normaloff>:/tk_multi_infopanel/folder.png</normaloff>:/tk_multi_infopanel/folder.png</iconset>
+                <normaloff>:/tk_multi_infopanel/search.png</normaloff>:/tk_multi_infopanel/search.png</iconset>
               </property>
               <property name="iconSize">
                <size>
                 <width>30</width>
                 <height>30</height>
                </size>
-              </property>
-              <property name="popupMode">
-               <enum>QToolButton::InstantPopup</enum>
               </property>
              </widget>
             </item>
@@ -874,7 +871,7 @@
          <item>
           <widget class="QLabel" name="hierarchy_label">
            <property name="text">
-            <string>Navigate in Shotgun</string>
+            <string>Browse Shotgun</string>
            </property>
           </widget>
          </item>
@@ -891,6 +888,9 @@
              <width>30</width>
              <height>30</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Close</string>
            </property>
            <property name="text">
             <string>...</string>

@@ -670,8 +670,9 @@ class AppDialog(QtGui.QWidget):
                 
         # updat the reply icon                
         sg_data = self._current_user_model.get_sg_data()        
-        if sg_data:        
-            self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])
+        if sg_data:
+            first_name = sg_data.get("firstname") or "Noname"
+            self.ui.current_user.setToolTip("%s's Home" % first_name.capitalize())
 
     def _refresh_details_thumbnail(self):
         """
