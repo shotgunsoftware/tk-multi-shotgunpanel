@@ -104,17 +104,55 @@ QToolButton:pressed {
 }
 
 
-#set_context[is_current="true"] {
+/****************************************************************/
+/* Work area buttons in header					                */
+
+WorkAreaButtonDetailsArea[is_current="true"] {
     background-color: {{SG_HIGHLIGHT_COLOR}};
     border-radius: 2px;
     border: none;
 }
 
-#set_context[is_expanded="true"] {
+WorkAreaButtonDetailsArea[is_expanded="true"] {
     background-color: rgba(200, 200, 200, 18%);
     border-radius: 2px;
     border: none;
 }
+
+WorkAreaButtonDetailsArea[is_expanded="true"]:pressed  {
+    background-color: rgba(200, 200, 200, 35%);
+    border-radius: 2px;
+    border: none;
+}
+
+
+/****************************************************************/
+/* Work area buttons in listings				                */
+
+WorkAreaButtonListItem {
+    background-color: rgba(20, 20, 20, 35%);
+    border-radius: 2px;
+    border: none;
+}
+
+WorkAreaButtonListItem[is_current="true"] {
+    background-color: {{SG_HIGHLIGHT_COLOR}};
+    border-radius: 2px;
+    border: none;
+}
+
+WorkAreaButtonListItem[is_expanded="true"] {
+    background-color: rgba(20, 20, 20, 35%);
+    border-radius: 2px;
+    border: none;
+}
+
+WorkAreaButtonListItem[is_expanded="true"]:pressed  {
+    background-color: rgba(20, 20, 20, 70%);
+    border-radius: 2px;
+    border: none;
+}
+
 
 /****************************************************************/
 /* Top details area  				 							*/

@@ -22,13 +22,12 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
     The button is designed to expand so that it is subtle until a user
     hovers over it.
 
-    This is an abstract classes, implementations can be found further down.
-
     :signal clicked(str, int): Fires when someone clicks the change
         work area button. Arguments passed are the entity type and entity id
     """
 
     WIDGET_WIDTH_COLLAPSED = 30
+    WIDGET_HEIGHT = 30
 
     NON_WORK_AREA_TYPES = [
         "PublishedFile",
@@ -58,6 +57,20 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
         """
         super(WorkAreaButtonDetailsArea, self).__init__(parent)
 
+        self._icon = QtGui.QIcon()
+        self._icon.addPixmap(
+            QtGui.QPixmap(":/tk_multi_infopanel/pin.png"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off
+        )
+        self._icon.addPixmap(
+            QtGui.QPixmap(":/tk_multi_infopanel/pin_white.png"),
+            QtGui.QIcon.Disabled,
+            QtGui.QIcon.Off
+        )
+        self.setIcon(self._icon)
+        self.setIconSize(QtCore.QSize(self.WIDGET_WIDTH_COLLAPSED, self.WIDGET_HEIGHT))
+
         self._bundle = sgtk.platform.current_bundle()
 
         self._entity_type = None
@@ -65,9 +78,11 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
         self._is_current = False
 
         self._caption = "Set Work Area"
-        self._width = 125
+        self._width = 120
 
         self.clicked.connect(self._on_click)
+
+        self.setVisible(False)
 
 
     def set_up(self, entity_type, entity_id):
@@ -80,6 +95,10 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
         """
         self._entity_id = entity_id
         self._entity_type = entity_type
+
+        if not self._bundle.get_setting("enable_context_switch"):
+            # context switch button not enabled
+            return
 
         # figure out if this is the current project
         context = self._bundle.context
@@ -101,7 +120,6 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
 
         else:
             self._is_current = False
-            self.setPopupMode(QtGui.QToolButton.InstantPopup)
 
             if entity_type == "Task":
                 self._caption = "Set Work Area"
@@ -111,7 +129,6 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
                 self._caption = "Pick Work Area"
                 self.setToolTip("Click to select a task.")
 
-
         # button cannot be clicked
         self.setEnabled(not self._is_current)
 
@@ -120,17 +137,17 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
         self.style().unpolish(self)
         self.style().polish(self)
 
-        self.__init_default_state()
+        self._init_default_state()
 
-    def __init_default_state(self):
+    def _init_default_state(self):
         """
-        Sets up the default "rest" state of the button
+        Sets up the default collapsed state of the button
         """
-        # no expand for current item
         self.setText("")
         self.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
-        self.setMinimumSize(QtCore.QSize(30, 30))
-        self.setMaximumSize(QtCore.QSize(30, 30))
+        self.setMinimumSize(QtCore.QSize(self.WIDGET_WIDTH_COLLAPSED, self.WIDGET_HEIGHT))
+        self.setMaximumSize(QtCore.QSize(self.WIDGET_WIDTH_COLLAPSED, self.WIDGET_HEIGHT))
+        # tell the style sheet to adjust
         self.setProperty("is_expanded", False)
         self.style().unpolish(self)
         self.style().polish(self)
@@ -146,11 +163,12 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
         QT Mouse enter event
         """
         if not self._is_current:
-            # expand button
+            # not the current work area. so expand the button
             self.setText(self._caption)
             self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-            self.setMinimumSize(QtCore.QSize(self._width, 30))
-            self.setMaximumSize(QtCore.QSize(self._width, 30))
+            self.setMinimumSize(QtCore.QSize(self._width, self.WIDGET_HEIGHT))
+            self.setMaximumSize(QtCore.QSize(self._width, self.WIDGET_HEIGHT))
+            # tell the style sheet to adjust
             self.setProperty("is_expanded", True)
             self.style().unpolish(self)
             self.style().polish(self)
@@ -163,48 +181,14 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
         """
         if not self._is_current:
             # collapse button after a delay
-            QtCore.QTimer.singleShot(200, self.__init_default_state)
+            QtCore.QTimer.singleShot(300, self._init_default_state)
 
         return super(WorkAreaButtonDetailsArea, self).leaveEvent(evt)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class WorkAreaButton(QtGui.QToolButton):
+class WorkAreaButtonListItem(WorkAreaButtonDetailsArea):
     """
     UX for switching work area.
 
@@ -212,48 +196,24 @@ class WorkAreaButton(QtGui.QToolButton):
     The button is designed to expand so that it is subtle until a user
     hovers over it.
 
-    This is an abstract classes, implementations can be found further down.
+    Derives from :class:`WorkAreaButtonDetailsArea` and positions the widget
+    relative to the bottom-right corner of the parent widget.
 
     :signal clicked(str, int): Fires when someone clicks the change
         work area button. Arguments passed are the entity type and entity id
     """
 
-    WIDGET_HEIGHT = 30
-    WIDGET_WIDTH_COLLAPSED = 30
+    RIGHT_OFFSET = 6
+    BOTTOM_OFFSET = 6
 
-    change_work_area = QtCore.Signal(str, int)
-
-    def __init__(self, right_side_offset, bottom_offset, parent):
+    def __init__(self, parent):
         """
         :param right_side_offset: Right hand side offset in pixels
         :param bottom_offset: Bottom offset in pixels
         :param parent: The model parent.
         :type parent: :class:`~PySide.QtGui.QObject`
         """
-        super(WorkAreaButton, self).__init__(parent)
-
-        self._bundle = sgtk.platform.current_bundle()
-
-        # button is invisible by default
-        self.setVisible(False)
-        self._right_side_offset = right_side_offset
-        self._bottom_offset = bottom_offset
-
-        self.setGeometry(QtCore.QRect(
-            0,
-            0,
-            self.WIDGET_WIDTH_COLLAPSED,
-            self.WIDGET_HEIGHT
-        ))
-
-        self.icon = QtGui.QIcon()
-        self.icon.addPixmap(
-            QtGui.QPixmap(":/tk_multi_infopanel/pin.png"),
-            QtGui.QIcon.Normal,
-            QtGui.QIcon.Off
-        )
-        self.setIcon(self.icon)
-        self.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+        super(WorkAreaButtonListItem, self).__init__(parent)
 
         # hook up a listener to the parent window so this widget
         # follows along when the parent window changes size
@@ -261,184 +221,39 @@ class WorkAreaButton(QtGui.QToolButton):
         filter.resized.connect(self._on_parent_resized)
         parent.installEventFilter(filter)
 
-        self._entity_type = None
-        self._entity_id = None
-        self._is_current = False
-
-        self._caption = "Undefined"
-        self._width = 100
-        self._always_expanded = False
-
-        self.clicked.connect(self._on_click)
-
-    def set_up(self, entity_type, entity_id):
+    def __position_widget(self):
         """
-        Sets up the button for a given entity.
-        Typically implemented by subclasses.
-
-        :param entity_type: Entity type to set up button for
-        :param entity_id: Entity id to set up button for
+        Moves the widget to the bottom-right corner of the parent widget.
         """
-        self._entity_id = entity_id
-        self._entity_type = entity_type
+        self.move(
+            self.parentWidget().width() - self.width() - self.RIGHT_OFFSET,
+            self.parentWidget().height() - self.height() - self.BOTTOM_OFFSET
+        )
 
-        # figure out if this is the current project
-        context = self._bundle.context
-        context_entity = context.task or context.entity or context.project or None
-
-        if context_entity and context_entity["type"] == entity_type and context_entity["id"] == entity_id:
-            self._is_current = True
-            # button cannot be clicked
-            self.setEnabled(False)
-        else:
-            self._is_current = False
-            # button can clicked
-            self.setEnabled(True)
-
-    def _configure(self, caption_text, width, always_expanded):
+    def _init_default_state(self):
         """
-        Configures the state of the button.
-
-        :param caption_text: The text to display when the button is expanded
-        :param width: with in pixels of the button when expanded
-        :param always_expanded: if true the button should always be expanded
+        Sets up the default collapsed state of the button
         """
-        self._caption = caption_text
-        self._width = width
-        self._always_expanded = always_expanded
-        self.__init_default_state()
-
-    def __init_default_state(self):
-        """
-        Sets up the default "rest" state of the button
-        """
-        if self._always_expanded:
-            self.setText(self._caption)
-            self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-            self.setGeometry(QtCore.QRect(
-                self.parentWidget().width() - self._width - self._right_side_offset,
-                self.parentWidget().height() - self.WIDGET_HEIGHT - self._bottom_offset,
-                self._width,
-                self.WIDGET_HEIGHT
-            ))
-
-        else:
-            self.setText("")
-            self.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
-            self.setGeometry(QtCore.QRect(
-                self.parentWidget().width() - self.WIDGET_WIDTH_COLLAPSED - self._right_side_offset,
-                self.parentWidget().height() - self.WIDGET_HEIGHT - self._bottom_offset,
-                self.WIDGET_WIDTH_COLLAPSED,
-                self.WIDGET_HEIGHT
-            ))
-
-    def _on_click(self):
-        """
-        Executed when the button is clicked
-        """
-        self.change_work_area.emit(self._entity_type, self._entity_id)
+        super(WorkAreaButtonListItem, self)._init_default_state()
+        self.__position_widget()
 
     def enterEvent(self, evt):
         """
         QT Mouse enter event
         """
-        if not self._always_expanded:
-            # expand button
-            self.setText(self._caption)
-            self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-            self.setGeometry(QtCore.QRect(
-                self.parentWidget().width() - self._width - self._right_side_offset,
-                self.parentWidget().height() - self.WIDGET_HEIGHT - self._bottom_offset,
-                self._width,
-                self.WIDGET_HEIGHT
-            ))
-        return super(WorkAreaButton, self).enterEvent(evt)
+        status = super(WorkAreaButtonListItem, self).enterEvent(evt)
 
-    def leaveEvent(self, evt):
-        """
-        QT Mouse leave event
-        """
-        if not self._always_expanded:
-            # collapse button
-            self.__init_default_state()
-        return super(WorkAreaButton, self).leaveEvent(evt)
+        if not self._is_current:
+            self.__position_widget()
+
+        return status
 
     def _on_parent_resized(self):
         """
         Special slot hooked up to the event filter.
         When associated widget is resized this slot is being called.
         """
-        # offset the position in such a way that it looks like
-        # it is "hanging down" from the adjacent window.
-        # these constants are purely aesthetic, decided after some
-        # tweaking and trial and error.
-        self.move(
-            self.parentWidget().width() - self.width() - self._right_side_offset,
-            self.parentWidget().height() - self.height() - self._bottom_offset
-        )
-
-
-
-
-class WorkAreaButtonListItem(WorkAreaButton):
-    """
-    Work area button for the delegate list items.
-    """
-
-    def __init__(self, parent):
-        """
-        :param parent: The model parent.
-        :type parent: :class:`~PySide.QtGui.QObject`
-        """
-        super(WorkAreaButtonListItem, self).__init__(
-            right_side_offset=6,
-            bottom_offset=10,
-            parent=parent
-        )
-        self.setObjectName("work_area_button_list_item")
-
-        self.setToolTip(
-            "Click to set your work area to the given task.\n"
-            "You will be assigned to the task and it will be set to in progress."
-        )
-
-        self.setStyleSheet("""
-            QToolButton {
-                color: #fff;
-                font-size: 11px;
-                font-weight: 100;
-                border-radius: 3px;
-                background-color: rgba(0, 0, 0, 10%);
-            }
-            QToolButton:pressed {
-                color: #ccc;
-            }
-            QToolButton:hover
-            {
-                background-color: #0AA3F8;
-            }
-        """)
-        self._configure("Set Work Area", 105, always_expanded=False)
-
-    def set_up(self, entity_type, entity_id):
-        """
-        Sets up the button for a given entity.
-
-        :param entity_type: Entity type to set up button for
-        :param entity_id: Entity id to set up button for
-        """
-        if not self._bundle.get_setting("enable_context_switch"):
-            # context switch button not enabled
-            return
-
-        if entity_type != "Task":
-            self.setVisible(False)
-            # fast exit
-            return
-        else:
-            self.setVisible(True)
-
-        super(WorkAreaButtonListItem, self).set_up(entity_type, entity_id)
+        self.__position_widget()
 
 
 class ResizeEventFilter(QtCore.QObject):
