@@ -6,15 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>586</width>
+    <width>460</width>
     <height>800</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>460</width>
-    <height>0</height>
-   </size>
   </property>
   <property name="windowTitle">
    <string>Shotgun Browser</string>
@@ -521,26 +515,6 @@
            </property>
            <item>
             <widget class="ActivityStreamWidget" name="entity_activity_stream" native="true"/>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="entity_tree_tab">
-          <attribute name="title">
-           <string>Tree</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_23">
-           <property name="margin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QTreeView" name="entity_hierarchy_tree">
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-             <property name="headerHidden">
-              <bool>true</bool>
-             </property>
-            </widget>
            </item>
           </layout>
          </widget>

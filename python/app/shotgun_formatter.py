@@ -388,23 +388,6 @@ class ShotgunFormatter(object):
         return list(self._token_fields)
 
     @property
-    def show_tree_tab(self):
-        """
-        Should the note tab be shown for this
-        """
-        if self.entity_type in [
-            "Group",
-            "Department",
-            "ClientUser",
-            "HumanUser",
-            "ScriptUser",
-            "ApiUser"
-        ]:
-            return (False, "")
-        else:
-            return (True, "Browse")
-
-    @property
     def show_activity_tab(self):
         """
         Should the note tab be shown for this

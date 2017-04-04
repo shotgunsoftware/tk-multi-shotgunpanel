@@ -69,12 +69,11 @@ class AppDialog(QtGui.QWidget):
     
     # tab indices
     ENTITY_TAB_ACTIVITY_STREAM = 0
-    ENTITY_TAB_TREE_HIERARCHY = 1
-    ENTITY_TAB_NOTES = 2
-    ENTITY_TAB_VERSIONS = 3
-    ENTITY_TAB_PUBLISHES = 4
-    ENTITY_TAB_TASKS = 5
-    ENTITY_TAB_INFO = 6
+    ENTITY_TAB_NOTES = 1
+    ENTITY_TAB_VERSIONS = 2
+    ENTITY_TAB_PUBLISHES = 3
+    ENTITY_TAB_TASKS = 4
+    ENTITY_TAB_INFO = 5
     
     PUBLISH_TAB_HISTORY = 0
     PUBLISH_TAB_CONTAINS = 1
@@ -182,9 +181,9 @@ class AppDialog(QtGui.QWidget):
         # Sort alphabetically
         self._hierarchy_proxy.sort(0)
         self._hierarchy_proxy.setDynamicSortFilter(True)
-        self.ui.entity_hierarchy_tree.setModel(self._hierarchy_proxy)
+        #self.ui.entity_hierarchy_tree.setModel(self._hierarchy_proxy)
         # double click navigates
-        self.ui.entity_hierarchy_tree.doubleClicked.connect(self._on_tree_doubleclicked)
+        #self.ui.entity_hierarchy_tree.doubleClicked.connect(self._on_tree_doubleclicked)
 
         # latest publishes only
         self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
@@ -454,10 +453,6 @@ class AppDialog(QtGui.QWidget):
         
         formatter = self._current_location.sg_formatter
 
-        (enabled, caption) = formatter.show_tree_tab
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_TREE_HIERARCHY, enabled)
-        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TREE_HIERARCHY, caption)
-
         (enabled, caption) = formatter.show_activity_tab
         self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_ACTIVITY_STREAM, enabled)
         self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_ACTIVITY_STREAM, caption)
@@ -585,9 +580,6 @@ class AppDialog(QtGui.QWidget):
         
         if index == self.ENTITY_TAB_ACTIVITY_STREAM:
             self.ui.entity_activity_stream.load_data(self._current_location.entity_dict)
-
-        elif index == self.ENTITY_TAB_TREE_HIERARCHY:
-            self._hierarchy_model.set_location(self._current_location)
 
         elif index == self.ENTITY_TAB_NOTES:
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
