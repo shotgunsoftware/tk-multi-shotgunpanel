@@ -58,8 +58,8 @@ class AppDialog(QtGui.QWidget):
     """
 
     # header indices
-    NAVIGATION_HEADER_IDX = 0
-    SEARCH_HEADER_IDX = 1
+    NAVIGATION_MODE_IDX = 0
+    SEARCH_MODE_IDX = 1
     
     # page indices
     ENTITY_PAGE_IDX = 0
@@ -170,8 +170,8 @@ class AppDialog(QtGui.QWidget):
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
         
         # search
-        self.ui.search.clicked.connect(self._on_search_clicked)
-        self.ui.cancel_search.clicked.connect(self._cancel_search)
+        self.ui.browse.clicked.connect(self._enter_browse_mode)
+        self.ui.hierarchy_close.clicked.connect(self._exit_browse_mode)
         self.ui.search_input.entity_selected.connect(self._on_search_item_selected)
 
         # hierarchy
@@ -181,9 +181,9 @@ class AppDialog(QtGui.QWidget):
         # Sort alphabetically
         self._hierarchy_proxy.sort(0)
         self._hierarchy_proxy.setDynamicSortFilter(True)
-        #self.ui.entity_hierarchy_tree.setModel(self._hierarchy_proxy)
+        self.ui.hierarchy_view.setModel(self._hierarchy_proxy)
         # double click navigates
-        #self.ui.entity_hierarchy_tree.doubleClicked.connect(self._on_tree_doubleclicked)
+        self.ui.hierarchy_view.doubleClicked.connect(self._on_tree_doubleclicked)
 
         # latest publishes only
         self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
@@ -732,39 +732,6 @@ class AppDialog(QtGui.QWidget):
         sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
         self._navigate_to(sg_location)
 
-    def _on_tree_doubleclicked(self, model_index):
-        """
-        Someone double clicked in the navigation tree
-        """
-        sg_item = shotgun_model.get_sg_data(model_index)
-        # the raw data coming back is on the following form:
-        #
-        # {
-        #   'target_entities': {
-        #       'additional_filter_presets': [{
-        #           'path': '/Project/515/Asset/id/17146',
-        #           'preset_name': 'NAV_ENTRIES',
-        #           'seed': {
-        #               'field': 'entity',
-        #               'type': 'PublishedFile'
-        #               }
-        #           }],
-        #       'type': 'PublishedFile'
-        #   },
-        #   'path': '/Project/515/Asset/id/17146',
-        #   'has_children': False,
-        #   'ref': {
-        #       'kind': 'entity',
-        #       'value': {'type': 'Asset', 'id': 17146}
-        #   },
-        #   'label': 'clown4'
-        # }
-        if sg_item["ref"]["kind"] == "entity":
-            entity_type = sg_item["ref"]["value"]["type"]
-            entity_id = sg_item["ref"]["value"]["id"]
-            sg_location = ShotgunLocation(entity_type, entity_id)
-            self._navigate_to(sg_location)
-
     def navigate_to_entity(self, entity_type, entity_id):
         """
         Navigate to a particular entity.
@@ -907,28 +874,63 @@ class AppDialog(QtGui.QWidget):
         # and set up the UI for this new location
         self.setup_ui()
 
-    def _on_search_clicked(self):
+    def _enter_browse_mode(self):
         """
         Reveals the search button
         """
-        self.ui.header_stack.setCurrentIndex(self.SEARCH_HEADER_IDX)
+        self.ui.main_stack.setCurrentIndex(self.SEARCH_MODE_IDX)
+        self._hierarchy_model.set_location(self._current_location)
         self.ui.search_input.setFocus()
         
-    def _cancel_search(self):
+    def _exit_browse_mode(self):
         """
         Cancels the search, resets the search and returns to
         the normal navigation
         """
-        self.ui.header_stack.setCurrentIndex(self.NAVIGATION_HEADER_IDX)
+        self.ui.main_stack.setCurrentIndex(self.NAVIGATION_MODE_IDX)
         self.ui.search_input.setText("")
-        
+
+    def _on_tree_doubleclicked(self, model_index):
+        """
+        Someone double clicked in the navigation tree
+        """
+        sg_item = shotgun_model.get_sg_data(model_index)
+        # the raw data coming back is on the following form:
+        #
+        # {
+        #   'target_entities': {
+        #       'additional_filter_presets': [{
+        #           'path': '/Project/515/Asset/id/17146',
+        #           'preset_name': 'NAV_ENTRIES',
+        #           'seed': {
+        #               'field': 'entity',
+        #               'type': 'PublishedFile'
+        #               }
+        #           }],
+        #       'type': 'PublishedFile'
+        #   },
+        #   'path': '/Project/515/Asset/id/17146',
+        #   'has_children': False,
+        #   'ref': {
+        #       'kind': 'entity',
+        #       'value': {'type': 'Asset', 'id': 17146}
+        #   },
+        #   'label': 'clown4'
+        # }
+        if sg_item["ref"]["kind"] == "entity":
+            self._exit_browse_mode()
+            entity_type = sg_item["ref"]["value"]["type"]
+            entity_id = sg_item["ref"]["value"]["id"]
+            sg_location = ShotgunLocation(entity_type, entity_id)
+            self._navigate_to(sg_location)
+
+
     def _on_search_item_selected(self, entity_type, entity_id):
         """
         Navigate based on the selection in the global search
         """
-        self.ui.header_stack.setCurrentIndex(self.NAVIGATION_HEADER_IDX)
-        self.ui.search_input.setText("")
-        sg_location = ShotgunLocation(entity_type, entity_id)            
+        self._exit_browse_mode()
+        sg_location = ShotgunLocation(entity_type, entity_id)
         self._navigate_to(sg_location)
 
 

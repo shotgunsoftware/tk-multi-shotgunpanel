@@ -67,6 +67,7 @@ class ShotgunHierarchyModel(SimpleShotgunHierarchyModel):
         else:
             seed = "TankPublishedFile.entity"
 
+        # todo - later on expand this properly without destroying the state of the tree
         self.load_data(
             seed,
             path=path,
