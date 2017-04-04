@@ -350,8 +350,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.publish_info_widget.link_activated.connect(self._on_link_clicked)
 
         # the set work area overlay
-        self._work_area_button = WorkAreaButtonDetailsArea(self.ui.top_group)
-        self._work_area_button.change_work_area.connect(self._change_work_area)
+        self.ui.set_context.change_work_area.connect(self._change_work_area)
 
         # kick off
         self._on_home_clicked()
@@ -434,7 +433,7 @@ class AppDialog(QtGui.QWidget):
         self._details_model.load_data(self._current_location)
 
         # update the work area button
-        self._work_area_button.set_up(
+        self.ui.set_context.set_up(
             self._current_location.entity_type,
             self._current_location.entity_id
         )

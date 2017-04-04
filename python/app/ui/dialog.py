@@ -11,7 +11,7 @@ from tank.platform.qt import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(462, 648)
+        Dialog.resize(412, 648)
         self.verticalLayout_23 = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout_23.setSpacing(0)
         self.verticalLayout_23.setContentsMargins(0, 0, 0, 0)
@@ -80,11 +80,12 @@ class Ui_Dialog(object):
         self.details_text_header.setWordWrap(False)
         self.details_text_header.setObjectName("details_text_header")
         self.horizontalLayout.addWidget(self.details_text_header)
-        self.set_context = QtGui.QToolButton(self.top_group)
+        self.set_context = WorkAreaButtonDetailsArea(self.top_group)
         self.set_context.setMinimumSize(QtCore.QSize(30, 30))
         self.set_context.setMaximumSize(QtCore.QSize(30, 30))
         icon3 = QtGui.QIcon()
         icon3.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/pin.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/pin_white.png"), QtGui.QIcon.Disabled, QtGui.QIcon.Off)
         self.set_context.setIcon(icon3)
         self.set_context.setIconSize(QtCore.QSize(30, 30))
         self.set_context.setObjectName("set_context")
@@ -494,7 +495,7 @@ class Ui_Dialog(object):
         self.hierarchy_close.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.search_input.setPlaceholderText(QtGui.QApplication.translate("Dialog", "Search...", None, QtGui.QApplication.UnicodeUTF8))
 
-from ..qtwidgets import ShotgunPlaybackLabel, ActivityStreamWidget, GlobalSearchWidget, ReplyListWidget
+from ..qtwidgets import GlobalSearchWidget, ActivityStreamWidget, ShotgunPlaybackLabel, ReplyListWidget
 from ..widget_all_fields import AllFieldsWidget
-from . import resources_rc
+from ..work_area_button import WorkAreaButtonDetailsArea
 from . import resources_rc

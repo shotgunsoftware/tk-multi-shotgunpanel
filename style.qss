@@ -104,10 +104,17 @@ QToolButton:pressed {
 }
 
 
-QPushButton#cancel_search {
+#set_context[is_current="true"] {
+    background-color: {{SG_HIGHLIGHT_COLOR}};
+    border-radius: 2px;
     border: none;
 }
 
+#set_context[is_expanded="true"] {
+    background-color: rgba(200, 200, 200, 18%);
+    border-radius: 2px;
+    border: none;
+}
 
 /****************************************************************/
 /* Top details area  				 							*/
@@ -117,6 +124,7 @@ QPushButton#cancel_search {
     padding-left: 2px;
     font-size: 16px;
     font-weight: 100;
+    color: white;
 }
 
 #details_text_middle {
@@ -131,10 +139,6 @@ QWidget#top_group {
 
 QFrame#line {
     border-top: 1px dotted #888;
-}
-
-QPushButton#current_user {
-    border: none;
 }
 
 #list_item_top_right {

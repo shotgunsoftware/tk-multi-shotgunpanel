@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>462</width>
+    <width>412</width>
     <height>648</height>
    </rect>
   </property>
@@ -181,7 +181,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="set_context">
+             <widget class="WorkAreaButtonDetailsArea" name="set_context">
               <property name="minimumSize">
                <size>
                 <width>30</width>
@@ -199,7 +199,8 @@
               </property>
               <property name="icon">
                <iconset resource="resources.qrc">
-                <normaloff>:/tk_multi_infopanel/pin.png</normaloff>:/tk_multi_infopanel/pin.png</iconset>
+                <normaloff>:/tk_multi_infopanel/pin.png</normaloff>
+                <disabledoff>:/tk_multi_infopanel/pin_white.png</disabledoff>:/tk_multi_infopanel/pin.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -989,10 +990,14 @@
    <header>..widget_all_fields</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>WorkAreaButtonDetailsArea</class>
+   <extends>QToolButton</extends>
+   <header>..work_area_button</header>
+  </customwidget>
  </customwidgets>
  <resources>
   <include location="resources.qrc"/>
-  <include location="Users/manne/Documents/work_dev/toolkit/tk-multi-shotgunpanel/resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
