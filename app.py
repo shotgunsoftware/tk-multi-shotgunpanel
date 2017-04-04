@@ -53,7 +53,7 @@ class ShotgunPanelApp(Application):
             "Shotgun Panel...",
             self.create_panel,
             {
-                #"type": "panel",
+                "type": "panel",
                 "short_name": "shotgun_panel",
 
                 # dark themed icon for engines that recognize this format
@@ -158,7 +158,7 @@ class ShotgunPanelApp(Application):
         
         # start the UI
         try:
-            widget = self.create_dialog()
+            widget = self.engine.show_panel(self._unique_panel_id, "Shotgun", self, app_payload.AppDialog)
         except AttributeError, e:
             # just to gracefully handle older engines and older cores
             self.log_warning("Could not execute show_panel method - please upgrade "
