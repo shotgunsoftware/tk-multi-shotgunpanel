@@ -27,7 +27,7 @@ class Ui_WorkAreaDialog(object):
         self.icon.setMinimumSize(QtCore.QSize(40, 40))
         self.icon.setMaximumSize(QtCore.QSize(40, 40))
         self.icon.setText("")
-        self.icon.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel/rings_large.png"))
+        self.icon.setPixmap(QtGui.QPixmap(":/tk_multi_infopanel/pin_large.png"))
         self.icon.setScaledContents(True)
         self.icon.setObjectName("icon")
         self.horizontalLayout.addWidget(self.icon)
@@ -62,7 +62,7 @@ class Ui_WorkAreaDialog(object):
 
     def retranslateUi(self, WorkAreaDialog):
         WorkAreaDialog.setWindowTitle(QtGui.QApplication.translate("WorkAreaDialog", "Select your work area", None, QtGui.QApplication.UnicodeUTF8))
-        self.top_text.setText(QtGui.QApplication.translate("WorkAreaDialog", "Choose your work area", None, QtGui.QApplication.UnicodeUTF8))
+        self.top_text.setText(QtGui.QApplication.translate("WorkAreaDialog", "Choose a Work Area", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel.setText(QtGui.QApplication.translate("WorkAreaDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.ok.setText(QtGui.QApplication.translate("WorkAreaDialog", "Ok", None, QtGui.QApplication.UnicodeUTF8))
 
