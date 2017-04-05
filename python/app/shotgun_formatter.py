@@ -86,7 +86,7 @@ class ShotgunTypeFormatter(object):
         self._token_fields = set(fields)
         
     def __repr__(self):
-        return "<Shotgun '%s' formatter>" % self._entity_type
+        return "<Shotgun '%s' type formatter>" % self._entity_type
         
     ###############################################################################################
     # helper methods
@@ -698,6 +698,12 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         super(ShotgunEntityFormatter, self).__init__(entity_type)
         self._entity_id = entity_id
 
+    def __repr__(self):
+        return "<Shotgun %s %s entity formatter>" % (
+            self._entity_type,
+            self._entity_id
+        )
+
     @property
     def entity_id(self):
         """
@@ -881,8 +887,23 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         Tab to start a new view with
         """
         from .dialog import AppDialog
-        if self.entity_type == "Project":
-            # start with my tasks
-            return AppDialog.ENTITY_TAB_TASKS
+
+        default_tab = None
+
+        if self.entity_type == "Version":
+            # activity stream
+            default_tab = AppDialog.VERSION_TAB_ACTIVITY_STREAM
+
+        elif self.entity_type in ["PublishedFile", "TankPublishedFile"]:
+            # publish history
+            default_tab = AppDialog.PUBLISH_TAB_HISTORY
+
+        elif self.entity_type == "Project":
+            # my tasks is the default tab for projects
+            default_tab = AppDialog.ENTITY_TAB_TASKS
+
         else:
-            return 0
+            # activity stream
+            default_tab = AppDialog.ENTITY_TAB_ACTIVITY_STREAM
+
+        return default_tab

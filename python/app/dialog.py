@@ -120,6 +120,9 @@ class AppDialog(QtGui.QWidget):
         # create a note updater to run operations on notes in the db
         self._note_updater = NoteUpdater(self._task_manager, self)
 
+        # flag to keep track of when we are navigating
+        self._navigating = False
+
         # hook up a data retriever with all objects needing to talk to sg
         self.ui.search_input.set_bg_task_manager(self._task_manager)
         self.ui.note_reply_widget.set_bg_task_manager(self._task_manager)    
@@ -484,16 +487,8 @@ class AppDialog(QtGui.QWidget):
         # get the tab index associated with the location and
         # show that tab. This means that the 'current tab' is
         # remembered as you step through history
-        tab_idx_for_location = self._current_location.tab_index
-        if not self.ui.entity_tab_widget.isTabEnabled(tab_idx_for_location):
-            # the index is not a visible tab
-            # instead first the first left-most enabled tab
-            tab_idx_for_location = 0
-            while not self.ui.entity_tab_widget.isTabEnabled(tab_idx_for_location):
-                tab_idx_for_location +=1
-
-        self.ui.entity_tab_widget.setCurrentIndex(tab_idx_for_location)
-        self._load_entity_tab_data(tab_idx_for_location)
+        self.ui.entity_tab_widget.setCurrentIndex(self._current_location.tab_index)
+        # note that this will trigger the loading of the tab
 
     def focus_publish(self):
         """
@@ -574,7 +569,8 @@ class AppDialog(QtGui.QWidget):
         
         :param index: entity tab index to load
         """
-        self._current_location.tab_index = index
+        if not self._navigating:
+            self._current_location.set_tab_index(index)
         
         if index == self.ENTITY_TAB_ACTIVITY_STREAM:
             self.ui.entity_activity_stream.load_data(self._current_location.entity_dict)
@@ -611,7 +607,8 @@ class AppDialog(QtGui.QWidget):
         
         :param index: version tab index to load
         """
-        self._current_location.tab_index = index
+        if not self._navigating:
+            self._current_location.set_tab_index(index)
 
         if index == self.VERSION_TAB_ACTIVITY_STREAM:
             self.ui.version_activity_stream.load_data(self._current_location.entity_dict)
@@ -637,7 +634,8 @@ class AppDialog(QtGui.QWidget):
         
         :param index: publish tab index to load
         """
-        self._current_location.tab_index = index
+        if not self._navigating:
+            self._current_location.set_tab_index(index)
         
         if index == self.PUBLISH_TAB_HISTORY:
             self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(self._current_location)
@@ -812,7 +810,11 @@ class AppDialog(QtGui.QWidget):
         self._current_location = shotgun_location 
         
         # and set up the UI for this new location
-        self.setup_ui()
+        self._navigating = True
+        try:
+            self.setup_ui()
+        finally:
+            self._navigating = False
     
     def _compute_history_button_visibility(self):
         """
@@ -859,8 +861,12 @@ class AppDialog(QtGui.QWidget):
         self._compute_history_button_visibility()
 
         # and set up the UI for this new location
-        self.setup_ui()
-        
+        self._navigating = True
+        try:
+            self.setup_ui()
+        finally:
+            self._navigating = False
+
     def _on_prev_clicked(self):
         """
         Navigate back in history
@@ -871,7 +877,11 @@ class AppDialog(QtGui.QWidget):
         self._compute_history_button_visibility()
 
         # and set up the UI for this new location
-        self.setup_ui()
+        self._navigating = True
+        try:
+            self.setup_ui()
+        finally:
+            self._navigating = False
 
     def _enter_browse_mode(self):
         """
