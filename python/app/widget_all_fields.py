@@ -17,7 +17,7 @@ shotgun_view = sgtk.platform.import_framework("tk-framework-qtwidgets", "views")
 shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
 
 from .ui.all_fields_widget import Ui_AllFieldsWidget
-from .shotgun_formatter import ShotgunFormatter
+from .shotgun_formatter import ShotgunEntityFormatter
 
 class FieldNameLabel(QtGui.QLabel):
     """
@@ -97,7 +97,7 @@ class AllFieldsWidget(QtGui.QWidget):
             # an empty dictionary indicates no data available.
             return
         
-        formatter = ShotgunFormatter(sg_data["type"])
+        formatter = ShotgunEntityFormatter(sg_data["type"], sg_data["id"])
         
         self.setVisible(False)
         try:

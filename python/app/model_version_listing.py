@@ -63,7 +63,10 @@ class SgVersionModel(SgEntityListingModel):
         # make sure that we include the status regardless of how the
         # ui is configured - this is so we can do a status comparison
         # later in the _get_filters method.
-        SgEntityListingModel.load_data(self, 
-                                       sg_location, 
-                                       additional_fields=["sg_status_list"])
+        SgEntityListingModel.load_data(
+            self,
+            sg_location,
+            additional_fields=["sg_status_list"],
+            sort_field="id"
+        )
 

@@ -31,9 +31,8 @@ from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
 from .model_current_user import SgCurrentUserModel
 from .not_found_overlay import NotFoundModelOverlay
-from .shotgun_formatter import ShotgunFormatter
+from .shotgun_formatter import ShotgunTypeFormatter
 from .note_updater import NoteUpdater
-from .work_area_button import WorkAreaButtonDetailsArea
 from .work_area_dialog import WorkAreaDialog
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
@@ -754,7 +753,7 @@ class AppDialog(QtGui.QWidget):
         
         :param version_data: A version dictionary containing version data
         """
-        url = ShotgunFormatter.get_playback_url(version_data)
+        url = ShotgunTypeFormatter.get_playback_url(version_data)
         if url:
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
         else:
@@ -947,23 +946,6 @@ class AppDialog(QtGui.QWidget):
         :param entity_id: Entity id to switch to
         """
         self._app.log_debug("Switching context to %s %s" % (entity_type, entity_id))
-
-        # if entity_type == "Task":
-        #
-        #     # assign current user
-        #     self._app.log_debug(
-        #         "Ensuring user %s is assigned to task %s" % (self._app.context.user, entity_id)
-        #     )
-        #     self._app.shotgun.update(
-        #         "Task",
-        #         entity_id,
-        #         {
-        #             "task_assignees": [self._app.context.user],
-        #             "sg_status_list": "ip"
-        #         },
-        #         multi_entity_update_modes={"task_assignees": "add"}
-        #     )
-
         ctx = self._app.sgtk.context_from_entity(entity_type, entity_id)
         sgtk.platform.change_context(ctx)
         self._on_home_clicked()
