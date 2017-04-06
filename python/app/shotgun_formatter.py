@@ -902,8 +902,27 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
             # my tasks is the default tab for projects
             default_tab = AppDialog.ENTITY_TAB_TASKS
 
+        elif self.entity_type == "Project":
+            # my tasks is the default tab for projects
+            default_tab = AppDialog.ENTITY_TAB_TASKS
+
+        elif self.entity_type in ["Group", "Department"]:
+            # these items don't have much stuff turned on
+            # so show details
+            default_tab = AppDialog.ENTITY_TAB_INFO
+
+        elif self.entity_type in [
+                "ClientUser",
+                "HumanUser",
+                "ScriptUser",
+                "ApiUser"
+            ]:
+            # these types don't have the activity stream
+            default_tab = AppDialog.ENTITY_TAB_NOTES
+
         else:
-            # activity stream
+            # for everything else, default to the activity stream
             default_tab = AppDialog.ENTITY_TAB_ACTIVITY_STREAM
 
         return default_tab
+
