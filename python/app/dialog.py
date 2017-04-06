@@ -173,7 +173,7 @@ class AppDialog(QtGui.QWidget):
         
         # search
         self.ui.browse.clicked.connect(self._enter_browse_mode)
-        self.ui.hierarchy_close.clicked.connect(self._exit_browse_mode)
+        self.ui.browse_close.clicked.connect(self._exit_browse_mode)
         self.ui.search_input.entity_selected.connect(self._on_search_item_selected)
 
         # hierarchy

@@ -11,7 +11,7 @@
 import sgtk
 from sgtk.platform.qt import QtCore, QtGui 
 from .ui.list_item_widget import Ui_ListItemWidget
-from .work_area_button import WorkAreaButtonListItem
+from .work_area_button import FloatingWorkAreaButton
 
 class ListItemWidget(QtGui.QWidget):
     """
@@ -80,7 +80,7 @@ class ListItemWidget(QtGui.QWidget):
         self.ui.button.setLayoutDirection(QtCore.Qt.RightToLeft)
 
         # add work area button
-        self._work_area_button = WorkAreaButtonListItem(self.ui.box)
+        self._work_area_button = FloatingWorkAreaButton(self.ui.box)
 
     @property
     def work_area_button(self):

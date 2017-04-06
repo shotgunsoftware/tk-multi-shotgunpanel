@@ -62,10 +62,8 @@ class ShotgunHierarchyModel(SimpleShotgunHierarchyModel):
         else:
             path = "/"
 
-        if sgtk.util.get_published_file_entity_type(self._bundle.sgtk) == "PublishedFile":
-            seed = "PublishedFile.entity"
-        else:
-            seed = "TankPublishedFile.entity"
+        published_file_entity_type = sgtk.util.get_published_file_entity_type(self._bundle.sgtk)
+        seed = "%s.entity" % (published_file_entity_type,)
 
         # todo - later on expand this properly without destroying the state of the tree
         self.load_data(

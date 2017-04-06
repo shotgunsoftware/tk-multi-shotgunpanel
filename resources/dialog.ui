@@ -181,7 +181,7 @@
              </widget>
             </item>
             <item>
-             <widget class="WorkAreaButtonDetailsArea" name="set_context">
+             <widget class="WorkAreaButton" name="set_context">
               <property name="minimumSize">
                <size>
                 <width>30</width>
@@ -876,7 +876,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="hierarchy_close">
+          <widget class="QToolButton" name="browse_close">
            <property name="minimumSize">
             <size>
              <width>30</width>
@@ -991,7 +991,7 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>WorkAreaButtonDetailsArea</class>
+   <class>WorkAreaButton</class>
    <extends>QToolButton</extends>
    <header>..work_area_button</header>
   </customwidget>

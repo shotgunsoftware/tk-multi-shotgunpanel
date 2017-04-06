@@ -13,8 +13,7 @@ from sgtk.platform.qt import QtCore, QtGui
 import sgtk
 
 
-
-class WorkAreaButtonDetailsArea(QtGui.QToolButton):
+class WorkAreaButton(QtGui.QToolButton):
     """
     UX for switching work area.
 
@@ -55,7 +54,7 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
         :param parent: The model parent.
         :type parent: :class:`~PySide.QtGui.QObject`
         """
-        super(WorkAreaButtonDetailsArea, self).__init__(parent)
+        super(WorkAreaButton, self).__init__(parent)
 
         self._icon = QtGui.QIcon()
         self._icon.addPixmap(
@@ -173,7 +172,7 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
             self.style().unpolish(self)
             self.style().polish(self)
 
-        return super(WorkAreaButtonDetailsArea, self).enterEvent(evt)
+        return super(WorkAreaButton, self).enterEvent(evt)
 
     def leaveEvent(self, evt):
         """
@@ -183,12 +182,10 @@ class WorkAreaButtonDetailsArea(QtGui.QToolButton):
             # collapse button after a delay
             QtCore.QTimer.singleShot(300, self._init_default_state)
 
-        return super(WorkAreaButtonDetailsArea, self).leaveEvent(evt)
+        return super(WorkAreaButton, self).leaveEvent(evt)
 
 
-
-
-class WorkAreaButtonListItem(WorkAreaButtonDetailsArea):
+class FloatingWorkAreaButton(WorkAreaButton):
     """
     UX for switching work area.
 
@@ -196,7 +193,7 @@ class WorkAreaButtonListItem(WorkAreaButtonDetailsArea):
     The button is designed to expand so that it is subtle until a user
     hovers over it.
 
-    Derives from :class:`WorkAreaButtonDetailsArea` and positions the widget
+    Derives from :class:`WorkAreaButton` and positions the widget
     relative to the bottom-right corner of the parent widget.
 
     :signal clicked(str, int): Fires when someone clicks the change
@@ -213,7 +210,7 @@ class WorkAreaButtonListItem(WorkAreaButtonDetailsArea):
         :param parent: The model parent.
         :type parent: :class:`~PySide.QtGui.QObject`
         """
-        super(WorkAreaButtonListItem, self).__init__(parent)
+        super(FloatingWorkAreaButton, self).__init__(parent)
 
         # hook up a listener to the parent window so this widget
         # follows along when the parent window changes size
@@ -234,14 +231,14 @@ class WorkAreaButtonListItem(WorkAreaButtonDetailsArea):
         """
         Sets up the default collapsed state of the button
         """
-        super(WorkAreaButtonListItem, self)._init_default_state()
+        super(FloatingWorkAreaButton, self)._init_default_state()
         self.__position_widget()
 
     def enterEvent(self, evt):
         """
         QT Mouse enter event
         """
-        status = super(WorkAreaButtonListItem, self).enterEvent(evt)
+        status = super(FloatingWorkAreaButton, self).enterEvent(evt)
 
         if not self._is_current:
             self.__position_widget()

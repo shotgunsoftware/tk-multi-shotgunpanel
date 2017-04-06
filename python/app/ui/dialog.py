@@ -80,7 +80,7 @@ class Ui_Dialog(object):
         self.details_text_header.setWordWrap(False)
         self.details_text_header.setObjectName("details_text_header")
         self.horizontalLayout.addWidget(self.details_text_header)
-        self.set_context = WorkAreaButtonDetailsArea(self.top_group)
+        self.set_context = WorkAreaButton(self.top_group)
         self.set_context.setMinimumSize(QtCore.QSize(30, 30))
         self.set_context.setMaximumSize(QtCore.QSize(30, 30))
         icon3 = QtGui.QIcon()
@@ -416,15 +416,15 @@ class Ui_Dialog(object):
         self.hierarchy_label = QtGui.QLabel(self.search_page)
         self.hierarchy_label.setObjectName("hierarchy_label")
         self.horizontalLayout_9.addWidget(self.hierarchy_label)
-        self.hierarchy_close = QtGui.QToolButton(self.search_page)
-        self.hierarchy_close.setMinimumSize(QtCore.QSize(30, 30))
-        self.hierarchy_close.setMaximumSize(QtCore.QSize(30, 30))
+        self.browse_close = QtGui.QToolButton(self.search_page)
+        self.browse_close.setMinimumSize(QtCore.QSize(30, 30))
+        self.browse_close.setMaximumSize(QtCore.QSize(30, 30))
         icon6 = QtGui.QIcon()
         icon6.addPixmap(QtGui.QPixmap(":/tk_multi_infopanel/cross.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.hierarchy_close.setIcon(icon6)
-        self.hierarchy_close.setIconSize(QtCore.QSize(30, 30))
-        self.hierarchy_close.setObjectName("hierarchy_close")
-        self.horizontalLayout_9.addWidget(self.hierarchy_close)
+        self.browse_close.setIcon(icon6)
+        self.browse_close.setIconSize(QtCore.QSize(30, 30))
+        self.browse_close.setObjectName("browse_close")
+        self.horizontalLayout_9.addWidget(self.browse_close)
         self.verticalLayout_46.addLayout(self.horizontalLayout_9)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -491,11 +491,11 @@ class Ui_Dialog(object):
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_publish_tab), QtGui.QApplication.translate("Dialog", "Publishes", None, QtGui.QApplication.UnicodeUTF8))
         self.version_tab_widget.setTabText(self.version_tab_widget.indexOf(self.version_info_tab), QtGui.QApplication.translate("Dialog", "Details", None, QtGui.QApplication.UnicodeUTF8))
         self.hierarchy_label.setText(QtGui.QApplication.translate("Dialog", "Browse Shotgun", None, QtGui.QApplication.UnicodeUTF8))
-        self.hierarchy_close.setToolTip(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
-        self.hierarchy_close.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.browse_close.setToolTip(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
+        self.browse_close.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.search_input.setPlaceholderText(QtGui.QApplication.translate("Dialog", "Search...", None, QtGui.QApplication.UnicodeUTF8))
 
 from ..qtwidgets import GlobalSearchWidget, ActivityStreamWidget, ShotgunPlaybackLabel, ReplyListWidget
 from ..widget_all_fields import AllFieldsWidget
-from ..work_area_button import WorkAreaButtonDetailsArea
+from ..work_area_button import WorkAreaButton
 from . import resources_rc
