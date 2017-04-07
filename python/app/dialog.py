@@ -903,33 +903,39 @@ class AppDialog(QtGui.QWidget):
         """
         Someone double clicked in the navigation tree
         """
-        sg_item = shotgun_model.get_sg_data(model_index)
-        # the raw data coming back is on the following form:
-        #
-        # {
-        #   'target_entities': {
-        #       'additional_filter_presets': [{
-        #           'path': '/Project/515/Asset/id/17146',
-        #           'preset_name': 'NAV_ENTRIES',
-        #           'seed': {
-        #               'field': 'entity',
-        #               'type': 'PublishedFile'
-        #               }
-        #           }],
-        #       'type': 'PublishedFile'
-        #   },
-        #   'path': '/Project/515/Asset/id/17146',
-        #   'has_children': False,
-        #   'ref': {
-        #       'kind': 'entity',
-        #       'value': {'type': 'Asset', 'id': 17146}
-        #   },
-        #   'label': 'clown4'
-        # }
-        if sg_item["ref"]["kind"] == "entity":
+        # get the item from the source model
+        selected_item = self._hierarchy_model.itemFromIndex(
+            # get the source hierarchy model index
+            self._hierarchy_proxy.mapToSource(model_index)
+        )
+
+        if selected_item.entity_type():
             self._exit_browse_mode()
-            entity_type = sg_item["ref"]["value"]["type"]
-            entity_id = sg_item["ref"]["value"]["id"]
+            sg_data = selected_item.get_sg_data()
+            # the raw data coming back is on the following form:
+            #
+            # {
+            #   'target_entities': {
+            #       'additional_filter_presets': [{
+            #           'path': '/Project/515/Asset/id/17146',
+            #           'preset_name': 'NAV_ENTRIES',
+            #           'seed': {
+            #               'field': 'entity',
+            #               'type': 'PublishedFile'
+            #               }
+            #           }],
+            #       'type': 'PublishedFile'
+            #   },
+            #   'path': '/Project/515/Asset/id/17146',
+            #   'has_children': False,
+            #   'ref': {
+            #       'kind': 'entity',
+            #       'value': {'type': 'Asset', 'id': 17146}
+            #   },
+            #   'label': 'clown4'
+            # }
+            entity_type = sg_data["ref"]["value"]["type"]
+            entity_id = sg_data["ref"]["value"]["id"]
             sg_location = ShotgunLocation(entity_type, entity_id)
             self._navigate_to(sg_location)
 
