@@ -13,6 +13,12 @@
 # expected fields in the configuration file for this engine
 configuration:
 
+    enable_context_switch:
+        type: bool
+        default_value: false
+        description: Flag to control whether the context switch UI
+                     should be displayed or not.
+
     shotgun_fields_hook:
         type: hook
         default_value: "{self}/shotgun_fields.py"
@@ -80,6 +86,6 @@ requires_engine_version:
 
 # the frameworks required to run this app
 frameworks:
-    - {"name": "tk-framework-shotgunutils", "version": "v4.x.x"}
+    - {"name": "tk-framework-shotgunutils", "version": "v5.x.x"}
     - {"name": "tk-framework-qtwidgets", "version": "v2.x.x", "minimum_version": "v2.5.10"}
     

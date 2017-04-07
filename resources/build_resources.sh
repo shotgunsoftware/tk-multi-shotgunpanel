@@ -41,6 +41,7 @@ echo "building user interfaces..."
 build_ui dialog
 build_ui list_item_widget
 build_ui all_fields_widget
+build_ui work_area_dialog
 
 # build resources
 echo "building resources..."

@@ -11,7 +11,7 @@
 
 from sgtk.platform.qt import QtCore, QtGui
 import sgtk
-from .shotgun_formatter import ShotgunFormatter
+from .shotgun_formatter import ShotgunTypeFormatter
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
@@ -41,7 +41,7 @@ class SgEntityListingModel(ShotgunModel):
         :param parent: QT parent object
         """
         self._sg_location = None
-        self._sg_formatter = ShotgunFormatter(entity_type)
+        self._sg_formatter = ShotgunTypeFormatter(entity_type)
         
         # init base class
         ShotgunModel.__init__(self,
