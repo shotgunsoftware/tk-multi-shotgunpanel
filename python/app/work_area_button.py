@@ -56,25 +56,30 @@ class WorkAreaButton(QtGui.QToolButton):
         """
         super(WorkAreaButton, self).__init__(parent)
 
-        self._icon = QtGui.QIcon()
-        self._icon.addPixmap(
+        # an icon to represent all items which
+        # aren't the current work area
+        self._normal_icon = QtGui.QIcon()
+        self._normal_icon.addPixmap(
             QtGui.QPixmap(":/tk_multi_infopanel/pin.png"),
             QtGui.QIcon.Normal,
             QtGui.QIcon.Off
         )
-        self._icon.addPixmap(
-            QtGui.QPixmap(":/tk_multi_infopanel/pin_white.png"),
+
+        # an icon to represent the current work area
+        self._current_work_area_icon = QtGui.QIcon()
+        self._current_work_area_icon.addPixmap(
+            QtGui.QPixmap(":/tk_multi_infopanel/pin_blue.png"),
             QtGui.QIcon.Disabled,
             QtGui.QIcon.Off
         )
-        self.setIcon(self._icon)
+        self.setIcon(self._normal_icon)
         self.setIconSize(QtCore.QSize(self.WIDGET_WIDTH_COLLAPSED, self.WIDGET_HEIGHT))
 
         self._bundle = sgtk.platform.current_bundle()
 
         self._entity_type = None
         self._entity_id = None
-        self._is_current = False
+        self._is_static = False
 
         self._caption = "Set Work Area"
         self._width = 120
@@ -87,7 +92,6 @@ class WorkAreaButton(QtGui.QToolButton):
     def set_up(self, entity_type, entity_id):
         """
         Sets up the button for a given entity.
-        Typically implemented by subclasses.
 
         :param entity_type: Entity type to set up button for
         :param entity_id: Entity id to set up button for
@@ -104,22 +108,33 @@ class WorkAreaButton(QtGui.QToolButton):
         context_entity = context.task or context.entity or context.project or None
 
         self.setVisible(True)
+        self.setEnabled(True)
+        self.setIcon(self._normal_icon)
+        self._is_static = False
 
         if context_entity and context_entity["type"] == entity_type and context_entity["id"] == entity_id:
-            self._is_current = True
+            # the current work area
             self.setPopupMode(QtGui.QToolButton.DelayedPopup)
             self.setToolTip(
                 "This is your current work area.\n"
                 "The work you do will be associated with this item in Shotgun."
             )
+            # set blue icon
+            self.setIcon(self._current_work_area_icon)
+            # disable the button
+            self.setEnabled(False)
+            # make sure it doesn't pop on mouseover
+            self._is_static = True
 
         elif entity_type in self.NON_WORK_AREA_TYPES:
             # don't show the ctx selector for some types
-            self.setVisible(False)
+            self.setToolTip("This cannot be a work area.")
+            # disable the button
+            self.setEnabled(False)
+            # make sure it doesn't pop on mouse over
+            self._is_static = True
 
         else:
-            self._is_current = False
-
             if entity_type == "Task":
                 self._caption = "Set Work Area"
                 self.setToolTip("Click to set your work area to the current task.")
@@ -127,14 +142,6 @@ class WorkAreaButton(QtGui.QToolButton):
             else:
                 self._caption = "Pick Work Area"
                 self.setToolTip("Click to select a task.")
-
-        # button cannot be clicked
-        self.setEnabled(not self._is_current)
-
-        # tell the style sheet to adjust
-        self.setProperty("is_current", self._is_current)
-        self.style().unpolish(self)
-        self.style().polish(self)
 
         self._init_default_state()
 
@@ -161,7 +168,7 @@ class WorkAreaButton(QtGui.QToolButton):
         """
         QT Mouse enter event
         """
-        if not self._is_current:
+        if not self._is_static:
             # not the current work area. so expand the button
             self.setText(self._caption)
             self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
@@ -178,7 +185,7 @@ class WorkAreaButton(QtGui.QToolButton):
         """
         QT Mouse leave event
         """
-        if not self._is_current:
+        if not self._is_static:
             # collapse button after a delay
             QtCore.QTimer.singleShot(300, self._init_default_state)
 
@@ -218,6 +225,20 @@ class FloatingWorkAreaButton(WorkAreaButton):
         filter.resized.connect(self._on_parent_resized)
         parent.installEventFilter(filter)
 
+    def set_up(self, entity_type, entity_id):
+        """
+        Sets up the button for a given entity.
+
+        :param entity_type: Entity type to set up button for
+        :param entity_id: Entity id to set up button for
+        """
+        if entity_type in self.NON_WORK_AREA_TYPES:
+            # hide the widget
+            self.setVisible(False)
+        else:
+            # base class implementation
+            super(FloatingWorkAreaButton, self).set_up(entity_type, entity_id)
+
     def __position_widget(self):
         """
         Moves the widget to the bottom-right corner of the parent widget.
@@ -240,7 +261,7 @@ class FloatingWorkAreaButton(WorkAreaButton):
         """
         status = super(FloatingWorkAreaButton, self).enterEvent(evt)
 
-        if not self._is_current:
+        if not self._is_static:
             self.__position_widget()
 
         return status
