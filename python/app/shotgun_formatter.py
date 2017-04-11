@@ -639,7 +639,7 @@ class ShotgunTypeFormatter(object):
                 link_filters.append(["task", "is", sg_location.entity_dict])
 
             elif self._entity_type == "Task":
-                link_filters.append(['sibling_tasks', 'is', sg_location.entity_dict])
+                link_filters.append(["sibling_tasks", 'is', sg_location.entity_dict])
 
             else:
                 link_filters.append(["entity", "is", sg_location.entity_dict])
@@ -763,6 +763,8 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         """
         if self.entity_type in ["Group", "ClientUser", "Department"]:
             return (False, "")
+        elif self.is_current_user and self.entity_type == "HumanUser":
+            return (True, "My Publishes")
         else:
             return (True, "Publishes")
 
@@ -773,6 +775,8 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         """
         if self.entity_type in ["Group", "ClientUser", "Department"]:
             return (False, "")
+        elif self.is_current_user and self.entity_type == "HumanUser":
+            return (True, "My Versions")
         else:
             return (True, "Versions")
 
@@ -782,9 +786,11 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         Should the tasks tab be shown for this
         """
         if self.entity_type in ["ScriptUser", "ApiUser", "Department",
-                                "Group", "ClientUser", "Task"]:
+                                "Group", "ClientUser"]:
             return (False, "")
-        elif self.entity_type == "Project":
+        elif self.entity_type in ["Project"]:
+            return (True, "My Tasks")
+        elif self.is_current_user and self.entity_type == "HumanUser":
             return (True, "My Tasks")
         else:
             return (True, "Tasks")
@@ -795,6 +801,8 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         Should the info tab be shown for this
         """
         if self.entity_type == "Project":
+            return (False, "")
+        elif self.is_current_user and self.entity_type == "HumanUser":
             return (False, "")
         else:
             return (True, "Details")

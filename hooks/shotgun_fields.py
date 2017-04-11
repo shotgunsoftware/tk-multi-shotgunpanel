@@ -106,8 +106,7 @@ class ShotgunFields(HookBaseClass):
             values["body"] = """
                 {[Assigned to ]task_assignees[<br>]}
                 {entity::showtype[<br>]}
-                {[<br>Start: ]start_date}
-                {[<br>Due: ]due_date}
+                {[Starts: ]start_date}{[ Due:]due_date}
                 """            
 
         return values
@@ -316,11 +315,10 @@ class ShotgunFields(HookBaseClass):
             values["title"] = "Task {content}"
             values["body"] = """
             
-                <big>Status: {sg_status_list}</big><br><br>
-            
+                <big>Status: {sg_status_list}</big><br>
                 {entity::showtype[<br>]}
                 {[Assigned to: ]task_assignees[<br>]}
-                {[Start: ]start_date}{[ Due: ]due_date}
+                {[Starts: ]start_date}{[ Due: ]due_date}
                 """
                 
         elif entity_type == "Asset":
