@@ -54,10 +54,12 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         
         self._show_latest_only = show_latest_only
         
-        SgEntityListingModel.load_data(self, 
-                                       sg_location, 
-                                       additional_fields=["version", "task", self._publish_type_field],
-                                       sort_field="id")
+        SgEntityListingModel.load_data(
+            self,
+            sg_location,
+            additional_fields=["version", "task", self._publish_type_field],
+            sort_field="created_at"
+        )
 
 
 

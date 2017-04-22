@@ -132,15 +132,18 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
             # commited transactions will appear later in the list.
             # This ensures that publishes with no version number defined
             # (yes, these exist) are also sorted correctly.
-            hierarchy = ["id"]
+            hierarchy = ["created_at"]
 
             self._current_version = sg_data["version_number"]
 
-            ShotgunModel._load_data(self, 
-                                    self._sg_formatter.entity_type, 
-                                    filters, 
-                                    hierarchy, 
-                                    self._sg_formatter.fields)
+            ShotgunModel._load_data(
+                self,
+                self._sg_formatter.entity_type,
+                filters,
+                hierarchy,
+                self._sg_formatter.fields
+            )
+
             self._refresh_data()
 
     ############################################################################################
