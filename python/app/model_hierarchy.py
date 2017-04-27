@@ -56,20 +56,12 @@ class ShotgunHierarchyModel(SimpleShotgunHierarchyModel):
         """
         # TODO - when tree system supports entity->path resolution, implement selection
 
-        if self._bundle.context.project:
-            # todo - refactor when we have the new entity resolution methods
-            path = "/Project/%s" % self._bundle.context.project["id"]
-        else:
-            path = "/"
-
         published_file_entity_type = sgtk.util.get_published_file_entity_type(self._bundle.sgtk)
         seed = "%s.entity" % (published_file_entity_type,)
 
         # todo - later on expand this properly without destroying the state of the tree
         self.load_data(
             seed,
-            path=path,
+            root=self._bundle.context.project,
             entity_fields=self._entity_fields
         )
-
-
