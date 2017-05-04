@@ -146,6 +146,11 @@ class ShotgunPanelApp(Application):
         """
         self.log_debug("Destroying app...")
 
+        # Closing the current panel
+        if self._current_panel is not None:
+            self._current_panel.close()
+
+
     def create_panel(self):
         """
         Shows the UI as a panel. 
