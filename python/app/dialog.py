@@ -9,6 +9,7 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
+import pprint
 
 # by importing QT from sgtk rather than directly, we ensure that
 # the code will be compatible with both PySide and PyQt.
@@ -16,6 +17,7 @@ from sgtk.platform.qt import QtCore, QtGui
 from .ui.dialog import Ui_Dialog
 
 from .shotgun_location import ShotgunLocation
+from .model_hierarchy import ShotgunHierarchyModel
 from .delegate_list_item import ListItemDelegate
 from .action_manager import ActionManager
 from .model_entity_listing import SgEntityListingModel
@@ -29,8 +31,9 @@ from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
 from .model_current_user import SgCurrentUserModel
 from .not_found_overlay import NotFoundModelOverlay
-from .shotgun_formatter import ShotgunFormatter
+from .shotgun_formatter import ShotgunTypeFormatter
 from .note_updater import NoteUpdater
+from .work_area_dialog import WorkAreaDialog
 
 shotgun_model = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_model")
 task_manager = sgtk.platform.import_framework("tk-framework-shotgunutils", "task_manager")
@@ -44,15 +47,18 @@ ShotgunModelOverlayWidget = overlay_module.ShotgunModelOverlayWidget
 # maximum size of the details field in the top part of the UI
 MAX_LEN_UPPER_BODY_DETAILS = 1200
 
+# milliseconds to show splash
+SPLASH_UI_TIME_MILLISECONDS = 2000
+
 class AppDialog(QtGui.QWidget):
     """
     Main application dialog window. This defines the top level UI
     and binds all UI objects together.
     """
-    
+
     # header indices
-    NAVIGATION_HEADER_IDX = 0
-    SEARCH_HEADER_IDX = 1
+    NAVIGATION_MODE_IDX = 0
+    SEARCH_MODE_IDX = 1
     
     # page indices
     ENTITY_PAGE_IDX = 0
@@ -114,6 +120,9 @@ class AppDialog(QtGui.QWidget):
         # create a note updater to run operations on notes in the db
         self._note_updater = NoteUpdater(self._task_manager, self)
 
+        # flag to keep track of when we are navigating
+        self._navigating = False
+
         # hook up a data retriever with all objects needing to talk to sg
         self.ui.search_input.set_bg_task_manager(self._task_manager)
         self.ui.note_reply_widget.set_bg_task_manager(self._task_manager)    
@@ -163,9 +172,20 @@ class AppDialog(QtGui.QWidget):
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
         
         # search
-        self.ui.search.clicked.connect(self._on_search_clicked)
-        self.ui.cancel_search.clicked.connect(self._cancel_search)
+        self.ui.browse.clicked.connect(self._enter_browse_mode)
+        self.ui.browse_close.clicked.connect(self._exit_browse_mode)
         self.ui.search_input.entity_selected.connect(self._on_search_item_selected)
+
+        # hierarchy
+        self._hierarchy_model = ShotgunHierarchyModel(self, bg_task_manager=self._task_manager)
+        self._hierarchy_proxy = QtGui.QSortFilterProxyModel(self)
+        self._hierarchy_proxy.setSourceModel(self._hierarchy_model)
+        # Sort alphabetically
+        self._hierarchy_proxy.sort(0)
+        self._hierarchy_proxy.setDynamicSortFilter(True)
+        self.ui.hierarchy_view.setModel(self._hierarchy_proxy)
+        # double click navigates
+        self.ui.hierarchy_view.doubleClicked.connect(self._on_tree_doubleclicked)
 
         # latest publishes only
         self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
@@ -303,6 +323,7 @@ class AppDialog(QtGui.QWidget):
             tab_dict["view"].doubleClicked.connect(self._on_entity_doubleclicked)
             # create delegate
             tab_dict["delegate"] = DelegateClass(tab_dict["view"], self._action_manager)
+            tab_dict["delegate"].change_work_area.connect(self._change_work_area)
             # hook up delegate renderer with view
             tab_dict["view"].setItemDelegate(tab_dict["delegate"])
             # and set up a spinner overlay
@@ -314,8 +335,10 @@ class AppDialog(QtGui.QWidget):
         
         # set up the all fields tabs
         self._entity_details_model = SgAllFieldsModel(self, self._task_manager)
-        self._entity_details_overlay = ShotgunModelOverlayWidget(self._entity_details_model, 
-                                                                 self.ui.entity_info_widget)
+        self._entity_details_overlay = ShotgunModelOverlayWidget(
+            self._entity_details_model,
+            self.ui.entity_info_widget
+        )
              
         self._entity_details_model.data_updated.connect(self.ui.entity_info_widget.set_data)
         self.ui.entity_info_widget.link_activated.connect(self._on_link_clicked)
@@ -327,7 +350,10 @@ class AppDialog(QtGui.QWidget):
         self._publish_details_model = SgAllFieldsModel(self.ui.publish_info_widget, self._task_manager)
         self._publish_details_model.data_updated.connect(self.ui.publish_info_widget.set_data)
         self.ui.publish_info_widget.link_activated.connect(self._on_link_clicked)
-        
+
+        # the set work area overlay
+        self.ui.set_context.change_work_area.connect(self._change_work_area)
+
         # kick off
         self._on_home_clicked()
 
@@ -335,7 +361,7 @@ class AppDialog(QtGui.QWidget):
         splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/splash.png")
         self._overlay.show_message_pixmap(splash_pix)
         QtCore.QCoreApplication.processEvents()
-        QtCore.QTimer.singleShot(3000, self._overlay.hide)
+        QtCore.QTimer.singleShot(SPLASH_UI_TIME_MILLISECONDS, self._overlay.hide)
 
 
     def closeEvent(self, event):
@@ -407,7 +433,12 @@ class AppDialog(QtGui.QWidget):
 
         # update the details area
         self._details_model.load_data(self._current_location)
-        
+
+        # update the work area button
+        self.ui.set_context.set_up(
+            self._current_location.entity_type,
+            self._current_location.entity_id
+        )
         
 
     def focus_entity(self):
@@ -417,43 +448,47 @@ class AppDialog(QtGui.QWidget):
         """
         # set the right widget to show
         self.ui.page_stack.setCurrentIndex(self.ENTITY_PAGE_IDX)
-        
+
         #################################################################################
         # temp tab handling! Replace with smarter, better solution!
         
         formatter = self._current_location.sg_formatter
-        
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_NOTES, formatter.show_notes_tab)
-        if not formatter.show_notes_tab:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, "")
-        else:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, "Notes")
- 
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_VERSIONS, formatter.show_versions_tab)
-        if not formatter.show_versions_tab:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, "")
-        else:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, "Versions")
- 
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_PUBLISHES, formatter.show_publishes_tab)
-        if not formatter.show_publishes_tab:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, "")
-        else:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, "Publishes")
 
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_TASKS, formatter.show_tasks_tab)
-        if not formatter.show_tasks_tab:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, "")
-        else:
-            self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, "Tasks")
-        
+        (enabled, caption) = formatter.show_activity_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_ACTIVITY_STREAM, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_ACTIVITY_STREAM, caption)
+
+        (enabled, caption) = formatter.show_notes_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_NOTES, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, caption)
+
+        (enabled, caption) = formatter.show_versions_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_VERSIONS, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, caption)
+
+        (enabled, caption) = formatter.show_publishes_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_PUBLISHES, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, caption)
+
+        (enabled, caption) = formatter.show_tasks_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_TASKS, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, caption)
+
+        (enabled, caption) = formatter.show_info_tab
+        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_INFO, enabled)
+        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_INFO, caption)
+
+        # set the description
+        self.ui.entity_note_label.setText(formatter.notes_description)
+        self.ui.entity_task_label.setText(formatter.tasks_description)
+        self.ui.entity_version_label.setText(formatter.versions_description)
+        self.ui.entity_publish_label.setText(formatter.publishes_description)
+
         # get the tab index associated with the location and
         # show that tab. This means that the 'current tab' is
         # remembered as you step through history
-        tab_idx_for_location = self._current_location.tab_index
-        self.ui.entity_tab_widget.setCurrentIndex(tab_idx_for_location)
-        self._load_entity_tab_data(tab_idx_for_location)
-
+        self.ui.entity_tab_widget.setCurrentIndex(self._current_location.tab_index)
+        # note that this will trigger the loading of the tab
 
     def focus_publish(self):
         """
@@ -484,7 +519,12 @@ class AppDialog(QtGui.QWidget):
         tab_idx_for_location = self._current_location.tab_index
         self.ui.version_tab_widget.setCurrentIndex(tab_idx_for_location)
         self._load_version_tab_data(tab_idx_for_location)
-        
+
+        # set the description
+        formatter = self._current_location.sg_formatter
+        self.ui.version_note_label.setText(formatter.notes_description)
+        self.ui.version_publish_label.setText(formatter.publishes_description)
+
     def focus_note(self):
         """
         Move UI to note mode. Load up tabs.
@@ -529,21 +569,28 @@ class AppDialog(QtGui.QWidget):
         
         :param index: entity tab index to load
         """
-        self._current_location.tab_index = index
+        if not self._navigating:
+            self._current_location.set_tab_index(index)
         
         if index == self.ENTITY_TAB_ACTIVITY_STREAM:
-            self.ui.entity_activity_stream.load_data(self._current_location.entity_dict )
-        
-        elif index == self.ENTITY_TAB_NOTES:            
+            self.ui.entity_activity_stream.load_data(self._current_location.entity_dict)
+
+        elif index == self.ENTITY_TAB_NOTES:
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
             
         elif index == self.ENTITY_TAB_VERSIONS:
             show_pending_only = self.ui.pending_versions_only.isChecked()
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location, show_pending_only)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(
+                self._current_location,
+                show_pending_only
+            )
         
         elif index == self.ENTITY_TAB_PUBLISHES:
             show_latest_only = self.ui.latest_publishes_only.isChecked()
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location, show_latest_only)
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(
+                self._current_location,
+                show_latest_only
+            )
             
         elif index == self.ENTITY_TAB_TASKS:
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
@@ -560,7 +607,8 @@ class AppDialog(QtGui.QWidget):
         
         :param index: version tab index to load
         """
-        self._current_location.tab_index = index
+        if not self._navigating:
+            self._current_location.set_tab_index(index)
 
         if index == self.VERSION_TAB_ACTIVITY_STREAM:
             self.ui.version_activity_stream.load_data(self._current_location.entity_dict)
@@ -569,7 +617,10 @@ class AppDialog(QtGui.QWidget):
             self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location)
 
         elif index == self.VERSION_TAB_PUBLISHES:        
-            self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(self._current_location, show_latest_only=False)
+            self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(
+                self._current_location,
+                show_latest_only=False
+            )
             
         elif index == self.VERSION_TAB_INFO:
             self._version_details_model.load_data(self._current_location)
@@ -583,7 +634,8 @@ class AppDialog(QtGui.QWidget):
         
         :param index: publish tab index to load
         """
-        self._current_location.tab_index = index
+        if not self._navigating:
+            self._current_location.set_tab_index(index)
         
         if index == self.PUBLISH_TAB_HISTORY:
             self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(self._current_location)
@@ -615,8 +667,9 @@ class AppDialog(QtGui.QWidget):
                 
         # updat the reply icon                
         sg_data = self._current_user_model.get_sg_data()        
-        if sg_data:        
-            self.ui.current_user.setToolTip("%s's Home" % sg_data["firstname"])
+        if sg_data:
+            first_name = sg_data.get("firstname") or "Noname"
+            self.ui.current_user.setToolTip("%s's Home" % first_name.capitalize())
 
     def _refresh_details_thumbnail(self):
         """
@@ -670,7 +723,7 @@ class AppDialog(QtGui.QWidget):
     # UI callbacks
     def _on_entity_doubleclicked(self, model_index):
         """
-        Someone clicked an entity
+        Someone double clicked an entity
         """
         sg_item = shotgun_model.get_sg_data(model_index)
         sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
@@ -698,7 +751,7 @@ class AppDialog(QtGui.QWidget):
         
         :param version_data: A version dictionary containing version data
         """
-        url = ShotgunFormatter.get_playback_url(version_data)
+        url = ShotgunTypeFormatter.get_playback_url(version_data)
         if url:
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
         else:
@@ -757,7 +810,11 @@ class AppDialog(QtGui.QWidget):
         self._current_location = shotgun_location 
         
         # and set up the UI for this new location
-        self.setup_ui()
+        self._navigating = True
+        try:
+            self.setup_ui()
+        finally:
+            self._navigating = False
     
     def _compute_history_button_visibility(self):
         """
@@ -804,8 +861,12 @@ class AppDialog(QtGui.QWidget):
         self._compute_history_button_visibility()
 
         # and set up the UI for this new location
-        self.setup_ui()
-        
+        self._navigating = True
+        try:
+            self.setup_ui()
+        finally:
+            self._navigating = False
+
     def _on_prev_clicked(self):
         """
         Navigate back in history
@@ -816,28 +877,154 @@ class AppDialog(QtGui.QWidget):
         self._compute_history_button_visibility()
 
         # and set up the UI for this new location
-        self.setup_ui()
+        self._navigating = True
+        try:
+            self.setup_ui()
+        finally:
+            self._navigating = False
 
-    def _on_search_clicked(self):
+    def _enter_browse_mode(self):
         """
         Reveals the search button
         """
-        self.ui.header_stack.setCurrentIndex(self.SEARCH_HEADER_IDX)
+        self.ui.main_stack.setCurrentIndex(self.SEARCH_MODE_IDX)
+        self._hierarchy_model.set_location(self._current_location)
         self.ui.search_input.setFocus()
         
-    def _cancel_search(self):
+    def _exit_browse_mode(self):
         """
         Cancels the search, resets the search and returns to
         the normal navigation
         """
-        self.ui.header_stack.setCurrentIndex(self.NAVIGATION_HEADER_IDX)
+        self.ui.main_stack.setCurrentIndex(self.NAVIGATION_MODE_IDX)
         self.ui.search_input.setText("")
-        
+
+    def _on_tree_doubleclicked(self, model_index):
+        """
+        Someone double clicked in the navigation tree
+        """
+        # get the item from the source model
+        selected_item = self._hierarchy_model.itemFromIndex(
+            # get the source hierarchy model index
+            self._hierarchy_proxy.mapToSource(model_index)
+        )
+
+        if selected_item.entity_type():
+            self._exit_browse_mode()
+            sg_data = selected_item.get_sg_data()
+            # the raw data coming back is on the following form:
+            #
+            # {
+            #   'target_entities': {
+            #       'additional_filter_presets': [{
+            #           'path': '/Project/515/Asset/id/17146',
+            #           'preset_name': 'NAV_ENTRIES',
+            #           'seed': {
+            #               'field': 'entity',
+            #               'type': 'PublishedFile'
+            #               }
+            #           }],
+            #       'type': 'PublishedFile'
+            #   },
+            #   'path': '/Project/515/Asset/id/17146',
+            #   'has_children': False,
+            #   'ref': {
+            #       'kind': 'entity',
+            #       'value': {'type': 'Asset', 'id': 17146}
+            #   },
+            #   'label': 'clown4'
+            # }
+            entity_type = sg_data["ref"]["value"]["type"]
+            entity_id = sg_data["ref"]["value"]["id"]
+            sg_location = ShotgunLocation(entity_type, entity_id)
+            self._navigate_to(sg_location)
+
+
     def _on_search_item_selected(self, entity_type, entity_id):
         """
         Navigate based on the selection in the global search
         """
-        self.ui.header_stack.setCurrentIndex(self.NAVIGATION_HEADER_IDX)
-        self.ui.search_input.setText("")
-        sg_location = ShotgunLocation(entity_type, entity_id)            
+        self._exit_browse_mode()
+        sg_location = ShotgunLocation(entity_type, entity_id)
         self._navigate_to(sg_location)
+
+
+    ###################################################################################################
+    # context switch
+
+    def _do_work_area_switch(self, entity_type, entity_id):
+        """
+        Switches context and navigates to the new context.
+        If the context is a task, the current user is assigned
+        and the task is set to IP.
+
+        :param entity_type: Entity type to switch to
+        :param entity_id: Entity id to switch to
+        """
+        self._app.log_debug("Switching context to %s %s" % (entity_type, entity_id))
+        ctx = self._app.sgtk.context_from_entity(entity_type, entity_id)
+        sgtk.platform.change_context(ctx)
+        self._on_home_clicked()
+
+
+    def _change_work_area(self, entity_type, entity_id):
+        """
+        High level context switch ux logic.
+
+        If the entity type is a Task, the context switch
+        happens immediately.
+
+        For all other cases, a UI is displayed, allowing
+        the user to select or create a new task.
+
+        :param entity_type: Entity type to switch to
+        :param entity_id: Entity id to switch to
+        """
+        if entity_type == "Task":
+            # for tasks, switch context directly
+            self._do_work_area_switch(entity_type, entity_id)
+
+        else:
+            # display the task selection/creation UI
+            dialog = WorkAreaDialog(entity_type, entity_id, self)
+
+            # show modal
+            res = dialog.exec_()
+
+            if res == QtGui.QDialog.Accepted:
+
+                if dialog.is_new_task:
+                    # user wants to create a new task
+
+                    # basic validation
+                    if not dialog.new_task_name:
+                        self._app.log_error("Please name your task!")
+                        return
+
+                    # create new task and assign!
+                    self._app.log_debug("Resolving shotgun project...")
+                    entity_data = self._app.shotgun.find_one(
+                        entity_type,
+                        [["id", "is", entity_id]],
+                        ["project"]
+                    )
+
+                    sg_data = {
+                        "content": dialog.new_task_name,
+                        "step": {"type": "Step", "id": dialog.new_step_id},
+                        "task_assignees": [self._app.context.user],
+                        "sg_status_list": "ip",
+                        "entity": {"type": entity_type, "id": entity_id},
+                        "project": entity_data["project"]
+                    }
+
+                    self._app.log_debug("Creating new task:\n%s" % pprint.pprint(sg_data))
+                    task_data = self._app.shotgun.create("Task", sg_data)
+                    (entity_type, entity_id) = (task_data["type"], task_data["id"])
+
+                else:
+                    # user selected a task in the UI
+                    (entity_type, entity_id) = dialog.selected_entity
+
+                self._do_work_area_switch(entity_type, entity_id)
+

@@ -9,7 +9,7 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-from .shotgun_formatter import ShotgunFormatter
+from .shotgun_formatter import ShotgunEntityFormatter
 
 class ShotgunLocation(object):
     """
@@ -21,10 +21,20 @@ class ShotgunLocation(object):
     def __init__(self, entity_type, entity_id):
         self._entity_type = entity_type
         self._entity_id = entity_id
-        self._formatter = ShotgunFormatter(self._entity_type)
+        self._formatter = ShotgunEntityFormatter(self._entity_type, entity_id)
     
         # The ui tab index currently focused on for this location
-        self.tab_index = 0
+        self._tab_index = self._formatter.default_tab
+
+    def __repr__(self):
+        """
+        String representation
+        """
+        return "<ShotgunLocation %s %s tab index %s>" % (
+            self._entity_type,
+            self._entity_id,
+            self._tab_index
+        )
 
     @classmethod
     def from_context(cls, ctx):
@@ -59,7 +69,20 @@ class ShotgunLocation(object):
 
         return sg_location
 
-            
+    def set_tab_index(self, index):
+        """
+        Update the associated tab index
+        :param int index: tab index
+        """
+        self._tab_index = index
+
+    @property
+    def tab_index(self):
+        """
+        The tab index associated with this location
+        """
+        return self._tab_index
+
     @property
     def entity_type(self):
         """
@@ -96,7 +119,7 @@ class ShotgunLocation(object):
                                                                                       self._entity_type, 
                                                                                       self._entity_id)
         else:
-            url = "%s/detail/%s/%s" % (self._entity_type, self._entity_id)
+            url = "%s/detail/%s/%s" % (app.sgtk.shotgun_url, self._entity_type, self._entity_id)
     
         return url    
     
@@ -105,6 +128,8 @@ class ShotgunLocation(object):
         """
         Returns a formatter object with details on how 
         this object should be displayed and formatted
+
+        :returns: :class:`ShotgunEntityFormatter` instance
         """
         return self._formatter
 

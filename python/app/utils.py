@@ -163,7 +163,8 @@ def create_rectangular_512x400_thumbnail(image):
         painter.end()
     
     return base_image
-    
+
+
 def create_human_readable_timestamp(datetime_obj):
     """
     Formats a time stamp the way dates are formatted in the 
@@ -189,14 +190,14 @@ def create_human_readable_timestamp(datetime_obj):
     # the timedelta structure does not have all units; bigger units are converted
     # into given smaller ones (hours -> seconds, minutes -> seconds, weeks > days, ...)
     # but we need all units:
-    delta_weeks        = delta.days // 7
-    delta_days         = delta.days
+    delta_weeks = delta.days // 7
+    delta_days = delta.days
 
     if delta_weeks > 52:
         # more than one year ago - 26 June 2012
         time_str = datetime_obj.strftime('%d %b %Y %H:%M')
     
-    elif delta_days > 5:
+    elif delta_days > 1:
         # ~ more than one week ago - 26 June
         time_str = datetime_obj.strftime('%d %b %H:%M')
     
@@ -205,4 +206,5 @@ def create_human_readable_timestamp(datetime_obj):
         time_str = datetime_obj.strftime('%H:%M')
                  
     return (time_str, full_time_str)
-    
+
+

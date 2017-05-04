@@ -72,9 +72,9 @@ class SgTaskListingModel(SgEntityListingModel):
         so that a data_updated signal is consistently sent
         out both after the data has been updated and after a cache has been read in
         """
-        if self._sg_location.entity_type != "HumanUser":
-            # when tasks are shown not for users, get user
-            # thumbnails for them
+        if self._sg_location.entity_type not in ["HumanUser", "Project"]:
+            # show square thumbs for users and project (my tasks)
+            # for other types, fetch user thumbnails
             rows = self.rowCount()
             
             # get the task assignees
@@ -110,8 +110,9 @@ class SgTaskListingModel(SgEntityListingModel):
         on a call to _populate_thumbnail will follow where the subclassing implementation
         can populate the real image.
         """
-        if self._sg_location.entity_type == "HumanUser":
+        if self._sg_location.entity_type in ["HumanUser", "Project"]:
             # TODO - refactor this into a nicer piece of code
+            # show square thumbs for users and project (my tasks)
             item.setIcon(self._sg_formatter._rect_default_icon) 
         else:
             item.setIcon(self._sg_formatter._round_default_icon)
@@ -145,8 +146,8 @@ class SgTaskListingModel(SgEntityListingModel):
             # ignore and not display.
             return
          
-        if self._sg_location.entity_type == "HumanUser":
-            # only show square thumbs for users
+        if self._sg_location.entity_type in ["HumanUser", "Project"]:
+            # show square thumbs for users and project (my tasks)
             sg_data = item.get_sg_data()
             icon = self._sg_formatter.create_thumbnail(image, sg_data)
             item.setIcon(QtGui.QIcon(icon))

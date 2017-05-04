@@ -17,7 +17,7 @@ QWidget {
 }
 
 /* Get rid of borders for main Listing Views */
-QListView, QTableView, QScrollArea {
+QListView, QTableView, QTreeView, QScrollArea {
     border: none;
 }
 
@@ -30,8 +30,8 @@ QTabWidget::pane {
     padding-top: 8px;
 }
 
-/* Style the tab using the tab sub-control. 
-   Note that it reads QTabBar _not_ QTabWidget */
+
+/* Style the tab using the tab sub-control. */
 QTabBar::tab {
     padding-left: 12px;
     padding-right: 12px;
@@ -39,6 +39,7 @@ QTabBar::tab {
     padding-top: 0px;
     border-bottom: 2px solid rgb(255, 255, 255, 5);
 }
+
 
 QTabBar::tab:hover {
     color: {{SG_HIGHLIGHT_COLOR}};
@@ -48,6 +49,17 @@ QTabBar::tab:selected {
     color: {{SG_HIGHLIGHT_COLOR}};
     border-bottom: 2px solid {{SG_HIGHLIGHT_COLOR}};
 }
+
+/* helper text below labels */
+#entity_note_label, #entity_version_label, #entity_publish_label,
+#entity_task_label, #publish_history_label, #publish_upstream_label,
+#publish_downstream_label, #version_note_label, #version_publish_label
+{
+    font-size: 10px;
+    font-weight: 100;
+    font-style: italic;
+}
+
 
 /****************************************************************/
 /* Info tab showing all shotgun fields 							*/
@@ -75,92 +87,60 @@ FieldValueLabel {
 /****************************************************************/
 /* Navigation: Home, previous, next 							*/
 
-/* Navigate to previous page button styling */
-QToolButton#navigation_prev {
-    border: none;
-    background-color: none;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url(:/tk_multi_infopanel/left_arrow.png);
-}
-
-QToolButton:disabled#navigation_prev {
-    background-image: url(:/tk_multi_infopanel/left_arrow_disabled.png);
-}
-
-QToolButton:hover#navigation_prev {
-    background-image: url(:/tk_multi_infopanel/left_arrow_hover.png);
-}
-
-QToolButton:Pressed#navigation_prev {
-    background-image: url(:/tk_multi_infopanel/left_arrow_pressed.png);
-}
-
-
-/* Navigate to next page button styling */
-QToolButton#navigation_next {
-    border: none;
-    background-color: none;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url(:/tk_multi_infopanel/right_arrow.png);
-}
-
-QToolButton:disabled#navigation_next {
-    background-image: url(:/tk_multi_infopanel/right_arrow_disabled.png);
-}
-
-QToolButton:hover#navigation_next {
-    background-image: url(:/tk_multi_infopanel/right_arrow_hover.png);
-}
-
-QToolButton:Pressed#navigation_next {
-    background-image: url(:/tk_multi_infopanel/right_arrow_pressed.png);
-}
-
-/* Search button styling */
-QToolButton#search {
-    border: none;
-    background-color: none;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url(:/tk_multi_infopanel/search.png);
-}
-
-QToolButton:disabled#search {
-    background-image: url(:/tk_multi_infopanel/search_disabled.png);
-}
-
-QToolButton:hover#search {
-    background-image: url(:/tk_multi_infopanel/search_hover.png);
-}
-
-QToolButton:Pressed#search  {
-    background-image: url(:/tk_multi_infopanel/search_pressed.png);
-}
-
-/* Home button styling */
-QToolButton#navigation_home{
-    border: none;
-    background-color: none;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url(:/tk_multi_infopanel/home.png);
-}
-
-QToolButton:hover#navigation_home{
-    background-image: url(:/tk_multi_infopanel/home_hover.png);
-}
-
-QToolButton:Pressed#navigation_home{
-    background-image: url(:/tk_multi_infopanel/home_pressed.png);
-}
-
-/* cancel search button */
-
-QPushButton#cancel_search {
+QToolButton {
     border: none;
 }
+
+QToolButton:hover {
+    border: none;
+    border-radius: 2px;
+    background-color: rgba(200, 200, 200, 18%);
+}
+
+QToolButton:pressed {
+    border: none;
+    border-radius: 2px;
+    background-color: rgba(200, 200, 200, 35%);
+}
+
+
+/****************************************************************/
+/* Work area buttons in header					                */
+
+WorkAreaButton[is_expanded="true"] {
+    background-color: rgba(200, 200, 200, 18%);
+    border-radius: 2px;
+    border: none;
+}
+
+WorkAreaButton[is_expanded="true"]:pressed  {
+    background-color: rgba(200, 200, 200, 35%);
+    border-radius: 2px;
+    border: none;
+}
+
+
+/****************************************************************/
+/* Work area buttons in listings				                */
+
+FloatingWorkAreaButton {
+    background-color: rgba(20, 20, 20, 35%);
+    border-radius: 2px;
+    border: none;
+}
+
+FloatingWorkAreaButton[is_expanded="true"] {
+    background-color: rgba(20, 20, 20, 50%);
+    border-radius: 2px;
+    border: none;
+}
+
+FloatingWorkAreaButton[is_expanded="true"]:pressed  {
+    background-color: rgba(20, 20, 20, 70%);
+    border-radius: 2px;
+    border: none;
+}
+
 
 /****************************************************************/
 /* Top details area  				 							*/
@@ -169,6 +149,8 @@ QPushButton#cancel_search {
 #details_text_header {
     padding-left: 2px;
     font-size: 16px;
+    font-weight: 100;
+    color: white;
 }
 
 #details_text_middle {
@@ -185,10 +167,70 @@ QFrame#line {
     border-top: 1px dotted #888;
 }
 
-QPushButton#current_user {
-    border: none;
-}
-
 #list_item_top_right {
     color: rgba(200, 200, 200, 40%);
 }
+
+
+/****************************************************************/
+/* Styling for the nav tree. */
+
+#hierarchy_label {
+    font-size: 18px;
+    font-weight: 100;
+}
+
+QTreeView::item {
+    padding: 6px;
+}
+
+QTreeView {
+    font-size: 11px;
+    font-weight: 100;
+}
+
+
+/****************************************************************/
+/* Styling for the choose work area dialog. */
+
+WorkAreaDialog #top_text {
+    font-size: 18px;
+    font-weight: 100;
+    color: #fff;
+    margin-left: 10px;
+}
+
+WorkAreaDialog #top_frame {
+    border-radius: 3px;
+    background-color: {{SG_HIGHLIGHT_COLOR}};
+}
+
+WorkAreaDialog #task_list {
+    font-size: 14px;
+    font-weight: 100;
+}
+
+
+WorkAreaDialog #task_list::item {
+    padding: 10px;
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    background-color: rgba(255, 255, 255, 10%);
+}
+
+WorkAreaDialog #task_list::item:selected {
+    background-color: {{SG_HIGHLIGHT_COLOR}};
+}
+
+WorkAreaDialog #task_name {
+    font-size: 14px;
+    font-weight: 100;
+    border: none;
+}
+
+WorkAreaDialog #step_combo {
+    font-size: 14px;
+    font-weight: 100;
+}
+
