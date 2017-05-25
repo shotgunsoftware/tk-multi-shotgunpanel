@@ -487,8 +487,16 @@ class AppDialog(QtGui.QWidget):
         # get the tab index associated with the location and
         # show that tab. This means that the 'current tab' is
         # remembered as you step through history
-        self.ui.entity_tab_widget.setCurrentIndex(self._current_location.tab_index)
-        # note that this will trigger the loading of the tab
+        curr_index = self.ui.entity_tab_widget.currentIndex()
+        if self._current_location.tab_index == curr_index:
+            # we are already displaying the right tab
+            # kick off a refresh
+            self._load_entity_tab_data(curr_index)
+        else:
+            # navigate to a new tab
+            # (note that the navigation will trigger the loading via a signal)
+            self.ui.entity_tab_widget.setCurrentIndex(self._current_location.tab_index)
+
 
     def focus_publish(self):
         """
