@@ -17,7 +17,6 @@ from sgtk.platform.qt import QtCore, QtGui
 from .ui.dialog import Ui_Dialog
 
 from .shotgun_location import ShotgunLocation
-from .model_hierarchy import ShotgunHierarchyModel
 from .delegate_list_item import ListItemDelegate
 from .action_manager import ActionManager
 from .model_entity_listing import SgEntityListingModel
@@ -172,20 +171,9 @@ class AppDialog(QtGui.QWidget):
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
         
         # search
-        self.ui.browse.clicked.connect(self._enter_browse_mode)
-        self.ui.browse_close.clicked.connect(self._exit_browse_mode)
+        self.ui.search.clicked.connect(self._on_search_clicked)
+        self.ui.cancel_search.clicked.connect(self._cancel_search)
         self.ui.search_input.entity_selected.connect(self._on_search_item_selected)
-
-        # hierarchy
-        self._hierarchy_model = ShotgunHierarchyModel(self, bg_task_manager=self._task_manager)
-        self._hierarchy_proxy = QtGui.QSortFilterProxyModel(self)
-        self._hierarchy_proxy.setSourceModel(self._hierarchy_model)
-        # Sort alphabetically
-        self._hierarchy_proxy.sort(0)
-        self._hierarchy_proxy.setDynamicSortFilter(True)
-        self.ui.hierarchy_view.setModel(self._hierarchy_proxy)
-        # double click navigates
-        self.ui.hierarchy_view.doubleClicked.connect(self._on_tree_doubleclicked)
 
         # latest publishes only
         self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
@@ -891,68 +879,27 @@ class AppDialog(QtGui.QWidget):
         finally:
             self._navigating = False
 
-    def _enter_browse_mode(self):
+    def _on_search_clicked(self):
         """
         Reveals the search button
         """
-        self.ui.main_stack.setCurrentIndex(self.SEARCH_MODE_IDX)
-        self._hierarchy_model.set_location(self._current_location)
+        self.ui.header_stack.setCurrentIndex(self.SEARCH_MODE_IDX)
         self.ui.search_input.setFocus()
-        
-    def _exit_browse_mode(self):
+
+    def _cancel_search(self):
         """
         Cancels the search, resets the search and returns to
         the normal navigation
         """
-        self.ui.main_stack.setCurrentIndex(self.NAVIGATION_MODE_IDX)
+        self.ui.header_stack.setCurrentIndex(self.NAVIGATION_MODE_IDX)
         self.ui.search_input.setText("")
-
-    def _on_tree_doubleclicked(self, model_index):
-        """
-        Someone double clicked in the navigation tree
-        """
-        # get the item from the source model
-        selected_item = self._hierarchy_model.itemFromIndex(
-            # get the source hierarchy model index
-            self._hierarchy_proxy.mapToSource(model_index)
-        )
-
-        if selected_item.entity_type():
-            self._exit_browse_mode()
-            sg_data = selected_item.get_sg_data()
-            # the raw data coming back is on the following form:
-            #
-            # {
-            #   'target_entities': {
-            #       'additional_filter_presets': [{
-            #           'path': '/Project/515/Asset/id/17146',
-            #           'preset_name': 'NAV_ENTRIES',
-            #           'seed': {
-            #               'field': 'entity',
-            #               'type': 'PublishedFile'
-            #               }
-            #           }],
-            #       'type': 'PublishedFile'
-            #   },
-            #   'path': '/Project/515/Asset/id/17146',
-            #   'has_children': False,
-            #   'ref': {
-            #       'kind': 'entity',
-            #       'value': {'type': 'Asset', 'id': 17146}
-            #   },
-            #   'label': 'clown4'
-            # }
-            entity_type = sg_data["ref"]["value"]["type"]
-            entity_id = sg_data["ref"]["value"]["id"]
-            sg_location = ShotgunLocation(entity_type, entity_id)
-            self._navigate_to(sg_location)
-
 
     def _on_search_item_selected(self, entity_type, entity_id):
         """
         Navigate based on the selection in the global search
         """
-        self._exit_browse_mode()
+        self.ui.header_stack.setCurrentIndex(self.NAVIGATION_MODE_IDX)
+        self.ui.search_input.setText("")
         sg_location = ShotgunLocation(entity_type, entity_id)
         self._navigate_to(sg_location)
 
