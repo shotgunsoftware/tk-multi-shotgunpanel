@@ -337,15 +337,3 @@ class MayaActions(HookBaseClass):
             if major_version_number_str and major_version_number_str.isdigit():
                 self._maya_major_version = int(major_version_number_str)
         return self._maya_major_version
-
-    def _get_version_entity(self, context):
-        """
-        Returns the best entity to link the version to.
-        """
-
-        if context.entity:
-            return context.entity
-        elif context.project:
-            return context.project
-        else:
-            return None
