@@ -15,6 +15,7 @@ import pymel.core as pm
 import maya.cmds as cmds
 import maya.mel as mel
 import sgtk
+from sgtk.platform.qt import QtGui
 
 HookBaseClass = sgtk.get_hook_baseclass()
 
@@ -95,6 +96,27 @@ class MayaActions(HookBaseClass):
                 "description": "Creates an image plane for the selected item.."
             })
 
+        if "submit_for_review" in actions:
+
+            # Based on the config, we know this is a rendered image publish.
+            # ensure we're only adding this action if the publish does not have
+            # a linked Version.
+            if not sg_data.get("version"):
+                action_instances.append({
+                    "name": "submit_for_review",
+                    "params": None,
+                    "caption": "Submit for Review",
+                    "description": "Submit the Publish to SG for review."
+                })
+
+        if "download" in actions:
+            action_instances.append({
+                "name": "download",
+                "params": None,
+                "caption": "Download",
+                "description": "Ensure the publish exists locally."
+            })
+
         return action_instances
 
     def execute_action(self, name, params, sg_data):
@@ -110,27 +132,30 @@ class MayaActions(HookBaseClass):
         app = self.parent
         app.log_debug("Execute action called for action %s. "
                       "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data))
-        
+
+        path = self.get_publish_path(sg_data)
+
         if name == "reference":
-            path = self.get_publish_path(sg_data)
             self._create_reference(path, sg_data)
 
         elif name == "import":
-            path = self.get_publish_path(sg_data)
             self._do_import(path, sg_data)
         
         elif name == "texture_node":
-            path = self.get_publish_path(sg_data)
             self._create_texture_node(path, sg_data)
             
         elif name == "udim_texture_node":
-            path = self.get_publish_path(sg_data)
             self._create_udim_texture_node(path, sg_data)
 
         elif name == "image_plane":
-            path = self.get_publish_path(sg_data)
             self._create_image_plane(path, sg_data)
-        
+
+        elif name == "submit_for_review":
+            self._submit_for_review(path, sg_data)
+
+        elif name == "download":
+            self._download(path, sg_data)
+
         else:
             try:
                 HookBaseClass.execute_action(self, name, params, sg_data)
@@ -256,6 +281,44 @@ class MayaActions(HookBaseClass):
             # the current frame.
             cmds.setAttr("%s.useFrameExtension" % (img_plane_shape,), 1)
 
+    def _submit_for_review(self, path, sg_publish_data):
+        """
+        Submit the publish for review in SG
+
+        :param path: Path to the publish file
+        :param sg_publish_data: Shotgun data dictionary with all the standard
+            publish fields.
+        """
+
+        app = self.parent
+
+        app.log_debug("Loading RAAS framework...")
+        raas_fw = self.load_framework("tk-framework-raas_v0.x.x")
+        raas_actions = raas_fw.import_module("actions")
+
+        review_submit_dialog = raas_actions.review_submit.ReviewSubmitDialog(
+            QtGui.QApplication.activeWindow(),
+            sg_publish_data
+        )
+        review_submit_dialog.show()
+
+    def _download(self, path, sg_publish_data):
+        """
+        Ensure the publish exists locally
+
+        :param path: Path to the publish file
+        :param sg_publish_data: Shotgun data dictionary with all the standard
+            publish fields.
+        """
+
+        app = self.parent
+
+        app.log_debug("Loading RAAS framework...")
+        raas_fw = self.load_framework("tk-framework-raas_v0.x.x")
+        raas_actions = raas_fw.import_module("actions")
+
+        raas_actions.ensure_local(sg_publish_data)
+
     def _get_maya_version(self):
         """
         Determine and return the Maya version as an integer
@@ -274,4 +337,3 @@ class MayaActions(HookBaseClass):
             if major_version_number_str and major_version_number_str.isdigit():
                 self._maya_major_version = int(major_version_number_str)
         return self._maya_major_version
-        

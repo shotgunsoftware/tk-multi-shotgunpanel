@@ -225,7 +225,8 @@ class ShotgunFields(HookBaseClass):
                                     "published_file_type",
                                     "task",
                                     "version",
-                                    "version_number"] 
+                                    "version_number",
+                                    "sg_storages"]
 
         elif entity_type == "Task":
             values = base_values + [ "task_assignees", 
@@ -356,7 +357,8 @@ class ShotgunFields(HookBaseClass):
                 <big>{published_file_type}, Version {version_number}</big><br>
                 For {entity::showtype}{[, Task ]task} <br>
                 Created by {created_by} on {created_at}<br>
-            
+                Storage: {sg_storages}<br>
+
                 {[<br>Reviewed here: ]version[<br>]}
 
                 <br>
