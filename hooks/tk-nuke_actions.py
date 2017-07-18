@@ -9,8 +9,10 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 import sgtk
 import os
+from sgtk.platform.qt import QtGui
 
 HookBaseClass = sgtk.get_hook_baseclass()
+
 
 class NukeActions(HookBaseClass):
     """
@@ -71,6 +73,27 @@ class NukeActions(HookBaseClass):
                                       "caption": "Open Project",
                                       "description": "This will open the Nuke Studio project in the current session."} )
 
+        if "submit_for_review" in actions:
+
+            # Based on the config, we know this is a rendered image publish.
+            # ensure we're only adding this action if the publish does not have
+            # a linked Version.
+            if not sg_data.get("version"):
+                action_instances.append({
+                    "name": "submit_for_review",
+                    "params": None,
+                    "caption": "Submit for Review",
+                    "description": "Submit the Publish to SG for review."
+                })
+
+        if "download" in actions:
+            action_instances.append({
+                "name": "download",
+                "params": None,
+                "caption": "Download",
+                "description": "Ensure the publish exists locally."
+            })
+
         return action_instances
                 
 
@@ -87,21 +110,24 @@ class NukeActions(HookBaseClass):
         app = self.parent        
         app.log_debug("Execute action called for action %s. "
                       "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data))
-        
+
+        # resolve path - forward slashes on all platforms in Nuke
+        path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
+
         if name == "read_node":
-            # resolve path - forward slashes on all platforms in Nuke
-            path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
             self._create_read_node(path, sg_data)
         
         elif name == "script_import":
-            # resolve path - forward slashes on all platforms in Nuke
-            path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
             self._import_script(path, sg_data)
 
         elif name == "open_project":
-            # resolve path - forward slashes on all platforms in Nuke
-            path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
             self._open_project(path, sg_data)
+
+        elif name == "submit_for_review":
+            self._submit_for_review(path, sg_data)
+
+        elif name == "download":
+            self._download(path, sg_data)
 
         else:
             try:
@@ -238,4 +264,40 @@ class NukeActions(HookBaseClass):
         # return the range
         return (min(frames), max(frames))
 
+    def _submit_for_review(self, path, sg_publish_data):
+        """
+        Submit the publish for review in SG
 
+        :param path: Path to the publish file
+        :param sg_publish_data: Shotgun data dictionary with all the standard
+            publish fields.
+        """
+
+        app = self.parent
+
+        app.log_debug("Loading RAAS framework...")
+        raas_fw = self.load_framework("tk-framework-raas_v0.x.x")
+        raas_actions = raas_fw.import_module("actions")
+
+        review_submit_dialog = raas_actions.review_submit.ReviewSubmitDialog(
+            QtGui.QApplication.activeWindow(),
+            sg_publish_data
+        )
+        review_submit_dialog.show()
+
+    def _download(self, path, sg_publish_data):
+        """
+        Ensure the publish exists locally
+
+        :param path: Path to the publish file
+        :param sg_publish_data: Shotgun data dictionary with all the standard
+            publish fields.
+        """
+
+        app = self.parent
+
+        app.log_debug("Loading RAAS framework...")
+        raas_fw = self.load_framework("tk-framework-raas_v0.x.x")
+        raas_actions = raas_fw.import_module("actions")
+
+        raas_actions.ensure_local(sg_publish_data)
