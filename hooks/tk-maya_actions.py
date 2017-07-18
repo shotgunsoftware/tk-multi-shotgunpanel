@@ -11,7 +11,6 @@
 import glob
 import os
 import re
-import tempfile
 import pymel.core as pm
 import maya.cmds as cmds
 import maya.mel as mel
@@ -110,6 +109,14 @@ class MayaActions(HookBaseClass):
                     "description": "Submit the Publish to SG for review."
                 })
 
+        if "download" in actions:
+            action_instances.append({
+                "name": "download",
+                "params": None,
+                "caption": "Download",
+                "description": "Ensure the publish exists locally."
+            })
+
         return action_instances
 
     def execute_action(self, name, params, sg_data):
@@ -145,6 +152,9 @@ class MayaActions(HookBaseClass):
 
         elif name == "submit_for_review":
             self._submit_for_review(path, sg_data)
+
+        elif name == "download":
+            self._download(path, sg_data)
 
         else:
             try:
@@ -280,120 +290,34 @@ class MayaActions(HookBaseClass):
             publish fields.
         """
 
-        # TODO: needs stephane's latest to get storages attached to published outputs and output path bugs
-        # TODO: need to upgrade to latest maya to fix render output layer "rs_" issue
+        app = self.parent
 
-        (description, result) = QtGui.QInputDialog.getText(
+        app.log_debug("Loading RAAS framework...")
+        raas_fw = self.load_framework("tk-framework-raas_v0.x.x")
+        raas_actions = raas_fw.import_module("actions")
+
+        review_submit_dialog = raas_actions.review_submit.ReviewSubmitDialog(
             QtGui.QApplication.activeWindow(),
-            "Description",
-            "Please describe the content to be reviewed:",
+            sg_publish_data
         )
+        review_submit_dialog.show()
 
-        if not result:
-            return
+    def _download(self, path, sg_publish_data):
+        """
+        Ensure the publish exists locally
+
+        :param path: Path to the publish file
+        :param sg_publish_data: Shotgun data dictionary with all the standard
+            publish fields.
+        """
 
         app = self.parent
 
-        # TODO: don't assume this worked
-        publish_path = sgtk.util.resolve_publish_path(app.sgtk, sg_publish_data)
-
-        # TODO: should we check the publish path to see if it already exists locally?
-        #       what about the image sequence case? check all frames? how do we know?
-
-        # get the raas fw and create a manager instance
         app.log_debug("Loading RAAS framework...")
         raas_fw = self.load_framework("tk-framework-raas_v0.x.x")
-        raas = raas_fw.import_module("raas")
-        raas_manager = raas.create_service_manager()
+        raas_actions = raas_fw.import_module("actions")
 
-        # TODO: don't assume storage is attached
-        sg_storages = sg_publish_data.get("sg_storages")
-
-        # TODO: how do we handle multiple storages? loop until one can download?
-        sg_storage = sg_storages[0]
-
-        # TODO: ewwww
-        sg_linked_service_field = "custom_non_project_entity16_sg_storages_custom_non_project_entity16s"
-
-        # TODO: there's probably a better way to do this
-        # get the service info for this storage
-        app.log_debug("Querying the associated service info...")
-        sg_storage_more = app.shotgun.find_one(
-            sg_storage["type"],
-            [["id", "is", sg_storage["id"]]],
-            ["custom_non_project_entity16_sg_storages_custom_non_project_entity16s"]
-        )
-
-        # TODO: don't assume this worked
-        sg_services = sg_storage_more.get(sg_linked_service_field)
-
-        # TODO: how to handle multiple services attached?
-        sg_service = sg_services[0]
-
-        sg_service_id = sg_service.get("id")
-        app.log_debug("Found associated service: %s" % (sg_service,))
-
-        # now get an instance of the service
-        # TODO: don't assume this worked
-        service = raas_manager.service_by_id(sg_service_id)
-        app.log_debug("Created raas service instance: %s" % (service,))
-
-        # ensure the publish is downloaded
-        app.log_debug("Ensuring publish is downloaded...")
-        service.storage.ensure_downloaded(sg_publish_data)
-
-        # create the quicktime
-
-        (_, output_path) = tempfile.mkstemp(
-            suffix=".mov", prefix="submit_for_review_")
-
-        app.log_debug("Loading Transcoding framework...")
-        transcoding_fw = self.load_framework("tk-framework-transcoding_v1.x.x")
-        transcoding = transcoding_fw.import_module("transcoding")
-        transcoder = transcoding.get_transcoder(
-            "ffmpeg", publish_path, output_path, "mp4", None)
-
-        app.log_debug("Transcoded quicktime: %s" % (output_path,))
-
-        try:
-            transcoder.run()
-        except RuntimeError, e:
-            # TODO: better reporting to the user
-            app.log_error("Transcoding failed for publish.")
-            return
-
-        # upload for review
-
-        context =  app.context
-
-        app.log_info("Creating Version...")
-        version_data = {
-            "project": context.project,
-            "code": sg_publish_data["code"],
-            "description": description,
-            "entity": self._get_version_entity(context),
-            "sg_task": context.task,
-            "published_files": [sg_publish_data],
-            "sg_path_to_movie": output_path,
-        }
-
-        # Create the version
-        version = app.shotgun.create("Version", version_data)
-        app.log_info("Version created!")
-
-        app.log_info("Uploading content...")
-        self.parent.shotgun.upload(
-            "Version",
-            version["id"],
-            output_path,
-            "sg_uploaded_movie"
-        )
-
-        # show the version in the panel
-        apps = app.engine.apps
-        if "tk-multi-shotgunpanel" in apps:
-            panel = apps["tk-multi-shotgunpanel"]
-            panel.navigate("Version", version["id"], panel.PANEL)
+        raas_actions.ensure_local(sg_publish_data)
 
     def _get_maya_version(self):
         """
