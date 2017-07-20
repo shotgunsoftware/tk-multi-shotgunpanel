@@ -133,27 +133,32 @@ class MayaActions(HookBaseClass):
         app.log_debug("Execute action called for action %s. "
                       "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data))
 
-        path = self.get_publish_path(sg_data)
-
         if name == "reference":
+            path = self.get_publish_path(sg_data)
             self._create_reference(path, sg_data)
 
         elif name == "import":
+            path = self.get_publish_path(sg_data)
             self._do_import(path, sg_data)
         
         elif name == "texture_node":
+            path = self.get_publish_path(sg_data)
             self._create_texture_node(path, sg_data)
             
         elif name == "udim_texture_node":
+            path = self.get_publish_path(sg_data)
             self._create_udim_texture_node(path, sg_data)
 
         elif name == "image_plane":
+            path = self.get_publish_path(sg_data)
             self._create_image_plane(path, sg_data)
 
         elif name == "submit_for_review":
+            path = self.get_publish_path(sg_data)
             self._submit_for_review(path, sg_data)
 
         elif name == "download":
+            path = self.get_publish_path(sg_data)
             self._download(path, sg_data)
 
         else:
