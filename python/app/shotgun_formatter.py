@@ -665,6 +665,17 @@ class ShotgunTypeFormatter(object):
             else:
                 link_filters.append(["entity", "is", sg_location.entity_dict])
 
+        elif sg_location.entity_type == "Version":
+
+            if self._entity_type == "Note":
+                link_filters.append(["note_links", "in", [sg_location.entity_dict]])
+
+            elif self._entity_type in ["PublishedFile", "TankPublishedFile"]:
+                link_filters.append(["version", "is", sg_location.entity_dict])
+
+            else:
+                link_filters.append(["entity", "is", sg_location.entity_dict])
+
         else:
             if self._entity_type == "Note":
                 link_filters.append(["note_links", "in", [sg_location.entity_dict]])
