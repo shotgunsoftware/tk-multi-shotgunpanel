@@ -444,7 +444,9 @@ class ShotgunTypeFormatter(object):
         if sg_data.get("sg_uploaded_movie"):
             # there is a web quicktime available!
             sg_url = sgtk.platform.current_bundle().sgtk.shotgun_url
-            url = "%s/page/screening_room?entity_type=%s&entity_id=%d" % (sg_url, sg_data["type"], sg_data["id"])                    
+            # redirect to std shotgun player, same as you go to if you click the
+            # play icon inside of the shotgun web ui
+            url = "%s/page/media_center?type=Version&id=%d" % (sg_url, sg_data["id"])
 
         return url
 
