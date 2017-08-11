@@ -17,8 +17,21 @@ QWidget {
 }
 
 /* Get rid of borders for main Listing Views */
-QListView, QTableView, QTreeView, QScrollArea {
+QListView, QTableView, QTreeView, QScrollArea, QMenu {
     border: none;
+}
+
+QMenu::item {
+    border: none;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+QMenu::item:selected {
+    background-color: rgb(24, 167, 227, 75);
+    border: 1px solid {{SG_HIGHLIGHT_COLOR}};
 }
 
 
