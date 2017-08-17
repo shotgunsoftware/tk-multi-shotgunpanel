@@ -72,10 +72,11 @@ class AllFieldsWidget(QtGui.QWidget):
             for x in self._widgets:
                 # remove widget from layout:
                 self.ui.all_fields_layout.removeWidget(x)
-                # set it's parent to None so that it is removed from the widget hierarchy
-                x.setParent(None)
+
                 # mark it to be deleted when event processing returns to the main loop
                 if QtCore.__version__.startswith("4."):
+                    # set it's parent to None so that it is removed from the widget hierarchy
+                    x.setParent(None)
                     x.deleteLater()
         
             self._widgets = []
