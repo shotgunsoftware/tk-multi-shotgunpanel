@@ -75,7 +75,8 @@ class AllFieldsWidget(QtGui.QWidget):
                 # set it's parent to None so that it is removed from the widget hierarchy
                 x.setParent(None)
                 # mark it to be deleted when event processing returns to the main loop
-                x.deleteLater()
+                if QtCore.__version__.startswith("4."):
+                    x.deleteLater()
         
             self._widgets = []
     
