@@ -73,6 +73,20 @@ QTabBar::tab:selected {
     font-style: italic;
 }
 
+#button, #action_button {
+    border: 1px solid rgba(50, 50, 50, 50%);
+    background-color: rgba(50, 50, 50, 15%);
+    border-radius: 2px;
+}
+
+QPushButton#action_button:hover {
+    background-color: rgba(200, 200, 200, 18%);
+}
+
+QPushButton#button:hover {
+    background-color: rgba(200, 200, 200, 18%);
+}
+
 
 /****************************************************************/
 /* Info tab showing all shotgun fields 							*/
