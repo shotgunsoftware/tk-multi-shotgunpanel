@@ -28,6 +28,12 @@ class ShotgunPanelApp(Application):
         """
         Called as the application is being initialized
         """
+        # We won't be able to do anything if there's no UI. The import
+        # of our app module below required some Qt components, and will likely
+        # blow up.
+        if not self.engine.has_ui:
+            return
+
         # first, we use the special import_module command to access the app module
         # that resides inside the python folder in the app. This is where the actual UI
         # and business logic of the app is kept. By using the import_module command,
