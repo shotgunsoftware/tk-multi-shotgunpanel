@@ -358,47 +358,46 @@ class AppDialog(QtGui.QWidget):
         All worker threads and other things which need a proper shutdown
         need to be called here.
         """        
-        
-        self._app.log_debug("CloseEvent Received. Begin shutting down UI.")
-
-        # tell main app instance that we are closing
-        self._app._on_dialog_close(self)
-
-        # register a shutdown overlay
-        splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/bye_for_now.png")
-        self._overlay.show_message_pixmap(splash_pix)
-        QtCore.QCoreApplication.processEvents()
-
         try:
-            
-            # register the data fetcher with the global schema manager
-            shotgun_globals.unregister_bg_task_manager(self._task_manager)
-                                    
-            # shut down main details model
-            self._details_model.destroy()
-            self._current_user_model.destroy()
-            
-            # and the all fields model
-            self._entity_details_model.destroy()
-            self._version_details_model.destroy()
-            self._publish_details_model.destroy()
-            
-            # gracefully close all tab model connections
-            for tab_dict in self._detail_tabs.values():
-                tab_dict["model"].destroy()            
+            self._app.log_debug("CloseEvent Received. Begin shutting down UI.")
 
-            # shut down main threadpool
-            self._task_manager.shut_down()                
+            # tell main app instance that we are closing
+            self._app._on_dialog_close(self)
 
-        except Exception, e:
-            self._app.log_exception("Error running Shotgun Panel App closeEvent()")
+            # register a shutdown overlay
+            splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/bye_for_now.png")
+            self._overlay.show_message_pixmap(splash_pix)
+            QtCore.QCoreApplication.processEvents()
+
+            try:
                 
-        # close splash
-        self._overlay.hide()
+                # register the data fetcher with the global schema manager
+                shotgun_globals.unregister_bg_task_manager(self._task_manager)
+                                        
+                # shut down main details model
+                self._details_model.destroy()
+                self._current_user_model.destroy()
+                
+                # and the all fields model
+                self._entity_details_model.destroy()
+                self._version_details_model.destroy()
+                self._publish_details_model.destroy()
+                
+                # gracefully close all tab model connections
+                for tab_dict in self._detail_tabs.values():
+                    tab_dict["model"].destroy()            
 
-        # okay to close dialog
-        event.accept()
+                # shut down main threadpool
+                self._task_manager.shut_down()                
 
+            except Exception, e:
+                self._app.log_exception("Error running Shotgun Panel App closeEvent()")
+            # close splash
+            self._overlay.hide()
+
+            event.accept()
+        except RuntimeError:
+            pass
 
     ##################################################################################################
     # load data and set up UI for a particular state
