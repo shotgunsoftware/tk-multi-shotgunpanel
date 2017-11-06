@@ -146,6 +146,26 @@ class ShotgunPanelApp(Application):
             w = self.create_panel()
             w.navigate_to_entity(entity_type, entity_id)
     
+
+    def _log_metric_launched_action(self, action_title):
+        """
+        Module local metric logging helper method for the "Launched Action" metric
+        :param action_title: str of an action which can be most anything
+        """
+        try:
+            from sgtk.util.metrics import EventMetric as EventMetric
+
+            group = EventMetric.GROUP_TOOLKIT
+            properties = self.engine._get_metrics_properties()
+            properties.update({
+                "Action Title": action_title
+            })
+            EventMetric.log(group, "Launched Action", properties = properties)
+
+        except:
+            # ignore all errors. ex: using a core that doesn't support metrics
+            pass
+
     def destroy_app(self):
         """
         Called as part engine shutdown
