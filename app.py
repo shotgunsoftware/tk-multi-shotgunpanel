@@ -146,6 +146,23 @@ class ShotgunPanelApp(Application):
             w = self.create_panel()
             w.navigate_to_entity(entity_type, entity_id)
     
+    def _log_metric_viewed_panel(self, entity_type):
+        """
+        Module local metric logging helper method for the "Viewed Panel" metric
+        :param entity_type: str of an entity_type e.g.: HumanUser, Project, Shot etc
+        """
+        try:
+            from sgtk.util.metrics import EventMetric as EventMetric
+
+            group = EventMetric.GROUP_NAVIGATION
+            properties = self.engine._get_metrics_properties()
+            properties.update({"Entity Type": entity_type})
+
+            # Log usage statistics about the Shotgun Desktop executable and the desktop startup.
+            EventMetric.log(group, "Viewed Panel", properties=properties)
+        except:
+            # ignore all errors. ex: using a core that doesn't support metrics
+            pass
 
     def _log_metric_launched_action(self, action_title):
         """
