@@ -152,12 +152,18 @@ class ShotgunPanelApp(Application):
         :param entity_type: str of an entity_type e.g.: HumanUser, Project, Shot etc
         """
         try:
-            from sgtk.util.metrics import EventMetric as EventMetric
-            # Log usage statistics about the Shotgun Desktop executable and the desktop startup.
-            EventMetric.log(EventMetric.GROUP_NAVIGATION,
-                            "Viewed Panel",
-                            properties={"Entity Type": entity_type},
-                            bundle=self)
+            from sgtk.util.metrics import EventMetric
+
+            properties = {
+                "Entity Type": entity_type
+            }
+
+            EventMetric.log(
+                EventMetric.GROUP_NAVIGATION,
+                "Viewed Panel",
+                properties=properties,
+                bundle=self
+            )
         except:
             # ignore all errors. ex: using a core that doesn't support metrics
             pass
@@ -168,11 +174,18 @@ class ShotgunPanelApp(Application):
         :param action_title: str of an action which can be most anything
         """
         try:
-            from sgtk.util.metrics import EventMetric as EventMetric
-            EventMetric.log(EventMetric.GROUP_TOOLKIT,
-                            "Launched Action",
-                            properties = {"Action Title": action_title},
-                            bundle=self)
+            from sgtk.util.metrics import EventMetric
+
+            properties = {
+                "Action Title": action_title
+            }
+            
+            EventMetric.log(
+                EventMetric.GROUP_TOOLKIT,
+                "Launched Action",
+                properties = properties,
+                bundle=self
+            )
 
         except:
             # ignore all errors. ex: using a core that doesn't support metrics
