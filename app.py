@@ -153,13 +153,11 @@ class ShotgunPanelApp(Application):
         """
         try:
             from sgtk.util.metrics import EventMetric as EventMetric
-
-            group = EventMetric.GROUP_NAVIGATION
-            properties = self.engine._get_metrics_properties()
-            properties.update({"Entity Type": entity_type})
-
             # Log usage statistics about the Shotgun Desktop executable and the desktop startup.
-            EventMetric.log(group, "Viewed Panel", properties=properties)
+            EventMetric.log(EventMetric.GROUP_NAVIGATION,
+                            "Viewed Panel",
+                            properties={"Entity Type": entity_type},
+                            bundle=self)
         except:
             # ignore all errors. ex: using a core that doesn't support metrics
             pass
@@ -171,13 +169,10 @@ class ShotgunPanelApp(Application):
         """
         try:
             from sgtk.util.metrics import EventMetric as EventMetric
-
-            group = EventMetric.GROUP_TOOLKIT
-            properties = self.engine._get_metrics_properties()
-            properties.update({
-                "Action Title": action_title
-            })
-            EventMetric.log(group, "Launched Action", properties = properties)
+            EventMetric.log(EventMetric.GROUP_TOOLKIT,
+                            "Launched Action",
+                            properties = {"Action Title": action_title},
+                            bundle=self)
 
         except:
             # ignore all errors. ex: using a core that doesn't support metrics
