@@ -146,6 +146,51 @@ class ShotgunPanelApp(Application):
             w = self.create_panel()
             w.navigate_to_entity(entity_type, entity_id)
     
+    def _log_metric_viewed_panel(self, entity_type):
+        """
+        Module local metric logging helper method for the "Viewed Panel" metric
+        :param entity_type: str of an entity_type e.g.: HumanUser, Project, Shot etc
+        """
+        try:
+            from sgtk.util.metrics import EventMetric
+
+            properties = {
+                "Entity Type": entity_type
+            }
+
+            EventMetric.log(
+                EventMetric.GROUP_NAVIGATION,
+                "Viewed Panel",
+                properties=properties,
+                bundle=self
+            )
+        except:
+            # ignore all errors. ex: using a core that doesn't support metrics
+            pass
+
+    def _log_metric_launched_action(self, action_title):
+        """
+        Module local metric logging helper method for the "Launched Action" metric
+        :param action_title: str of an action which can be most anything
+        """
+        try:
+            from sgtk.util.metrics import EventMetric
+
+            properties = {
+                "Action Title": action_title
+            }
+            
+            EventMetric.log(
+                EventMetric.GROUP_TOOLKIT,
+                "Launched Action",
+                properties = properties,
+                bundle=self
+            )
+
+        except:
+            # ignore all errors. ex: using a core that doesn't support metrics
+            pass
+
     def destroy_app(self):
         """
         Called as part engine shutdown

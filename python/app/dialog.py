@@ -804,7 +804,8 @@ class AppDialog(QtGui.QWidget):
         
         # set the current location
         self._current_location = shotgun_location 
-        
+        self._app._log_metric_viewed_panel(shotgun_location.entity_type)
+
         # and set up the UI for this new location
         self._navigating = True
         try:
