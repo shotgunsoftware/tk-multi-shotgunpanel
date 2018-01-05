@@ -8,6 +8,7 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
 # not expressly granted therein are reserved by Shotgun Software Inc.
 import sgtk
+import datetime
 import os
 
 HookBaseClass = sgtk.get_hook_baseclass()
@@ -61,7 +62,7 @@ class GeneralActions(HookBaseClass):
                     ["project", "is", sg_data.get("project")],
                     ["sg_status", "is_not", "clsd"],
                 ],
-                ["code", "id"],
+                ["code", "id", "sg_date_and_time"],
                 order=[{"field_name": "updated_at", "direction": "desc"}],
                 limit=5,
             )
@@ -73,10 +74,20 @@ class GeneralActions(HookBaseClass):
                 if playlist["id"] in existing_playlist_ids:
                     # version already in this playlist so skip
                     continue
+
+                if playlist.get("sg_date_and_time"):
+                    # 'Add to playlist dailies (Today 12:00)'
+                    caption = "Add to playlist %s (%s)" % (
+                        playlist["code"],
+                        self._format_timestamp(playlist["sg_date_and_time"])
+                    )
+                else:
+                    caption = "Add to playlist %s" % playlist["code"]
+
                 action_instances.append({
                     "name": "add_to_playlist",
                     "params": {"playlist_id": playlist["id"]},
-                    "caption": "Add to playlist %s" % playlist["code"],
+                    "caption": caption,
                     "description": "Add the version to this playlist."
                 })
 
@@ -173,3 +184,35 @@ class GeneralActions(HookBaseClass):
         app = QtCore.QCoreApplication.instance()
         app.clipboard().setText(text)
 
+    def _format_timestamp(self, datetime_obj):
+        """
+        Formats the given datetime object in a short human readable form:
+
+        If today: Today 10:32
+        Else: 24 June 10:32
+        Last year and earlier: 12 December 2007
+
+        :param datetime_obj: Datetime obj to format
+        :returns: date str
+        """
+        from tank_vendor.shotgun_api3.lib.sgtimezone import LocalTimezone
+        datetime_now = datetime.datetime.now(LocalTimezone())
+
+        if datetime_obj > datetime_now:
+            # future time: 24 June 10:32
+            return datetime_obj.strftime("%d %b %H:%M")
+
+        # get the time delta
+        delta = datetime_now - datetime_obj
+
+        if delta.days > 365:
+            # more than one year ago: 26 June 2012
+            return datetime_obj.strftime("%d %b %Y %H:%M")
+
+        elif delta.days > 1:
+            # more than one day ago: 24 June 10:32
+            return datetime_obj.strftime("%d %b %H:%M")
+
+        else:
+            # earlier today - display timestamp - Today 23:22
+            return datetime_obj.strftime("Today %H:%M")
