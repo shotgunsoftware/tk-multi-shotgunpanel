@@ -35,7 +35,7 @@ class GeneralActions(HookBaseClass):
         - If it will be shown in the main browsing area, "main" is passed. 
         - If it will be shown in the details area, "details" is passed.
                 
-        :param sg_data: Shotgun data dictionary with all the standard publish fields.
+        :param sg_data: Shotgun data dictionary with a set of standard fields.
         :param actions: List of action strings which have been defined in the app configuration.
         :param ui_area: String denoting the UI Area (see above).
         :returns List of dictionaries, each with keys name, params, caption and description
@@ -52,6 +52,33 @@ class GeneralActions(HookBaseClass):
                   "params": None,
                   "caption": "Assign Task to yourself", 
                   "description": "Assign this task to yourself."} )
+
+        if "add_to_playlist" in actions and ui_area == "details":
+            # retrieve the 5 most recently updated non-closed playlists for this project
+            playlists = app.shotgun.find(
+                "Playlist",
+                [
+                    ["project", "is", sg_data.get("project")],
+                    ["sg_status", "is_not", "clsd"],
+                ],
+                ["code", "id"],
+                order=[{"field_name": "updated_at", "direction": "desc"}],
+                limit=5,
+            )
+
+            # playlists this version is already part of
+            existing_playlist_ids = [x["id"] for x in (sg_data.get("playlists") or [])]
+
+            for playlist in playlists:
+                if playlist["id"] in existing_playlist_ids:
+                    # version already in this playlist so skip
+                    continue
+                action_instances.append({
+                    "name": "add_to_playlist",
+                    "params": {"playlist_id": playlist["id"]},
+                    "caption": "Add to playlist %s" % playlist["code"],
+                    "description": "Add the version to this playlist."
+                })
 
         if "task_to_ip" in actions:
             action_instances.append( 
@@ -116,7 +143,15 @@ class GeneralActions(HookBaseClass):
             assignees.append(app.context.user)
             app.shotgun.update("Task", sg_data["id"], {"task_assignees": assignees})
 
-        elif name == "task_to_ip":        
+        elif name == "add_to_playlist":
+            app.shotgun.update(
+                "Version",
+                sg_data["id"],
+                {"playlists": [{"type": "Playlist", "id": params["playlist_id"]}]},
+                multi_entity_update_modes={"playlists": "add"}
+            )
+
+        elif name == "task_to_ip":
             app.shotgun.update("Task", sg_data["id"], {"sg_status_list": "ip"})
 
         elif name == "quicktime_clipboard":
@@ -127,8 +162,7 @@ class GeneralActions(HookBaseClass):
             
         elif name == "publish_clipboard":
             self._copy_to_clipboard(sg_data["path"]["local_path"])
-            
-        
+
     def _copy_to_clipboard(self, text):
         """
         Helper method - copies the given text to the clipboard
@@ -138,9 +172,4 @@ class GeneralActions(HookBaseClass):
         from sgtk.platform.qt import QtCore, QtGui
         app = QtCore.QCoreApplication.instance()
         app.clipboard().setText(text)
-        
-           
 
-    
-
-        

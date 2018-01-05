@@ -34,6 +34,13 @@ QMenu::item:selected {
     border: 1px solid {{SG_HIGHLIGHT_COLOR}};
 }
 
+QMenu::separator {
+    height: 2px;
+    background: #888;
+    margin: 4px;
+    padding-right: 4px;
+    padding-left: 4px;
+}
 
 /****************************************************************/
 /* Main tab section                                             */

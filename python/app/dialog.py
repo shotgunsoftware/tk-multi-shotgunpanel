@@ -572,9 +572,13 @@ class AppDialog(QtGui.QWidget):
             self.ui.entity_activity_stream.load_data(self._current_location.entity_dict)
 
         elif index == self.ENTITY_TAB_NOTES:
+            # clear selection to avoid redrawing the ui over and over
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["view"].selectionModel().clear()
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
             
         elif index == self.ENTITY_TAB_VERSIONS:
+            # clear selection to avoid redrawing the ui over and over
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["view"].selectionModel().clear()
             show_pending_only = self.ui.pending_versions_only.isChecked()
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(
                 self._current_location,
@@ -582,6 +586,8 @@ class AppDialog(QtGui.QWidget):
             )
         
         elif index == self.ENTITY_TAB_PUBLISHES:
+            # clear selection to avoid redrawing the ui over and over
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["view"].selectionModel().clear()
             show_latest_only = self.ui.latest_publishes_only.isChecked()
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(
                 self._current_location,
@@ -589,6 +595,8 @@ class AppDialog(QtGui.QWidget):
             )
             
         elif index == self.ENTITY_TAB_TASKS:
+            # clear selection to avoid redrawing the ui over and over
+            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["view"].selectionModel().clear()
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(self._current_location)
         
         elif index == self.ENTITY_TAB_INFO:
@@ -709,8 +717,10 @@ class AppDialog(QtGui.QWidget):
             self.ui.details_text_middle.setText("")
             
         # load actions
-        actions = self._action_manager.get_actions(sg_data, 
-                                                   self._action_manager.UI_AREA_DETAILS)
+        actions = self._action_manager.get_actions(
+            sg_data,
+            self._action_manager.UI_AREA_DETAILS
+        )
         self._actions = actions
         for a in self._actions:
             self._menu.addAction(a)
