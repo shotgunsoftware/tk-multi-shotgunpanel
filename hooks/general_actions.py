@@ -39,7 +39,7 @@ class GeneralActions(HookBaseClass):
         :param sg_data: Shotgun data dictionary with a set of standard fields.
         :param actions: List of action strings which have been defined in the app configuration.
         :param ui_area: String denoting the UI Area (see above).
-        :returns List of dictionaries, each with keys name, params, caption and description
+        :returns List of dictionaries, each with keys name, params, caption, group and description
         """
         app = self.parent
         app.log_debug("Generate actions called for UI element %s. "
