@@ -13,6 +13,8 @@ from sgtk.platform.qt import QtCore, QtGui
 from .ui.list_item_widget import Ui_ListItemWidget
 from .work_area_button import FloatingWorkAreaButton
 
+shotgun_menus = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun_menus")
+
 class ListItemWidget(QtGui.QWidget):
     """
     Widget that is used to display entries in all the item listings.
@@ -68,8 +70,7 @@ class ListItemWidget(QtGui.QWidget):
 
         # set up action menu. parent it to the button to prevent cases where it
         # shows up elsewhere on screen (as in Houdini)
-        self._menu = QtGui.QMenu(self.ui.button)
-        self._actions = []
+        self._menu = shotgun_menus.ShotgunMenu(self.ui.button)
         self.ui.button.setMenu(self._menu)
         self.ui.button.setVisible(False)
                                   
@@ -81,6 +82,20 @@ class ListItemWidget(QtGui.QWidget):
 
         # add work area button
         self._work_area_button = FloatingWorkAreaButton(self.ui.box)
+
+    @property
+    def actions_menu(self):
+        """
+        ShotgunMenu derived actions menu
+        """
+        return self._menu
+
+    @property
+    def actions_button(self):
+        """
+        Actions button widget
+        """
+        return self.ui.button
 
     @property
     def work_area_button(self):
@@ -109,20 +124,6 @@ class ListItemWidget(QtGui.QWidget):
         else:
             self.ui.box.setStyleSheet(self._no_style)
 
-    def set_actions(self, actions):
-        """
-        Adds a list of QActions to add to the actions menu for this widget.
-        
-        :param actions: List of QActions to add
-        """
-        if len(actions) == 0:
-            self.ui.button.setVisible(False)
-        else:
-            self.ui.button.setVisible(True)
-            self._actions = actions
-            for a in self._actions:
-                self._menu.addAction(a)
-
     def set_up_work_area(self, entity_type, entity_id):
         """
         Sets up the set work area button
@@ -145,7 +146,8 @@ class ListItemWidget(QtGui.QWidget):
         """
         Populate the lines of text in the widget
         
-        :param header: Header text as string
+        :param header_left: Header text as string
+        :param header_right: Header text as string
         :param body: Body text as string
         """
         self.ui.list_item_top_left.setText(header_left)

@@ -8,6 +8,7 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
 # not expressly granted therein are reserved by Shotgun Software Inc.
 import sgtk
+import datetime
 import os
 
 HookBaseClass = sgtk.get_hook_baseclass()
@@ -35,10 +36,10 @@ class GeneralActions(HookBaseClass):
         - If it will be shown in the main browsing area, "main" is passed. 
         - If it will be shown in the details area, "details" is passed.
                 
-        :param sg_data: Shotgun data dictionary with all the standard publish fields.
+        :param sg_data: Shotgun data dictionary with a set of standard fields.
         :param actions: List of action strings which have been defined in the app configuration.
         :param ui_area: String denoting the UI Area (see above).
-        :returns List of dictionaries, each with keys name, params, caption and description
+        :returns List of dictionaries, each with keys name, params, caption, group and description
         """
         app = self.parent
         app.log_debug("Generate actions called for UI element %s. "
@@ -50,13 +51,15 @@ class GeneralActions(HookBaseClass):
             action_instances.append( 
                 {"name": "assign_task", 
                   "params": None,
-                  "caption": "Assign Task to yourself", 
+                  "group": "Update task",
+                  "caption": "Assign to yourself",
                   "description": "Assign this task to yourself."} )
 
         if "task_to_ip" in actions:
             action_instances.append( 
                 {"name": "task_to_ip", 
                   "params": None,
+                  "group": "Update task",
                   "caption": "Set to In Progress", 
                   "description": "Set the task status to In Progress."} )
 
@@ -67,7 +70,8 @@ class GeneralActions(HookBaseClass):
                 action_instances.append( 
                     {"name": "quicktime_clipboard", 
                       "params": None,
-                      "caption": "Copy quicktime path to clipboard", 
+                      "group": "Copy to clipboard",
+                      "caption": "Quicktime path",
                       "description": "Copy the quicktime path associated with this version to the clipboard."} )
 
         if "sequence_clipboard" in actions:
@@ -77,7 +81,8 @@ class GeneralActions(HookBaseClass):
                 action_instances.append( 
                     {"name": "sequence_clipboard", 
                       "params": None,
-                      "caption": "Copy image sequence path to clipboard", 
+                      "group": "Copy to clipboard",
+                      "caption": "Image sequence path",
                       "description": "Copy the image sequence path associated with this version to the clipboard."} )
 
         if "publish_clipboard" in actions:
@@ -87,8 +92,60 @@ class GeneralActions(HookBaseClass):
                 action_instances.append( 
                     {"name": "publish_clipboard", 
                       "params": None,
-                      "caption": "Copy path to clipboard", 
+                      "group": "Copy to clipboard",
+                      "caption": "Path on disk",
                       "description": "Copy the path associated with this publish to the clipboard."} )
+
+        if "add_to_playlist" in actions and ui_area == "details":
+            # retrieve the 10 most recently updated non-closed playlists for this project
+
+            from tank_vendor.shotgun_api3.lib.sgtimezone import LocalTimezone
+            datetime_now = datetime.datetime.now(LocalTimezone())
+
+            playlists = self.parent.shotgun.find(
+                "Playlist",
+                [
+                    ["project", "is", sg_data.get("project")],
+                    ["sg_status", "is_not", "clsd"],
+                    {
+                        "filter_operator": "any",
+                        "filters": [
+                            ["sg_date_and_time", "greater_than", datetime_now],
+                            ["sg_date_and_time", "is", None]
+                        ]
+                    }
+                ],
+                ["code", "id", "sg_date_and_time"],
+                order=[{"field_name": "updated_at", "direction": "desc"}],
+                limit=10,
+            )
+
+            # playlists this version is already part of
+            existing_playlist_ids = [x["id"] for x in sg_data.get("playlists", [])]
+
+            for playlist in playlists:
+                if playlist["id"] in existing_playlist_ids:
+                    # version already in this playlist so skip
+                    continue
+
+                if playlist.get("sg_date_and_time"):
+                    # playlist name includes date/time
+                    caption = "%s (%s)" % (
+                        playlist["code"],
+                        self._format_timestamp(playlist["sg_date_and_time"])
+                    )
+                else:
+                    caption = playlist["code"]
+
+                self.logger.debug("Created add to playlist action for playlist %s" % playlist)
+
+                action_instances.append({
+                    "name": "add_to_playlist",
+                    "group": "Add to open Playlist",
+                    "params": {"playlist_id": playlist["id"]},
+                    "caption": caption,
+                    "description": "Add the version to this playlist."
+                })
 
 
         return action_instances
@@ -116,7 +173,21 @@ class GeneralActions(HookBaseClass):
             assignees.append(app.context.user)
             app.shotgun.update("Task", sg_data["id"], {"task_assignees": assignees})
 
-        elif name == "task_to_ip":        
+        elif name == "add_to_playlist":
+            app.shotgun.update(
+                "Version",
+                sg_data["id"],
+                {"playlists": [{"type": "Playlist", "id": params["playlist_id"]}]},
+                multi_entity_update_modes={"playlists": "add"}
+            )
+            self.logger.debug(
+                "Updated playlist %s to include version %s" % (
+                    params["playlist_id"],
+                    sg_data["id"]
+                )
+            )
+
+        elif name == "task_to_ip":
             app.shotgun.update("Task", sg_data["id"], {"sg_status_list": "ip"})
 
         elif name == "quicktime_clipboard":
@@ -127,8 +198,7 @@ class GeneralActions(HookBaseClass):
             
         elif name == "publish_clipboard":
             self._copy_to_clipboard(sg_data["path"]["local_path"])
-            
-        
+
     def _copy_to_clipboard(self, text):
         """
         Helper method - copies the given text to the clipboard
@@ -138,9 +208,27 @@ class GeneralActions(HookBaseClass):
         from sgtk.platform.qt import QtCore, QtGui
         app = QtCore.QCoreApplication.instance()
         app.clipboard().setText(text)
-        
-           
 
-    
+    def _format_timestamp(self, datetime_obj):
+        """
+        Formats the given datetime object in a short human readable form.
 
-        
+        :param datetime_obj: Datetime obj to format
+        :returns: date str
+        """
+        from tank_vendor.shotgun_api3.lib.sgtimezone import LocalTimezone
+        datetime_now = datetime.datetime.now(LocalTimezone())
+
+        datetime_tomorrow = datetime_now + datetime.timedelta(hours=24)
+
+        if datetime_obj.date() == datetime_now.date():
+            # today - display timestamp - Today 01:37AM
+            return datetime_obj.strftime("Today %I:%M%p")
+
+        elif datetime_obj.date() == datetime_tomorrow.date():
+            # tomorrow - display timestamp - Tomorrow 01:37AM
+            return datetime_obj.strftime("Tomorrow %I:%M%p")
+
+        else:
+            # 24 June 01:37AM
+            return datetime_obj.strftime("%d %b %I:%M%p")

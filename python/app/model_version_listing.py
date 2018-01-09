@@ -54,8 +54,8 @@ class SgVersionModel(SgEntityListingModel):
         :param sg_location: Location object representing the *associated*
                object for which items should be loaded. 
                
-        :param show_latest_only: If true, the listing will be culled so that
-               only latest items are shown.
+        :param show_pending_only: If true, the listing will be culled so that
+               only items pending review are shown
         """
         # figure out our current entity type
         self._show_pending_only = show_pending_only

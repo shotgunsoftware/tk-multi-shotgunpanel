@@ -40,7 +40,7 @@ configuration:
             Task:
                 - { actions: [assign_task, task_to_ip], filters: {} }
             Version:
-                - { actions: [quicktime_clipboard, sequence_clipboard], filters: {} }
+                - { actions: [quicktime_clipboard, sequence_clipboard, add_to_playlist], filters: {} }
             PublishedFile:
                 - { actions: [publish_clipboard], filters: {} }
 
@@ -48,7 +48,7 @@ configuration:
             Task:
                 - { actions: [assign_task, task_to_ip], filters: {} }
             Version:
-                - { actions: [quicktime_clipboard, sequence_clipboard], filters: {} }
+                - { actions: [quicktime_clipboard, sequence_clipboard, add_to_playlist], filters: {} }
             PublishedFile:
                 - { actions: [publish_clipboard], filters: {} }
                 - { actions: [read_node], filters: { published_file_type: Rendered Image} }
@@ -58,7 +58,7 @@ configuration:
             Task:
                 - { actions: [assign_task, task_to_ip], filters: {} }    
             Version:
-                - { actions: [quicktime_clipboard, sequence_clipboard], filters: {} }
+                - { actions: [quicktime_clipboard, sequence_clipboard, add_to_playlist], filters: {} }
             PublishedFile:
                 - { actions: [publish_clipboard], filters: {} }
                 - { actions: [reference, import], filters: { published_file_type: Maya Scene} }

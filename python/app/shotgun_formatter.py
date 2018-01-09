@@ -73,16 +73,21 @@ class ShotgunTypeFormatter(object):
         # query payload
         fields.extend(self.thumbnail_fields)
         
-        # include the special quicktime field for versions
+        # include system fields that are needed for the app
         if entity_type == "Version":
             fields.append("sg_uploaded_movie")
             fields.append("sg_path_to_frames")
+            fields.append("project")
         if entity_type == "Note":
             fields.append("read_by_current_user")
             fields.append("client_note")
+            fields.append("project")
         if entity_type == "PublishedFile":
             fields.append("path")
-        
+            fields.append("project")
+        if entity_type == "Task":
+            fields.append("project")
+
         self._token_fields = set(fields)
         
     def __repr__(self):
