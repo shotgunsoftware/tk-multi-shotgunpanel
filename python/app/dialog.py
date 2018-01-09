@@ -40,6 +40,7 @@ settings = sgtk.platform.import_framework("tk-framework-shotgunutils", "settings
 shotgun_data = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_data")
 shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
 
+shotgun_menus = sgtk.platform.import_framework("tk-framework-qtwidgets", "shotgun_menus")
 overlay_module = sgtk.platform.import_framework("tk-framework-qtwidgets", "overlay_widget")
 ShotgunModelOverlayWidget = overlay_module.ShotgunModelOverlayWidget
 
@@ -130,8 +131,7 @@ class AppDialog(QtGui.QWidget):
 
         # set up action menu. parent it to the action button to prevent cases
         # where it shows up elsewhere on screen (as in Houdini)
-        self._menu = QtGui.QMenu(self.ui.action_button)
-        self._actions = []
+        self._menu = shotgun_menus.ShotgunMenu(self.ui.action_button)
         self.ui.action_button.setMenu(self._menu)        
 
         # this forces the menu to be right aligned with the button. This is
@@ -717,14 +717,12 @@ class AppDialog(QtGui.QWidget):
             self.ui.details_text_middle.setText("")
             
         # load actions
-        actions = self._action_manager.get_actions(
+        self._action_manager.populate_menu(
+            self._menu,
             sg_data,
             self._action_manager.UI_AREA_DETAILS
         )
-        self._actions = actions
-        for a in self._actions:
-            self._menu.addAction(a)
-            
+
     ###################################################################################################
     # UI callbacks
     def _on_entity_doubleclicked(self, model_index):

@@ -10,12 +10,14 @@
 
 import sgtk
 import datetime
-import os
-import sys
+from collections import defaultdict
 from sgtk.platform.qt import QtCore, QtGui
 from tank_vendor import shotgun_api3
 from sgtk import TankError
 
+shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
+
+logger = sgtk.platform.get_logger(__name__)
 
 class ActionManager(QtCore.QObject):
     """
@@ -38,25 +40,59 @@ class ActionManager(QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
         
         self._app = sgtk.platform.current_bundle()
-    
-    def get_actions(self, sg_data, ui_area):
+        self._actions = []
+
+    def populate_menu(self, shotgun_menu, sg_data, ui_area):
+        """
+        Populate the given shotgun menu with actions,
+        organized in groups. Existing menu items will
+        be cleared out and replaced with new ones.
+
+        :param shotgun_menu: ShotgunMenu instance to operate on.
+        :param sg_data: Shotgun data to generate actions for
+        :param ui_area: Indicates which part of the UI the request is coming from.
+                        Currently one of UI_AREA_MAIN, UI_AREA_DETAILS and UI_AREA_HISTORY
+        :returns: Number of actions added
+        """
+        shotgun_menu.clear()
+        shotgun_menu.action_handles = None
+        all_actions = []
+
+        # get built in actions
+        if ui_area == self.UI_AREA_DETAILS:
+            actions = self._get_default_detail_actions(sg_data)
+            shotgun_menu.add_group(actions, "General")
+            all_actions.extend(actions)
+
+        # get dynamic actions
+        for group_name, actions in self._get_actions(sg_data, ui_area).iteritems():
+            shotgun_menu.add_group(actions, group_name)
+            all_actions.extend(actions)
+
+        # for GC purposes, store python pointers to all QActions on
+        # the menu instance.
+        shotgun_menu.action_handles = all_actions
+        return len(all_actions)
+
+    def _get_actions(self, sg_data, ui_area):
         """
         Returns a list of actions for an entity
         
-        :param sg_data: Shotgun data for a publish
+        :param sg_data: Shotgun data
         :param ui_area: Indicates which part of the UI the request is coming from. 
                         Currently one of UI_AREA_MAIN, UI_AREA_DETAILS and UI_AREA_HISTORY
-        :returns: List of QAction objects, ready to be parented to some QT Widgetry.
+        :returns: Dict of QAction objects, keyed by group.
         """
         if sg_data is None:
-            return []
+            return {}
         
         # check if we have logic configured to handle this
         action_defs = []
         all_mappings = self._app.get_setting("action_mappings")
+
         if all_mappings.get(sg_data["type"]):
             
-            mappings = all_mappings[ sg_data["type"] ]
+            mappings = all_mappings[sg_data["type"] ]
 
             # this is now a list of items, each a dictioary
             # with keys filters and actions
@@ -116,21 +152,28 @@ class ActionManager(QtCore.QObject):
                     self._app.log_exception("Could not execute generate_actions hook.")
             
         # create QActions
-        actions = []
+        default_group = "%s Actions" % shotgun_globals.get_type_display_name(sg_data["type"])
+        actions = defaultdict(list)
+
         for action_def in action_defs:
             name = action_def["name"]
             caption = action_def["caption"]
             params = action_def["params"]
             description = action_def["description"]
-            
-            a = QtGui.QAction(caption, None)
-            a.setToolTip(description)
-            a.triggered[()].connect(lambda n=name, sg=sg_data, p=params: self._execute_hook(n, sg, p))
-            actions.append(a)
-            
-        if ui_area == self.UI_AREA_DETAILS:
-            actions = self._get_default_detail_actions(sg_data) + actions
-            
+
+            action = QtGui.QAction(caption, None)
+            action.setToolTip(description)
+            action.triggered[()].connect(
+                lambda n=name, sg=sg_data, p=params: self._execute_hook(n, sg, p)
+            )
+
+            if "group" in action_def:
+                # action belongs to a specific group
+                actions[action_def["group"]].append(action)
+            else:
+                # put action in general group
+                actions[default_group].append(action)
+
         return actions
 
     def _get_default_detail_actions(self, sg_data):

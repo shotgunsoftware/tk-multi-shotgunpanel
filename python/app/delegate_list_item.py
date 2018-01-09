@@ -72,8 +72,14 @@ class ListItemDelegate(shotgun_view.EditSelectedWidgetDelegate):
         
         # now set up actions menu
         sg_item = shotgun_model.get_sg_data(model_index)
-        actions = self._action_manager.get_actions(sg_item, self._action_manager.UI_AREA_MAIN)
-        widget.set_actions(actions)
+
+        num_actions = self._action_manager.populate_menu(
+            widget.actions_menu,
+            sg_item,
+            self._action_manager.UI_AREA_MAIN
+        )
+        if num_actions > 0:
+            widget.actions_button.show()
 
         # set up the switch work area
         widget.set_up_work_area(sg_item["type"], sg_item["id"])

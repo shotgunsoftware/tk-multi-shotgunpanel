@@ -51,20 +51,73 @@ class GeneralActions(HookBaseClass):
             action_instances.append( 
                 {"name": "assign_task", 
                   "params": None,
-                  "caption": "Assign Task to yourself", 
+                  "group": "Update task",
+                  "caption": "Assign to yourself",
                   "description": "Assign this task to yourself."} )
 
+        if "task_to_ip" in actions:
+            action_instances.append( 
+                {"name": "task_to_ip", 
+                  "params": None,
+                  "group": "Update task",
+                  "caption": "Set to In Progress", 
+                  "description": "Set the task status to In Progress."} )
+
+        if "quicktime_clipboard" in actions:
+            
+            if sg_data.get("sg_path_to_movie"):
+                # path to movie exists, so show the action
+                action_instances.append( 
+                    {"name": "quicktime_clipboard", 
+                      "params": None,
+                      "group": "Copy to clipboard",
+                      "caption": "Quicktime path",
+                      "description": "Copy the quicktime path associated with this version to the clipboard."} )
+
+        if "sequence_clipboard" in actions:
+
+            if sg_data.get("sg_path_to_frames"):
+                # path to frames exists, so show the action            
+                action_instances.append( 
+                    {"name": "sequence_clipboard", 
+                      "params": None,
+                      "group": "Copy to clipboard",
+                      "caption": "Image sequence path",
+                      "description": "Copy the image sequence path associated with this version to the clipboard."} )
+
+        if "publish_clipboard" in actions:
+            
+            if "path" in sg_data and sg_data["path"].get("local_path"): 
+                # path field exists and the local path is populated
+                action_instances.append( 
+                    {"name": "publish_clipboard", 
+                      "params": None,
+                      "group": "Copy to clipboard",
+                      "caption": "Path on disk",
+                      "description": "Copy the path associated with this publish to the clipboard."} )
+
         if "add_to_playlist" in actions and ui_area == "details":
-            # retrieve the 5 most recently updated non-closed playlists for this project
-            playlists = app.shotgun.find(
+            # retrieve the 10 most recently updated non-closed playlists for this project
+
+            from tank_vendor.shotgun_api3.lib.sgtimezone import LocalTimezone
+            datetime_now = datetime.datetime.now(LocalTimezone())
+
+            playlists = self.parent.shotgun.find(
                 "Playlist",
                 [
                     ["project", "is", sg_data.get("project")],
                     ["sg_status", "is_not", "clsd"],
+                    {
+                        "filter_operator": "any",
+                        "filters": [
+                            ["sg_date_and_time", "greater_than", datetime_now],
+                            ["sg_date_and_time", "is", None]
+                        ]
+                    }
                 ],
                 ["code", "id", "sg_date_and_time"],
                 order=[{"field_name": "updated_at", "direction": "desc"}],
-                limit=5,
+                limit=10,
             )
 
             # playlists this version is already part of
@@ -76,57 +129,21 @@ class GeneralActions(HookBaseClass):
                     continue
 
                 if playlist.get("sg_date_and_time"):
-                    # 'Add to playlist dailies (Today 12:00)'
-                    caption = "Add to playlist %s (%s)" % (
+                    # playlist name includes date/time
+                    caption = "%s (%s)" % (
                         playlist["code"],
                         self._format_timestamp(playlist["sg_date_and_time"])
                     )
                 else:
-                    caption = "Add to playlist %s" % playlist["code"]
+                    caption = playlist["code"]
 
                 action_instances.append({
                     "name": "add_to_playlist",
+                    "group": "Add to open Playlist",
                     "params": {"playlist_id": playlist["id"]},
                     "caption": caption,
                     "description": "Add the version to this playlist."
                 })
-
-        if "task_to_ip" in actions:
-            action_instances.append( 
-                {"name": "task_to_ip", 
-                  "params": None,
-                  "caption": "Set to In Progress", 
-                  "description": "Set the task status to In Progress."} )
-
-        if "quicktime_clipboard" in actions:
-            
-            if sg_data.get("sg_path_to_movie"):
-                # path to movie exists, so show the action
-                action_instances.append( 
-                    {"name": "quicktime_clipboard", 
-                      "params": None,
-                      "caption": "Copy quicktime path to clipboard", 
-                      "description": "Copy the quicktime path associated with this version to the clipboard."} )
-
-        if "sequence_clipboard" in actions:
-
-            if sg_data.get("sg_path_to_frames"):
-                # path to frames exists, so show the action            
-                action_instances.append( 
-                    {"name": "sequence_clipboard", 
-                      "params": None,
-                      "caption": "Copy image sequence path to clipboard", 
-                      "description": "Copy the image sequence path associated with this version to the clipboard."} )
-
-        if "publish_clipboard" in actions:
-            
-            if "path" in sg_data and sg_data["path"].get("local_path"): 
-                # path field exists and the local path is populated
-                action_instances.append( 
-                    {"name": "publish_clipboard", 
-                      "params": None,
-                      "caption": "Copy path to clipboard", 
-                      "description": "Copy the path associated with this publish to the clipboard."} )
 
 
         return action_instances
@@ -186,11 +203,7 @@ class GeneralActions(HookBaseClass):
 
     def _format_timestamp(self, datetime_obj):
         """
-        Formats the given datetime object in a short human readable form:
-
-        If today: Today 10:32
-        Else: 24 June 10:32
-        Last year and earlier: 12 December 2007
+        Formats the given datetime object in a short human readable form.
 
         :param datetime_obj: Datetime obj to format
         :returns: date str
@@ -198,21 +211,16 @@ class GeneralActions(HookBaseClass):
         from tank_vendor.shotgun_api3.lib.sgtimezone import LocalTimezone
         datetime_now = datetime.datetime.now(LocalTimezone())
 
-        if datetime_obj > datetime_now:
-            # future time: 24 June 10:32
-            return datetime_obj.strftime("%d %b %H:%M")
+        datetime_tomorrow = datetime_now + datetime.timedelta(hours=24)
 
-        # get the time delta
-        delta = datetime_now - datetime_obj
+        if datetime_obj.date() == datetime_now.date():
+            # today - display timestamp - Today 01:37AM
+            return datetime_obj.strftime("Today %I:%M%p")
 
-        if delta.days > 365:
-            # more than one year ago: 26 June 2012
-            return datetime_obj.strftime("%d %b %Y %H:%M")
-
-        elif delta.days > 1:
-            # more than one day ago: 24 June 10:32
-            return datetime_obj.strftime("%d %b %H:%M")
+        elif datetime_obj.date() == datetime_tomorrow.date():
+            # tomorrow - display timestamp - Tomorrow 01:37AM
+            return datetime_obj.strftime("Tomorrow %I:%M%p")
 
         else:
-            # earlier today - display timestamp - Today 23:22
-            return datetime_obj.strftime("Today %H:%M")
+            # 24 June 01:37AM
+            return datetime_obj.strftime("%d %b %I:%M%p")
