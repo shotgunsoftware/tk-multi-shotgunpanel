@@ -121,7 +121,7 @@ class GeneralActions(HookBaseClass):
             )
 
             # playlists this version is already part of
-            existing_playlist_ids = [x["id"] for x in (sg_data.get("playlists") or [])]
+            existing_playlist_ids = [x["id"] for x in sg_data.get("playlists", [])]
 
             for playlist in playlists:
                 if playlist["id"] in existing_playlist_ids:
@@ -136,6 +136,8 @@ class GeneralActions(HookBaseClass):
                     )
                 else:
                     caption = playlist["code"]
+
+                self.logger.debug("Created add to playlist action for playlist %s" % playlist)
 
                 action_instances.append({
                     "name": "add_to_playlist",
@@ -177,6 +179,12 @@ class GeneralActions(HookBaseClass):
                 sg_data["id"],
                 {"playlists": [{"type": "Playlist", "id": params["playlist_id"]}]},
                 multi_entity_update_modes={"playlists": "add"}
+            )
+            self.logger.debug(
+                "Updated playlist %s to include version %s" % (
+                    params["playlist_id"],
+                    sg_data["id"]
+                )
             )
 
         elif name == "task_to_ip":
