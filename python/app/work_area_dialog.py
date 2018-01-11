@@ -51,7 +51,7 @@ class WorkAreaDialog(QtGui.QDialog):
         sg_type_display_name = sgtk.util.get_entity_type_display_name(tk, entity_type)
      
         if main_item.get("code"):
-            entity_name = "frs_tst %s %s" % (sg_type_display_name, main_item.get("code"))
+            entity_name = "%s %s" % (sg_type_display_name, main_item.get("code"))
         else:
             entity_name = "Unnamed %s" % sg_type_display_name
 
