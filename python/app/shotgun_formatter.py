@@ -234,8 +234,9 @@ class ShotgunTypeFormatter(object):
                 
                 # get the nice name from our schema
                 # this is so that it says "Level" instead of "CustomEntity013"
-                entity_type_display_name = shotgun_globals.get_type_display_name(value["type"])                
-                link_name = "%s %s" % (entity_type_display_name, value["name"])
+                tk = sgtk.platform.current_bundle().sgtk
+                sg_type_display_name = sgtk.util.get_entity_type_display_name(tk, value["type"])
+                link_name = "%s %s" % (sg_type_display_name, value["name"])
             else:
                 # links are just "ABC123"
                 link_name = value["name"]
