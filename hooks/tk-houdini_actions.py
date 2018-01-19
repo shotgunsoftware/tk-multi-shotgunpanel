@@ -51,7 +51,14 @@ class HoudiniActions(HookBaseClass):
                       "Actions: %s. Publish Data: %s" % (ui_area, actions, sg_data))
         
         action_instances = []
-        
+
+        try:
+            # call base class first
+            action_instances += HookBaseClass.generate_actions(self, sg_data, actions, ui_area)
+        except AttributeError, e:
+            # base class doesn't have the method, so ignore and continue
+            pass
+
         if "merge" in actions:
             action_instances.append( {"name": "merge", 
                                       "params": None,
