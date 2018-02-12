@@ -106,7 +106,6 @@ class GeneralActions(HookBaseClass):
                 "Playlist",
                 [
                     ["project", "is", sg_data.get("project")],
-                    ["sg_status", "is_not", "clsd"],
                     {
                         "filter_operator": "any",
                         "filters": [
