@@ -140,7 +140,7 @@ class GeneralActions(HookBaseClass):
 
                 action_instances.append({
                     "name": "add_to_playlist",
-                    "group": "Add to open Playlist",
+                    "group": "Add to playlist",
                     "params": {"playlist_id": playlist["id"]},
                     "caption": caption,
                     "description": "Add the version to this playlist."
