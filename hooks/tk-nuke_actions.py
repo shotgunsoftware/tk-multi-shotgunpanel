@@ -73,6 +73,12 @@ class NukeActions(HookBaseClass):
                                       "caption": "Open Project",
                                       "description": "This will open the Nuke Studio project in the current session."} )
 
+        if "clip_import" in actions:
+            action_instances.append( {"name": "clip_import",
+                                      "params": None,
+                                      "caption": "Create Clip",
+                                      "description": "This will add a Clip to the current project."} )
+
         return action_instances
                 
 
@@ -105,6 +111,11 @@ class NukeActions(HookBaseClass):
             path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
             self._open_project(path, sg_data)
 
+        elif name == "clip_import":
+            # resolve path - forward slashes on all platforms in Nuke
+            path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
+            self._import_clip(path, sg_data)
+
         else:
             try:
                 HookBaseClass.execute_action(self, name, params, sg_data)
@@ -115,6 +126,33 @@ class NukeActions(HookBaseClass):
            
     ##############################################################################################################
     # helper methods which can be subclassed in custom hooks to fine tune the behavior of things
+
+    def _import_clip(self, path, sg_publish_data):
+        """
+        Imports the given publish data into Nuke Studio or Hiero as a clip.
+
+        :param str path: Path to the file(s) to import.
+        :param dict sg_publish_data: Shotgun data dictionary with all of the standard publish
+            fields.
+        """
+        if not self.parent.engine.studio_enabled and not self.parent.engine.hiero_enabled:
+            raise Exception("Importing shot clips is only supported in Hiero and Nuke Studio.")
+
+        import hiero
+        from hiero.core import (
+            BinItem,
+            MediaSource,
+            Clip,
+        )
+
+        if not hiero.core.projects():
+            raise Exception("An active project must exist to import clips into.")
+
+        project = hiero.core.projects()[-1]
+        bins = project.clipsBin().bins()
+        media_source = MediaSource(path)
+        clip = Clip(media_source)
+        project.clipsBin().addItem(BinItem(clip))
     
     def _import_script(self, path, sg_publish_data):
         """
