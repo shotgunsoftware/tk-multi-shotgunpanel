@@ -76,7 +76,7 @@ class NukeActions(HookBaseClass):
         if "clip_import" in actions:
             action_instances.append( {"name": "clip_import",
                                       "params": None,
-                                      "caption": "Create Clip",
+                                      "caption": "Import Clip",
                                       "description": "This will add a Clip to the current project."} )
 
         return action_instances
