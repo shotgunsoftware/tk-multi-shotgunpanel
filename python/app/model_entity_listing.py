@@ -100,9 +100,20 @@ class SgEntityListingModel(ShotgunModel):
             fields += additional_fields
             
         hierarchy = [sort_field]
+
+        # This is wrapped here to account for the situation where we can't
+        # query for the My Tasks tab if we don't have a Shotgun user. This
+        # is the case when a script key is used for auth and we can't 
+        # determine a Shotgun human user by other means.
+        try:
+            filters = self._get_filters()
+        except sgtk.TankError as exc:
+            self.data_refresh_fail.emit(exc.message)
+            return
+
         ShotgunModel._load_data(self, 
                                 self._sg_formatter.entity_type, 
-                                self._get_filters(), 
+                                filters, 
                                 hierarchy, 
                                 fields, 
                                 [{"field_name": sort_field, 
