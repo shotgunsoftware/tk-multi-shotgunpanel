@@ -665,7 +665,16 @@ class ShotgunTypeFormatter(object):
 
             elif self._entity_type == "Task":
                 # my tasks tab on project
-                link_filters.append(["task_assignees", "in", [self._app.context.user]])
+                current_user = self._app.context.user
+
+                if current_user is None:
+                    raise sgtk.TankError(
+                        "Use of the My Tasks tab is not supported when a current Shotgun user "
+                        "cannot be determined. This is most often the case when a script key "
+                        "is used for authentication rather than a user name and password."
+                    )
+
+                link_filters.append(["task_assignees", "in", [current_user]])
                 link_filters.append(["sg_status_list", "is_not", "fin"])
                 link_filters.append(["project", "is", sg_location.entity_dict])
 
@@ -741,7 +750,13 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         """
         Returns true if the formatter represents the current user.
         """
-        if self.entity_type == self._app.context.user.get("type") and \
+        # Note: the context's user might be None if we're authenticated with a
+        # script key and the user's current OS login doesn't match their Shotgun
+        # user name. In that situation, we don't know what the Shotgun user is,
+        # and we get a None back from the context. In that case, we need to
+        # assume that is_current_user is False.
+        if self._app.context.user is not None and \
+            self.entity_type == self._app.context.user.get("type") and \
             self.entity_id == self._app.context.user.get("id"):
             return True
         else:

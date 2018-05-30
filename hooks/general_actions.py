@@ -165,7 +165,12 @@ class GeneralActions(HookBaseClass):
         
         if name == "assign_task":
             if app.context.user is None:
-                raise Exception("Cannot establish current user!")
+                raise Exception(
+                    "Shotgun Toolkit does not know what Shotgun user you are. "
+                    "This can be due to the use of a script key for authentication "
+                    "rather than using a user name and password login. To assign a "
+                    "Task, you will need to log in using you Shotgun user account."
+                )
             
             data = app.shotgun.find_one("Task", [["id", "is", sg_data["id"]]], ["task_assignees"] )
             assignees = data["task_assignees"] or []

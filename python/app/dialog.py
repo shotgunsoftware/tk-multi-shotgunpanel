@@ -848,6 +848,13 @@ class AppDialog(QtGui.QWidget):
         if sg_user_data:
             sg_location = ShotgunLocation(sg_user_data["type"], sg_user_data["id"])
             self._navigate_to(sg_location)
+        else:
+            self._app.log_warning(
+                "Navigation to the current user is not supported when "
+                "the Shotgun user cannot be determined. This is often the "
+                "case when Toolkit has been authenticated using a script key "
+                "rather than with a user name and password."
+            )
         
     def _on_home_clicked(self):
         """
@@ -963,6 +970,16 @@ class AppDialog(QtGui.QWidget):
                     # basic validation
                     if not dialog.new_task_name:
                         self._app.log_error("Please name your task!")
+                        return
+
+                    if self._app.context.user is None:
+                        self._app.log_error(
+                            "Shotgun Toolkit does not know what Shotgun user you are. "
+                            "This can be due to the use of a script key for authentication "
+                            "rather than using a user name and password login. To create and "
+                            "assign a Task, you will need to log in using you Shotgun user "
+                            "account."
+                        )
                         return
 
                     # create new task and assign!
