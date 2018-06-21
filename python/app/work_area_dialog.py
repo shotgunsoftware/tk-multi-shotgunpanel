@@ -47,10 +47,13 @@ class WorkAreaDialog(QtGui.QDialog):
             ["code", "description"]
         )
 
+        tk = sgtk.platform.current_bundle().sgtk
+        sg_type_display_name = sgtk.util.get_entity_type_display_name(tk, entity_type)
+     
         if main_item.get("code"):
-            entity_name = "%s %s" % (shotgun_globals.get_type_display_name(entity_type), main_item.get("code"))
+            entity_name = "%s %s" % (sg_type_display_name, main_item.get("code"))
         else:
-            entity_name = "Unnamed %s" % shotgun_globals.get_type_display_name(entity_type)
+            entity_name = "Unnamed %s" % sg_type_display_name
 
         # # insert main item
         # self._main_item = QtGui.QListWidgetItem(entity_name, self.ui.task_list)

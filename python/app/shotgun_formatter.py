@@ -239,8 +239,9 @@ class ShotgunTypeFormatter(object):
                 
                 # get the nice name from our schema
                 # this is so that it says "Level" instead of "CustomEntity013"
-                entity_type_display_name = shotgun_globals.get_type_display_name(value["type"])                
-                link_name = "%s %s" % (entity_type_display_name, value["name"])
+                tk = sgtk.platform.current_bundle().sgtk
+                sg_type_display_name = sgtk.util.get_entity_type_display_name(tk, value["type"])
+                link_name = "%s %s" % (sg_type_display_name, value["name"])
             else:
                 # links are just "ABC123"
                 link_name = value["name"]
@@ -855,8 +856,10 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
             return "Notes that the user has written or replied to, in update order."
 
         else:
+            tk = sgtk.platform.current_bundle().sgtk 
+            sg_type_display_name = sgtk.util.get_entity_type_display_name(tk, self.entity_type)
             return "Notes associated with this %s, in update order." % \
-                   shotgun_globals.get_type_display_name(self.entity_type)
+                   sg_type_display_name
 
     @property
     def publishes_description(self):
@@ -878,8 +881,10 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
             return "Publishes by this user, in creation order."
 
         else:
+            tk = sgtk.platform.current_bundle().sgtk 
+            sg_type_display_name = sgtk.util.get_entity_type_display_name(tk, self.entity_type)
             return "Publishes for this %s, in creation order." % \
-                   shotgun_globals.get_type_display_name(self.entity_type)
+                   sg_type_display_name
 
     @property
     def versions_description(self):
@@ -896,8 +901,10 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
             return "Review versions by this user, in creation order."
 
         else:
+            tk = sgtk.platform.current_bundle().sgtk 
+            sg_type_display_name = sgtk.util.get_entity_type_display_name(tk, self.entity_type)
             return "Review versions for this %s, in creation order." % \
-                   shotgun_globals.get_type_display_name(self.entity_type)
+                   sg_type_display_name
 
     @property
     def tasks_description(self):
@@ -919,8 +926,10 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
             return "Active tasks assigned to this user."
 
         else:
+            tk = sgtk.platform.current_bundle().sgtk 
+            sg_type_display_name = sgtk.util.get_entity_type_display_name(tk, self.entity_type)
             return "All tasks for this %s." % \
-                   shotgun_globals.get_type_display_name(self.entity_type)
+                   sg_type_display_name
 
     @property
     def default_tab(self):
