@@ -63,6 +63,14 @@ class GeneralActions(HookBaseClass):
                   "caption": "Set to In Progress", 
                   "description": "Set the task status to In Progress."} )
 
+        if "task_to_rev" in actions:
+            action_instances.append(
+                {"name": "task_to_rev",
+                  "params": None,
+                  "group": "Update task",
+                  "caption": "Set to Pending Review",
+                  "description": "Set the task status to Pending Review."} )
+
         if "quicktime_clipboard" in actions:
             
             if sg_data.get("sg_path_to_movie"):
@@ -193,6 +201,9 @@ class GeneralActions(HookBaseClass):
 
         elif name == "task_to_ip":
             app.shotgun.update("Task", sg_data["id"], {"sg_status_list": "ip"})
+
+        elif name == "task_to_rev":
+            app.shotgun.update("Task", sg_data["id"], {"sg_status_list": "rev"})
 
         elif name == "quicktime_clipboard":
             self._copy_to_clipboard(sg_data["sg_path_to_movie"])
