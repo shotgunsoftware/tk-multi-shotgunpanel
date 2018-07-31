@@ -93,7 +93,7 @@ class ShotgunPanelApp(Application):
         # for the panel widget in the future. In that case, we'll need to
         # check here to see if the panel has been pinned by the user, and
         # if it has NOT navigate it to home.
-        if self._current_panel:
+        if self.engine.has_ui and self._current_panel:
             try:
                 self._current_panel.navigate_to_context(new_context)
             except RuntimeError:
