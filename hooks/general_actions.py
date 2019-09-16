@@ -210,8 +210,7 @@ class GeneralActions(HookBaseClass):
         :param text: content to copy
         """
         from sgtk.platform.qt import QtCore, QtGui
-        app = QtCore.QCoreApplication.instance()
-        app.clipboard().setText(text)
+        QtGui.QApplication.clipboard().setText(text)
 
     def _format_timestamp(self, datetime_obj):
         """
