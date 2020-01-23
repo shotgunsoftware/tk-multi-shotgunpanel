@@ -109,30 +109,35 @@ class MaxActions(HookBaseClass):
             "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
         )
 
-        # resolve path
-        path = self.get_publish_path(sg_data)
+        if sg_data["type"] == sgtk.util.get_published_file_entity_type(self.sgtk):
+            # resolve path
+            path = self.get_publish_path(sg_data)
 
-        # If this is an Alembic cache, then we can import that.
-        if path.lower().endswith(".abc"):
-            # Note that native Alembic support is only available in Max 2016+.
-            if app.engine._max_version_to_year(app.engine._get_max_version()) >= 2016:
-                self._import_alembic(path)
-            else:
-                app.log_warning(
-                    "Alembic imports are not available in Max 2015, skipping."
-                )
-        elif name == "merge":
-            self._merge(path, sg_data)
-        elif name == "xref_scene":
-            self._xref_scene(path, sg_data)
-        elif name == "texture_node":
-            self._create_texture_node(path, sg_data)
-        else:
-            try:
-                HookBaseClass.execute_action(self, name, params, sg_data)
-            except AttributeError as e:
-                # base class doesn't have the method, so ignore and continue
-                pass
+            # If this is an Alembic cache, then we can import that.
+            if path.lower().endswith(".abc"):
+                # Note that native Alembic support is only available in Max 2016+.
+                if (
+                    app.engine._max_version_to_year(app.engine._get_max_version())
+                    >= 2016
+                ):
+                    self._import_alembic(path)
+                else:
+                    app.log_warning(
+                        "Alembic imports are not available in Max 2015, skipping."
+                    )
+                return
+            elif name == "merge":
+                return self._merge(path, sg_data)
+            elif name == "xref_scene":
+                return self._xref_scene(path, sg_data)
+            elif name == "texture_node":
+                return self._create_texture_node(path, sg_data)
+
+        try:
+            HookBaseClass.execute_action(self, name, params, sg_data)
+        except AttributeError as e:
+            # base class doesn't have the method, so ignore and continue
+            pass
 
     ##############################################################################################################
     # helper methods which can be subclassed in custom hooks to fine tune the behaviour of things
