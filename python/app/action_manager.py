@@ -68,7 +68,7 @@ class ActionManager(QtCore.QObject):
             all_actions.extend(actions)
 
         # get dynamic actions
-        for group_name, actions in self._get_actions(sg_data, ui_area).iteritems():
+        for group_name, actions in self._get_actions(sg_data, ui_area).items():
             shotgun_menu.add_group(actions, group_name)
             all_actions.extend(actions)
 
@@ -112,7 +112,7 @@ class ActionManager(QtCore.QObject):
                 else:
                     # filters are on the form
                     # field_name: value
-                    for (field_name, field_value) in filters_def.iteritems():
+                    for (field_name, field_value) in filters_def.items():
 
                         # resolve linked fields into a string value
                         sg_value = sg_data.get(field_name)
