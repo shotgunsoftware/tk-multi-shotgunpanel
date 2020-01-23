@@ -1,11 +1,11 @@
 # Copyright (c) 2015 Shotgun Software Inc.
-# 
+#
 # CONFIDENTIAL AND PROPRIETARY
-# 
-# This work is provided "AS IS" and subject to the Shotgun Pipeline Toolkit 
+#
+# This work is provided "AS IS" and subject to the Shotgun Pipeline Toolkit
 # Source Code License included in this distribution package. See LICENSE.
-# By accessing, using, copying or modifying this work you indicate your 
-# agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
+# By accessing, using, copying or modifying this work you indicate your
+# agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 import sgtk
 import os
@@ -14,93 +14,115 @@ import glob
 
 HookBaseClass = sgtk.get_hook_baseclass()
 
+
 class NukeActions(HookBaseClass):
     """
     Shotgun Panel Actions for Nuke
     """
-    
+
     def generate_actions(self, sg_data, actions, ui_area):
         """
         Returns a list of action instances for a particular object.
-        The data returned from this hook will be used to populate the 
+        The data returned from this hook will be used to populate the
         actions menu.
-    
+
         The mapping between Shotgun objects and actions are kept in a different place
         (in the configuration) so at the point when this hook is called, the app
         has already established *which* actions are appropriate for this object.
-        
+
         This method needs to return detailed data for those actions, in the form of a list
         of dictionaries, each with name, params, caption and description keys.
-        
-        The ui_area parameter is a string and indicates where the item is to be shown. 
-        
-        - If it will be shown in the main browsing area, "main" is passed. 
+
+        The ui_area parameter is a string and indicates where the item is to be shown.
+
+        - If it will be shown in the main browsing area, "main" is passed.
         - If it will be shown in the details area, "details" is passed.
-                
+
         :param sg_data: Shotgun data dictionary.
         :param actions: List of action strings which have been defined in the app configuration.
         :param ui_area: String denoting the UI Area (see above).
         :returns List of dictionaries, each with keys name, params, caption and description
         """
         app = self.parent
-        app.log_debug("Generate actions called for UI element %s. "
-                      "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data))
-        
+        app.log_debug(
+            "Generate actions called for UI element %s. "
+            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data)
+        )
+
         action_instances = []
-        
+
         try:
             # call base class first
-            action_instances += HookBaseClass.generate_actions(self, sg_data, actions, ui_area)
-        except AttributeError, e:
+            action_instances += HookBaseClass.generate_actions(
+                self, sg_data, actions, ui_area
+            )
+        except AttributeError as e:
             # base class doesn't have the method, so ignore and continue
-            pass        
-        
-        if "read_node" in actions:
-            action_instances.append( {"name": "read_node", 
-                                      "params": None,
-                                      "caption": "Create Read Node", 
-                                      "description": "This will add a read node to the current scene."} )
+            pass
 
-        if "script_import" in actions:        
-            action_instances.append( {"name": "script_import",
-                                      "params": None, 
-                                      "caption": "Import Contents", 
-                                      "description": "This will import all the nodes into the current scene."} )
+        if "read_node" in actions:
+            action_instances.append(
+                {
+                    "name": "read_node",
+                    "params": None,
+                    "caption": "Create Read Node",
+                    "description": "This will add a read node to the current scene.",
+                }
+            )
+
+        if "script_import" in actions:
+            action_instances.append(
+                {
+                    "name": "script_import",
+                    "params": None,
+                    "caption": "Import Contents",
+                    "description": "This will import all the nodes into the current scene.",
+                }
+            )
 
         if "open_project" in actions:
-            action_instances.append( {"name": "open_project",
-                                      "params": None,
-                                      "caption": "Open Project",
-                                      "description": "This will open the Nuke Studio project in the current session."} )
+            action_instances.append(
+                {
+                    "name": "open_project",
+                    "params": None,
+                    "caption": "Open Project",
+                    "description": "This will open the Nuke Studio project in the current session.",
+                }
+            )
 
         if "clip_import" in actions:
-            action_instances.append( {"name": "clip_import",
-                                      "params": None,
-                                      "caption": "Import Clip",
-                                      "description": "This will add a Clip to the current project."} )
+            action_instances.append(
+                {
+                    "name": "clip_import",
+                    "params": None,
+                    "caption": "Import Clip",
+                    "description": "This will add a Clip to the current project.",
+                }
+            )
 
         return action_instances
-                
 
     def execute_action(self, name, params, sg_data):
         """
         Execute a given action. The data sent to this be method will
         represent one of the actions enumerated by the generate_actions method.
-        
+
         :param name: Action name string representing one of the items returned by generate_actions.
         :param params: Params data, as specified by generate_actions.
         :param sg_data: Shotgun data dictionary
         :returns: No return value expected.
         """
-        app = self.parent        
-        app.log_debug("Execute action called for action %s. "
-                      "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data))
-        
+        app = self.parent
+        app.log_debug(
+            "Execute action called for action %s. "
+            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
+        )
+
         if name == "read_node":
             # resolve path - forward slashes on all platforms in Nuke
             path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
             self._create_read_node(path, sg_data)
-        
+
         elif name == "script_import":
             # resolve path - forward slashes on all platforms in Nuke
             path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
@@ -119,11 +141,10 @@ class NukeActions(HookBaseClass):
         else:
             try:
                 HookBaseClass.execute_action(self, name, params, sg_data)
-            except AttributeError, e:
+            except AttributeError as e:
                 # base class doesn't have the method, so ignore and continue
-                pass            
-            
-           
+                pass
+
     ##############################################################################################################
     # helper methods which can be subclassed in custom hooks to fine tune the behavior of things
 
@@ -135,8 +156,13 @@ class NukeActions(HookBaseClass):
         :param dict sg_publish_data: Shotgun data dictionary with all of the standard publish
             fields.
         """
-        if not self.parent.engine.studio_enabled and not self.parent.engine.hiero_enabled:
-            raise Exception("Importing shot clips is only supported in Hiero and Nuke Studio.")
+        if (
+            not self.parent.engine.studio_enabled
+            and not self.parent.engine.hiero_enabled
+        ):
+            raise Exception(
+                "Importing shot clips is only supported in Hiero and Nuke Studio."
+            )
 
         import hiero
         from hiero.core import (
@@ -153,18 +179,19 @@ class NukeActions(HookBaseClass):
         media_source = MediaSource(path)
         clip = Clip(media_source)
         project.clipsBin().addItem(BinItem(clip))
-    
+
     def _import_script(self, path, sg_publish_data):
         """
         Import contents of the given file into the scene.
-        
+
         :param path: Path to file.
         :param sg_publish_data: Shotgun data dictionary with all the standard publish fields.
         """
         import nuke
+
         if not os.path.exists(path):
             raise Exception("File not found on disk - '%s'" % path)
-        
+
         nuke.nodePaste(path)
 
     def _open_project(self, path, sg_publish_data):
@@ -185,39 +212,42 @@ class NukeActions(HookBaseClass):
             raise Exception("Nuke Studio is required to open the project.")
 
         import hiero
+
         hiero.core.openProject(path)
 
     def _create_read_node(self, path, sg_publish_data):
         """
         Create a read node representing the publish.
-        
+
         :param path: Path to file.
-        :param sg_publish_data: Shotgun data dictionary with all the standard publish fields.        
-        """        
+        :param sg_publish_data: Shotgun data dictionary with all the standard publish fields.
+        """
         import nuke
-        
+
         (_, ext) = os.path.splitext(path)
 
         # If this is an Alembic cache, use a ReadGeo2 and we're done.
-        if ext.lower() == '.abc':
-            nuke.createNode('ReadGeo2', 'file {%s}' % path)
+        if ext.lower() == ".abc":
+            nuke.createNode("ReadGeo2", "file {%s}" % path)
             return
 
-        valid_extensions = [".png", 
-                            ".jpg", 
-                            ".jpeg", 
-                            ".exr", 
-                            ".cin", 
-                            ".dpx", 
-                            ".tiff", 
-                            ".tif", 
-                            ".mov", 
-                            ".mp4",
-                            ".psd",
-                            ".tga",
-                            ".ari",
-                            ".gif",
-                            ".iff"]
+        valid_extensions = [
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".exr",
+            ".cin",
+            ".dpx",
+            ".tiff",
+            ".tif",
+            ".mov",
+            ".mp4",
+            ".psd",
+            ".tga",
+            ".ari",
+            ".gif",
+            ".iff",
+        ]
 
         if ext.lower() not in valid_extensions:
             raise Exception("Unsupported file extension for '%s'!" % path)
@@ -273,10 +303,7 @@ class NukeActions(HookBaseClass):
 
         # We need to get all files that match the pattern from disk so that we
         # can determine what the min and max frame number is.
-        glob_path = "%s%s" % (
-            re.sub(frame_pattern, "*", root),
-            ext,
-        )
+        glob_path = "%s%s" % (re.sub(frame_pattern, "*", root), ext,)
         files = glob.glob(glob_path)
 
         # Our pattern from above matches against the file root, so we need
@@ -292,11 +319,11 @@ class NukeActions(HookBaseClass):
     def _find_sequence_range(self, path):
         """
         Helper method attempting to extract sequence information.
-        
-        Using the toolkit template system, the path will be probed to 
+
+        Using the toolkit template system, the path will be probed to
         check if it is a sequence, and if so, frame information is
         attempted to be extracted.
-        
+
         :param path: Path to file on disk.
         :returns: None if no range could be determined, otherwise (min, max)
         """
@@ -306,20 +333,20 @@ class NukeActions(HookBaseClass):
             template = self.parent.sgtk.template_from_path(path)
         except sgtk.TankError:
             pass
-        
+
         if not template:
-            # If we don't have a template to take advantage of, then 
+            # If we don't have a template to take advantage of, then
             # we are forced to do some rough parsing ourself to try
             # to determine the frame range.
             return self._sequence_range_from_path(path)
-            
+
         # get the fields and find all matching files:
         fields = template.get_fields(path)
         if not "SEQ" in fields:
             return None
-        
+
         files = self.parent.sgtk.paths_from_template(template, fields, ["SEQ", "eye"])
-        
+
         # find frame numbers from these files:
         frames = []
         for file in files:
@@ -329,10 +356,6 @@ class NukeActions(HookBaseClass):
                 frames.append(frame)
         if not frames:
             return None
-        
+
         # return the range
         return (min(frames), max(frames))
-
-
-
-

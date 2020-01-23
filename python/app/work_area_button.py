@@ -44,7 +44,7 @@ class WorkAreaButton(QtGui.QToolButton):
         "CutItem",
         "Delivery",
         "Playlist",
-        "Ticket"
+        "Ticket",
     ]
 
     change_work_area = QtCore.Signal(str, int)
@@ -62,7 +62,7 @@ class WorkAreaButton(QtGui.QToolButton):
         self._normal_icon.addPixmap(
             QtGui.QPixmap(":/tk_multi_infopanel/pin.png"),
             QtGui.QIcon.Normal,
-            QtGui.QIcon.Off
+            QtGui.QIcon.Off,
         )
 
         # an icon to represent the current work area
@@ -70,7 +70,7 @@ class WorkAreaButton(QtGui.QToolButton):
         self._current_work_area_icon.addPixmap(
             QtGui.QPixmap(":/tk_multi_infopanel/pin_blue.png"),
             QtGui.QIcon.Disabled,
-            QtGui.QIcon.Off
+            QtGui.QIcon.Off,
         )
         self.setIcon(self._normal_icon)
         self.setIconSize(QtCore.QSize(self.WIDGET_WIDTH_COLLAPSED, self.WIDGET_HEIGHT))
@@ -87,7 +87,6 @@ class WorkAreaButton(QtGui.QToolButton):
         self.clicked.connect(self._on_click)
 
         self.setVisible(False)
-
 
     def set_up(self, entity_type, entity_id):
         """
@@ -112,7 +111,11 @@ class WorkAreaButton(QtGui.QToolButton):
         self.setIcon(self._normal_icon)
         self._is_static = False
 
-        if context_entity and context_entity["type"] == entity_type and context_entity["id"] == entity_id:
+        if (
+            context_entity
+            and context_entity["type"] == entity_type
+            and context_entity["id"] == entity_id
+        ):
             # the current work area
             self.setPopupMode(QtGui.QToolButton.DelayedPopup)
             self.setToolTip(
@@ -151,8 +154,12 @@ class WorkAreaButton(QtGui.QToolButton):
         """
         self.setText("")
         self.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
-        self.setMinimumSize(QtCore.QSize(self.WIDGET_WIDTH_COLLAPSED, self.WIDGET_HEIGHT))
-        self.setMaximumSize(QtCore.QSize(self.WIDGET_WIDTH_COLLAPSED, self.WIDGET_HEIGHT))
+        self.setMinimumSize(
+            QtCore.QSize(self.WIDGET_WIDTH_COLLAPSED, self.WIDGET_HEIGHT)
+        )
+        self.setMaximumSize(
+            QtCore.QSize(self.WIDGET_WIDTH_COLLAPSED, self.WIDGET_HEIGHT)
+        )
         # tell the style sheet to adjust
         self.setProperty("is_expanded", False)
         self.style().unpolish(self)
@@ -245,7 +252,7 @@ class FloatingWorkAreaButton(WorkAreaButton):
         """
         self.move(
             self.parentWidget().width() - self.width() - self.RIGHT_OFFSET,
-            self.parentWidget().height() - self.height() - self.BOTTOM_OFFSET
+            self.parentWidget().height() - self.height() - self.BOTTOM_OFFSET,
         )
 
     def _init_default_state(self):
@@ -297,6 +304,7 @@ class ResizeEventFilter(QtCore.QObject):
     # event system
     self.ui.thumbnail.installEventFilter(filter)
     """
+
     resized = QtCore.Signal()
 
     def eventFilter(self, obj, event):

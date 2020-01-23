@@ -1,11 +1,11 @@
 # Copyright (c) 2015 Shotgun Software Inc.
-# 
+#
 # CONFIDENTIAL AND PROPRIETARY
-# 
-# This work is provided "AS IS" and subject to the Shotgun Pipeline Toolkit 
+#
+# This work is provided "AS IS" and subject to the Shotgun Pipeline Toolkit
 # Source Code License included in this distribution package. See LICENSE.
-# By accessing, using, copying or modifying this work you indicate your 
-# agreement to the Shotgun Pipeline Toolkit Source Code License. All rights 
+# By accessing, using, copying or modifying this work you indicate your
+# agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 # Metadata defining the behaviour and requirements for this engine
@@ -30,13 +30,13 @@ configuration:
         default_value_tk-nuke: "{self}/general_actions.py:{self}/{engine_name}_actions.py"
         default_value_tk-maya: "{self}/general_actions.py:{self}/{engine_name}_actions.py"
         description: Hook which contains all methods for action management.
-        
+
     action_mappings:
         type: dict
         description: Associates shotgun objects with actions. The actions are all defined
                      inside the actions hook, so a number of actions are available by default
                      and in addition to this you can add your own actions if you like.
-        default_value: 
+        default_value:
             Task:
                 - { actions: [assign_task, task_to_ip], filters: {} }
             Version:
@@ -53,10 +53,10 @@ configuration:
                 - { actions: [publish_clipboard], filters: {} }
                 - { actions: [read_node], filters: { published_file_type: Rendered Image} }
                 - { actions: [script_import], filters: { published_file_type: Nuke Script} }
-            
+
         default_value_tk-maya:
             Task:
-                - { actions: [assign_task, task_to_ip], filters: {} }    
+                - { actions: [assign_task, task_to_ip], filters: {} }
             Version:
                 - { actions: [quicktime_clipboard, sequence_clipboard, add_to_playlist], filters: {} }
             PublishedFile:
@@ -65,17 +65,17 @@ configuration:
                 - { actions: [texture_node], filters: { published_file_type: Rendered Image} }
                 - { actions: [texture_node], filters: { published_file_type: Photoshop Image} }
                 - { actions: [udim_texture_node], filters: { published_file_type: UDIM Image} }
-    
 
 
-# this app works in all engines - it does not contain 
+
+# this app works in all engines - it does not contain
 # any host application specific commands
-supported_engines: 
+supported_engines:
 
 # the Shotgun fields that this engine needs in order to operate correctly
 requires_shotgun_fields:
-        
-# More verbose description of this item 
+
+# More verbose description of this item
 display_name: "Shotgun Panel"
 description: "Panel UI with Shotgun information about your scene, yourself and the things around you."
 
@@ -88,4 +88,3 @@ requires_engine_version:
 frameworks:
     - {"name": "tk-framework-shotgunutils", "version": "v5.x.x", "minimum_version": "v5.2.0"}
     - {"name": "tk-framework-qtwidgets", "version": "v2.x.x", "minimum_version": "v2.6.0"}
-    
