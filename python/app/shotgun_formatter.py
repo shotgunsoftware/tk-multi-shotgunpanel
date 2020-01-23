@@ -147,7 +147,7 @@ class ShotgunTypeFormatter(object):
         try:
             # find all field names ["xx", "yy", "zz.xx"] from "{xx}_{yy}_{zz.xx}"
             raw_tokens = set(re.findall('{([^}^{]*)}', token_str))
-        except Exception, error:
+        except Exception as error:
             raise TankError("Could not parse '%s' - Error: %s" % (token_str, error) )
     
         fields = []

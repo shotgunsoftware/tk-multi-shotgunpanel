@@ -223,7 +223,7 @@ class ActionManager(QtCore.QObject):
             # refresh UI
             self.refresh_request.emit()
             
-        except Exception, e:
+        except Exception as e:
             self._app.log_exception("Could not execute execute_action hook.")
             QtGui.QMessageBox.critical(None, "Action Error", "Error: %s" % e)
         else:

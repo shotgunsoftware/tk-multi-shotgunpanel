@@ -210,7 +210,7 @@ class ShotgunPanelApp(Application):
         # start the UI
         try:
             widget = self.engine.show_panel(self._unique_panel_id, "Shotgun", self, app_payload.AppDialog)
-        except AttributeError, e:
+        except AttributeError as e:
             # just to gracefully handle older engines and older cores
             self.log_warning("Could not execute show_panel method - please upgrade "
                              "to latest core and engine! Falling back on show_dialog. "

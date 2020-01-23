@@ -390,7 +390,7 @@ class AppDialog(QtGui.QWidget):
             # shut down main threadpool
             self._task_manager.shut_down()                
 
-        except Exception, e:
+        except Exception as e:
             self._app.log_exception("Error running Shotgun Panel App closeEvent()")
                 
         # close splash
