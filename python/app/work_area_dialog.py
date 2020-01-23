@@ -12,13 +12,16 @@ import sgtk
 from sgtk.platform.qt import QtCore, QtGui
 from .ui.work_area_dialog import Ui_WorkAreaDialog
 
-shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
+shotgun_globals = sgtk.platform.import_framework(
+    "tk-framework-shotgunutils", "shotgun_globals"
+)
 
 
 class WorkAreaDialog(QtGui.QDialog):
     """
     Task selector and creator dialog
     """
+
     ENTITY_TYPE_ROLE = QtCore.Qt.UserRole + 1001
     ENTITY_ID_ROLE = QtCore.Qt.UserRole + 1002
 
@@ -42,15 +45,18 @@ class WorkAreaDialog(QtGui.QDialog):
 
         # find information about the main item
         main_item = self._bundle.shotgun.find_one(
-            entity_type,
-            [["id", "is", entity_id]],
-            ["code", "description"]
+            entity_type, [["id", "is", entity_id]], ["code", "description"]
         )
 
         if main_item.get("code"):
-            entity_name = "%s %s" % (shotgun_globals.get_type_display_name(entity_type), main_item.get("code"))
+            entity_name = "%s %s" % (
+                shotgun_globals.get_type_display_name(entity_type),
+                main_item.get("code"),
+            )
         else:
-            entity_name = "Unnamed %s" % shotgun_globals.get_type_display_name(entity_type)
+            entity_name = "Unnamed %s" % shotgun_globals.get_type_display_name(
+                entity_type
+            )
 
         # # insert main item
         # self._main_item = QtGui.QListWidgetItem(entity_name, self.ui.task_list)
@@ -65,7 +71,7 @@ class WorkAreaDialog(QtGui.QDialog):
         tasks = self._bundle.shotgun.find(
             "Task",
             [["entity", "is", {"type": entity_type, "id": entity_id}]],
-            ["content", "step", "sg_status_list", "task_assignees"]
+            ["content", "step", "sg_status_list", "task_assignees"],
         )
 
         # insert into list
@@ -73,7 +79,9 @@ class WorkAreaDialog(QtGui.QDialog):
             task_name = "Task %s on %s" % (task["content"], entity_name)
             # indicate users assigned
             if task["task_assignees"]:
-                task_name += " (%s)" % ", ".join([x["name"] for x in task["task_assignees"]])
+                task_name += " (%s)" % ", ".join(
+                    [x["name"] for x in task["task_assignees"]]
+                )
             task_item = QtGui.QListWidgetItem(task_name, self.ui.task_list)
             task_item.setData(self.ENTITY_TYPE_ROLE, task["type"])
             task_item.setData(self.ENTITY_ID_ROLE, task["id"])
@@ -97,9 +105,7 @@ class WorkAreaDialog(QtGui.QDialog):
 
         # find the steps for this entity type
         steps = self._bundle.shotgun.find(
-            "Step",
-            [["entity_type", "is", entity_type]],
-            ["code", "id"]
+            "Step", [["entity_type", "is", entity_type]], ["code", "id"]
         )
 
         # populate combo box
@@ -143,7 +149,7 @@ class WorkAreaDialog(QtGui.QDialog):
             current_item = self.ui.task_list.currentItem()
             return (
                 current_item.data(self.ENTITY_TYPE_ROLE),
-                current_item.data(self.ENTITY_ID_ROLE)
+                current_item.data(self.ENTITY_ID_ROLE),
             )
 
     def eventFilter(self, obj, event):
