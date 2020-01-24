@@ -320,7 +320,7 @@ class AppDialog(QtGui.QWidget):
         # now initialize all tabs. This will add two model and delegate keys
         # to all the dicts
 
-        for (idx, tab_dict) in self._detail_tabs.items():
+        for tab_dict in self._detail_tabs.values():
 
             ModelClass = tab_dict["model_class"]
             DelegateClass = tab_dict["delegate_class"]

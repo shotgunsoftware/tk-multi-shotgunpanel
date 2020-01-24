@@ -191,13 +191,13 @@ class ActionManager(QtCore.QObject):
         :param sg_data: Shotgun data directory
         """
         refresh = QtGui.QAction("Refresh", None)
-        refresh.triggered[()].connect(lambda _: self._refresh(sg_data))
+        refresh.triggered[()].connect(lambda: self._refresh(sg_data))
 
         view_in_sg = QtGui.QAction("View in Shotgun", None)
-        view_in_sg.triggered[()].connect(lambda _: self._show_in_sg(sg_data))
+        view_in_sg.triggered[()].connect(lambda: self._show_in_sg(sg_data))
 
         copy_url = QtGui.QAction("Copy Shotgun url to clipboard", None)
-        copy_url.triggered[()].connect(lambda _: self._copy_to_clipboard(sg_data))
+        copy_url.triggered[()].connect(lambda: self._copy_to_clipboard(sg_data))
 
         show_docs = QtGui.QAction("Documentation", None)
         show_docs.triggered[()].connect(self._show_docs)
