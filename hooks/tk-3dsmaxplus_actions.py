@@ -114,7 +114,7 @@ class MaxActions(HookBaseClass):
             path = self.get_publish_path(sg_data)
 
             # If this is an Alembic cache, then we can import that.
-            if name == "import":
+            if name == "merge" and path.lower().endswith(".abc"):
                 # Note that native Alembic support is only available in Max 2016+.
                 if (
                     app.engine._max_version_to_year(app.engine._get_max_version())
