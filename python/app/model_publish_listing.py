@@ -127,7 +127,10 @@ class SgLatestPublishListingModel(SgEntityListingModel):
                 if unique_key not in unique_data:
                     unique_data[unique_key] = sg_item
 
-            new_sg_data_list = unique_data.values()
+            # Make sure we get a list because the model is going to filter
+            # this list of entries in place and Python3's .values returns
+            # an iterator.
+            new_sg_data_list = list(unique_data.values())
 
         # now return this culled data set as our new set of shotgun data, now only
         # including the latest publishes
