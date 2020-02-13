@@ -189,7 +189,7 @@ class MayaActions(HookBaseClass):
             reference=True,
             loadReferenceDepth="all",
             mergeNamespacesOnClash=False,
-            namespace=namespace
+            namespace=namespace,
         )
 
     def _do_import(self, path, sg_publish_data):
