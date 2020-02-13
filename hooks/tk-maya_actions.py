@@ -11,7 +11,6 @@
 import glob
 import os
 import re
-import pymel.core as pm
 import maya.cmds as cmds
 import maya.mel as mel
 import sgtk
@@ -184,11 +183,13 @@ class MayaActions(HookBaseClass):
         )
         namespace = namespace.replace(" ", "_")
 
-        pm.system.createReference(
+        # Now create the reference object in Maya.
+        cmds.file(
             path,
+            reference=True,
             loadReferenceDepth="all",
             mergeNamespacesOnClash=False,
-            namespace=namespace,
+            namespace=namespace
         )
 
     def _do_import(self, path, sg_publish_data):
