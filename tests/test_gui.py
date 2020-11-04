@@ -117,7 +117,7 @@ def context():
         "step": model_pipeline_step,
         "task_template": asset_task_template,
     }
-    model_task = sg.create("Task", model_task_data)
+    sg.create("Task", model_task_data)
     # Get the Rig Pipeline step ID
     rig_pipeline_step_filter = [["code", "is", "Rig"]]
     rig_pipeline_step = sg.find_one("Step", rig_pipeline_step_filter)
@@ -169,8 +169,12 @@ def context():
     }
     version = sg.create("Version", version_data)
     # Upload a version to the published file
-    sg.upload('Version', version["id"], file_to_publish, 'sg_uploaded_movie')
+    sg.upload("Version", version["id"], file_to_publish, "sg_uploaded_movie")
     # Create a published file
+    # Find the model task to publish to
+    filters = [["project", "is", new_project], ["entity.Asset.code", "is", asset["code"]], ["step.Step.code", "is", "model"]]
+    fields = ["sg_status_list"]
+    model_task = sg.find_one("Task", filters, fields)
     publish_data = {
         "project": new_project,
         "code": "sven.png",
@@ -185,6 +189,13 @@ def context():
         "image": file_to_publish,
     }
     sg.create("PublishedFile", publish_data)
+
+    # Assign a task to the current user
+    # Find current user
+    user = get_toolkit_user()
+    current_user = sg.find_one("HumanUser", [["login", "is", str(user)]], ["name"])
+    # Assign current user to the task model
+    sg.update("Task", model_task["id"], {"content": "Model", "task_assignees": [{"type": "HumanUser", "id": current_user["id"]}]})
 
     return new_project
 
@@ -282,7 +293,7 @@ def test_ui_navigation(app_dialog):
     # My Tasks tab validation
     app_dialog.root.captions["Project Toolkit Panel UI Automation"].get().waitExist(timeout=30)
     assert app_dialog.root.tabs["My Tasks"].selected, "My Tasks tab should be selected by default"
-    assert app_dialog.root.listitems.exists() == False, "Should be no items found"
+    assert app_dialog.root.listitems.exists() == True, "Should be a model task in My Tasks"
     # import pdb;pdb.set_trace()
 
     # Publishes tab validation
