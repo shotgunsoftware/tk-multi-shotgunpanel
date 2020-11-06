@@ -548,10 +548,12 @@ def test_activity_notes_tabs(app_dialog):
 
     # Open the note item
     app_dialog.root.listitems.mouseDoubleClick()
-    app_dialog.root.captions["New note created by automation"].waitExist(timeout=30)
+    app_dialog.root.captions["Azure's Note on Toolkit Panel UI Automation"].waitExist(
+        timeout=30
+    )
     assert app_dialog.root.captions[
-        "Azure's Note on Toolkit Panel UI Automation"
-    ].exists(), "Not on the right Notes page Title"
+        "New note created by automation"
+    ].exists(), "New Note is missing"
     assert app_dialog.root.captions[
         "Note by Azure Pipelines*Written on*Addressed to: Azure Pipelines*Associated With:*Project Toolkit Panel UI Automation*"
     ].exists(), "Not the Notes details"
