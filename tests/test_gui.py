@@ -325,17 +325,11 @@ def test_my_tasks(app_dialog, assetTask):
     assert app_dialog.root.tabs[
         "My Tasks"
     ].selected, "My Tasks tab should be selected by default"
-    wait = time.time()
-    # Click on the home button util the task is showing up. Timeout after 60 seconds.
-    while wait + 60 > time.time():
-        if app_dialog.root.listitems.exists() is False:
-            app_dialog.root.buttons["Click to go to your work area"].mouseClick()
-        else:
-            break
+    app_dialog.root.listitems.waitExist(timeout=30)
     app_dialog.root.listitems.mouseDoubleClick()
 
     # Activity tab validatation
-    app_dialog.root.captions["Task Model"].waitExist(timeout=60)
+    app_dialog.root.captions["Task Model"].waitExist(timeout=30)
     assert app_dialog.root.tabs[
         "Activity"
     ].selected, "Activity tab should be selected by default"
