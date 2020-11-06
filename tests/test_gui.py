@@ -30,6 +30,7 @@ def credentials():
 
     return sg
 
+
 @pytest.fixture(scope="session")
 def context(credentials):
     # Toolkit Shotgun panel UI Automation project which we're going to use
@@ -108,7 +109,9 @@ def assetTask(context, credentials):
     credentials.create("Task", light_task_data)
     # Validate if Automation asset task template exists
     asset_template_filters = [["code", "is", "Automation Asset Task Template"]]
-    existed_asset_template = credentials.find_one("TaskTemplate", asset_template_filters)
+    existed_asset_template = credentials.find_one(
+        "TaskTemplate", asset_template_filters
+    )
     if existed_asset_template is not None:
         credentials.delete(existed_asset_template["type"], existed_asset_template["id"])
     # Create an asset task templates
@@ -163,7 +166,9 @@ def assetTask(context, credentials):
 
     # Get the publish_file_type id to be passed in the publish creation
     published_file_type_filters = [["code", "is", "Image"]]
-    published_file_type = credentials.find_one("PublishedFileType", published_file_type_filters)
+    published_file_type = credentials.find_one(
+        "PublishedFileType", published_file_type_filters
+    )
 
     # File to publish
     file_to_publish = os.path.join(
@@ -182,7 +187,11 @@ def assetTask(context, credentials):
     credentials.upload("Version", version["id"], file_to_publish, "sg_uploaded_movie")
     # Create a published file
     # Find the model task to publish to
-    filters = [["project", "is", context], ["entity.Asset.code", "is", asset["code"]], ["step.Step.code", "is", "model"]]
+    filters = [
+        ["project", "is", context],
+        ["entity.Asset.code", "is", asset["code"]],
+        ["step.Step.code", "is", "model"],
+    ]
     fields = ["sg_status_list"]
     model_task = credentials.find_one("Task", filters, fields)
     publish_data = {
@@ -203,9 +212,18 @@ def assetTask(context, credentials):
     # Assign a task to the current user
     # Find current user
     user = get_toolkit_user()
-    current_user = credentials.find_one("HumanUser", [["login", "is", str(user)]], ["name"])
+    current_user = credentials.find_one(
+        "HumanUser", [["login", "is", str(user)]], ["name"]
+    )
     # Assign current user to the task model
-    credentials.update("Task", model_task["id"], {"content": "Model", "task_assignees": [{"type": "HumanUser", "id": current_user["id"]}]})
+    credentials.update(
+        "Task",
+        model_task["id"],
+        {
+            "content": "Model",
+            "task_assignees": [{"type": "HumanUser", "id": current_user["id"]}],
+        },
+    )
 
     return (model_task, publish_file, version)
 
@@ -304,7 +322,9 @@ def test_my_tasks(app_dialog, assetTask):
     # Wait for the UI to show up and double click on the task
     app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
-    assert app_dialog.root.tabs["My Tasks"].selected, "My Tasks tab should be selected by default"
+    assert app_dialog.root.tabs[
+        "My Tasks"
+    ].selected, "My Tasks tab should be selected by default"
     wait = time.time()
     # Click on the home button util the task is showing up. Timeout after 30 seconds.
     while wait + 30 > time.time():
@@ -316,27 +336,49 @@ def test_my_tasks(app_dialog, assetTask):
 
     # Activity tab validatation
     app_dialog.root.captions["Task Model"].waitExist(timeout=30)
-    assert app_dialog.root.tabs["Activity"].selected, "Activity tab should be selected by default"
-    assert app_dialog.root.captions["Status: Waiting to Start*Asset AssetAutomation*Assigned to: Azure Pipelines"].exists(), "Not on the right task informations"
-    assert app_dialog.root.captions["Task Model was created on Asset AssetAutomation"].exists(), "Not the right task created on the right entity"
+    assert app_dialog.root.tabs[
+        "Activity"
+    ].selected, "Activity tab should be selected by default"
+    assert app_dialog.root.captions[
+        "Status: Waiting to Start*Asset AssetAutomation*Assigned to: Azure Pipelines"
+    ].exists(), "Not on the right task informations"
+    assert app_dialog.root.captions[
+        "Task Model was created on Asset AssetAutomation"
+    ].exists(), "Not the right task created on the right entity"
 
     # Notes tab validation
     app_dialog.root.tabs["Notes"].mouseClick()
-    app_dialog.root.captions["Notes associated with this Task, in update order."].waitExist(timeout=30)
-    assert app_dialog.root.listitems.exists() == False, "Should not have any notes for the task"
+    app_dialog.root.captions[
+        "Notes associated with this Task, in update order."
+    ].waitExist(timeout=30)
+    assert (
+        app_dialog.root.listitems.exists() == False
+    ), "Should not have any notes for the task"
 
     # Versions tab validation
     app_dialog.root.tabs["Versions"].mouseClick()
-    app_dialog.root.captions["Review versions for this Task, in creation order."].waitExist(timeout=30)
-    assert app_dialog.root.listitems.exists() == False, "Should not have any versions linked to the Model task"
-    assert app_dialog.root.checkboxes["Only show versions pending review"].checked == False, "Only show versions pending review should be unchecked by default"
+    app_dialog.root.captions[
+        "Review versions for this Task, in creation order."
+    ].waitExist(timeout=30)
+    assert (
+        app_dialog.root.listitems.exists() == False
+    ), "Should not have any versions linked to the Model task"
+    assert (
+        app_dialog.root.checkboxes["Only show versions pending review"].checked == False
+    ), "Only show versions pending review should be unchecked by default"
 
     # Publishes tab validation
     app_dialog.root.tabs["Publishes"].mouseClick()
-    app_dialog.root.captions["Publishes for this Task, in creation order."].waitExist(timeout=30)
+    app_dialog.root.captions["Publishes for this Task, in creation order."].waitExist(
+        timeout=30
+    )
     assert app_dialog.root.listitems.exists(), "Missing published file items"
-    assert app_dialog.root.checkboxes["Only show latest versions"].exists(), "Missing Only show latest versions checkbox"
-    assert app_dialog.root.checkboxes["Only show latest versions"].checked, "Only show latest versions should be checked by default"
+    assert app_dialog.root.checkboxes[
+        "Only show latest versions"
+    ].exists(), "Missing Only show latest versions checkbox"
+    assert app_dialog.root.checkboxes[
+        "Only show latest versions"
+    ].checked, "Only show latest versions should be checked by default"
 
     # Tasks tab validation
     app_dialog.root.tabs["Tasks"].mouseClick()
@@ -346,30 +388,64 @@ def test_my_tasks(app_dialog, assetTask):
     # Task Details tab validation
     app_dialog.root.tabs["Details"].mouseClick()
     app_dialog.root.captions["Bid"].waitExist(timeout=30)
-    assert app_dialog.root.captions["Assigned To"].exists(), "Asssigned To attribute is missing"
-    assert app_dialog.root.captions["Azure Pipelines"].exists(), "Not asssigned to the right user. Should be Azure Pipelines"
+    assert app_dialog.root.captions[
+        "Assigned To"
+    ].exists(), "Asssigned To attribute is missing"
+    assert app_dialog.root.captions[
+        "Azure Pipelines"
+    ].exists(), "Not asssigned to the right user. Should be Azure Pipelines"
     assert app_dialog.root.captions["Cc"].exists(), "Cc attribute is missing"
-    assert app_dialog.root.captions["Created by"].exists(), "Created by attribute is missing"
-    assert app_dialog.root.captions["Date Created"].exists(), "Date Created attribute is missing"
-    assert app_dialog.root.captions["Date Updated"].exists(), "Date Updated attribute is missing"
-    assert app_dialog.root.captions["Due Date"].exists(), "Due Date attribute is missing"
-    assert app_dialog.root.captions["Duration"].exists(), "Duration attribute is missing"
+    assert app_dialog.root.captions[
+        "Created by"
+    ].exists(), "Created by attribute is missing"
+    assert app_dialog.root.captions[
+        "Date Created"
+    ].exists(), "Date Created attribute is missing"
+    assert app_dialog.root.captions[
+        "Date Updated"
+    ].exists(), "Date Updated attribute is missing"
+    assert app_dialog.root.captions[
+        "Due Date"
+    ].exists(), "Due Date attribute is missing"
+    assert app_dialog.root.captions[
+        "Duration"
+    ].exists(), "Duration attribute is missing"
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
-    assert app_dialog.root.captions[str(assetTask[0]["id"])].exists(), "Not getting the right id for Model task"
+    assert app_dialog.root.captions[
+        str(assetTask[0]["id"])
+    ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions["Link"].exists(), "Link attribute is missing"
-    assert app_dialog.root.captions["AssetAutomation"].exists(), "Not linked to the right entity. Should be AssetAutomation"
-    assert app_dialog.root.captions["Pipeline Step"].exists(), "Pipeline Step attribute is missing"
-    assert app_dialog.root.captions["Model"].exists(), "Wrong pipeline step. SHould be Model"
+    assert app_dialog.root.captions[
+        "AssetAutomation"
+    ].exists(), "Not linked to the right entity. Should be AssetAutomation"
+    assert app_dialog.root.captions[
+        "Pipeline Step"
+    ].exists(), "Pipeline Step attribute is missing"
+    assert app_dialog.root.captions[
+        "Model"
+    ].exists(), "Wrong pipeline step. SHould be Model"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
-    assert app_dialog.root.captions["Toolkit Panel UI Automation"].exists(), "Wrong project. Should be Toolkit Panel UI Automation"
-    assert app_dialog.root.captions["Start Date"].exists(), "Start Date attribute is missing"
+    assert app_dialog.root.captions[
+        "Toolkit Panel UI Automation"
+    ].exists(), "Wrong project. Should be Toolkit Panel UI Automation"
+    assert app_dialog.root.captions[
+        "Start Date"
+    ].exists(), "Start Date attribute is missing"
     assert app_dialog.root.captions["Status"].exists(), "Status attribute is missing"
-    assert app_dialog.root.captions["Waiting to Start"].exists(), "Bad status. Should be Waiting to Start"
-    assert app_dialog.root.captions["Task Name"].exists(), "Task Name attribute is missing"
+    assert app_dialog.root.captions[
+        "Waiting to Start"
+    ].exists(), "Bad status. Should be Waiting to Start"
+    assert app_dialog.root.captions[
+        "Task Name"
+    ].exists(), "Task Name attribute is missing"
     assert app_dialog.root.captions["Type"].exists(), "Type attribute is missing"
     assert app_dialog.root.captions["Task"].exists(), "Wrong type. Should be Task type"
-    assert app_dialog.root.captions["Updated by"].exists(), "Updated by attribute is missing"
-    assert app_dialog.root.captions["tag_list"].exists(), "tag_list attribute is missing"
+    assert app_dialog.root.captions[
+        "Updated by"
+    ].exists(), "Updated by attribute is missing"
+    assert app_dialog.root.captions[
+        "tag_list"
+    ].exists(), "tag_list attribute is missing"
 
     # Go back to the default work area
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -416,7 +492,9 @@ def test_activity_notes_tabs(app_dialog):
     app_dialog.root.captions["Reply to this Note"].waitExist(timeout=30)
 
     # Validate the Note gets created
-    assert app_dialog.root.captions["New note created by automation"].exists(), "New note wasn't created"
+    assert app_dialog.root.captions[
+        "New note created by automation"
+    ].exists(), "New note wasn't created"
     assert app_dialog.root.captions[
         "Reply to this Note"
     ].exists(), "New note wasn't created"
@@ -451,7 +529,9 @@ def test_activity_notes_tabs(app_dialog):
     ].exists(), "Sequence seq_001 creation is missing in the activity stream"
     assert app_dialog.root.captions[
         "Project Toolkit Panel UI Automation was created"
-    ].exists(), "Project Toolkit Panel UI Automation creation is missing in the activity stream"
+    ].exists(), (
+        "Project Toolkit Panel UI Automation creation is missing in the activity stream"
+    )
     assert app_dialog.root.buttons[
         "Click here to see the Activity stream in Shotgun."
     ].exists(), "Hyperlink to see the Activity Stream in Shotgun is missing"
@@ -461,7 +541,9 @@ def test_activity_notes_tabs(app_dialog):
     assert app_dialog.root.tabs["Notes"].selected, "Notes tab should be selected"
 
     # Notes tab validation
-    app_dialog.root.captions["All notes for this project, in update order."].waitExist(timeout=30)
+    app_dialog.root.captions["All notes for this project, in update order."].waitExist(
+        timeout=30
+    )
     assert app_dialog.root.listitems.exists(), "Should have a note created"
 
     # Open the note item
@@ -479,18 +561,18 @@ def test_activity_notes_tabs(app_dialog):
     app_dialog.root.dialogs["Reply"].waitExist(timeout=30)
 
     # Validate that all buttons are available
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Cancel"
-    ].exists(), "Cancel buttons is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Attach Files"
-    ].exists(), "Attach Screenshot buttons is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Take Screenshot"
-    ].exists(), "Take Screenshot buttons is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Create Note"
-    ].exists(), "Create Note buttons is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Cancel"].exists()
+    ), "Cancel buttons is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Attach Files"].exists()
+    ), "Attach Screenshot buttons is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Take Screenshot"].exists()
+    ), "Take Screenshot buttons is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Create Note"].exists()
+    ), "Create Note buttons is not showing up"
 
     # Validate that the File browser is showing up after clicking on the Files to attach button then close it
     app_dialog.root.dialogs["Reply"].buttons["Attach Files"].mouseClick()
@@ -516,16 +598,18 @@ def test_activity_notes_tabs(app_dialog):
     )
 
     # Validate that all buttons are available
-    assert app_dialog.root.dialogs["Reply"].buttons["Cancel"].exists(), "Cancel button is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "add_button"
-    ].exists(), "Add attachments button is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "remove_button"
-    ].exists(), "Remove attachments button is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Create Note"
-    ].exists(), "Create Note button is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Cancel"].exists()
+    ), "Cancel button is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["add_button"].exists()
+    ), "Add attachments button is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["remove_button"].exists()
+    ), "Remove attachments button is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Create Note"].exists()
+    ), "Create Note button is not showing up"
     app_dialog.root.dialogs["Reply"].buttons["Create Note"].mouseClick()
 
     # Take a screenshot
@@ -542,10 +626,14 @@ def test_activity_notes_tabs(app_dialog):
 
     # Validate the note gets created
     app_dialog.root.buttons["Click to go back"].mouseClick()
-    app_dialog.root.captions["All notes for this project, in update order."].waitExist(timeout=30)
+    app_dialog.root.captions["All notes for this project, in update order."].waitExist(
+        timeout=30
+    )
     app_dialog.root.tabs["Activity"].mouseClick()
-    assert app_dialog.root.captions["New Reply"].exists(), "Reply Note is missing in the activity stream"
- 
+    assert app_dialog.root.captions[
+        "New Reply"
+    ].exists(), "Reply Note is missing in the activity stream"
+
     # Go back to the default work area
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
@@ -560,15 +648,27 @@ def test_versions_tab(app_dialog, assetTask):
     app_dialog.root.tabs["Versions"].mouseClick()
     assert app_dialog.root.tabs["Versions"].selected, "Versions tab should be selected"
     app_dialog.root.listitems.waitExist(timeout=30)
-    assert app_dialog.root.checkboxes["Only show versions pending review"].checked == False, "Only show versions pending review should be unchecked by default"
+    assert (
+        app_dialog.root.checkboxes["Only show versions pending review"].checked == False
+    ), "Only show versions pending review should be unchecked by default"
 
     # Open the version
     app_dialog.root.listitems.mouseDoubleClick()
-    app_dialog.root.captions["This version was created by the Panel UI automation"].waitExist(timeout=30)
-    assert app_dialog.root.tabs["Activity"].selected, "Activity tab should be selected by default"
-    assert app_dialog.root.captions["sven.png"].exists(), "Breadcrumb isn't at the right location. Should be sven.png"
-    assert app_dialog.root.captions["Version sven.png was created on Asset AssetAutomation"].exists(), "Version info is missing"
-    assert app_dialog.root.captions["Asset AssetAutomation*Status:*Pending Review*Created by Azure Pipelines on*Comments: This version was created by the Panel UI automation*"].exists(), "Version info is missing or wrong"
+    app_dialog.root.captions[
+        "This version was created by the Panel UI automation"
+    ].waitExist(timeout=30)
+    assert app_dialog.root.tabs[
+        "Activity"
+    ].selected, "Activity tab should be selected by default"
+    assert app_dialog.root.captions[
+        "sven.png"
+    ].exists(), "Breadcrumb isn't at the right location. Should be sven.png"
+    assert app_dialog.root.captions[
+        "Version sven.png was created on Asset AssetAutomation"
+    ].exists(), "Version info is missing"
+    assert app_dialog.root.captions[
+        "Asset AssetAutomation*Status:*Pending Review*Created by Azure Pipelines on*Comments: This version was created by the Panel UI automation*"
+    ].exists(), "Version info is missing or wrong"
 
     # Create a note on the version
     app_dialog.root.captions["Click to create a new note..."].mouseClick()
@@ -582,14 +682,20 @@ def test_versions_tab(app_dialog, assetTask):
 
     # Open the Note and make sure breadcrumb is good
     app_dialog.root.listitems.mouseDoubleClick()
-    app_dialog.root.captions["Azure's Note on sven.png, AssetAutomation"].waitExist(timeout=30)
+    app_dialog.root.captions["Azure's Note on sven.png, AssetAutomation"].waitExist(
+        timeout=30
+    )
     # Go back to the Note page and make sure breadcrumb is good
     app_dialog.root.buttons["Click to go back"].mouseClick()
     app_dialog.root.captions["sven.png"].waitExist(timeout=30)
     # Click back again and make sure the Versions tab is selected
     app_dialog.root.buttons["Click to go back"].mouseClick()
-    app_dialog.root.captions["Project Toolkit Panel UI Automation"].waitExist(timeout=30)
-    assert app_dialog.root.tabs["Versions"].selected, "Activity tab should be selected by default"
+    app_dialog.root.captions["Project Toolkit Panel UI Automation"].waitExist(
+        timeout=30
+    )
+    assert app_dialog.root.tabs[
+        "Versions"
+    ].selected, "Activity tab should be selected by default"
 
     # Re-select the version item
     app_dialog.root.listitems.mouseDoubleClick()
@@ -603,42 +709,102 @@ def test_versions_tab(app_dialog, assetTask):
     app_dialog.root.tabs["Details"].mouseClick()
     app_dialog.root.captions["Cuts"].waitExist(timeout=30)
     assert app_dialog.root.captions["Artist"].exists(), "Artist attribute is missing"
-    assert app_dialog.root.captions["Azure Pipelines"].exists(), "Not asssigned to the right artist. Should be Azure Pipelines"
-    assert app_dialog.root.captions["Client Approved"].exists(), "Client Approved attribute is missing"
-    assert app_dialog.root.captions["False"].exists(), "Wrong client approved value. Should be False"
-    assert app_dialog.root.captions["Client Approved at"].exists(), "Client Approved at attribute is missing"
-    assert app_dialog.root.captions["Client Approved by"].exists(), "Client Approved by attribute is missing"
-    assert app_dialog.root.captions["Created by"].exists(), "Created by attribute is missing"
-    assert app_dialog.root.captions["Date Created"].exists(), "Date Created attribute is missing"
-    assert app_dialog.root.captions["Date Updated"].exists(), "Date Updated attribute is missing"
-    assert app_dialog.root.captions["Department"].exists(), "Department attribute is missing"
-    assert app_dialog.root.captions["Description"].exists(), "Description attribute is missing"
-    assert app_dialog.root.captions["This version was created by the Panel UI automation"].exists(), "Wrong description."
-    assert app_dialog.root.captions["First Frame"].exists(), "First Frame attribute is missing"
-    assert app_dialog.root.captions["Frame Count"].exists(), "Frame Count attribute is missing"
-    assert app_dialog.root.captions["Frame Range"].exists(), "Frame Range attribute is missing"
-    assert app_dialog.root.captions["Frame Rate"].exists(), "Frame Rate attribute is missing"
+    assert app_dialog.root.captions[
+        "Azure Pipelines"
+    ].exists(), "Not asssigned to the right artist. Should be Azure Pipelines"
+    assert app_dialog.root.captions[
+        "Client Approved"
+    ].exists(), "Client Approved attribute is missing"
+    assert app_dialog.root.captions[
+        "False"
+    ].exists(), "Wrong client approved value. Should be False"
+    assert app_dialog.root.captions[
+        "Client Approved at"
+    ].exists(), "Client Approved at attribute is missing"
+    assert app_dialog.root.captions[
+        "Client Approved by"
+    ].exists(), "Client Approved by attribute is missing"
+    assert app_dialog.root.captions[
+        "Created by"
+    ].exists(), "Created by attribute is missing"
+    assert app_dialog.root.captions[
+        "Date Created"
+    ].exists(), "Date Created attribute is missing"
+    assert app_dialog.root.captions[
+        "Date Updated"
+    ].exists(), "Date Updated attribute is missing"
+    assert app_dialog.root.captions[
+        "Department"
+    ].exists(), "Department attribute is missing"
+    assert app_dialog.root.captions[
+        "Description"
+    ].exists(), "Description attribute is missing"
+    assert app_dialog.root.captions[
+        "This version was created by the Panel UI automation"
+    ].exists(), "Wrong description."
+    assert app_dialog.root.captions[
+        "First Frame"
+    ].exists(), "First Frame attribute is missing"
+    assert app_dialog.root.captions[
+        "Frame Count"
+    ].exists(), "Frame Count attribute is missing"
+    assert app_dialog.root.captions[
+        "Frame Range"
+    ].exists(), "Frame Range attribute is missing"
+    assert app_dialog.root.captions[
+        "Frame Rate"
+    ].exists(), "Frame Rate attribute is missing"
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
-    assert app_dialog.root.captions[str(assetTask[2]["id"])].exists(), "Not getting the right id for Model task"
-    assert app_dialog.root.captions["Last Frame"].exists(), "Last Frame attribute is missing"
+    assert app_dialog.root.captions[
+        str(assetTask[2]["id"])
+    ].exists(), "Not getting the right id for Model task"
+    assert app_dialog.root.captions[
+        "Last Frame"
+    ].exists(), "Last Frame attribute is missing"
     assert app_dialog.root.captions["Link"].exists(), "Link attribute is missing"
-    assert app_dialog.root.captions["AssetAutomation"].exists(), "Not linked to the right entity. Should be AssetAutomation"
-    assert app_dialog.root.captions["Path to Frames"].exists(), "Path to Frames attribute is missing"
-    assert app_dialog.root.captions["Path to Geometry"].exists(), "Path to Geometry attribute is missing"
-    assert app_dialog.root.captions["Path to Movie"].exists(), "Path to Movie attribute is missing"
-    assert app_dialog.root.captions["Playlists"].exists(), "Playlists attribute is missing"
+    assert app_dialog.root.captions[
+        "AssetAutomation"
+    ].exists(), "Not linked to the right entity. Should be AssetAutomation"
+    assert app_dialog.root.captions[
+        "Path to Frames"
+    ].exists(), "Path to Frames attribute is missing"
+    assert app_dialog.root.captions[
+        "Path to Geometry"
+    ].exists(), "Path to Geometry attribute is missing"
+    assert app_dialog.root.captions[
+        "Path to Movie"
+    ].exists(), "Path to Movie attribute is missing"
+    assert app_dialog.root.captions[
+        "Playlists"
+    ].exists(), "Playlists attribute is missing"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
-    assert app_dialog.root.captions["Toolkit Panel UI Automation"].exists(), "Wrong project. Should be Toolkit Panel UI Automation"
-    assert app_dialog.root.captions["Published Files"].exists(), "Published Files attribute is missing"
+    assert app_dialog.root.captions[
+        "Toolkit Panel UI Automation"
+    ].exists(), "Wrong project. Should be Toolkit Panel UI Automation"
+    assert app_dialog.root.captions[
+        "Published Files"
+    ].exists(), "Published Files attribute is missing"
     assert app_dialog.root.captions["Status"].exists(), "Status attribute is missing"
-    assert app_dialog.root.captions["*Pending Review"].exists(), "Bad status. Should be Pending Review"
+    assert app_dialog.root.captions[
+        "*Pending Review"
+    ].exists(), "Bad status. Should be Pending Review"
     assert app_dialog.root.captions["Task"].exists(), "Task attribute is missing"
     assert app_dialog.root.captions["Type"].exists(), "Type attribute is missing"
-    assert app_dialog.root.captions["Version"].exists(), "Wrong type. Should be Version type"
-    assert app_dialog.root.captions["Updated by"].exists(), "Updated by attribute is missing"
-    assert app_dialog.root.captions["Version Name"].exists(), "Version Name attribute is missing"
-    assert app_dialog.root.captions["sven.png"].exists(), "Wrong version name. Should be sven.png"
-    assert app_dialog.root.captions["tag_list"].exists(), "tag_list attribute is missing"
+    assert app_dialog.root.captions[
+        "Version"
+    ].exists(), "Wrong type. Should be Version type"
+    assert app_dialog.root.captions[
+        "Updated by"
+    ].exists(), "Updated by attribute is missing"
+    assert app_dialog.root.captions[
+        "Version Name"
+    ].exists(), "Version Name attribute is missing"
+    assert app_dialog.root.captions[
+        "sven.png"
+    ].exists(), "Wrong version name. Should be sven.png"
+    assert app_dialog.root.captions[
+        "tag_list"
+    ].exists(), "tag_list attribute is missing"
 
     # Go back to the default work area
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -652,59 +818,109 @@ def test_publishes_tab(app_dialog, assetTask):
 
     # Click on the Publishes tab
     app_dialog.root.tabs["Publishes"].mouseClick()
-    assert app_dialog.root.tabs["Publishes"].selected, "Publishes tab should be selected"
+    assert app_dialog.root.tabs[
+        "Publishes"
+    ].selected, "Publishes tab should be selected"
     app_dialog.root.listitems.waitExist(timeout=30)
-    assert app_dialog.root.checkboxes["Only show latest versions"].checked, "Only show latest versions should be checked by default"
+    assert app_dialog.root.checkboxes[
+        "Only show latest versions"
+    ].checked, "Only show latest versions should be checked by default"
 
     # Open the published file
     app_dialog.root.listitems.mouseDoubleClick()
-    app_dialog.root.captions["The version history for this publish."].waitExist(timeout=30)
-    assert app_dialog.root.tabs["Version History"].selected, "Version History tab should be selected by default"
-    assert app_dialog.root.captions["sven.png"].exists(), "Published file name is missing or wrong"
-    assert app_dialog.root.captions["Image, Version 1*For Asset AssetAutomation, Task Model*Created by Azure Pipelines on*Reviewed here: sven.png*Comments:*This file was published by the Panel UI automation*"].exists(), "Version info is missing or wrong"
+    app_dialog.root.captions["The version history for this publish."].waitExist(
+        timeout=30
+    )
+    assert app_dialog.root.tabs[
+        "Version History"
+    ].selected, "Version History tab should be selected by default"
+    assert app_dialog.root.captions[
+        "sven.png"
+    ].exists(), "Published file name is missing or wrong"
+    assert app_dialog.root.captions[
+        "Image, Version 1*For Asset AssetAutomation, Task Model*Created by Azure Pipelines on*Reviewed here: sven.png*Comments:*This file was published by the Panel UI automation*"
+    ].exists(), "Version info is missing or wrong"
 
     # Click on the Uses tab and list item should be empty
     app_dialog.root.tabs["Uses"].mouseClick()
-    assert app_dialog.root.listitems.exists() == False, "Should not have any publishes listed"
+    assert (
+        app_dialog.root.listitems.exists() == False
+    ), "Should not have any publishes listed"
 
     # Click on the Used By tab and list item should be empty
     app_dialog.root.tabs["Used By"].mouseClick()
-    assert app_dialog.root.listitems.exists() == False, "Should not have any publishes listed"
+    assert (
+        app_dialog.root.listitems.exists() == False
+    ), "Should not have any publishes listed"
 
     # Publish's Details tab validation
     app_dialog.root.tabs["Details"].mouseClick()
     app_dialog.root.captions["tag_list"].waitExist(timeout=30)
-    assert app_dialog.root.captions["Created by"].exists(), "Created by attribute is missing"
-    assert app_dialog.root.captions["Azure Pipelines"].exists(), "Not asssigned to the right artist. Should be Azure Pipelines"
-    assert app_dialog.root.captions["Date Created"].exists(), "Date Created attribute is missing"
-    assert app_dialog.root.captions["Date Updated"].exists(), "Date Updated attribute is missing"
-    assert app_dialog.root.captions["Description"].exists(), "Description attribute is missing"
-    assert app_dialog.root.captions["This file was published by the Panel UI automation"].exists(), "Missing or wrong description."
+    assert app_dialog.root.captions[
+        "Created by"
+    ].exists(), "Created by attribute is missing"
+    assert app_dialog.root.captions[
+        "Azure Pipelines"
+    ].exists(), "Not asssigned to the right artist. Should be Azure Pipelines"
+    assert app_dialog.root.captions[
+        "Date Created"
+    ].exists(), "Date Created attribute is missing"
+    assert app_dialog.root.captions[
+        "Date Updated"
+    ].exists(), "Date Updated attribute is missing"
+    assert app_dialog.root.captions[
+        "Description"
+    ].exists(), "Description attribute is missing"
+    assert app_dialog.root.captions[
+        "This file was published by the Panel UI automation"
+    ].exists(), "Missing or wrong description."
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
-    assert app_dialog.root.captions[str(assetTask[1]["id"])].exists(), "Not getting the right id for Model task"
+    assert app_dialog.root.captions[
+        str(assetTask[1]["id"])
+    ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions["Link"].exists(), "Link attribute is missing"
-    assert app_dialog.root.captions["AssetAutomation"].exists(), "Not linked to the right entity. Should be AssetAutomation"
+    assert app_dialog.root.captions[
+        "AssetAutomation"
+    ].exists(), "Not linked to the right entity. Should be AssetAutomation"
     assert app_dialog.root.captions["Name"].exists(), "Name attribute is missing"
-    assert app_dialog.root.captions["sven.png"].exists(), "Wrong published file name. Should be sven.png"
+    assert app_dialog.root.captions[
+        "sven.png"
+    ].exists(), "Wrong published file name. Should be sven.png"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
-    assert app_dialog.root.captions["Toolkit Panel UI Automation"].exists(), "Wrong project. Should be Toolkit Panel UI Automation"
-    assert app_dialog.root.captions["Published File Name"].exists(), "Published File Name attribute is missing"
-    assert app_dialog.root.captions["Published File Type"].exists(), "Published File Type attribute is missing"
-    assert app_dialog.root.captions["Image"].exists(), "Wrong published file type, Should be Image."
+    assert app_dialog.root.captions[
+        "Toolkit Panel UI Automation"
+    ].exists(), "Wrong project. Should be Toolkit Panel UI Automation"
+    assert app_dialog.root.captions[
+        "Published File Name"
+    ].exists(), "Published File Name attribute is missing"
+    assert app_dialog.root.captions[
+        "Published File Type"
+    ].exists(), "Published File Type attribute is missing"
+    assert app_dialog.root.captions[
+        "Image"
+    ].exists(), "Wrong published file type, Should be Image."
     assert app_dialog.root.captions["Status"].exists(), "Status attribute is missing"
-    assert app_dialog.root.captions["Waiting to Start"].exists(), "Bad status. Should be Waiting to Start"
+    assert app_dialog.root.captions[
+        "Waiting to Start"
+    ].exists(), "Bad status. Should be Waiting to Start"
     assert app_dialog.root.captions["Task"].exists(), "Task attribute is missing"
     assert app_dialog.root.captions["Model"].exists(), "Wrong task, Should be Model."
     assert app_dialog.root.captions["Type"].exists(), "Type attribute is missing"
-    assert app_dialog.root.captions["PublishedFile"].exists(), "Wrong type, Should be PublishedFile."
-    assert app_dialog.root.captions["Updated by"].exists(), "Updated by attribute is missing"
+    assert app_dialog.root.captions[
+        "PublishedFile"
+    ].exists(), "Wrong type, Should be PublishedFile."
+    assert app_dialog.root.captions[
+        "Updated by"
+    ].exists(), "Updated by attribute is missing"
     assert app_dialog.root.captions["Version"].exists(), "Version attribute is missing"
-    assert app_dialog.root.captions["Version Number"].exists(), "Wrong type. Should be Version type"
+    assert app_dialog.root.captions[
+        "Version Number"
+    ].exists(), "Wrong type. Should be Version type"
     assert app_dialog.root.captions["1"].exists(), "Wrong version number. Should be 1"
 
     # Go back to the default work area
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
-    
+
 
 def test_search(app_dialog):
     # Search validation
