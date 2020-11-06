@@ -328,7 +328,7 @@ def test_my_tasks(app_dialog, assetTask):
     wait = time.time()
     # Click on the home button util the task is showing up. Timeout after 30 seconds.
     while wait + 30 > time.time():
-        if app_dialog.root.listitems.exists() == False:
+        if app_dialog.root.listitems.exists() is False:
             app_dialog.root.buttons["Click to go to your work area"].mouseClick()
         else:
             break
@@ -352,7 +352,7 @@ def test_my_tasks(app_dialog, assetTask):
         "Notes associated with this Task, in update order."
     ].waitExist(timeout=30)
     assert (
-        app_dialog.root.listitems.exists() == False
+        app_dialog.root.listitems.exists() is False
     ), "Should not have any notes for the task"
 
     # Versions tab validation
@@ -361,10 +361,10 @@ def test_my_tasks(app_dialog, assetTask):
         "Review versions for this Task, in creation order."
     ].waitExist(timeout=30)
     assert (
-        app_dialog.root.listitems.exists() == False
+        app_dialog.root.listitems.exists() is False
     ), "Should not have any versions linked to the Model task"
     assert (
-        app_dialog.root.checkboxes["Only show versions pending review"].checked == False
+        app_dialog.root.checkboxes["Only show versions pending review"].checked is False
     ), "Only show versions pending review should be unchecked by default"
 
     # Publishes tab validation
@@ -649,7 +649,7 @@ def test_versions_tab(app_dialog, assetTask):
     assert app_dialog.root.tabs["Versions"].selected, "Versions tab should be selected"
     app_dialog.root.listitems.waitExist(timeout=30)
     assert (
-        app_dialog.root.checkboxes["Only show versions pending review"].checked == False
+        app_dialog.root.checkboxes["Only show versions pending review"].checked is False
     ), "Only show versions pending review should be unchecked by default"
 
     # Open the version
@@ -844,13 +844,13 @@ def test_publishes_tab(app_dialog, assetTask):
     # Click on the Uses tab and list item should be empty
     app_dialog.root.tabs["Uses"].mouseClick()
     assert (
-        app_dialog.root.listitems.exists() == False
+        app_dialog.root.listitems.exists() is False
     ), "Should not have any publishes listed"
 
     # Click on the Used By tab and list item should be empty
     app_dialog.root.tabs["Used By"].mouseClick()
     assert (
-        app_dialog.root.listitems.exists() == False
+        app_dialog.root.listitems.exists() is False
     ), "Should not have any publishes listed"
 
     # Publish's Details tab validation
