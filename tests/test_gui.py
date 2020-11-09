@@ -319,17 +319,25 @@ class AppDialogAppWrapper(object):
 
 def test_my_tasks(app_dialog, assetTask):
     # My Tasks tab validation
-    # Wait for the UI to show up and double click on the task
+    # Wait for the UI to show up, click on the home button and make sure My Tasks tab is selected by default
     app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
     assert app_dialog.root.tabs[
         "My Tasks"
     ].selected, "My Tasks tab should be selected by default"
+    # Wait for the task item to show up and then double click on it
     app_dialog.root.listitems.waitExist(timeout=30)
-    app_dialog.root.listitems.mouseDoubleClick()
+    wait = time.time()
+    # This while loop is to make sure the double click on the task switch the current context successfully
+    while wait + 30 > time.time():
+        if app_dialog.root.captions["Task Model"].exists() is False:
+            app_dialog.root.listitems.mouseDoubleClick()
+            time.sleep(2)
+        else:
+            break
 
     # Activity tab validatation
-    app_dialog.root.captions["Task Model"].waitExist(timeout=30)
+    assert app_dialog.root.captions["Task Model"].exists(), "Not on the right context"
     assert app_dialog.root.tabs[
         "Activity"
     ].selected, "Activity tab should be selected by default"
@@ -363,10 +371,11 @@ def test_my_tasks(app_dialog, assetTask):
 
     # Publishes tab validation
     app_dialog.root.tabs["Publishes"].mouseClick()
+    app_dialog.root.listitems.waitExist(timeout=30)
     app_dialog.root.captions["Publishes for this Task, in creation order."].waitExist(
         timeout=30
     )
-    assert app_dialog.root.listitems.exists(), "Missing published file items"
+    app_dialog.root.listitems.waitExist(timeout=30)
     assert app_dialog.root.checkboxes[
         "Only show latest versions"
     ].exists(), "Missing Only show latest versions checkbox"
@@ -377,7 +386,7 @@ def test_my_tasks(app_dialog, assetTask):
     # Tasks tab validation
     app_dialog.root.tabs["Tasks"].mouseClick()
     app_dialog.root.captions["All tasks for this Task."].waitExist(timeout=30)
-    assert app_dialog.root.listitems.exists(), "Missing tasks list items"
+    app_dialog.root.listitems.waitExist(timeout=30)
 
     # Task Details tab validation
     app_dialog.root.tabs["Details"].mouseClick()
@@ -538,9 +547,9 @@ def test_activity_notes_tabs(app_dialog):
     app_dialog.root.captions["All notes for this project, in update order."].waitExist(
         timeout=30
     )
-    assert app_dialog.root.listitems.exists(), "Should have a note created"
 
     # Open the note item
+    app_dialog.root.listitems.waitExist(timeout=30)
     app_dialog.root.listitems.mouseDoubleClick()
     app_dialog.root.captions["Azure's Note on Toolkit Panel UI Automation"].waitExist(
         timeout=30
@@ -626,9 +635,7 @@ def test_activity_notes_tabs(app_dialog):
         timeout=30
     )
     app_dialog.root.tabs["Activity"].mouseClick()
-    assert app_dialog.root.captions[
-        "New Reply"
-    ].exists(), "Reply Note is missing in the activity stream"
+    app_dialog.root.captions["New Reply"].waitExist(timeout=30)
 
     # Go back to the default work area
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -656,9 +663,7 @@ def test_versions_tab(app_dialog, assetTask):
     assert app_dialog.root.tabs[
         "Activity"
     ].selected, "Activity tab should be selected by default"
-    assert app_dialog.root.captions[
-        "sven.png"
-    ].exists(), "Breadcrumb isn't at the right location. Should be sven.png"
+    app_dialog.root.captions["sven.png"].waitExist(timeout=30)
     assert app_dialog.root.captions[
         "Version sven.png was created on Asset AssetAutomation"
     ].exists(), "Version info is missing"
@@ -830,9 +835,7 @@ def test_publishes_tab(app_dialog, assetTask):
     assert app_dialog.root.tabs[
         "Version History"
     ].selected, "Version History tab should be selected by default"
-    assert app_dialog.root.captions[
-        "sven.png"
-    ].exists(), "Published file name is missing or wrong"
+    app_dialog.root.captions["sven.png"].waitExist()
     assert app_dialog.root.captions[
         "Image, Version 1*For Asset AssetAutomation, Task Model*Created by Azure Pipelines on*Reviewed here: sven.png*Comments:*This file was published by the Panel UI automation*"
     ].exists(), "Version info is missing or wrong"
@@ -930,9 +933,7 @@ def test_search(app_dialog):
 
     # Search for sven.png
     app_dialog.root.textfields.typeIn("sven.png")
-    assert topwindows.listitems[
-        "sven.png"
-    ].exists(), "sven.png isn't showing up in the search list."
+    topwindows.listitems["sven.png"].waitExist(timeout=30)
 
     # Clear the search text field
     app_dialog.root.textfields.buttons.mouseClick()
@@ -940,9 +941,7 @@ def test_search(app_dialog):
     # Do another search for asset
     app_dialog.root.textfields.mouseClick()
     app_dialog.root.textfields.typeIn("asset")
-    assert topwindows.listitems[
-        "AssetAutomation"
-    ].exists(), "AssetAutomation isn't showing up in the search list."
+    topwindows.listitems["AssetAutomation"].waitExist(timeout=30)
     assert topwindows.listitems[
         "Rig"
     ].exists(), "Rig isn't showing up in the search list."
@@ -959,9 +958,7 @@ def test_search(app_dialog):
     # Do another search with a value that has not match
     app_dialog.root.textfields.mouseClick()
     app_dialog.root.textfields.typeIn("popo")
-    assert topwindows.listitems[
-        "No matches found!"
-    ].exists(), "No matches found! isn't showing up in the search list."
+    topwindows.listitems["No matches found!"].waitExist(timeout=30)
 
     # Click on the search Cancel button
     app_dialog.root.buttons["Cancel"].mouseClick()
