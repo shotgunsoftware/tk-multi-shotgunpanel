@@ -67,46 +67,6 @@ def context(credentials):
 
 @pytest.fixture(scope="session")
 def assetTask(context, credentials):
-    # Create a Sequence to be used by the Shot creation
-    sequence_data = {
-        "project": {"type": context["type"], "id": context["id"]},
-        "code": "seq_001",
-        "sg_status_list": "ip",
-    }
-    new_sequence = credentials.create("Sequence", sequence_data)
-
-    # Validate if Automation shot task template exists
-    shot_template_filters = [["code", "is", "Automation Shot Task Template"]]
-    existed_shot_template = credentials.find_one("TaskTemplate", shot_template_filters)
-    if existed_shot_template is not None:
-        credentials.delete(existed_shot_template["type"], existed_shot_template["id"])
-    # Create a shot task templates
-    shot_template_data = {
-        "code": "Automation Shot Task Template",
-        "description": "This shot task template was created by the Panel UI automation",
-        "entity_type": "Shot",
-    }
-    shot_task_template = credentials.create("TaskTemplate", shot_template_data)
-    # Get the Comp Pipeline step ID
-    comp_pipeline_step_filter = [["code", "is", "Comp"]]
-    comp_pipeline_step = credentials.find_one("Step", comp_pipeline_step_filter)
-    # Create Comp task
-    comp_task_data = {
-        "content": "Comp",
-        "step": comp_pipeline_step,
-        "task_template": shot_task_template,
-    }
-    credentials.create("Task", comp_task_data)
-    # Get the Light Pipeline step ID
-    light_pipeline_step_filter = [["code", "is", "Light"]]
-    light_pipeline_step = credentials.find_one("Step", light_pipeline_step_filter)
-    # Create Light task
-    light_task_data = {
-        "content": "Light",
-        "step": light_pipeline_step,
-        "task_template": shot_task_template,
-    }
-    credentials.create("Task", light_task_data)
     # Validate if Automation asset task template exists
     asset_template_filters = [["code", "is", "Automation Asset Task Template"]]
     existed_asset_template = credentials.find_one(
@@ -141,17 +101,6 @@ def assetTask(context, credentials):
         "task_template": asset_task_template,
     }
     credentials.create("Task", rig_task_data)
-
-    # Create a new shot
-    shot_data = {
-        "project": context,
-        "sg_sequence": new_sequence,
-        "code": "shot_001",
-        "description": "This shot was created by the Panel UI automation",
-        "sg_status_list": "ip",
-        "task_template": shot_task_template,
-    }
-    credentials.create("Shot", shot_data)
 
     # Create a new asset
     asset_data = {
@@ -518,18 +467,6 @@ def test_activity_notes_tabs(app_dialog):
     assert app_dialog.root.captions[
         "Asset AssetAutomation was created"
     ].exists(), "Asset AssetAutomation creation is missing in the activity stream"
-    assert app_dialog.root.captions[
-        "Task Light was created on Shot shot_001"
-    ].exists(), "Task Light creation is missing in the activity stream"
-    assert app_dialog.root.captions[
-        "Task Comp was created on Shot shot_001"
-    ].exists(), "Task Comp creation is missing in the activity stream"
-    assert app_dialog.root.captions[
-        "Shot shot_001 was created"
-    ].exists(), "Shot shot_001 creation is missing in the activity stream"
-    assert app_dialog.root.captions[
-        "Sequence seq_001 was created"
-    ].exists(), "Sequence seq_001 creation is missing in the activity stream"
     assert app_dialog.root.captions[
         "Project Toolkit Panel UI Automation was created"
     ].exists(), (
