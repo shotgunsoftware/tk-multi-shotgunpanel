@@ -24,98 +24,94 @@ except ImportError:
 
 
 @pytest.fixture(scope="session")
-def credentials():
-    # Get credentials from TK_TOOLCHAIN
+def shotgun():
+    """
+    Getting credentials from TK_TOOLCHAIN
+    """
     sg = get_toolkit_user().create_sg_connection()
 
     return sg
 
 
 @pytest.fixture(scope="session")
-def context(credentials):
-    # Toolkit Shotgun panel UI Automation project which we're going to use
-    # in different test cases.
-
+def sg_project(shotgun):
+    """
+    Generates a fresh Shotgun Project to use with the Shotgun Panel UI Automation.
+    """
     # Create or update the integration_tests local storage with the current test run
     storage_name = "Panel UI Tests"
-    local_storage = credentials.find_one(
+    local_storage = shotgun.find_one(
         "LocalStorage", [["code", "is", storage_name]], ["code"]
     )
     if local_storage is None:
-        local_storage = credentials.create("LocalStorage", {"code": storage_name})
+        local_storage = shotgun.create("LocalStorage", {"code": storage_name})
     # Always update local storage path
     local_storage["path"] = os.path.expandvars("${SHOTGUN_CURRENT_REPO_ROOT}")
-    credentials.update(
+    shotgun.update(
         "LocalStorage", local_storage["id"], {"windows_path": local_storage["path"]}
     )
 
     # Make sure there is not already an automation project created
     filters = [["name", "is", "Toolkit Panel UI Automation"]]
-    existed_project = credentials.find_one("Project", filters)
+    existed_project = shotgun.find_one("Project", filters)
     if existed_project is not None:
-        credentials.delete(existed_project["type"], existed_project["id"])
+        shotgun.delete(existed_project["type"], existed_project["id"])
 
     # Create a new project with the Film VFX Template
     project_data = {
         "sg_description": "Project Created by Automation",
         "name": "Toolkit Panel UI Automation",
     }
-    new_project = credentials.create("Project", project_data)
+    new_project = shotgun.create("Project", project_data)
 
     return new_project
 
 
 @pytest.fixture(scope="session")
-def assetTask(context, credentials):
+def sg_entities(sg_project, shotgun):
+    """
+    Shotgun entities creation which we are going to use un different test cases
+    """
     # Validate if Automation asset task template exists
     asset_template_filters = [["code", "is", "Automation Asset Task Template"]]
-    existed_asset_template = credentials.find_one(
-        "TaskTemplate", asset_template_filters
-    )
+    existed_asset_template = shotgun.find_one("TaskTemplate", asset_template_filters)
     if existed_asset_template is not None:
-        credentials.delete(existed_asset_template["type"], existed_asset_template["id"])
+        shotgun.delete(existed_asset_template["type"], existed_asset_template["id"])
     # Create an asset task templates
     asset_template_data = {
         "code": "Automation Asset Task Template",
         "description": "This asset task template was created by the Panel UI automation",
         "entity_type": "Asset",
     }
-    asset_task_template = credentials.create("TaskTemplate", asset_template_data)
-    # Get the Model Pipeline step ID
-    model_pipeline_step_filter = [["code", "is", "Model"]]
-    model_pipeline_step = credentials.find_one("Step", model_pipeline_step_filter)
-    # Create Model task
-    model_task_data = {
-        "content": "Model",
-        "step": model_pipeline_step,
-        "task_template": asset_task_template,
-    }
-    credentials.create("Task", model_task_data)
-    # Get the Rig Pipeline step ID
-    rig_pipeline_step_filter = [["code", "is", "Rig"]]
-    rig_pipeline_step = credentials.find_one("Step", rig_pipeline_step_filter)
-    # Create Rig task
-    rig_task_data = {
-        "content": "Rig",
-        "step": rig_pipeline_step,
-        "task_template": asset_task_template,
-    }
-    credentials.create("Task", rig_task_data)
+    asset_task_template = shotgun.create("TaskTemplate", asset_template_data)
+
+    # Create Model and Rig tasks
+    for task_name in ["Model", "Rig"]:
+        # Get the Pipeline step task name
+        pipeline_step_filter = [["code", "is", task_name]]
+        pipeline_step = shotgun.find_one("Step", pipeline_step_filter)
+        # Create task
+        task_data = {
+            "content": task_name,
+            "step": pipeline_step,
+            "task_template": asset_task_template,
+        }
+        shotgun.create("Task", task_data)
 
     # Create a new asset
     asset_data = {
-        "project": context,
+        "project": sg_project,
         "code": "AssetAutomation",
         "description": "This asset was created by the Panel UI automation",
         "sg_status_list": "ip",
         "sg_asset_type": "Character",
         "task_template": asset_task_template,
     }
-    asset = credentials.create("Asset", asset_data)
+    asset = shotgun.create("Asset", asset_data)
 
     # Get the publish_file_type id to be passed in the publish creation
     published_file_type_filters = [["code", "is", "Image"]]
-    published_file_type = credentials.find_one(
+    published_file_type = shotgun.find_one(
         "PublishedFileType", published_file_type_filters
     )
 
@@ -126,25 +122,25 @@ def assetTask(context, credentials):
 
     # Create a version an upload to it
     version_data = {
-        "project": context,
+        "project": sg_project,
         "code": "sven.png",
         "description": "This version was created by the Panel UI automation",
         "entity": asset,
     }
-    version = credentials.create("Version", version_data)
+    version = shotgun.create("Version", version_data)
     # Upload a version to the published file
-    credentials.upload("Version", version["id"], file_to_publish, "sg_uploaded_movie")
+    shotgun.upload("Version", version["id"], file_to_publish, "sg_uploaded_movie")
     # Create a published file
     # Find the model task to publish to
     filters = [
-        ["project", "is", context],
+        ["project", "is", sg_project],
         ["entity.Asset.code", "is", asset["code"]],
         ["step.Step.code", "is", "model"],
     ]
     fields = ["sg_status_list"]
-    model_task = credentials.find_one("Task", filters, fields)
+    model_task = shotgun.find_one("Task", filters, fields)
     publish_data = {
-        "project": context,
+        "project": sg_project,
         "code": "sven.png",
         "name": "sven.png",
         "description": "This file was published by the Panel UI automation",
@@ -156,16 +152,14 @@ def assetTask(context, credentials):
         "version": version,
         "image": file_to_publish,
     }
-    publish_file = credentials.create("PublishedFile", publish_data)
+    publish_file = shotgun.create("PublishedFile", publish_data)
 
     # Assign a task to the current user
     # Find current user
     user = get_toolkit_user()
-    current_user = credentials.find_one(
-        "HumanUser", [["login", "is", str(user)]], ["name"]
-    )
+    current_user = shotgun.find_one("HumanUser", [["login", "is", str(user)]], ["name"])
     # Assign current user to the task model
-    credentials.update(
+    shotgun.update(
         "Task",
         model_task["id"],
         {
@@ -180,15 +174,15 @@ def assetTask(context, credentials):
 # This fixture will launch tk-run-app on first usage
 # and will remain valid until the test run ends.
 @pytest.fixture(scope="session")
-def host_application(context, assetTask):
+def host_application(sg_project, sg_entities):
     """
     Launch the host application for the Toolkit application.
 
     TODO: This can probably be refactored, as it is not
-    likely to change between apps, except for the context.
-    One way to pass in a context would be to have the repo being
-    tested to define a fixture named context and this fixture
-    would consume it.
+     likely to change between apps, except for the context.
+     One way to pass in a context would be to have the repo being
+     tested to define a fixture named context and this fixture
+     would consume it.
     """
     process = subprocess.Popen(
         [
@@ -202,9 +196,9 @@ def host_application(context, assetTask):
             "--location",
             os.path.dirname(__file__),
             "--context-entity-type",
-            context["type"],
+            sg_project["type"],
             "--context-entity-id",
-            str(context["id"]),
+            str(sg_project["id"]),
         ]
     )
     try:
@@ -266,8 +260,10 @@ class AppDialogAppWrapper(object):
         self.root.buttons["Close"].get().mouseClick()
 
 
-def test_my_tasks(app_dialog, assetTask):
-    # My Tasks tab validation
+def test_my_tasks(app_dialog, sg_entities):
+    """
+    My Tasks tab validation
+    """
     # Wait for the UI to show up, click on the home button and make sure My Tasks tab is selected by default
     app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -277,7 +273,7 @@ def test_my_tasks(app_dialog, assetTask):
     # Wait for the task item to show up and then double click on it
     app_dialog.root.listitems.waitExist(timeout=30)
     wait = time.time()
-    # This while loop is to make sure the double click on the task switch the current context successfully
+    # This while loop is to make sure the double click on the task switches the current context successfully
     while wait + 30 > time.time():
         if app_dialog.root.captions["Task Model"].exists() is False:
             app_dialog.root.listitems.mouseDoubleClick()
@@ -292,7 +288,7 @@ def test_my_tasks(app_dialog, assetTask):
     ].selected, "Activity tab should be selected by default"
     assert app_dialog.root.captions[
         "Status: Waiting to Start*Asset AssetAutomation*Assigned to: Azure Pipelines"
-    ].exists(), "Not on the right task informations"
+    ].exists(), "Not on the right task information"
     assert app_dialog.root.captions[
         "Task Model was created on Asset AssetAutomation"
     ].exists(), "Not the right task created on the right entity"
@@ -342,10 +338,10 @@ def test_my_tasks(app_dialog, assetTask):
     app_dialog.root.captions["Bid"].waitExist(timeout=30)
     assert app_dialog.root.captions[
         "Assigned To"
-    ].exists(), "Asssigned To attribute is missing"
+    ].exists(), "Assigned To attribute is missing"
     assert app_dialog.root.captions[
         "Azure Pipelines"
-    ].exists(), "Not asssigned to the right user. Should be Azure Pipelines"
+    ].exists(), "Not assigned to the right user. Should be Azure Pipelines"
     assert app_dialog.root.captions["Cc"].exists(), "Cc attribute is missing"
     assert app_dialog.root.captions[
         "Created by"
@@ -364,7 +360,7 @@ def test_my_tasks(app_dialog, assetTask):
     ].exists(), "Duration attribute is missing"
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
     assert app_dialog.root.captions[
-        str(assetTask[0]["id"])
+        str(sg_entities[0]["id"])
     ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions["Link"].exists(), "Link attribute is missing"
     assert app_dialog.root.captions[
@@ -404,7 +400,9 @@ def test_my_tasks(app_dialog, assetTask):
 
 
 def test_activity_notes_tabs(app_dialog):
-    # Activity tab validation
+    """
+    Activity and Notes tabs validation
+    """
     # Wait for the UI to show up and click on the Activity tab
     app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -556,10 +554,10 @@ def test_activity_notes_tabs(app_dialog):
 
     # Take a screenshot
     app_dialog.root.dialogs["Reply"].buttons["Take Screenshot"].mouseClick()
-    MyOGL = first(app_dialog.root)
-    width, height = MyOGL.size
-    MyOGL.mouseSlide(width * 0, height * 0)
-    MyOGL.mouseDrag(width * 1, height * 1)
+    app_window = first(app_dialog.root)
+    width, height = app_window.size
+    app_window.mouseSlide(width * 0, height * 0)
+    app_window.mouseDrag(width * 1, height * 1)
 
     # Add a note
     app_dialog.root.dialogs["Reply"].textfields.typeIn("New Reply")
@@ -578,8 +576,10 @@ def test_activity_notes_tabs(app_dialog):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_versions_tab(app_dialog, assetTask):
-    # Versions tab validation
+def test_versions_tab(app_dialog, sg_entities):
+    """
+    Versions tab validation
+    """
     # Wait for the UI to show up and click on the Versions tab
     app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -694,7 +694,7 @@ def test_versions_tab(app_dialog, assetTask):
     ].exists(), "Frame Rate attribute is missing"
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
     assert app_dialog.root.captions[
-        str(assetTask[2]["id"])
+        str(sg_entities[2]["id"])
     ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions[
         "Last Frame"
@@ -748,8 +748,10 @@ def test_versions_tab(app_dialog, assetTask):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_publishes_tab(app_dialog, assetTask):
-    # Publishes tab validation
+def test_publishes_tab(app_dialog, sg_entities):
+    """
+    Publishes tab validation
+    """
     # Wait for the UI to show up and click on the Publishes tab
     app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -812,7 +814,7 @@ def test_publishes_tab(app_dialog, assetTask):
     ].exists(), "Missing or wrong description."
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
     assert app_dialog.root.captions[
-        str(assetTask[1]["id"])
+        str(sg_entities[1]["id"])
     ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions["Link"].exists(), "Link attribute is missing"
     assert app_dialog.root.captions[
@@ -859,7 +861,9 @@ def test_publishes_tab(app_dialog, assetTask):
 
 
 def test_search(app_dialog):
-    # Search validation
+    """
+    Search widget validation
+    """
     # Wait for the UI to show up and click on the Versions tab
     app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
