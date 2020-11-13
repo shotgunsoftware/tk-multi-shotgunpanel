@@ -70,7 +70,7 @@ def sg_project(shotgun):
 @pytest.fixture(scope="session")
 def sg_entities(sg_project, shotgun):
     """
-    Shotgun entities creation which we are going to use un different test cases
+    Creates Shotgun entities which will be used in different test cases.
     """
     # Validate if Automation asset task template exists
     asset_template_filters = [["code", "is", "Automation Asset Task Template"]]
@@ -281,7 +281,7 @@ def test_my_tasks(app_dialog, sg_entities):
         else:
             break
 
-    # Activity tab validatation
+    # Activity tab validation
     assert app_dialog.root.captions["Task Model"].exists(), "Not on the right context"
     assert app_dialog.root.tabs[
         "Activity"
