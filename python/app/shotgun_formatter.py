@@ -60,6 +60,14 @@ class ShotgunTypeFormatter(object):
             "shotgun_fields_hook", "get_main_view_definition", entity_type=entity_type
         )
 
+        self._hook_data["get_entity_tabs_definition"] = self._app.execute_hook_method(
+            "shotgun_fields_hook", "get_entity_tabs_definition", entity_type=entity_type
+        )
+
+        self._hook_data["get_entity_default_tab"] = self._app.execute_hook_method(
+            "shotgun_fields_hook", "get_entity_default_tab", entity_type=entity_type
+        )
+
         # extract a list of fields given all the different {tokens} defined
         fields = []
         fields += self._resolve_sg_fields(
@@ -615,89 +623,6 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
             return False
 
     @property
-    def show_activity_tab(self):
-        """
-        Should the note tab be shown for this
-        """
-        if self.entity_type in [
-            "Group",
-            "Department",
-            "ClientUser",
-            "HumanUser",
-            "ScriptUser",
-            "ApiUser",
-        ]:
-            return (False, "")
-        else:
-            return (True, "Activity")
-
-    @property
-    def show_notes_tab(self):
-        """
-        Should the note tab be shown for this
-        """
-        if self.entity_type in ["Group", "Department"]:
-            return (False, "")
-        else:
-            return (True, "Notes")
-
-    @property
-    def show_publishes_tab(self):
-        """
-        Should the publishes tab be shown for this
-        """
-        if self.entity_type in ["Group", "ClientUser", "Department"]:
-            return (False, "")
-        elif self.is_current_user and self.entity_type == "HumanUser":
-            return (True, "My Publishes")
-        else:
-            return (True, "Publishes")
-
-    @property
-    def show_versions_tab(self):
-        """
-        Should the publishes tab be shown for this
-        """
-        if self.entity_type in ["Group", "ClientUser", "Department"]:
-            return (False, "")
-        elif self.is_current_user and self.entity_type == "HumanUser":
-            return (True, "My Versions")
-        else:
-            return (True, "Versions")
-
-    @property
-    def show_tasks_tab(self):
-        """
-        Should the tasks tab be shown for this
-        """
-        if self.entity_type in [
-            "ScriptUser",
-            "ApiUser",
-            "Department",
-            "Group",
-            "ClientUser",
-        ]:
-            return (False, "")
-        elif self.entity_type in ["Project"]:
-            return (True, "My Tasks")
-        elif self.is_current_user and self.entity_type == "HumanUser":
-            return (True, "My Tasks")
-        else:
-            return (True, "Tasks")
-
-    @property
-    def show_info_tab(self):
-        """
-        Should the info tab be shown for this
-        """
-        if self.entity_type == "Project":
-            return (False, "")
-        elif self.is_current_user and self.entity_type == "HumanUser":
-            return (False, "")
-        else:
-            return (True, "Details")
-
-    @property
     def notes_description(self):
         """
         Current description for notes
@@ -793,35 +718,45 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         """
         from .dialog import AppDialog
 
-        default_tab = None
-
+        # First handle special entity types
         if self.entity_type == "Version":
-            # activity stream
-            default_tab = AppDialog.VERSION_TAB_ACTIVITY_STREAM
+            return AppDialog.VERSION_TAB_ACTIVITY_STREAM
 
-        elif self.entity_type in ["PublishedFile", "TankPublishedFile"]:
-            # publish history
-            default_tab = AppDialog.PUBLISH_TAB_HISTORY
+        if self.entity_type in ["PublishedFile", "TankPublishedFile"]:
+            return AppDialog.PUBLISH_TAB_HISTORY
 
-        elif self.entity_type == "Project":
-            # my tasks is the default tab for projects
-            default_tab = AppDialog.ENTITY_TAB_TASKS
+        # This ia general entity type
+        tab_name = self._hook_data["get_entity_default_tab"]
+        return AppDialog.ENTITY_TABS.index(tab_name)
 
-        elif self.entity_type == "Project":
-            # my tasks is the default tab for projects
-            default_tab = AppDialog.ENTITY_TAB_TASKS
+    def show_entity_tab(self, name):
+        """
+        Return whether or not to show the tab for the entity type.
+        """
+        from .dialog import AppDialog
 
-        elif self.entity_type in ["Group", "Department"]:
-            # these items don't have much stuff turned on
-            # so show details
-            default_tab = AppDialog.ENTITY_TAB_INFO
+        if (
+            name == AppDialog.ENTITY_TAB_INFO
+            and self.is_current_user
+            and self.entity_type == "HumanUser"
+        ):
+            return (False, "")
 
-        elif self.entity_type in ["ClientUser", "HumanUser", "ScriptUser", "ApiUser"]:
-            # these types don't have the activity stream
-            default_tab = AppDialog.ENTITY_TAB_NOTES
+        defintion = self._get_hook_value("get_entity_tabs_definition", name)
+        caption = defintion["name"]
 
-        else:
-            # for everything else, default to the activity stream
-            default_tab = AppDialog.ENTITY_TAB_ACTIVITY_STREAM
+        if (
+            name in [AppDialog.ENTITY_TAB_VERSIONS, AppDialog.ENTITY_TAB_PUBLISHES]
+            and self.is_current_user
+            and self.entity_type == "HumanUser"
+        ):
+            caption = "My %s" % caption
 
-        return default_tab
+        elif (
+            name == AppDialog.ENTITY_TAB_TASKS
+            and (self.is_current_user and self.entity_type == "HumanUser")
+            or self.entity_type == "Project"
+        ):
+            caption = "My %s" % caption
+
+        return (defintion["enabled"], caption)

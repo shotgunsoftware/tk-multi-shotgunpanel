@@ -79,19 +79,29 @@ class AppDialog(QtGui.QWidget):
     VERSION_PAGE_IDX = 2
     NOTE_PAGE_IDX = 3
 
-    # tab indices
-    ENTITY_TAB_ACTIVITY_STREAM = 0
-    ENTITY_TAB_NOTES = 1
-    ENTITY_TAB_VERSIONS = 2
-    ENTITY_TAB_PUBLISHES = 3
-    ENTITY_TAB_TASKS = 4
-    ENTITY_TAB_INFO = 5
+    # generic entity tabs
+    ENTITY_TAB_ACTIVITY_STREAM = "activity"
+    ENTITY_TAB_NOTES = "notes"
+    ENTITY_TAB_VERSIONS = "versions"
+    ENTITY_TAB_PUBLISHES = "publishes"
+    ENTITY_TAB_TASKS = "tasks"
+    ENTITY_TAB_INFO = "info"
+    ENTITY_TABS = [
+        ENTITY_TAB_ACTIVITY_STREAM,
+        ENTITY_TAB_NOTES,
+        ENTITY_TAB_VERSIONS,
+        ENTITY_TAB_PUBLISHES,
+        ENTITY_TAB_TASKS,
+        ENTITY_TAB_INFO,
+    ]
 
+    # publish tabs
     PUBLISH_TAB_HISTORY = 0
     PUBLISH_TAB_CONTAINS = 1
     PUBLISH_TAB_USED_IN = 2
     PUBLISH_TAB_INFO = 3
 
+    # version tabs
     VERSION_TAB_ACTIVITY_STREAM = 0
     VERSION_TAB_NOTES = 1
     VERSION_TAB_PUBLISHES = 2
@@ -243,7 +253,7 @@ class AppDialog(QtGui.QWidget):
         self._detail_tabs = {}
 
         # tabs on entity view
-        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_NOTES)
+        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TABS.index(self.ENTITY_TAB_NOTES))
         self._detail_tabs[idx] = {
             "model_class": SgEntityListingModel,
             "delegate_class": ListItemDelegate,
@@ -251,7 +261,7 @@ class AppDialog(QtGui.QWidget):
             "entity_type": "Note",
         }
 
-        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_VERSIONS)
+        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TABS.index(self.ENTITY_TAB_VERSIONS))
         self._detail_tabs[idx] = {
             "model_class": SgVersionModel,
             "delegate_class": ListItemDelegate,
@@ -259,7 +269,7 @@ class AppDialog(QtGui.QWidget):
             "entity_type": "Version",
         }
 
-        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_PUBLISHES)
+        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TABS.index(self.ENTITY_TAB_PUBLISHES))
         self._detail_tabs[idx] = {
             "model_class": SgLatestPublishListingModel,
             "delegate_class": ListItemDelegate,
@@ -267,7 +277,7 @@ class AppDialog(QtGui.QWidget):
             "entity_type": self._publish_entity_type,
         }
 
-        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_TASKS)
+        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TABS.index(self.ENTITY_TAB_TASKS))
         self._detail_tabs[idx] = {
             "model_class": SgTaskListingModel,
             "delegate_class": ListItemDelegate,
@@ -501,34 +511,15 @@ class AppDialog(QtGui.QWidget):
 
         #################################################################################
         # temp tab handling! Replace with smarter, better solution!
+        # tab handling improved with defining ENTITY_TABS
 
         formatter = self._current_location.sg_formatter
 
-        (enabled, caption) = formatter.show_activity_tab
-        self.ui.entity_tab_widget.setTabEnabled(
-            self.ENTITY_TAB_ACTIVITY_STREAM, enabled
-        )
-        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_ACTIVITY_STREAM, caption)
-
-        (enabled, caption) = formatter.show_notes_tab
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_NOTES, enabled)
-        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_NOTES, caption)
-
-        (enabled, caption) = formatter.show_versions_tab
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_VERSIONS, enabled)
-        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_VERSIONS, caption)
-
-        (enabled, caption) = formatter.show_publishes_tab
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_PUBLISHES, enabled)
-        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_PUBLISHES, caption)
-
-        (enabled, caption) = formatter.show_tasks_tab
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_TASKS, enabled)
-        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_TASKS, caption)
-
-        (enabled, caption) = formatter.show_info_tab
-        self.ui.entity_tab_widget.setTabEnabled(self.ENTITY_TAB_INFO, enabled)
-        self.ui.entity_tab_widget.setTabText(self.ENTITY_TAB_INFO, caption)
+        for (index, tab_name) in enumerate(self.ENTITY_TABS):
+            (enabled, caption) = formatter.show_entity_tab(tab_name)
+            self.ui.entity_tab_widget.setTabEnabled(index, enabled)
+            self.ui.entity_tab_widget.setTabVisible(index, enabled)
+            self.ui.entity_tab_widget.setTabText(index, caption)
 
         # set the description
         self.ui.entity_note_label.setText(formatter.notes_description)
@@ -631,10 +622,12 @@ class AppDialog(QtGui.QWidget):
         if not self._navigating:
             self._current_location.set_tab_index(index)
 
-        if index == self.ENTITY_TAB_ACTIVITY_STREAM:
+        tab_name = self.ENTITY_TABS[index]
+
+        if tab_name == self.ENTITY_TAB_ACTIVITY_STREAM:
             self.ui.entity_activity_stream.load_data(self._current_location.entity_dict)
 
-        elif index == self.ENTITY_TAB_NOTES:
+        elif tab_name == self.ENTITY_TAB_NOTES:
             # clear selection to avoid redrawing the ui over and over
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)][
                 "view"
@@ -643,7 +636,7 @@ class AppDialog(QtGui.QWidget):
                 self._current_location
             )
 
-        elif index == self.ENTITY_TAB_VERSIONS:
+        elif tab_name == self.ENTITY_TAB_VERSIONS:
             # clear selection to avoid redrawing the ui over and over
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)][
                 "view"
@@ -653,7 +646,7 @@ class AppDialog(QtGui.QWidget):
                 self._current_location, show_pending_only
             )
 
-        elif index == self.ENTITY_TAB_PUBLISHES:
+        elif tab_name == self.ENTITY_TAB_PUBLISHES:
             # clear selection to avoid redrawing the ui over and over
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)][
                 "view"
@@ -663,7 +656,7 @@ class AppDialog(QtGui.QWidget):
                 self._current_location, show_latest_only
             )
 
-        elif index == self.ENTITY_TAB_TASKS:
+        elif tab_name == self.ENTITY_TAB_TASKS:
             # clear selection to avoid redrawing the ui over and over
             self._detail_tabs[(self.ENTITY_PAGE_IDX, index)][
                 "view"
@@ -672,7 +665,7 @@ class AppDialog(QtGui.QWidget):
                 self._current_location
             )
 
-        elif index == self.ENTITY_TAB_INFO:
+        elif tab_name == self.ENTITY_TAB_INFO:
             self._entity_details_model.load_data(self._current_location)
 
         else:

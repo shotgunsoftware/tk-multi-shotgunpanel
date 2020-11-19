@@ -421,3 +421,82 @@ class ShotgunFields(HookBaseClass):
                 """
 
         return values
+
+    def get_entity_tabs_definition(self, entity_type):
+        """
+        Define which tabs are shown in the Shotgun Panel for an item of a given entity type.
+
+        Returns a dictionary with a key-value pair for each entity tab defined in
+        tk-multi-shotgunpanel AppDialog.ENTITY_TABS. Each key-value will be a dictionary
+        containing data for the tab.
+
+        :param entity_type: Shotgun entity type to provide tab info for.
+        :returns: Dictionary
+        """
+
+        # Default tab to be enabled, unless specified otherwise.
+        values = {
+            "activity": {"enabled": True, "name": "Activity"},
+            "info": {"enabled": True, "name": "Details"},
+            "notes": {"enabled": True, "name": "Notes"},
+            "publishes": {"enabled": True, "name": "Publishes"},
+            "tasks": {"enabled": True, "name": "Tasks"},
+            "versions": {"enabled": True, "name": "Versions"},
+        }
+
+        if entity_type == "ApiUser":
+            values["activity"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+
+        elif entity_type == "ClientUser":
+            values["activity"]["enabled"] = False
+            values["publishes"]["enabled"] = False
+            values["versions"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+
+        elif entity_type == "Department":
+            values["activity"]["enabled"] = False
+            values["notes"]["enabled"] = False
+            values["publishes"]["enabled"] = False
+            values["versions"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+
+        elif entity_type == "Group":
+            values["activity"]["enabled"] = False
+            values["notes"]["enabled"] = False
+            values["publishes"]["enabled"] = False
+            values["versions"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+
+        elif entity_type == "HumanUser":
+            values["activity"]["enabled"] = False
+
+        elif entity_type == "ScriptUser":
+            values["activity"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+
+        elif entity_type == "Project":
+            values["info"]["enabled"] = False
+
+        return values
+
+    def get_entity_default_tab(self, entity_type):
+        """
+        Return the name of the default tab for this entity type. Tab name should
+        be one of the defined tab names in tk-multi-shotgunpanel AppDialog.ENTITY_TABS.
+        """
+
+        if entity_type == "Project":
+            # my tasks is the default tab for projects
+            return "tasks"
+
+        if entity_type in ["Group", "Department"]:
+            # these items don't have much stuff turned on so show details
+            return "info"
+
+        if entity_type in ["ClientUser", "HumanUser", "ScriptUser", "ApiUser"]:
+            # these types don't have the activity stream
+            return "notes"
+
+        # for everything else, default to the activity stream
+        return "activity"
