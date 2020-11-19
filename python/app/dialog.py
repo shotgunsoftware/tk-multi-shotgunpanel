@@ -116,7 +116,7 @@ class AppDialog(QtGui.QWidget):
         self._app = sgtk.platform.current_bundle()
 
         self._action_manager = ActionManager(self)
-        self._action_manager.refresh_request.connect(self.setup_ui)
+        self._action_manager.refresh_request.connect(self.refresh)
 
         # create a background task manager
         self._task_manager = task_manager.BackgroundTaskManager(
@@ -453,6 +453,16 @@ class AppDialog(QtGui.QWidget):
 
     ##################################################################################################
     # load data and set up UI for a particular state
+
+    def refresh(self, data):
+        """
+        Refresh the UI based on the incoming data.
+        """
+
+        if data and data.get("entity_type", None) and data.get("entity_id", None):
+            self.navigate_to_entity(data["entity_type"], data["entity_id"])
+        else:
+            self.setup_ui()
 
     def setup_ui(self):
         """

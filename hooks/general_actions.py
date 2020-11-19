@@ -179,13 +179,16 @@ class GeneralActions(HookBaseClass):
         :param name: Action name string representing one of the items returned by generate_actions.
         :param params: Params data, as specified by generate_actions.
         :param sg_data: Shotgun data dictionary
-        :returns: No return value expected.
+        :returns: Dictionary representing an Entity if action requires a context change in the panel,
+                  otherwise no return value expected.
         """
         app = self.parent
         app.log_debug(
             "Execute action called for action %s. "
             "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
         )
+
+        result = None
 
         if name == "assign_task":
             if app.context.user is None:
@@ -226,6 +229,8 @@ class GeneralActions(HookBaseClass):
 
         elif name == "publish_clipboard":
             self._copy_to_clipboard(sg_data["path"]["local_path"])
+
+        return result
 
     def _copy_to_clipboard(self, text):
         """
