@@ -725,7 +725,7 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         if self.entity_type in ["PublishedFile", "TankPublishedFile"]:
             return AppDialog.PUBLISH_TAB_HISTORY
 
-        # This ia general entity type
+        # This is a general entity type
         tab_name = self._hook_data["get_entity_default_tab"]
         return AppDialog.ENTITY_TABS.index(tab_name)
 

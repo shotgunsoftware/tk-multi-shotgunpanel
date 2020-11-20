@@ -232,6 +232,23 @@ class GeneralActions(HookBaseClass):
 
         return result
 
+    def execute_entity_doubleclicked_action(self, sg_data):
+        """
+        This action is triggered when an entity is double-clicked.
+        Perform any specific actions and return a dictionary
+        represetnting the entity that the panel will navigate to.
+
+        This base hook method simply returns immediately the entity
+        data of item that was clicked. Override this method to
+        perform any custom handling.
+
+        :param sg_data: Dictionary containing data for the entity that
+                        was double-clicked.
+        :return: A dictionary {"type": 'entity_type', "id": 'entity_id'}
+        """
+
+        return {"type": sg_data["type"], "id": sg_data["id"]}
+
     def _copy_to_clipboard(self, text):
         """
         Helper method - copies the given text to the clipboard

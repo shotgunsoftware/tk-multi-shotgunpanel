@@ -469,8 +469,8 @@ class AppDialog(QtGui.QWidget):
         Refresh the UI based on the incoming data.
         """
 
-        if data and data.get("entity_type", None) and data.get("entity_id", None):
-            self.navigate_to_entity(data["entity_type"], data["entity_id"])
+        if data and data.get("type", None) and data.get("id", None):
+            self.navigate_to_entity(data["type"], data["id"])
         else:
             self.setup_ui()
 
@@ -804,8 +804,12 @@ class AppDialog(QtGui.QWidget):
         Someone double clicked an entity
         """
         sg_item = shotgun_model.get_sg_data(model_index)
-        sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
-        self._navigate_to(sg_location)
+        entity = self._app.execute_hook_method(
+            "actions_hook", "execute_entity_doubleclicked_action", sg_data=sg_item,
+        )
+
+        if entity and entity.get("type", None) and entity.get("id", None):
+            self.navigate_to_entity(entity["type"], entity["id"])
 
     def navigate_to_entity(self, entity_type, entity_id):
         """

@@ -427,8 +427,7 @@ class ShotgunFields(HookBaseClass):
         Define which tabs are shown in the Shotgun Panel for an item of a given entity type.
 
         Returns a dictionary with a key-value pair for each entity tab defined in
-        tk-multi-shotgunpanel AppDialog.ENTITY_TABS. Each key-value will be a dictionary
-        containing data for the tab.
+        tk-multi-shotgunpanel AppDialog.ENTITY_TABS. Each key-value will be a dictionarycontaining data for the tab.
 
         :param entity_type: Shotgun entity type to provide tab info for.
         :returns: Dictionary
