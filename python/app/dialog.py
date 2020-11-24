@@ -809,7 +809,8 @@ class AppDialog(QtGui.QWidget):
         )
 
         if entity and entity.get("type", None) and entity.get("id", None):
-            self.navigate_to_entity(entity["type"], entity["id"])
+            sg_location = ShotgunLocation(entity["type"], entity["id"])
+            self._navigate_to(sg_location)
 
     def navigate_to_entity(self, entity_type, entity_id):
         """
