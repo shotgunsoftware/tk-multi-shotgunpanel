@@ -468,8 +468,16 @@ class ShotgunFields(HookBaseClass):
                 "name": "Version History",
                 "description": "The version history for this publish.",
             },
-            "publish_downstream": {"enabled": False, "name": "Uses"},
-            "publish_upstream": {"enabled": False, "name": "Used By"},
+            "publish_downstream": {
+                "enabled": False,
+                "name": "Uses",
+                "description": "Publishes being referenced by this publish.",
+            },
+            "publish_upstream": {
+                "enabled": False,
+                "name": "Used By",
+                "description": "Publishes that are referencing this publish.",
+            },
         }
 
         if entity_type == "ApiUser":

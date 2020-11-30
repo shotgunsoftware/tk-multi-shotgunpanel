@@ -945,6 +945,13 @@ class AppDialog(QtGui.QWidget):
         label.setAlignment(
             QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
         )
+        label.setStyleSheet(
+            """
+            font-size: 10px;
+            font-weight: 100;
+            font-style: italic;
+            """
+        )
         return label
 
     def create_entity_tab_view(self, name, parent):
