@@ -630,7 +630,6 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         """
         Tab to start a new view with
         """
-        from .dialog import AppDialog
 
         return self._hook_data["get_entity_default_tab"]
 
