@@ -61,7 +61,10 @@ class ShotgunTypeFormatter(object):
         )
 
         self._hook_data["get_entity_tabs_definition"] = self._app.execute_hook_method(
-            "shotgun_fields_hook", "get_entity_tabs_definition", entity_type=entity_type
+            "shotgun_fields_hook",
+            "get_entity_tabs_definition",
+            entity_type=entity_type,
+            shotgun_globals=shotgun_globals,
         )
 
         self._hook_data["get_entity_default_tab"] = self._app.execute_hook_method(
@@ -623,111 +626,21 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
             return False
 
     @property
-    def notes_description(self):
-        """
-        Current description for notes
-        """
-        if self.entity_type == "Project":
-            return "All notes for this project, in update order."
-
-        elif self.is_current_user:
-            return "Your conversations, in update order."
-
-        elif self.entity_type in ["ClientUser", "HumanUser", "ApiUser"]:
-            return "Notes that the user has written or replied to, in update order."
-
-        else:
-            return (
-                "Notes associated with this %s, in update order."
-                % shotgun_globals.get_type_display_name(self.entity_type)
-            )
-
-    @property
-    def publishes_description(self):
-        """
-        Current description for publishes
-        """
-        if self._entity_type == "Project":
-            return "All publishes for the project, in creation order."
-
-        elif self.is_current_user and self._app.context.project:
-            # project context current user's publishes tab
-            return "Your publishes for this project, in creation order."
-
-        elif self.is_current_user and not self._app.context.project:
-            # project context current user's publishes tab
-            return "All your publishes, in creation order."
-
-        elif self._entity_type == "HumanUser":
-            return "Publishes by this user, in creation order."
-
-        else:
-            return (
-                "Publishes for this %s, in creation order."
-                % shotgun_globals.get_type_display_name(self.entity_type)
-            )
-
-    @property
-    def versions_description(self):
-        """
-        Current description for versions
-        """
-        if self._entity_type == "Project":
-            return "All review versions submitted for this project."
-
-        elif self.is_current_user:
-            return "Your review versions, in creation order."
-
-        elif self._entity_type == "HumanUser":
-            return "Review versions by this user, in creation order."
-
-        else:
-            return (
-                "Review versions for this %s, in creation order."
-                % shotgun_globals.get_type_display_name(self.entity_type)
-            )
-
-    @property
-    def tasks_description(self):
-        """
-        Current description for tasks
-        """
-        if self._entity_type == "Project":
-            return "Your active tasks for this project."
-
-        elif self.is_current_user and self._app.context.project:
-            # project context current user's publishes tab
-            return "Your active tasks for this project."
-
-        elif self.is_current_user and not self._app.context.project:
-            # project context current user's publishes tab
-            return "All your active tasks."
-
-        elif self._entity_type == "HumanUser":
-            return "Active tasks assigned to this user."
-
-        else:
-            return "All tasks for this %s." % shotgun_globals.get_type_display_name(
-                self.entity_type
-            )
-
-    @property
     def default_tab(self):
         """
         Tab to start a new view with
         """
         from .dialog import AppDialog
 
-        # First handle special entity types
-        if self.entity_type == "Version":
-            return AppDialog.VERSION_TAB_ACTIVITY_STREAM
+        return self._hook_data["get_entity_default_tab"]
 
-        if self.entity_type in ["PublishedFile", "TankPublishedFile"]:
-            return AppDialog.PUBLISH_TAB_HISTORY
+    def get_tab_data(self, name, field, default_value=None):
+        """
+        Return the data field's value for the tab under the given name.
+        """
 
-        # This is a general entity type
-        tab_name = self._hook_data["get_entity_default_tab"]
-        return AppDialog.ENTITY_TABS.index(tab_name)
+        defintion = self._get_hook_value("get_entity_tabs_definition", name)
+        return defintion.get(field, default_value)
 
     def show_entity_tab(self, name):
         """
@@ -746,17 +659,43 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         caption = defintion["name"]
 
         if (
-            name in [AppDialog.ENTITY_TAB_VERSIONS, AppDialog.ENTITY_TAB_PUBLISHES]
-            and self.is_current_user
+            self.is_current_user
             and self.entity_type == "HumanUser"
+            and name in [AppDialog.ENTITY_TAB_VERSIONS, AppDialog.ENTITY_TAB_PUBLISHES]
         ):
             caption = "My %s" % caption
 
-        elif (
-            name == AppDialog.ENTITY_TAB_TASKS
-            and (self.is_current_user and self.entity_type == "HumanUser")
+        elif name == AppDialog.ENTITY_TAB_TASKS and (
+            (self.is_current_user and self.entity_type == "HumanUser")
             or self.entity_type == "Project"
         ):
             caption = "My %s" % caption
 
         return (defintion["enabled"], caption)
+
+    def get_entity_tab_description(self, name):
+        """
+        Return the tab description for this entity type.
+        """
+        from .dialog import AppDialog
+
+        if self.entity_type != "Project":
+            if self.is_current_user:
+                if self.entity_type == AppDialog.ENTITY_TAB_NOTES:
+                    return "Your conversations, in update order."
+
+                if self.entity_type == AppDialog.ENTITY_TAB_VERSIONS:
+                    return "Your review versions, in creation order."
+
+                if self.entity_type == AppDialog.ENTITY_TAB_PUBLISHES:
+                    if self._app.context.project:
+                        return "Your publishes for this project, in creation order."
+                    return "All your publishes, in creation order."
+
+                if self.entity_type == AppDialog.ENTITY_TAB_TASKS:
+                    if self._app.context.project:
+                        return "Your active tasks for this project."
+                    return "All your active tasks."
+
+        definition = self._get_hook_value("get_entity_tabs_definition", name)
+        return definition.get("description", "")

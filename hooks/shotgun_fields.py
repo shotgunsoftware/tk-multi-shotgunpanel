@@ -422,7 +422,7 @@ class ShotgunFields(HookBaseClass):
 
         return values
 
-    def get_entity_tabs_definition(self, entity_type):
+    def get_entity_tabs_definition(self, entity_type, shotgun_globals):
         """
         Define which tabs are shown in the Shotgun Panel for an item of a given entity type.
 
@@ -433,25 +433,60 @@ class ShotgunFields(HookBaseClass):
         :returns: Dictionary
         """
 
-        # Default tab to be enabled, unless specified otherwise.
+        # Default tab config, unless specified otherwise by entity type.
         values = {
             "activity": {"enabled": True, "name": "Activity"},
             "info": {"enabled": True, "name": "Details"},
-            "notes": {"enabled": True, "name": "Notes"},
-            "publishes": {"enabled": True, "name": "Publishes"},
-            "tasks": {"enabled": True, "name": "Tasks"},
-            "versions": {"enabled": True, "name": "Versions"},
+            "notes": {
+                "enabled": True,
+                "name": "Notes",
+                "description": "Notes associated with this %s, in update order."
+                % shotgun_globals.get_type_display_name(entity_type),
+            },
+            "tasks": {
+                "enabled": True,
+                "name": "Tasks",
+                "description": "All tasks for this %s."
+                % shotgun_globals.get_type_display_name(entity_type),
+            },
+            "versions": {
+                "enabled": True,
+                "name": "Versions",
+                "description": "Review versions for this %s, in creation order."
+                % shotgun_globals.get_type_display_name(entity_type),
+                "enable_checkbox": True,
+            },
+            "publishes": {
+                "enabled": True,
+                "name": "Publishes",
+                "description": "Publishes for this %s, in creation order."
+                % shotgun_globals.get_type_display_name(entity_type),
+                "enable_checkbox": True,
+            },
+            "publish_history": {
+                "enabled": False,
+                "name": "Version History",
+                "description": "The version history for this publish.",
+            },
+            "publish_downstream": {"enabled": False, "name": "Uses"},
+            "publish_upstream": {"enabled": False, "name": "Used By"},
         }
 
         if entity_type == "ApiUser":
             values["activity"]["enabled"] = False
             values["tasks"]["enabled"] = False
+            values["notes"][
+                "description"
+            ] = "Notes that the user has written or replied to, in update order."
 
         elif entity_type == "ClientUser":
             values["activity"]["enabled"] = False
             values["publishes"]["enabled"] = False
             values["versions"]["enabled"] = False
             values["tasks"]["enabled"] = False
+            values["notes"][
+                "description"
+            ] = "Notes that the user has written or replied to, in update order."
 
         elif entity_type == "Department":
             values["activity"]["enabled"] = False
@@ -469,6 +504,16 @@ class ShotgunFields(HookBaseClass):
 
         elif entity_type == "HumanUser":
             values["activity"]["enabled"] = False
+            values["tasks"]["description"] = "Active tasks assigned to this user."
+            values["versions"][
+                "description"
+            ] = "Review versions by this user, in creation order."
+            values["publishes"][
+                "description"
+            ] = "Publishes by this user, in creation order."
+            values["notes"][
+                "description"
+            ] = "Notes that the user has written or replied to, in update order."
 
         elif entity_type == "ScriptUser":
             values["activity"]["enabled"] = False
@@ -476,6 +521,31 @@ class ShotgunFields(HookBaseClass):
 
         elif entity_type == "Project":
             values["info"]["enabled"] = False
+            values["tasks"]["description"] = "Your active tasks for this project."
+            values["versions"][
+                "description"
+            ] = "All review versions submitted for this project."
+            values["publishes"][
+                "description"
+            ] = "All publishes for the project, in creation order."
+            values["notes"][
+                "description"
+            ] = "All notes for this project, in update order."
+
+        elif entity_type == "Version":
+            values["versions"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+            values["publishes"]["enable_checkbox"] = False
+
+        elif entity_type in ["PublishedFile", "TankPublishedFile"]:
+            values["activity"]["enabled"] = False
+            values["notes"]["enabled"] = False
+            values["publishes"]["enabled"] = False
+            values["versions"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+            values["publish_history"]["enabled"] = True
+            values["publish_downstream"]["enabled"] = True
+            values["publish_upstream"]["enabled"] = True
 
         return values
 
@@ -496,6 +566,9 @@ class ShotgunFields(HookBaseClass):
         if entity_type in ["ClientUser", "HumanUser", "ScriptUser", "ApiUser"]:
             # these types don't have the activity stream
             return "notes"
+
+        if entity_type in ["PublishedFile", "TankPublishedFile"]:
+            return "publish_history"
 
         # for everything else, default to the activity stream
         return "activity"

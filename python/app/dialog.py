@@ -30,8 +30,10 @@ from .model_all_fields import SgAllFieldsModel
 from .model_details import SgEntityDetailsModel
 from .model_current_user import SgCurrentUserModel
 from .not_found_overlay import NotFoundModelOverlay
+from .qtwidgets import ActivityStreamWidget
 from .shotgun_formatter import ShotgunTypeFormatter
 from .note_updater import NoteUpdater
+from .widget_all_fields import AllFieldsWidget
 from .work_area_dialog import WorkAreaDialog
 
 shotgun_model = sgtk.platform.import_framework(
@@ -75,37 +77,30 @@ class AppDialog(QtGui.QWidget):
 
     # page indices
     ENTITY_PAGE_IDX = 0
-    PUBLISH_PAGE_IDX = 1
-    VERSION_PAGE_IDX = 2
-    NOTE_PAGE_IDX = 3
+    NOTE_PAGE_IDX = 1
 
     # generic entity tabs
     ENTITY_TAB_ACTIVITY_STREAM = "activity"
     ENTITY_TAB_NOTES = "notes"
     ENTITY_TAB_VERSIONS = "versions"
     ENTITY_TAB_PUBLISHES = "publishes"
+    ENTITY_TAB_PUBLISH_HISTORY = "publish_history"
+    ENTITY_TAB_PUBLISH_DOWNSTREAM = "publish_downstream"
+    ENTITY_TAB_PUBLISH_UPSTREAM = "publish_upstream"
     ENTITY_TAB_TASKS = "tasks"
     ENTITY_TAB_INFO = "info"
+    # list of available entity tabs in order of display left to right
     ENTITY_TABS = [
         ENTITY_TAB_ACTIVITY_STREAM,
         ENTITY_TAB_NOTES,
         ENTITY_TAB_VERSIONS,
         ENTITY_TAB_PUBLISHES,
+        ENTITY_TAB_PUBLISH_HISTORY,
+        ENTITY_TAB_PUBLISH_UPSTREAM,
+        ENTITY_TAB_PUBLISH_DOWNSTREAM,
         ENTITY_TAB_TASKS,
         ENTITY_TAB_INFO,
     ]
-
-    # publish tabs
-    PUBLISH_TAB_HISTORY = 0
-    PUBLISH_TAB_CONTAINS = 1
-    PUBLISH_TAB_USED_IN = 2
-    PUBLISH_TAB_INFO = 3
-
-    # version tabs
-    VERSION_TAB_ACTIVITY_STREAM = 0
-    VERSION_TAB_NOTES = 1
-    VERSION_TAB_PUBLISHES = 2
-    VERSION_TAB_INFO = 3
 
     @property
     def hide_tk_title_bar(self):
@@ -149,8 +144,6 @@ class AppDialog(QtGui.QWidget):
         # hook up a data retriever with all objects needing to talk to sg
         self.ui.search_input.set_bg_task_manager(self._task_manager)
         self.ui.note_reply_widget.set_bg_task_manager(self._task_manager)
-        self.ui.entity_activity_stream.set_bg_task_manager(self._task_manager)
-        self.ui.version_activity_stream.set_bg_task_manager(self._task_manager)
 
         # set up action menu. parent it to the action button to prevent cases
         # where it shows up elsewhere on screen (as in Houdini)
@@ -182,18 +175,6 @@ class AppDialog(QtGui.QWidget):
         # prefs in this manager are shared
         self._settings_manager = settings.UserSettings(self._app)
 
-        # set previously stored value for "show latest"
-        latest_pubs_only = self._settings_manager.retrieve(
-            "latest_publishes_only", True
-        )
-        self.ui.latest_publishes_only.setChecked(latest_pubs_only)
-
-        # set previously stored value for "show pending"
-        pending_versions_only = self._settings_manager.retrieve(
-            "pending_versions_only", False
-        )
-        self.ui.pending_versions_only.setChecked(pending_versions_only)
-
         # navigation
         self.ui.navigation_home.clicked.connect(self._on_home_clicked)
         self.ui.navigation_next.clicked.connect(self._on_next_clicked)
@@ -203,15 +184,6 @@ class AppDialog(QtGui.QWidget):
         self.ui.search.clicked.connect(self._on_search_clicked)
         self.ui.cancel_search.clicked.connect(self._cancel_search)
         self.ui.search_input.entity_selected.connect(self._on_search_item_selected)
-
-        # latest publishes only
-        self.ui.latest_publishes_only.toggled.connect(self._on_latest_publishes_toggled)
-        self.ui.pending_versions_only.toggled.connect(self._on_pending_versions_toggled)
-
-        # tabs
-        self.ui.entity_tab_widget.currentChanged.connect(self._load_entity_tab_data)
-        self.ui.version_tab_widget.currentChanged.connect(self._load_version_tab_data)
-        self.ui.publish_tab_widget.currentChanged.connect(self._load_publish_tab_data)
 
         # model to get the current user's details
         self._current_user_model = SgCurrentUserModel(self, self._task_manager)
@@ -225,7 +197,6 @@ class AppDialog(QtGui.QWidget):
         self._details_overlay = ShotgunModelOverlayWidget(
             self._details_model, self.ui.top_group
         )
-
         self._details_model.data_updated.connect(self._refresh_details)
         self._details_model.thumbnail_updated.connect(self._refresh_details_thumbnail)
 
@@ -234,173 +205,14 @@ class AppDialog(QtGui.QWidget):
         self.ui.details_text_middle.linkActivated.connect(self._on_link_clicked)
         self.ui.details_thumb.playback_clicked.connect(self._playback_version)
 
+        # notes
         self.ui.note_reply_widget.entity_requested.connect(self.navigate_to_entity)
-        self.ui.entity_activity_stream.entity_requested.connect(self.navigate_to_entity)
-        self.ui.version_activity_stream.entity_requested.connect(
-            self.navigate_to_entity
-        )
 
-        self.ui.entity_activity_stream.playback_requested.connect(
-            self._playback_version
-        )
-        self.ui.version_activity_stream.playback_requested.connect(
-            self._playback_version
-        )
-
-        # set up the UI tabs. Each tab has a model, a delegate, a view and
-        # an associated enity type
-
-        self._detail_tabs = {}
-
-        # tabs on entity view
-        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TABS.index(self.ENTITY_TAB_NOTES))
-        self._detail_tabs[idx] = {
-            "model_class": SgEntityListingModel,
-            "delegate_class": ListItemDelegate,
-            "view": self.ui.entity_note_view,
-            "entity_type": "Note",
-        }
-
-        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TABS.index(self.ENTITY_TAB_VERSIONS))
-        self._detail_tabs[idx] = {
-            "model_class": SgVersionModel,
-            "delegate_class": ListItemDelegate,
-            "view": self.ui.entity_version_view,
-            "entity_type": "Version",
-        }
-
-        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TABS.index(self.ENTITY_TAB_PUBLISHES))
-        self._detail_tabs[idx] = {
-            "model_class": SgLatestPublishListingModel,
-            "delegate_class": ListItemDelegate,
-            "view": self.ui.entity_publish_view,
-            "entity_type": self._publish_entity_type,
-        }
-
-        idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TABS.index(self.ENTITY_TAB_TASKS))
-        self._detail_tabs[idx] = {
-            "model_class": SgTaskListingModel,
-            "delegate_class": ListItemDelegate,
-            "view": self.ui.entity_task_view,
-            "entity_type": "Task",
-        }
-
-        # tabs on publish view
-        idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_HISTORY)
-        self._detail_tabs[idx] = {
-            "model_class": SgPublishHistoryListingModel,
-            "delegate_class": ListItemDelegate,
-            "view": self.ui.publish_history_view,
-            "entity_type": self._publish_entity_type,
-        }
-
-        idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_CONTAINS)
-        self._detail_tabs[idx] = {
-            "model_class": SgPublishDependencyDownstreamListingModel,
-            "delegate_class": ListItemDelegate,
-            "view": self.ui.publish_upstream_view,
-            "entity_type": self._publish_entity_type,
-        }
-
-        idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_USED_IN)
-        self._detail_tabs[idx] = {
-            "model_class": SgPublishDependencyUpstreamListingModel,
-            "delegate_class": ListItemDelegate,
-            "view": self.ui.publish_downstream_view,
-            "entity_type": self._publish_entity_type,
-        }
-
-        # tabs on version view
-        idx = (self.VERSION_PAGE_IDX, self.VERSION_TAB_NOTES)
-        self._detail_tabs[idx] = {
-            "model_class": SgEntityListingModel,
-            "delegate_class": ListItemDelegate,
-            "view": self.ui.version_note_view,
-            "entity_type": "Note",
-        }
-
-        idx = (self.VERSION_PAGE_IDX, self.VERSION_TAB_PUBLISHES)
-        self._detail_tabs[idx] = {
-            "model_class": SgLatestPublishListingModel,
-            "delegate_class": ListItemDelegate,
-            "view": self.ui.version_publish_view,
-            "entity_type": self._publish_entity_type,
-        }
-
-        # now initialize all tabs. This will add two model and delegate keys
-        # to all the dicts
-
-        for tab_dict in self._detail_tabs.values():
-
-            ModelClass = tab_dict["model_class"]
-            DelegateClass = tab_dict["delegate_class"]
-
-            self._app.log_debug("Creating %r..." % ModelClass)
-
-            # create model
-            tab_dict["model"] = ModelClass(
-                tab_dict["entity_type"], tab_dict["view"], self._task_manager
-            )
-
-            # create proxy for sorting
-            tab_dict["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
-            tab_dict["sort_proxy"].setSourceModel(tab_dict["model"])
-
-            # now use the proxy model to sort the data to ensure
-            # higher version numbers appear earlier in the list
-            # the history model is set up so that the default display
-            # role contains the version number field in shotgun.
-            # This field is what the proxy model sorts by default
-            # We set the dynamic filter to true, meaning QT will keep
-            # continously sorting. And then tell it to use column 0
-            # (we only have one column in our models) and descending order.
-            tab_dict["sort_proxy"].setDynamicSortFilter(True)
-            tab_dict["sort_proxy"].sort(0, QtCore.Qt.DescendingOrder)
-
-            # set up model
-            tab_dict["view"].setModel(tab_dict["sort_proxy"])
-            # set up a global on-click handler for
-            tab_dict["view"].doubleClicked.connect(self._on_entity_doubleclicked)
-            # create delegate
-            tab_dict["delegate"] = DelegateClass(tab_dict["view"], self._action_manager)
-            tab_dict["delegate"].change_work_area.connect(self._change_work_area)
-            # hook up delegate renderer with view
-            tab_dict["view"].setItemDelegate(tab_dict["delegate"])
-            # and set up a spinner overlay
-            tab_dict["overlay"] = NotFoundModelOverlay(
-                tab_dict["model"], tab_dict["view"]
-            )
-
-            if ModelClass == SgPublishHistoryListingModel:
-                # this class needs special access to the overlay
-                tab_dict["model"].set_overlay(tab_dict["overlay"])
-
-        # set up the all fields tabs
-        self._entity_details_model = SgAllFieldsModel(self, self._task_manager)
-        self._entity_details_overlay = ShotgunModelOverlayWidget(
-            self._entity_details_model, self.ui.entity_info_widget
-        )
-
-        self._entity_details_model.data_updated.connect(
-            self.ui.entity_info_widget.set_data
-        )
-        self.ui.entity_info_widget.link_activated.connect(self._on_link_clicked)
-
-        self._version_details_model = SgAllFieldsModel(
-            self.ui.version_info_widget, self._task_manager
-        )
-        self._version_details_model.data_updated.connect(
-            self.ui.version_info_widget.set_data
-        )
-        self.ui.version_info_widget.link_activated.connect(self._on_link_clicked)
-
-        self._publish_details_model = SgAllFieldsModel(
-            self.ui.publish_info_widget, self._task_manager
-        )
-        self._publish_details_model.data_updated.connect(
-            self.ui.publish_info_widget.set_data
-        )
-        self.ui.publish_info_widget.link_activated.connect(self._on_link_clicked)
+        # build the tabs for the entity page
+        self._entity_tabs = self.build_entity_tabs()
+        # The current visible tabs. This will change based on the current entity type
+        self._current_entity_tabs = []
+        self.ui.entity_tab_widget.currentChanged.connect(self._load_entity_tab_data)
 
         # the set work area overlay
         self.ui.set_context.change_work_area.connect(self._change_work_area)
@@ -436,18 +248,12 @@ class AppDialog(QtGui.QWidget):
             # register the data fetcher with the global schema manager
             shotgun_globals.unregister_bg_task_manager(self._task_manager)
 
-            # shut down main details model
+            # shut down models
             self._details_model.destroy()
             self._current_user_model.destroy()
-
-            # and the all fields model
-            self._entity_details_model.destroy()
-            self._version_details_model.destroy()
-            self._publish_details_model.destroy()
-
-            # gracefully close all tab model connections
-            for tab_dict in self._detail_tabs.values():
-                tab_dict["model"].destroy()
+            for tab_dict in self._entity_tabs.values():
+                if tab_dict.get("model", None):
+                    tab_dict["model"].destroy()
 
             # shut down main threadpool
             self._task_manager.shut_down()
@@ -478,16 +284,8 @@ class AppDialog(QtGui.QWidget):
         """
         sets up the UI for the current location
         """
-        if self._current_location.entity_type == "Version":
-            self.focus_version()
 
-        elif self._current_location.entity_type in [
-            "PublishedFile",
-            "TankPublishedFile",
-        ]:
-            self.focus_publish()
-
-        elif self._current_location.entity_type == "Note":
+        if self._current_location.entity_type == "Note":
             self.focus_note()
 
         else:
@@ -511,69 +309,48 @@ class AppDialog(QtGui.QWidget):
 
         #################################################################################
         # temp tab handling! Replace with smarter, better solution!
-        # tab handling improved with defining ENTITY_TABS
-
+        # tab handling improved with defining ENTITY_TABS and building the tab widgets
+        # dynamically instead of directly in the .ui file. Once Qt version has been
+        # upgrade to >= 5.15, we can use QTabWidget::setTabVisible instead of clearing
+        # and re-adding the tab widgets each time
+        self.ui.entity_tab_widget.clear()
+        self._current_entity_tabs = []
         formatter = self._current_location.sg_formatter
 
-        for (index, tab_name) in enumerate(self.ENTITY_TABS):
-            (enabled, caption) = formatter.show_entity_tab(tab_name)
-            self.ui.entity_tab_widget.setTabEnabled(index, enabled)
-            self.ui.entity_tab_widget.setTabVisible(index, enabled)
-            self.ui.entity_tab_widget.setTabText(index, caption)
+        for tab_name in self.ENTITY_TABS:
+            (enabled, text) = formatter.show_entity_tab(tab_name)
+            if enabled:
+                tab_widget = self._entity_tabs[tab_name]["widget"]
+                self.ui.entity_tab_widget.addTab(tab_widget, text)
+                self._current_entity_tabs.append(tab_name)
 
-        # set the description
-        self.ui.entity_note_label.setText(formatter.notes_description)
-        self.ui.entity_task_label.setText(formatter.tasks_description)
-        self.ui.entity_version_label.setText(formatter.versions_description)
-        self.ui.entity_publish_label.setText(formatter.publishes_description)
+                if self._entity_tabs[tab_name].get("label", None):
+                    text = formatter.get_entity_tab_description(tab_name)
+                    self._entity_tabs[tab_name]["label"].setText(text)
+
+                if self._entity_tabs[tab_name].get("checkbox", None):
+                    enabled = formatter.get_tab_data(
+                        tab_name, "enable_checkbox", default_value=False
+                    )
+                    self._entity_tabs[tab_name]["checkbox"].setEnabled(enabled)
+                    self._entity_tabs[tab_name]["checkbox"].setVisible(enabled)
 
         # get the tab index associated with the location and
         # show that tab. This means that the 'current tab' is
         # remembered as you step through history
         curr_index = self.ui.entity_tab_widget.currentIndex()
-        if self._current_location.tab_index == curr_index:
+
+        if self._current_entity_tabs[curr_index] == self._current_location.tab:
             # we are already displaying the right tab
             # kick off a refresh
             self._load_entity_tab_data(curr_index)
         else:
             # navigate to a new tab
             # (note that the navigation will trigger the loading via a signal)
-            self.ui.entity_tab_widget.setCurrentIndex(self._current_location.tab_index)
-
-    def focus_publish(self):
-        """
-        Move UI to entity mode. Load up tabs.
-        Based on the current location, focus in on the current tab
-        """
-        # set the right widget to show
-        self.ui.page_stack.setCurrentIndex(self.PUBLISH_PAGE_IDX)
-
-        # get the tab index associated with the location and
-        # show that tab. This means that the 'current tab' is
-        # remembered as you step through history
-        tab_idx_for_location = self._current_location.tab_index
-        self.ui.publish_tab_widget.setCurrentIndex(tab_idx_for_location)
-        self._load_publish_tab_data(tab_idx_for_location)
-
-    def focus_version(self):
-        """
-        Move UI to entity mode. Load up tabs.
-        Based on the current location, focus in on the current tab
-        """
-        # set the right widget to show
-        self.ui.page_stack.setCurrentIndex(self.VERSION_PAGE_IDX)
-
-        # get the tab index associated with the location and
-        # show that tab. This means that the 'current tab' is
-        # remembered as you step through history
-        tab_idx_for_location = self._current_location.tab_index
-        self.ui.version_tab_widget.setCurrentIndex(tab_idx_for_location)
-        self._load_version_tab_data(tab_idx_for_location)
-
-        # set the description
-        formatter = self._current_location.sg_formatter
-        self.ui.version_note_label.setText(formatter.notes_description)
-        self.ui.version_publish_label.setText(formatter.publishes_description)
+            curr_location_index = self._current_entity_tabs.index(
+                self._current_location.tab
+            )
+            self.ui.entity_tab_widget.setCurrentIndex(curr_location_index)
 
     def focus_note(self):
         """
@@ -619,119 +396,57 @@ class AppDialog(QtGui.QWidget):
 
         :param index: entity tab index to load
         """
+        if index < 0 or index >= len(self._current_entity_tabs):
+            # Invalid index, entity tabs may not have been set up just yet
+            return
+
         if not self._navigating:
-            self._current_location.set_tab_index(index)
+            self._current_location.tab = self._current_entity_tabs[index]
 
-        tab_name = self.ENTITY_TABS[index]
+        tab_name = self._current_entity_tabs[index]
+        tab = self._entity_tabs.get(tab_name, None)
 
-        if tab_name == self.ENTITY_TAB_ACTIVITY_STREAM:
-            self.ui.entity_activity_stream.load_data(self._current_location.entity_dict)
+        if tab:
+            # If the tab has a view, clear the selection to avoid redrawing
+            # the ui over and over
+            if tab.get("view", None):
+                self._entity_tabs[tab_name]["view"].selectionModel().clear()
 
-        elif tab_name == self.ENTITY_TAB_NOTES:
-            # clear selection to avoid redrawing the ui over and over
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)][
-                "view"
-            ].selectionModel().clear()
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(
-                self._current_location
-            )
+            if tab.get("model", None):
+                args = []
+                kwargs = {}
 
-        elif tab_name == self.ENTITY_TAB_VERSIONS:
-            # clear selection to avoid redrawing the ui over and over
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)][
-                "view"
-            ].selectionModel().clear()
-            show_pending_only = self.ui.pending_versions_only.isChecked()
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(
-                self._current_location, show_pending_only
-            )
+                if tab_name == self.ENTITY_TAB_ACTIVITY_STREAM:
+                    args = [self._current_location.entity_dict]
 
-        elif tab_name == self.ENTITY_TAB_PUBLISHES:
-            # clear selection to avoid redrawing the ui over and over
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)][
-                "view"
-            ].selectionModel().clear()
-            show_latest_only = self.ui.latest_publishes_only.isChecked()
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(
-                self._current_location, show_latest_only
-            )
+                elif tab_name == self.ENTITY_TAB_VERSIONS:
+                    show_pending_only = (
+                        tab["checkbox"].isEnabled() and tab["checkbox"].isChecked()
+                    )
+                    formatter = self._current_location.sg_formatter
+                    tooltip = formatter.get_tab_data(tab_name, "tooltip", None)
+                    tab["model"].tooltip = tooltip
+                    sort_field = formatter.get_tab_data(tab_name, "sort", "id")
 
-        elif tab_name == self.ENTITY_TAB_TASKS:
-            # clear selection to avoid redrawing the ui over and over
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)][
-                "view"
-            ].selectionModel().clear()
-            self._detail_tabs[(self.ENTITY_PAGE_IDX, index)]["model"].load_data(
-                self._current_location
-            )
+                    args = [self._current_location, show_pending_only]
+                    kwargs = {"sort_field": sort_field}
 
-        elif tab_name == self.ENTITY_TAB_INFO:
-            self._entity_details_model.load_data(self._current_location)
+                elif tab_name == self.ENTITY_TAB_PUBLISHES:
+                    show_latest_only = (
+                        tab["checkbox"].isEnabled() and tab["checkbox"].isChecked()
+                    )
+                    args = [self._current_location, show_latest_only]
+
+                else:
+                    args = [self._current_location]
+
+                tab["model"].load_data(*args, **kwargs)
 
         else:
             self._app.log_error(
-                "Cannot load data for unknown entity tab index %s." % index
+                "Cannot load data for unknown entity tab %s, index %s."
+                % (tab_name, index)
             )
-
-    def _load_version_tab_data(self, index):
-        """
-        Load the data for one of the tabs in the version family
-
-        :param index: version tab index to load
-        """
-        if not self._navigating:
-            self._current_location.set_tab_index(index)
-
-        if index == self.VERSION_TAB_ACTIVITY_STREAM:
-            self.ui.version_activity_stream.load_data(
-                self._current_location.entity_dict
-            )
-
-        elif index == self.VERSION_TAB_NOTES:
-            self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(
-                self._current_location
-            )
-
-        elif index == self.VERSION_TAB_PUBLISHES:
-            self._detail_tabs[(self.VERSION_PAGE_IDX, index)]["model"].load_data(
-                self._current_location, show_latest_only=False
-            )
-
-        elif index == self.VERSION_TAB_INFO:
-            self._version_details_model.load_data(self._current_location)
-
-        else:
-            self._app.log_error("Cannot load data for unknown version tab.")
-
-    def _load_publish_tab_data(self, index):
-        """
-        Load the data for one of the tabs in the publish family.
-
-        :param index: publish tab index to load
-        """
-        if not self._navigating:
-            self._current_location.set_tab_index(index)
-
-        if index == self.PUBLISH_TAB_HISTORY:
-            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(
-                self._current_location
-            )
-
-        elif index == self.PUBLISH_TAB_CONTAINS:
-            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(
-                self._current_location
-            )
-
-        elif index == self.PUBLISH_TAB_USED_IN:
-            self._detail_tabs[(self.PUBLISH_PAGE_IDX, index)]["model"].load_data(
-                self._current_location
-            )
-
-        elif index == self.PUBLISH_TAB_INFO:
-            self._publish_details_model.load_data(self._current_location)
-
-        else:
-            self._app.log_error("Cannot load data for unknown publish tab.")
 
     ###################################################################################################
     # top detail area callbacks
@@ -1085,3 +800,261 @@ class AppDialog(QtGui.QWidget):
                     (entity_type, entity_id) = dialog.selected_entity
 
                 self._do_work_area_switch(entity_type, entity_id)
+
+    def build_entity_tabs(self):
+        """
+        Dynamically build the entity tab widgets.
+        """
+
+        tab_data = {}
+
+        for entity_tab_name in self.ENTITY_TABS:
+            tab_widget = self.create_entity_tab_widget(
+                "entity_" + entity_tab_name + "_tab"
+            )
+            label = None
+            checkbox = None
+            view = None
+            model = None
+            data = {}
+
+            if entity_tab_name == self.ENTITY_TAB_NOTES:
+                data["model_class"] = SgEntityListingModel
+                data["delegate_class"] = ListItemDelegate
+                data["entity_type"] = "Note"
+
+                label = self.create_entity_tab_label("entity_note_label", tab_widget)
+                tab_widget.layout().addWidget(label)
+
+                view = self.create_entity_tab_view("entity_note_view", tab_widget)
+                tab_widget.layout().addWidget(view)
+
+            elif entity_tab_name == self.ENTITY_TAB_TASKS:
+                data["model_class"] = SgTaskListingModel
+                data["delegate_class"] = ListItemDelegate
+                data["entity_type"] = "Task"
+
+                label = self.create_entity_tab_label("entity_tasks_label", tab_widget)
+                tab_widget.layout().addWidget(label)
+
+                view = self.create_entity_tab_view("entity_tasks_view", tab_widget)
+                tab_widget.layout().addWidget(view)
+
+            elif entity_tab_name == self.ENTITY_TAB_VERSIONS:
+                data["model_class"] = SgVersionModel
+                data["delegate_class"] = ListItemDelegate
+                data["entity_type"] = "Version"
+
+                label = self.create_entity_tab_label("entity_version_label", tab_widget)
+                tab_widget.layout().addWidget(label)
+
+                view = self.create_entity_tab_view("entity_version_view", tab_widget)
+                tab_widget.layout().addWidget(view)
+
+                checkbox = self.create_entity_tab_checkbox(
+                    "pending_versions_only",
+                    tab_widget,
+                    "Only show versions pending review",
+                )
+                pending_versions_only = self._settings_manager.retrieve(
+                    "pending_versions_only", False
+                )
+                checkbox.setChecked(pending_versions_only)
+                checkbox.toggled.connect(self._on_pending_versions_toggled)
+                tab_widget.layout().addWidget(checkbox)
+
+            elif entity_tab_name == self.ENTITY_TAB_PUBLISHES:
+                data["model_class"] = SgLatestPublishListingModel
+                data["delegate_class"] = ListItemDelegate
+                data["entity_type"] = self._publish_entity_type
+
+                label = self.create_entity_tab_label("entity_publish_label", tab_widget)
+                tab_widget.layout().addWidget(label)
+
+                view = self.create_entity_tab_view("entity_publish_view", tab_widget)
+                tab_widget.layout().addWidget(view)
+
+                checkbox = self.create_entity_tab_checkbox(
+                    "latest_publishes_only", tab_widget, "Only show latest versions"
+                )
+                latest_pubs_only = self._settings_manager.retrieve(
+                    "latest_publishes_only", True
+                )
+                checkbox.setChecked(latest_pubs_only)
+                checkbox.toggled.connect(self._on_latest_publishes_toggled)
+                tab_widget.layout().addWidget(checkbox)
+
+            elif entity_tab_name == self.ENTITY_TAB_PUBLISH_HISTORY:
+                data["model_class"] = SgPublishHistoryListingModel
+                data["delegate_class"] = ListItemDelegate
+                data["entity_type"] = self._publish_entity_type
+
+                label = self.create_entity_tab_label(
+                    "entity_publish_history_label", tab_widget
+                )
+                tab_widget.layout().addWidget(label)
+
+                view = self.create_entity_tab_view(
+                    "entity_publish_history_view", tab_widget
+                )
+                tab_widget.layout().addWidget(view)
+
+            elif entity_tab_name == self.ENTITY_TAB_PUBLISH_UPSTREAM:
+                data["model_class"] = SgPublishDependencyUpstreamListingModel
+                data["delegate_class"] = ListItemDelegate
+                data["entity_type"] = self._publish_entity_type
+
+                label = self.create_entity_tab_label(
+                    "entity_publish_upstream_label", tab_widget
+                )
+                tab_widget.layout().addWidget(label)
+
+                view = self.create_entity_tab_view(
+                    "entity_publish_upstream_view", tab_widget
+                )
+                tab_widget.layout().addWidget(view)
+
+            elif entity_tab_name == self.ENTITY_TAB_PUBLISH_DOWNSTREAM:
+                data["model_class"] = SgPublishDependencyDownstreamListingModel
+                data["delegate_class"] = ListItemDelegate
+                data["entity_type"] = self._publish_entity_type
+
+                label = self.create_entity_tab_label(
+                    "entity_publish_downstream_label", tab_widget
+                )
+                tab_widget.layout().addWidget(label)
+
+                view = self.create_entity_tab_view(
+                    "entity_publish_downstream_view", tab_widget
+                )
+                tab_widget.layout().addWidget(view)
+
+            if entity_tab_name == self.ENTITY_TAB_ACTIVITY_STREAM:
+                model = ActivityStreamWidget(tab_widget)
+                model.setObjectName("entity_activity_stream")
+                model.set_bg_task_manager(self._task_manager)
+                model.entity_requested.connect(self.navigate_to_entity)
+                model.playback_requested.connect(self._playback_version)
+                tab_widget.layout().addWidget(model)
+
+            elif entity_tab_name == self.ENTITY_TAB_INFO:
+                info_widget = AllFieldsWidget(tab_widget)
+                info_widget.link_activated.connect(self._on_link_clicked)
+                tab_widget.layout().addWidget(info_widget)
+
+                model = SgAllFieldsModel(self, self._task_manager)
+                model.data_updated.connect(info_widget.set_data)
+
+            data["widget"] = tab_widget
+            data["label"] = label
+            data["checkbox"] = checkbox
+            data["view"] = view
+            data["model"] = model
+            self.setup_entity_model_view(data)
+
+            tab_data[entity_tab_name] = data
+
+        return tab_data
+
+    def create_entity_tab_widget(self, name):
+        """
+        Create a Qt widget for the entity tab widget.
+        """
+
+        widget = QtGui.QWidget()
+        widget.setObjectName(name)
+        vlayout = QtGui.QVBoxLayout(widget)
+        vlayout.setObjectName(name + "_vlayout")
+        vlayout.setContentsMargins(0, 0, 0, 0)
+        return widget
+
+    def create_entity_tab_label(self, name, parent):
+        """
+        Create a Qt label for the entity tab widget.
+        """
+
+        label = QtGui.QLabel(parent)
+        label.setObjectName(name)
+        label.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
+        )
+        return label
+
+    def create_entity_tab_view(self, name, parent):
+        """
+        Create a Qt view.
+        """
+
+        view = QtGui.QListView(parent)
+        view.setObjectName(name)
+        view.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        view.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        view.setUniformItemSizes(True)
+        return view
+
+    def create_entity_tab_checkbox(self, name, parent, text):
+        """
+        Create a Qt checkbox.
+        """
+
+        checkbox = QtGui.QCheckBox(text, parent)
+        checkbox.setObjectName(name)
+        return checkbox
+
+    def setup_entity_model_view(self, entity_data):
+        """
+        Set up the model view and delegate.
+        """
+
+        if not (
+            entity_data.get("model_class", None)
+            and entity_data.get("delegate_class", None)
+            and entity_data.get("entity_type", None)
+            and entity_data.get("view", None)
+        ):
+            return
+
+        ModelClass = entity_data["model_class"]
+        DelegateClass = entity_data["delegate_class"]
+
+        self._app.log_debug("Creating %r..." % ModelClass)
+
+        # create model
+        entity_data["model"] = ModelClass(
+            entity_data["entity_type"], entity_data["view"], self._task_manager
+        )
+
+        # create proxy for sorting
+        entity_data["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
+        entity_data["sort_proxy"].setSourceModel(entity_data["model"])
+
+        # now use the proxy model to sort the data to ensure
+        # higher version numbers appear earlier in the list
+        # the history model is set up so that the default display
+        # role contains the version number field in shotgun.
+        # This field is what the proxy model sorts by default
+        # We set the dynamic filter to true, meaning QT will keep
+        # continously sorting. And then tell it to use column 0
+        # (we only have one column in our models) and descending order.
+        entity_data["sort_proxy"].setDynamicSortFilter(True)
+        entity_data["sort_proxy"].sort(0, QtCore.Qt.DescendingOrder)
+
+        # set up model
+        entity_data["view"].setModel(entity_data["sort_proxy"])
+        # set up a global on-click handler for
+        entity_data["view"].doubleClicked.connect(self._on_entity_doubleclicked)
+        # create delegate
+        entity_data["delegate"] = DelegateClass(
+            entity_data["view"], self._action_manager
+        )
+        entity_data["delegate"].change_work_area.connect(self._change_work_area)
+        # hook up delegate renderer with view
+        entity_data["view"].setItemDelegate(entity_data["delegate"])
+        # and set up a spinner overlay
+        entity_data["overlay"] = NotFoundModelOverlay(
+            entity_data["model"], entity_data["view"]
+        )
+
+        if ModelClass == SgPublishHistoryListingModel:
+            # this class needs special access to the overlay
+            entity_data["model"].set_overlay(entity_data["overlay"])
