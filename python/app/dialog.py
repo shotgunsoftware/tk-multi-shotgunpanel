@@ -313,10 +313,13 @@ class AppDialog(QtGui.QWidget):
         # dynamically instead of directly in the .ui file. Once Qt version has been
         # upgrade to >= 5.15, we can use QTabWidget::setTabVisible instead of clearing
         # and re-adding the tab widgets each time
+
+        # Block signals emitting on the tab widget to avoid triggering unnecessary data loads
+        self.ui.entity_tab_widget.blockSignals(True)
+
         self.ui.entity_tab_widget.clear()
         self._current_entity_tabs = []
         formatter = self._current_location.sg_formatter
-
         for tab_name in self.ENTITY_TABS:
             (enabled, text) = formatter.show_entity_tab(tab_name)
             if enabled:
@@ -334,6 +337,8 @@ class AppDialog(QtGui.QWidget):
                     )
                     self._entity_tabs[tab_name]["checkbox"].setEnabled(enabled)
                     self._entity_tabs[tab_name]["checkbox"].setVisible(enabled)
+
+        self.ui.entity_tab_widget.blockSignals(False)
 
         # get the tab index associated with the location and
         # show that tab. This means that the 'current tab' is
