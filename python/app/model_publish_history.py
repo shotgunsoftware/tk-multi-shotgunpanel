@@ -9,7 +9,7 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-from sgtk.platform.qt import QtCore, QtGui
+from sgtk.platform.qt import QtGui
 from sgtk import TankError
 
 # import the shotgun_model module from the shotgun utils framework

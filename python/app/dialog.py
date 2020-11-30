@@ -327,16 +327,16 @@ class AppDialog(QtGui.QWidget):
                 self.ui.entity_tab_widget.addTab(tab_widget, text)
                 self._current_entity_tabs.append(tab_name)
 
-                if self._entity_tabs[tab_name].get("label", None):
+                if self._entity_tabs[tab_name].get("description", None):
                     text = formatter.get_entity_tab_description(tab_name)
-                    self._entity_tabs[tab_name]["label"].setText(text)
+                    self._entity_tabs[tab_name]["description"].setText(text)
 
-                if self._entity_tabs[tab_name].get("checkbox", None):
+                if self._entity_tabs[tab_name].get("filter_checkbox", None):
                     enabled = formatter.get_tab_data(
                         tab_name, "enable_checkbox", default_value=False
                     )
-                    self._entity_tabs[tab_name]["checkbox"].setEnabled(enabled)
-                    self._entity_tabs[tab_name]["checkbox"].setVisible(enabled)
+                    self._entity_tabs[tab_name]["filter_checkbox"].setEnabled(enabled)
+                    self._entity_tabs[tab_name]["filter_checkbox"].setVisible(enabled)
 
         self.ui.entity_tab_widget.blockSignals(False)
 
@@ -426,7 +426,8 @@ class AppDialog(QtGui.QWidget):
 
                 elif tab_name == self.ENTITY_TAB_VERSIONS:
                     show_pending_only = (
-                        tab["checkbox"].isEnabled() and tab["checkbox"].isChecked()
+                        tab["filter_checkbox"].isEnabled()
+                        and tab["filter_checkbox"].isChecked()
                     )
                     formatter = self._current_location.sg_formatter
                     tooltip = formatter.get_tab_data(tab_name, "tooltip", None)
@@ -438,7 +439,8 @@ class AppDialog(QtGui.QWidget):
 
                 elif tab_name == self.ENTITY_TAB_PUBLISHES:
                     show_latest_only = (
-                        tab["checkbox"].isEnabled() and tab["checkbox"].isChecked()
+                        tab["filter_checkbox"].isEnabled()
+                        and tab["filter_checkbox"].isChecked()
                     )
                     args = [self._current_location, show_latest_only]
 
@@ -814,149 +816,109 @@ class AppDialog(QtGui.QWidget):
         tab_data = {}
 
         for entity_tab_name in self.ENTITY_TABS:
-            tab_widget = self.create_entity_tab_widget(
-                "entity_" + entity_tab_name + "_tab"
-            )
-            label = None
-            checkbox = None
-            view = None
-            model = None
-            data = {}
+            tab_widget = self.create_entity_tab_widget(entity_tab_name)
+            data = {
+                "has_description": True,
+                "has_view": True,
+                "has_filter": False,
+            }
 
             if entity_tab_name == self.ENTITY_TAB_NOTES:
                 data["model_class"] = SgEntityListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = "Note"
 
-                label = self.create_entity_tab_label("entity_note_label", tab_widget)
-                tab_widget.layout().addWidget(label)
-
-                view = self.create_entity_tab_view("entity_note_view", tab_widget)
-                tab_widget.layout().addWidget(view)
-
             elif entity_tab_name == self.ENTITY_TAB_TASKS:
                 data["model_class"] = SgTaskListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = "Task"
-
-                label = self.create_entity_tab_label("entity_tasks_label", tab_widget)
-                tab_widget.layout().addWidget(label)
-
-                view = self.create_entity_tab_view("entity_tasks_view", tab_widget)
-                tab_widget.layout().addWidget(view)
-
-            elif entity_tab_name == self.ENTITY_TAB_VERSIONS:
-                data["model_class"] = SgVersionModel
-                data["delegate_class"] = ListItemDelegate
-                data["entity_type"] = "Version"
-
-                label = self.create_entity_tab_label("entity_version_label", tab_widget)
-                tab_widget.layout().addWidget(label)
-
-                view = self.create_entity_tab_view("entity_version_view", tab_widget)
-                tab_widget.layout().addWidget(view)
-
-                checkbox = self.create_entity_tab_checkbox(
-                    "pending_versions_only",
-                    tab_widget,
-                    "Only show versions pending review",
-                )
-                pending_versions_only = self._settings_manager.retrieve(
-                    "pending_versions_only", False
-                )
-                checkbox.setChecked(pending_versions_only)
-                checkbox.toggled.connect(self._on_pending_versions_toggled)
-                tab_widget.layout().addWidget(checkbox)
-
-            elif entity_tab_name == self.ENTITY_TAB_PUBLISHES:
-                data["model_class"] = SgLatestPublishListingModel
-                data["delegate_class"] = ListItemDelegate
-                data["entity_type"] = self._publish_entity_type
-
-                label = self.create_entity_tab_label("entity_publish_label", tab_widget)
-                tab_widget.layout().addWidget(label)
-
-                view = self.create_entity_tab_view("entity_publish_view", tab_widget)
-                tab_widget.layout().addWidget(view)
-
-                checkbox = self.create_entity_tab_checkbox(
-                    "latest_publishes_only", tab_widget, "Only show latest versions"
-                )
-                latest_pubs_only = self._settings_manager.retrieve(
-                    "latest_publishes_only", True
-                )
-                checkbox.setChecked(latest_pubs_only)
-                checkbox.toggled.connect(self._on_latest_publishes_toggled)
-                tab_widget.layout().addWidget(checkbox)
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_HISTORY:
                 data["model_class"] = SgPublishHistoryListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = self._publish_entity_type
 
-                label = self.create_entity_tab_label(
-                    "entity_publish_history_label", tab_widget
-                )
-                tab_widget.layout().addWidget(label)
-
-                view = self.create_entity_tab_view(
-                    "entity_publish_history_view", tab_widget
-                )
-                tab_widget.layout().addWidget(view)
-
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_UPSTREAM:
                 data["model_class"] = SgPublishDependencyUpstreamListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = self._publish_entity_type
-
-                label = self.create_entity_tab_label(
-                    "entity_publish_upstream_label", tab_widget
-                )
-                tab_widget.layout().addWidget(label)
-
-                view = self.create_entity_tab_view(
-                    "entity_publish_upstream_view", tab_widget
-                )
-                tab_widget.layout().addWidget(view)
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_DOWNSTREAM:
                 data["model_class"] = SgPublishDependencyDownstreamListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = self._publish_entity_type
 
-                label = self.create_entity_tab_label(
-                    "entity_publish_downstream_label", tab_widget
-                )
-                tab_widget.layout().addWidget(label)
+            elif entity_tab_name == self.ENTITY_TAB_VERSIONS:
+                data["model_class"] = SgVersionModel
+                data["delegate_class"] = ListItemDelegate
+                data["entity_type"] = "Version"
+                data["has_filter"] = True
 
-                view = self.create_entity_tab_view(
-                    "entity_publish_downstream_view", tab_widget
+                # TODO handle checkbox filters more generically
+                checkbox = self.create_entity_tab_checkbox(
+                    entity_tab_name, tab_widget, "Only show versions pending review",
                 )
-                tab_widget.layout().addWidget(view)
+                checked = self._settings_manager.retrieve(
+                    "pending_versions_only", False
+                )
+                checkbox.setChecked(checked)
+                checkbox.toggled.connect(self._on_pending_versions_toggled)
+
+            elif entity_tab_name == self.ENTITY_TAB_PUBLISHES:
+                data["model_class"] = SgLatestPublishListingModel
+                data["delegate_class"] = ListItemDelegate
+                data["entity_type"] = self._publish_entity_type
+                data["has_filter"] = True
+
+                checkbox = self.create_entity_tab_checkbox(
+                    entity_tab_name, tab_widget, "Only show latest versions"
+                )
+                checked = self._settings_manager.retrieve("latest_publishes_only", True)
+                checkbox.setChecked(checked)
+                checkbox.toggled.connect(self._on_latest_publishes_toggled)
 
             if entity_tab_name == self.ENTITY_TAB_ACTIVITY_STREAM:
+                data["has_description"] = False
+                data["has_view"] = False
+
                 model = ActivityStreamWidget(tab_widget)
                 model.setObjectName("entity_activity_stream")
                 model.set_bg_task_manager(self._task_manager)
                 model.entity_requested.connect(self.navigate_to_entity)
                 model.playback_requested.connect(self._playback_version)
                 tab_widget.layout().addWidget(model)
+                data["model"] = model
 
             elif entity_tab_name == self.ENTITY_TAB_INFO:
+                data["has_description"] = False
+                data["has_view"] = False
+
                 info_widget = AllFieldsWidget(tab_widget)
                 info_widget.link_activated.connect(self._on_link_clicked)
                 tab_widget.layout().addWidget(info_widget)
 
                 model = SgAllFieldsModel(self, self._task_manager)
                 model.data_updated.connect(info_widget.set_data)
+                data["model"] = model
+
+            # Add the widgets to the layout in this order: description (label),
+            # view (QListView), filter (checkbox)
+            if data["has_description"]:
+                label = self.create_entity_tab_label(entity_tab_name, tab_widget)
+                tab_widget.layout().addWidget(label)
+                data["description"] = label
+
+            if data["has_view"]:
+                view = self.create_entity_tab_view(entity_tab_name, tab_widget)
+                tab_widget.layout().addWidget(view)
+                data["view"] = view
+
+            if data["has_filter"]:
+                tab_widget.layout().addWidget(checkbox)
+                data["filter_checkbox"] = checkbox
 
             data["widget"] = tab_widget
-            data["label"] = label
-            data["checkbox"] = checkbox
-            data["view"] = view
-            data["model"] = model
             self.setup_entity_model_view(data)
-
             tab_data[entity_tab_name] = data
 
         return tab_data
@@ -967,7 +929,7 @@ class AppDialog(QtGui.QWidget):
         """
 
         widget = QtGui.QWidget()
-        widget.setObjectName(name)
+        widget.setObjectName("entity_" + name + "_tab")
         vlayout = QtGui.QVBoxLayout(widget)
         vlayout.setObjectName(name + "_vlayout")
         vlayout.setContentsMargins(0, 0, 0, 0)
@@ -979,7 +941,7 @@ class AppDialog(QtGui.QWidget):
         """
 
         label = QtGui.QLabel(parent)
-        label.setObjectName(name)
+        label.setObjectName("entity_" + name + "_label")
         label.setAlignment(
             QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
         )
@@ -991,19 +953,19 @@ class AppDialog(QtGui.QWidget):
         """
 
         view = QtGui.QListView(parent)
-        view.setObjectName(name)
+        view.setObjectName("entity_" + name + "_view")
         view.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         view.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         view.setUniformItemSizes(True)
         return view
 
-    def create_entity_tab_checkbox(self, name, parent, text):
+    def create_entity_tab_checkbox(self, name, parent, text=""):
         """
         Create a Qt checkbox.
         """
 
         checkbox = QtGui.QCheckBox(text, parent)
-        checkbox.setObjectName(name)
+        checkbox.setObjectName("entity_" + name + "_checkbox")
         return checkbox
 
     def setup_entity_model_view(self, entity_data):

@@ -680,18 +680,18 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
 
         if self.entity_type != "Project":
             if self.is_current_user:
-                if self.entity_type == AppDialog.ENTITY_TAB_NOTES:
+                if name == AppDialog.ENTITY_TAB_NOTES:
                     return "Your conversations, in update order."
 
-                if self.entity_type == AppDialog.ENTITY_TAB_VERSIONS:
+                if name == AppDialog.ENTITY_TAB_VERSIONS:
                     return "Your review versions, in creation order."
 
-                if self.entity_type == AppDialog.ENTITY_TAB_PUBLISHES:
+                if name == AppDialog.ENTITY_TAB_PUBLISHES:
                     if self._app.context.project:
                         return "Your publishes for this project, in creation order."
                     return "All your publishes, in creation order."
 
-                if self.entity_type == AppDialog.ENTITY_TAB_TASKS:
+                if name == AppDialog.ENTITY_TAB_TASKS:
                     if self._app.context.project:
                         return "Your active tasks for this project."
                     return "All your active tasks."
