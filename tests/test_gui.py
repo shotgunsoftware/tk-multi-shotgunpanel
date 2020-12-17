@@ -52,7 +52,9 @@ def sg_project(shotgun):
     )
 
     # Make sure there is not already an automation project created
-    project_name = "Toolkit Panel UI Automation " + os.environ["SHOTGUN_TEST_ENTITY_SUFFIX"]
+    project_name = (
+        "Toolkit Panel UI Automation " + os.environ["SHOTGUN_TEST_ENTITY_SUFFIX"]
+    )
     filters = [["name", "is", project_name]]
     existed_project = shotgun.find_one("Project", filters)
     if existed_project is not None:
@@ -629,9 +631,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities):
     app_dialog.root.captions["sven.png"].waitExist(timeout=30)
     # Click back again and make sure the Versions tab is selected
     app_dialog.root.buttons["Click to go back"].mouseClick()
-    app_dialog.root.captions["Project " + str(sg_project["name"])].waitExist(
-        timeout=30
-    )
+    app_dialog.root.captions["Project " + str(sg_project["name"])].waitExist(timeout=30)
     assert app_dialog.root.tabs[
         "Versions"
     ].selected, "Activity tab should be selected by default"
