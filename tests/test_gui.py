@@ -52,7 +52,8 @@ def sg_project(shotgun):
     )
 
     # Make sure there is not already an automation project created
-    filters = [["name", "is", "Toolkit Panel UI Automation"]]
+    project_name = "Toolkit Panel UI Automation " + os.environ["SHOTGUN_TEST_ENTITY_SUFFIX"]
+    filters = [["name", "is", project_name]]
     existed_project = shotgun.find_one("Project", filters)
     if existed_project is not None:
         shotgun.delete(existed_project["type"], existed_project["id"])
@@ -60,7 +61,7 @@ def sg_project(shotgun):
     # Create a new project with the Film VFX Template
     project_data = {
         "sg_description": "Project Created by Automation",
-        "name": "Toolkit Panel UI Automation",
+        "name": project_name,
     }
     new_project = shotgun.create("Project", project_data)
 
@@ -260,7 +261,7 @@ class AppDialogAppWrapper(object):
         self.root.buttons["Close"].get().mouseClick()
 
 
-def test_my_tasks(app_dialog, sg_entities):
+def test_my_tasks(app_dialog, sg_project, sg_entities):
     """
     My Tasks tab validation
     """
@@ -374,8 +375,8 @@ def test_my_tasks(app_dialog, sg_entities):
     ].exists(), "Wrong pipeline step. SHould be Model"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
     assert app_dialog.root.captions[
-        "Toolkit Panel UI Automation"
-    ].exists(), "Wrong project. Should be Toolkit Panel UI Automation"
+        str(sg_project["name"])
+    ].exists(), "Wrong project name."
     assert app_dialog.root.captions[
         "Start Date"
     ].exists(), "Start Date attribute is missing"
@@ -399,7 +400,7 @@ def test_my_tasks(app_dialog, sg_entities):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_activity_notes_tabs(app_dialog):
+def test_activity_notes_tabs(app_dialog, sg_project):
     """
     Activity and Notes tabs validation
     """
@@ -466,7 +467,7 @@ def test_activity_notes_tabs(app_dialog):
         "Asset AssetAutomation was created"
     ].exists(), "Asset AssetAutomation creation is missing in the activity stream"
     assert app_dialog.root.captions[
-        "Project Toolkit Panel UI Automation was created"
+        "Project " + str(sg_project["name"]) + " was created"
     ].exists(), (
         "Project Toolkit Panel UI Automation creation is missing in the activity stream"
     )
@@ -486,7 +487,7 @@ def test_activity_notes_tabs(app_dialog):
     # Open the note item
     app_dialog.root.listitems.waitExist(timeout=30)
     app_dialog.root.listitems.mouseDoubleClick()
-    app_dialog.root.captions["Azure's Note on Toolkit Panel UI Automation"].waitExist(
+    app_dialog.root.captions["Azure's Note on " + str(sg_project["name"])].waitExist(
         timeout=30
     )
     assert app_dialog.root.captions[
@@ -576,7 +577,7 @@ def test_activity_notes_tabs(app_dialog):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_versions_tab(app_dialog, sg_entities):
+def test_versions_tab(app_dialog, sg_project, sg_entities):
     """
     Versions tab validation
     """
@@ -628,7 +629,7 @@ def test_versions_tab(app_dialog, sg_entities):
     app_dialog.root.captions["sven.png"].waitExist(timeout=30)
     # Click back again and make sure the Versions tab is selected
     app_dialog.root.buttons["Click to go back"].mouseClick()
-    app_dialog.root.captions["Project Toolkit Panel UI Automation"].waitExist(
+    app_dialog.root.captions["Project " + str(sg_project["name"])].waitExist(
         timeout=30
     )
     assert app_dialog.root.tabs[
@@ -717,7 +718,7 @@ def test_versions_tab(app_dialog, sg_entities):
     ].exists(), "Playlists attribute is missing"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
     assert app_dialog.root.captions[
-        "Toolkit Panel UI Automation"
+        str(sg_project["name"])
     ].exists(), "Wrong project. Should be Toolkit Panel UI Automation"
     assert app_dialog.root.captions[
         "Published Files"
@@ -748,7 +749,7 @@ def test_versions_tab(app_dialog, sg_entities):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_publishes_tab(app_dialog, sg_entities):
+def test_publishes_tab(app_dialog, sg_project, sg_entities):
     """
     Publishes tab validation
     """
@@ -826,8 +827,8 @@ def test_publishes_tab(app_dialog, sg_entities):
     ].exists(), "Wrong published file name. Should be sven.png"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
     assert app_dialog.root.captions[
-        "Toolkit Panel UI Automation"
-    ].exists(), "Wrong project. Should be Toolkit Panel UI Automation"
+        str(sg_project["name"])
+    ].exists(), "Wrong project name."
     assert app_dialog.root.captions[
         "Published File Name"
     ].exists(), "Published File Name attribute is missing"
