@@ -9,7 +9,10 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
+from tank.util import sgre as re
 import pprint
+import os
+import tempfile
 
 # by importing QT from sgtk rather than directly, we ensure that
 # the code will be compatible with both PySide and PyQt.
@@ -235,6 +238,14 @@ class AppDialog(QtGui.QWidget):
         )
         self.ui.version_activity_stream.playback_requested.connect(
             self._playback_version
+        )
+
+        self.ui.entity_activity_stream.note_widget.entity_created.connect(
+            self._update_note_thumbnail
+        )
+
+        self.ui.version_activity_stream.note_widget.entity_created.connect(
+            self._update_note_thumbnail
         )
 
         # set up the UI tabs. Each tab has a model, a delegate, a view and
@@ -856,6 +867,36 @@ class AppDialog(QtGui.QWidget):
         else:
             # all other links are dispatched to the OS
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+
+    def _update_note_thumbnail(self, entity):
+        """
+        :param entity:
+        :return:
+        """
+        if entity["type"] != "Note":
+            return
+
+        sg_entity = self._app.shotgun.find_one(
+            entity["type"], [["id", "is", entity["id"]]], ["attachments"]
+        )
+
+        # be sure to find the right attachment. The screen capture has a "screencapture_" prefix
+        pixmap = None
+        for a in sg_entity["attachments"]:
+            if re.match(r"^screencapture_\w+.png$", a["name"]):
+                pixmap = a
+                break
+
+        if not pixmap:
+            return
+
+        # download the screen capture, upload it as the Note thumbnail and finally delete it from disk
+        tmp_path = tempfile.NamedTemporaryFile(suffix=".png", delete=False).name
+        self._app.shotgun.download_attachment(
+            {"type": "Attachment", "id": pixmap["id"]}, tmp_path
+        )
+        self._app.shotgun.upload_thumbnail(entity["type"], entity["id"], tmp_path)
+        os.remove(tmp_path)
 
     ###################################################################################################
     # navigation
