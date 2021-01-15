@@ -14,163 +14,13 @@ import time
 import os
 import sys
 import sgtk
-from tk_toolchain.authentication import get_toolkit_user
-from tk_toolchain.testing import create_unique_name
+from tk_toolchain.testing import shotgun, sg_project, sg_entities
 
 try:
     from MA.UI import topwindows
     from MA.UI import first
 except ImportError:
     pytestmark = pytest.mark.skip()
-
-
-@pytest.fixture(scope="session")
-def shotgun():
-    """
-    Getting credentials from TK_TOOLCHAIN
-    """
-    sg = get_toolkit_user().create_sg_connection()
-
-    return sg
-
-
-@pytest.fixture(scope="session")
-def sg_project(shotgun):
-    """
-    Generates a fresh Shotgun Project to use with the Shotgun Panel UI Automation.
-    """
-    # Create or update the integration_tests local storage with the current test run
-    storage_name = "Panel UI Tests"
-    local_storage = shotgun.find_one(
-        "LocalStorage", [["code", "is", storage_name]], ["code"]
-    )
-    if local_storage is None:
-        local_storage = shotgun.create("LocalStorage", {"code": storage_name})
-    # Always update local storage path
-    local_storage["path"] = os.path.expandvars("${SHOTGUN_CURRENT_REPO_ROOT}")
-    shotgun.update(
-        "LocalStorage", local_storage["id"], {"windows_path": local_storage["path"]}
-    )
-
-    # Make sure there is not already an automation project created
-    project_name = create_unique_name("Toolkit Panel UI Automation")
-    filters = [["name", "is", project_name]]
-    existed_project = shotgun.find_one("Project", filters)
-    if existed_project is not None:
-        shotgun.delete(existed_project["type"], existed_project["id"])
-
-    # Create a new project with the Film VFX Template
-    project_data = {
-        "sg_description": "Project Created by Automation",
-        "name": project_name,
-    }
-    new_project = shotgun.create("Project", project_data)
-
-    return new_project
-
-
-@pytest.fixture(scope="session")
-def sg_entities(sg_project, shotgun):
-    """
-    Creates Shotgun entities which will be used in different test cases.
-    """
-    # Validate if Automation asset task template exists
-    asset_template_filters = [["code", "is", "Automation Asset Task Template"]]
-    existed_asset_template = shotgun.find_one("TaskTemplate", asset_template_filters)
-    if existed_asset_template is not None:
-        shotgun.delete(existed_asset_template["type"], existed_asset_template["id"])
-    # Create an asset task templates
-    asset_template_data = {
-        "code": "Automation Asset Task Template",
-        "description": "This asset task template was created by the Panel UI automation",
-        "entity_type": "Asset",
-    }
-    asset_task_template = shotgun.create("TaskTemplate", asset_template_data)
-
-    # Create Model and Rig tasks
-    for task_name in ["Model", "Rig"]:
-        # Get the Pipeline step task name
-        pipeline_step_filter = [["code", "is", task_name]]
-        pipeline_step = shotgun.find_one("Step", pipeline_step_filter)
-        # Create task
-        task_data = {
-            "content": task_name,
-            "step": pipeline_step,
-            "task_template": asset_task_template,
-        }
-        shotgun.create("Task", task_data)
-
-    # Create a new asset
-    asset_data = {
-        "project": sg_project,
-        "code": "AssetAutomation",
-        "description": "This asset was created by the Panel UI automation",
-        "sg_status_list": "ip",
-        "sg_asset_type": "Character",
-        "task_template": asset_task_template,
-    }
-    asset = shotgun.create("Asset", asset_data)
-
-    # Get the publish_file_type id to be passed in the publish creation
-    published_file_type_filters = [["code", "is", "Image"]]
-    published_file_type = shotgun.find_one(
-        "PublishedFileType", published_file_type_filters
-    )
-
-    # File to publish
-    file_to_publish = os.path.join(
-        os.path.expandvars("${TK_TEST_FIXTURES}"), "files", "images", "sven.png"
-    )
-
-    # Create a version an upload to it
-    version_data = {
-        "project": sg_project,
-        "code": "sven.png",
-        "description": "This version was created by the Panel UI automation",
-        "entity": asset,
-    }
-    version = shotgun.create("Version", version_data)
-    # Upload a version to the published file
-    shotgun.upload("Version", version["id"], file_to_publish, "sg_uploaded_movie")
-    # Create a published file
-    # Find the model task to publish to
-    filters = [
-        ["project", "is", sg_project],
-        ["entity.Asset.code", "is", asset["code"]],
-        ["step.Step.code", "is", "model"],
-    ]
-    fields = ["sg_status_list"]
-    model_task = shotgun.find_one("Task", filters, fields)
-    publish_data = {
-        "project": sg_project,
-        "code": "sven.png",
-        "name": "sven.png",
-        "description": "This file was published by the Panel UI automation",
-        "published_file_type": published_file_type,
-        "path": {"local_path": file_to_publish},
-        "entity": asset,
-        "task": model_task,
-        "version_number": 1,
-        "version": version,
-        "image": file_to_publish,
-    }
-    publish_file = shotgun.create("PublishedFile", publish_data)
-
-    # Assign a task to the current user
-    # Find current user
-    user = get_toolkit_user()
-    current_user = shotgun.find_one("HumanUser", [["login", "is", str(user)]], ["name"])
-    # Assign current user to the task model
-    shotgun.update(
-        "Task",
-        model_task["id"],
-        {
-            "content": "Model",
-            "task_assignees": [{"type": "HumanUser", "id": current_user["id"]}],
-        },
-    )
-
-    return (model_task, publish_file, version)
 
 
 # This fixture will launch tk-run-app on first usage
@@ -289,7 +139,8 @@ def test_my_tasks(app_dialog, sg_project, sg_entities):
         "Activity"
     ].selected, "Activity tab should be selected by default"
     assert app_dialog.root.captions[
-        "Status: Waiting to Start*Asset AssetAutomation*Assigned to: Azure Pipelines"
+        "Status:*Waiting to Start*Asset AssetAutomation*Assigned to: "
+        + sg_entities[3]["name"]
     ].exists(), "Not on the right task information"
     assert app_dialog.root.captions[
         "Task Model was created on Asset AssetAutomation"
@@ -342,8 +193,8 @@ def test_my_tasks(app_dialog, sg_project, sg_entities):
         "Assigned To"
     ].exists(), "Assigned To attribute is missing"
     assert app_dialog.root.captions[
-        "Azure Pipelines"
-    ].exists(), "Not assigned to the right user. Should be Azure Pipelines"
+        sg_entities[3]["name"]
+    ].exists(), "Not assigned to the right user."
     assert app_dialog.root.captions["Cc"].exists(), "Cc attribute is missing"
     assert app_dialog.root.captions[
         "Created by"
@@ -383,7 +234,7 @@ def test_my_tasks(app_dialog, sg_project, sg_entities):
     ].exists(), "Start Date attribute is missing"
     assert app_dialog.root.captions["Status"].exists(), "Status attribute is missing"
     assert app_dialog.root.captions[
-        "Waiting to Start"
+        "*Waiting to Start"
     ].exists(), "Bad status. Should be Waiting to Start"
     assert app_dialog.root.captions[
         "Task Name"
@@ -401,7 +252,7 @@ def test_my_tasks(app_dialog, sg_project, sg_entities):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_activity_notes_tabs(app_dialog, sg_project):
+def test_activity_notes_tabs(app_dialog, sg_project, sg_entities):
     """
     Activity and Notes tabs validation
     """
@@ -470,7 +321,7 @@ def test_activity_notes_tabs(app_dialog, sg_project):
     assert app_dialog.root.captions[
         "Project " + str(sg_project["name"]) + " was created"
     ].exists(), (
-        "Project Toolkit Panel UI Automation creation is missing in the activity stream"
+        "Project Toolkit UI Automation creation is missing in the activity stream"
     )
     assert app_dialog.root.buttons[
         "Click here to see the Activity stream in Shotgun."
@@ -488,14 +339,20 @@ def test_activity_notes_tabs(app_dialog, sg_project):
     # Open the note item
     app_dialog.root.listitems.waitExist(timeout=30)
     app_dialog.root.listitems.mouseDoubleClick()
-    app_dialog.root.captions["Azure's Note on " + str(sg_project["name"])].waitExist(
+    app_dialog.root.captions["*Note on " + str(sg_project["name"])].waitExist(
         timeout=30
     )
     assert app_dialog.root.captions[
         "New note created by automation"
     ].exists(), "New Note is missing"
     assert app_dialog.root.captions[
-        "Note by Azure Pipelines*Written on*Addressed to: Azure Pipelines*Associated With:*Project Toolkit Panel UI Automation*"
+        "Note by "
+        + sg_entities[3]["name"]
+        + "*Written on*Addressed to: "
+        + sg_entities[3]["name"]
+        + "*Associated With:*"
+        + sg_project["name"]
+        + "*"
     ].exists(), "Not the Notes details"
 
     # Create a reply
@@ -597,7 +454,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities):
     # Open the version
     app_dialog.root.listitems.mouseDoubleClick()
     app_dialog.root.captions[
-        "This version was created by the Panel UI automation"
+        "This version was created by the Toolkit UI automation"
     ].waitExist(timeout=30)
     assert app_dialog.root.tabs[
         "Activity"
@@ -607,7 +464,9 @@ def test_versions_tab(app_dialog, sg_project, sg_entities):
         "Version sven.png was created on Asset AssetAutomation"
     ].exists(), "Version info is missing"
     assert app_dialog.root.captions[
-        "Asset AssetAutomation*Status:*Pending Review*Created by Azure Pipelines on*Comments: This version was created by the Panel UI automation*"
+        "Asset AssetAutomation*Status:*Pending Review*Created by "
+        + sg_entities[3]["name"]
+        + " on*Comments: This version was created by the Toolkit UI automation*"
     ].exists(), "Version info is missing or wrong"
 
     # Create a note on the version
@@ -622,9 +481,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities):
 
     # Open the Note and make sure breadcrumb is good
     app_dialog.root.listitems.mouseDoubleClick()
-    app_dialog.root.captions["Azure's Note on sven.png, AssetAutomation"].waitExist(
-        timeout=30
-    )
+    app_dialog.root.captions["*Note on sven.png, AssetAutomation"].waitExist(timeout=30)
     # Go back to the Note page and make sure breadcrumb is good
     app_dialog.root.buttons["Click to go back"].mouseClick()
     app_dialog.root.captions["sven.png"].waitExist(timeout=30)
@@ -648,8 +505,8 @@ def test_versions_tab(app_dialog, sg_project, sg_entities):
     app_dialog.root.captions["Cuts"].waitExist(timeout=30)
     assert app_dialog.root.captions["Artist"].exists(), "Artist attribute is missing"
     assert app_dialog.root.captions[
-        "Azure Pipelines"
-    ].exists(), "Not asssigned to the right artist. Should be Azure Pipelines"
+        sg_entities[3]["name"]
+    ].exists(), "Not asssigned to the right artist."
     assert app_dialog.root.captions[
         "Client Approved"
     ].exists(), "Client Approved attribute is missing"
@@ -678,7 +535,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities):
         "Description"
     ].exists(), "Description attribute is missing"
     assert app_dialog.root.captions[
-        "This version was created by the Panel UI automation"
+        "This version was created by the Toolkit UI automation"
     ].exists(), "Wrong description."
     assert app_dialog.root.captions[
         "First Frame"
@@ -718,7 +575,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities):
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
     assert app_dialog.root.captions[
         str(sg_project["name"])
-    ].exists(), "Wrong project. Should be Toolkit Panel UI Automation"
+    ].exists(), "Wrong project. Should be Toolkit UI Automation"
     assert app_dialog.root.captions[
         "Published Files"
     ].exists(), "Published Files attribute is missing"
@@ -776,7 +633,9 @@ def test_publishes_tab(app_dialog, sg_project, sg_entities):
     ].selected, "Version History tab should be selected by default"
     app_dialog.root.captions["sven.png"].waitExist()
     assert app_dialog.root.captions[
-        "Image, Version 1*For Asset AssetAutomation, Task Model*Created by Azure Pipelines on*Reviewed here: sven.png*Comments:*This file was published by the Panel UI automation*"
+        "Image, Version 1*For Asset AssetAutomation, Task Model*Created by "
+        + sg_entities[3]["name"]
+        + " on*Reviewed here: sven.png*Comments:*This file was published by the Toolkit UI automation*"
     ].exists(), "Version info is missing or wrong"
 
     # Click on the Uses tab and list item should be empty
@@ -798,8 +657,8 @@ def test_publishes_tab(app_dialog, sg_project, sg_entities):
         "Created by"
     ].exists(), "Created by attribute is missing"
     assert app_dialog.root.captions[
-        "Azure Pipelines"
-    ].exists(), "Not asssigned to the right artist. Should be Azure Pipelines"
+        sg_entities[3]["name"]
+    ].exists(), "Not asssigned to the right artist."
     assert app_dialog.root.captions[
         "Date Created"
     ].exists(), "Date Created attribute is missing"
@@ -810,7 +669,7 @@ def test_publishes_tab(app_dialog, sg_project, sg_entities):
         "Description"
     ].exists(), "Description attribute is missing"
     assert app_dialog.root.captions[
-        "This file was published by the Panel UI automation"
+        "This file was published by the Toolkit UI automation"
     ].exists(), "Missing or wrong description."
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
     assert app_dialog.root.captions[
@@ -839,7 +698,7 @@ def test_publishes_tab(app_dialog, sg_project, sg_entities):
     ].exists(), "Wrong published file type, Should be Image."
     assert app_dialog.root.captions["Status"].exists(), "Status attribute is missing"
     assert app_dialog.root.captions[
-        "Waiting to Start"
+        "*Waiting to Start"
     ].exists(), "Bad status. Should be Waiting to Start"
     assert app_dialog.root.captions["Task"].exists(), "Task attribute is missing"
     assert app_dialog.root.captions["Model"].exists(), "Wrong task, Should be Model."
