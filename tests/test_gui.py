@@ -14,7 +14,7 @@ import time
 import os
 import sys
 import sgtk
-from tk_toolchain.testing import shotgun, sg_project, sg_entities
+from tk_toolchain.testing import shotgun, sg_project, sg_entities, current_user
 
 try:
     from MA.UI import topwindows
@@ -112,7 +112,7 @@ class AppDialogAppWrapper(object):
         self.root.buttons["Close"].get().mouseClick()
 
 
-def test_my_tasks(app_dialog, sg_project, sg_entities):
+def test_my_tasks(app_dialog, sg_project, sg_entities, current_user):
     """
     My Tasks tab validation
     """
@@ -140,7 +140,7 @@ def test_my_tasks(app_dialog, sg_project, sg_entities):
     ].selected, "Activity tab should be selected by default"
     assert app_dialog.root.captions[
         "Status:*Waiting to Start*Asset AssetAutomation*Assigned to: "
-        + sg_entities[3]["name"]
+        + current_user["name"]
     ].exists(), "Not on the right task information"
     assert app_dialog.root.captions[
         "Task Model was created on Asset AssetAutomation"
@@ -193,7 +193,7 @@ def test_my_tasks(app_dialog, sg_project, sg_entities):
         "Assigned To"
     ].exists(), "Assigned To attribute is missing"
     assert app_dialog.root.captions[
-        sg_entities[3]["name"]
+        current_user["name"]
     ].exists(), "Not assigned to the right user."
     assert app_dialog.root.captions["Cc"].exists(), "Cc attribute is missing"
     assert app_dialog.root.captions[
@@ -252,7 +252,7 @@ def test_my_tasks(app_dialog, sg_project, sg_entities):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_activity_notes_tabs(app_dialog, sg_project, sg_entities):
+def test_activity_notes_tabs(app_dialog, sg_project, sg_entities, current_user):
     """
     Activity and Notes tabs validation
     """
@@ -347,9 +347,9 @@ def test_activity_notes_tabs(app_dialog, sg_project, sg_entities):
     ].exists(), "New Note is missing"
     assert app_dialog.root.captions[
         "Note by "
-        + sg_entities[3]["name"]
+        + current_user["name"]
         + "*Written on*Addressed to: "
-        + sg_entities[3]["name"]
+        + current_user["name"]
         + "*Associated With:*"
         + sg_project["name"]
         + "*"
@@ -435,7 +435,7 @@ def test_activity_notes_tabs(app_dialog, sg_project, sg_entities):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_versions_tab(app_dialog, sg_project, sg_entities):
+def test_versions_tab(app_dialog, sg_project, sg_entities, current_user):
     """
     Versions tab validation
     """
@@ -465,7 +465,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities):
     ].exists(), "Version info is missing"
     assert app_dialog.root.captions[
         "Asset AssetAutomation*Status:*Pending Review*Created by "
-        + sg_entities[3]["name"]
+        + current_user["name"]
         + " on*Comments: This version was created by the Toolkit UI automation*"
     ].exists(), "Version info is missing or wrong"
 
@@ -505,7 +505,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities):
     app_dialog.root.captions["Cuts"].waitExist(timeout=30)
     assert app_dialog.root.captions["Artist"].exists(), "Artist attribute is missing"
     assert app_dialog.root.captions[
-        sg_entities[3]["name"]
+        current_user["name"]
     ].exists(), "Not asssigned to the right artist."
     assert app_dialog.root.captions[
         "Client Approved"
@@ -605,7 +605,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_publishes_tab(app_dialog, sg_project, sg_entities):
+def test_publishes_tab(app_dialog, sg_project, sg_entities, current_user):
     """
     Publishes tab validation
     """
@@ -634,7 +634,7 @@ def test_publishes_tab(app_dialog, sg_project, sg_entities):
     app_dialog.root.captions["sven.png"].waitExist()
     assert app_dialog.root.captions[
         "Image, Version 1*For Asset AssetAutomation, Task Model*Created by "
-        + sg_entities[3]["name"]
+        + current_user["name"]
         + " on*Reviewed here: sven.png*Comments:*This file was published by the Toolkit UI automation*"
     ].exists(), "Version info is missing or wrong"
 
@@ -657,7 +657,7 @@ def test_publishes_tab(app_dialog, sg_project, sg_entities):
         "Created by"
     ].exists(), "Created by attribute is missing"
     assert app_dialog.root.captions[
-        sg_entities[3]["name"]
+        current_user["name"]
     ].exists(), "Not asssigned to the right artist."
     assert app_dialog.root.captions[
         "Date Created"
