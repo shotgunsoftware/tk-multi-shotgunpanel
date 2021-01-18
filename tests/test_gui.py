@@ -14,7 +14,6 @@ import time
 import os
 import sys
 import sgtk
-from tk_toolchain.testing import shotgun, sg_project, sg_entities, current_user
 
 try:
     from MA.UI import topwindows
@@ -26,7 +25,7 @@ except ImportError:
 # This fixture will launch tk-run-app on first usage
 # and will remain valid until the test run ends.
 @pytest.fixture(scope="session")
-def host_application(sg_project, sg_entities):
+def host_application(tk_test_create_project, tk_test_create_entities):
     """
     Launch the host application for the Toolkit application.
 
@@ -48,9 +47,9 @@ def host_application(sg_project, sg_entities):
             "--location",
             os.path.dirname(__file__),
             "--context-entity-type",
-            sg_project["type"],
+            tk_test_create_project["type"],
             "--context-entity-id",
-            str(sg_project["id"]),
+            str(tk_test_create_project["id"]),
         ]
     )
     try:
@@ -112,7 +111,7 @@ class AppDialogAppWrapper(object):
         self.root.buttons["Close"].get().mouseClick()
 
 
-def test_my_tasks(app_dialog, sg_project, sg_entities, current_user):
+def test_my_tasks(app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user):
     """
     My Tasks tab validation
     """
@@ -140,7 +139,7 @@ def test_my_tasks(app_dialog, sg_project, sg_entities, current_user):
     ].selected, "Activity tab should be selected by default"
     assert app_dialog.root.captions[
         "Status:*Waiting to Start*Asset AssetAutomation*Assigned to: "
-        + current_user["name"]
+        + tk_test_current_user["name"]
     ].exists(), "Not on the right task information"
     assert app_dialog.root.captions[
         "Task Model was created on Asset AssetAutomation"
@@ -193,7 +192,7 @@ def test_my_tasks(app_dialog, sg_project, sg_entities, current_user):
         "Assigned To"
     ].exists(), "Assigned To attribute is missing"
     assert app_dialog.root.captions[
-        current_user["name"]
+        tk_test_current_user["name"]
     ].exists(), "Not assigned to the right user."
     assert app_dialog.root.captions["Cc"].exists(), "Cc attribute is missing"
     assert app_dialog.root.captions[
@@ -213,7 +212,7 @@ def test_my_tasks(app_dialog, sg_project, sg_entities, current_user):
     ].exists(), "Duration attribute is missing"
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
     assert app_dialog.root.captions[
-        str(sg_entities[0]["id"])
+        str(tk_test_create_entities[0]["id"])
     ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions["Link"].exists(), "Link attribute is missing"
     assert app_dialog.root.captions[
@@ -227,7 +226,7 @@ def test_my_tasks(app_dialog, sg_project, sg_entities, current_user):
     ].exists(), "Wrong pipeline step. SHould be Model"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
     assert app_dialog.root.captions[
-        str(sg_project["name"])
+        str(tk_test_create_project["name"])
     ].exists(), "Wrong project name."
     assert app_dialog.root.captions[
         "Start Date"
@@ -252,7 +251,7 @@ def test_my_tasks(app_dialog, sg_project, sg_entities, current_user):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_activity_notes_tabs(app_dialog, sg_project, sg_entities, current_user):
+def test_activity_notes_tabs(app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user):
     """
     Activity and Notes tabs validation
     """
@@ -319,7 +318,7 @@ def test_activity_notes_tabs(app_dialog, sg_project, sg_entities, current_user):
         "Asset AssetAutomation was created"
     ].exists(), "Asset AssetAutomation creation is missing in the activity stream"
     assert app_dialog.root.captions[
-        "Project " + str(sg_project["name"]) + " was created"
+        "Project " + str(tk_test_create_project["name"]) + " was created"
     ].exists(), (
         "Project Toolkit UI Automation creation is missing in the activity stream"
     )
@@ -339,7 +338,7 @@ def test_activity_notes_tabs(app_dialog, sg_project, sg_entities, current_user):
     # Open the note item
     app_dialog.root.listitems.waitExist(timeout=30)
     app_dialog.root.listitems.mouseDoubleClick()
-    app_dialog.root.captions["*Note on " + str(sg_project["name"])].waitExist(
+    app_dialog.root.captions["*Note on " + str(tk_test_create_project["name"])].waitExist(
         timeout=30
     )
     assert app_dialog.root.captions[
@@ -347,11 +346,11 @@ def test_activity_notes_tabs(app_dialog, sg_project, sg_entities, current_user):
     ].exists(), "New Note is missing"
     assert app_dialog.root.captions[
         "Note by "
-        + current_user["name"]
+        + tk_test_current_user["name"]
         + "*Written on*Addressed to: "
-        + current_user["name"]
+        + tk_test_current_user["name"]
         + "*Associated With:*"
-        + sg_project["name"]
+        + tk_test_create_project["name"]
         + "*"
     ].exists(), "Not the Notes details"
 
@@ -435,7 +434,7 @@ def test_activity_notes_tabs(app_dialog, sg_project, sg_entities, current_user):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_versions_tab(app_dialog, sg_project, sg_entities, current_user):
+def test_versions_tab(app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user):
     """
     Versions tab validation
     """
@@ -465,7 +464,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities, current_user):
     ].exists(), "Version info is missing"
     assert app_dialog.root.captions[
         "Asset AssetAutomation*Status:*Pending Review*Created by "
-        + current_user["name"]
+        + tk_test_current_user["name"]
         + " on*Comments: This version was created by the Toolkit UI automation*"
     ].exists(), "Version info is missing or wrong"
 
@@ -487,7 +486,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities, current_user):
     app_dialog.root.captions["sven.png"].waitExist(timeout=30)
     # Click back again and make sure the Versions tab is selected
     app_dialog.root.buttons["Click to go back"].mouseClick()
-    app_dialog.root.captions["Project " + str(sg_project["name"])].waitExist(timeout=30)
+    app_dialog.root.captions["Project " + str(tk_test_create_project["name"])].waitExist(timeout=30)
     assert app_dialog.root.tabs[
         "Versions"
     ].selected, "Activity tab should be selected by default"
@@ -505,7 +504,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities, current_user):
     app_dialog.root.captions["Cuts"].waitExist(timeout=30)
     assert app_dialog.root.captions["Artist"].exists(), "Artist attribute is missing"
     assert app_dialog.root.captions[
-        current_user["name"]
+        tk_test_current_user["name"]
     ].exists(), "Not asssigned to the right artist."
     assert app_dialog.root.captions[
         "Client Approved"
@@ -551,7 +550,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities, current_user):
     ].exists(), "Frame Rate attribute is missing"
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
     assert app_dialog.root.captions[
-        str(sg_entities[2]["id"])
+        str(tk_test_create_entities[2]["id"])
     ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions[
         "Last Frame"
@@ -574,7 +573,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities, current_user):
     ].exists(), "Playlists attribute is missing"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
     assert app_dialog.root.captions[
-        str(sg_project["name"])
+        str(tk_test_create_project["name"])
     ].exists(), "Wrong project. Should be Toolkit UI Automation"
     assert app_dialog.root.captions[
         "Published Files"
@@ -605,7 +604,7 @@ def test_versions_tab(app_dialog, sg_project, sg_entities, current_user):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_publishes_tab(app_dialog, sg_project, sg_entities, current_user):
+def test_publishes_tab(app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user):
     """
     Publishes tab validation
     """
@@ -634,7 +633,7 @@ def test_publishes_tab(app_dialog, sg_project, sg_entities, current_user):
     app_dialog.root.captions["sven.png"].waitExist()
     assert app_dialog.root.captions[
         "Image, Version 1*For Asset AssetAutomation, Task Model*Created by "
-        + current_user["name"]
+        + tk_test_current_user["name"]
         + " on*Reviewed here: sven.png*Comments:*This file was published by the Toolkit UI automation*"
     ].exists(), "Version info is missing or wrong"
 
@@ -657,7 +656,7 @@ def test_publishes_tab(app_dialog, sg_project, sg_entities, current_user):
         "Created by"
     ].exists(), "Created by attribute is missing"
     assert app_dialog.root.captions[
-        current_user["name"]
+        tk_test_current_user["name"]
     ].exists(), "Not asssigned to the right artist."
     assert app_dialog.root.captions[
         "Date Created"
@@ -673,7 +672,7 @@ def test_publishes_tab(app_dialog, sg_project, sg_entities, current_user):
     ].exists(), "Missing or wrong description."
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
     assert app_dialog.root.captions[
-        str(sg_entities[1]["id"])
+        str(tk_test_create_entities[1]["id"])
     ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions["Link"].exists(), "Link attribute is missing"
     assert app_dialog.root.captions[
@@ -685,7 +684,7 @@ def test_publishes_tab(app_dialog, sg_project, sg_entities, current_user):
     ].exists(), "Wrong published file name. Should be sven.png"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
     assert app_dialog.root.captions[
-        str(sg_project["name"])
+        str(tk_test_create_project["name"])
     ].exists(), "Wrong project name."
     assert app_dialog.root.captions[
         "Published File Name"
