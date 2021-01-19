@@ -111,7 +111,9 @@ class AppDialogAppWrapper(object):
         self.root.buttons["Close"].get().mouseClick()
 
 
-def test_my_tasks(app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user):
+def test_my_tasks(
+    app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user
+):
     """
     My Tasks tab validation
     """
@@ -251,7 +253,9 @@ def test_my_tasks(app_dialog, tk_test_create_project, tk_test_create_entities, t
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_activity_notes_tabs(app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user):
+def test_activity_notes_tabs(
+    app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user
+):
     """
     Activity and Notes tabs validation
     """
@@ -338,9 +342,9 @@ def test_activity_notes_tabs(app_dialog, tk_test_create_project, tk_test_create_
     # Open the note item
     app_dialog.root.listitems.waitExist(timeout=30)
     app_dialog.root.listitems.mouseDoubleClick()
-    app_dialog.root.captions["*Note on " + str(tk_test_create_project["name"])].waitExist(
-        timeout=30
-    )
+    app_dialog.root.captions[
+        "*Note on " + str(tk_test_create_project["name"])
+    ].waitExist(timeout=30)
     assert app_dialog.root.captions[
         "New note created by automation"
     ].exists(), "New Note is missing"
@@ -434,7 +438,9 @@ def test_activity_notes_tabs(app_dialog, tk_test_create_project, tk_test_create_
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_versions_tab(app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user):
+def test_versions_tab(
+    app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user
+):
     """
     Versions tab validation
     """
@@ -486,7 +492,9 @@ def test_versions_tab(app_dialog, tk_test_create_project, tk_test_create_entitie
     app_dialog.root.captions["sven.png"].waitExist(timeout=30)
     # Click back again and make sure the Versions tab is selected
     app_dialog.root.buttons["Click to go back"].mouseClick()
-    app_dialog.root.captions["Project " + str(tk_test_create_project["name"])].waitExist(timeout=30)
+    app_dialog.root.captions[
+        "Project " + str(tk_test_create_project["name"])
+    ].waitExist(timeout=30)
     assert app_dialog.root.tabs[
         "Versions"
     ].selected, "Activity tab should be selected by default"
@@ -604,7 +612,9 @@ def test_versions_tab(app_dialog, tk_test_create_project, tk_test_create_entitie
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-def test_publishes_tab(app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user):
+def test_publishes_tab(
+    app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user
+):
     """
     Publishes tab validation
     """
@@ -632,7 +642,7 @@ def test_publishes_tab(app_dialog, tk_test_create_project, tk_test_create_entiti
     ].selected, "Version History tab should be selected by default"
     app_dialog.root.captions["sven.png"].waitExist()
     assert app_dialog.root.captions[
-        "Image, Version 1*For Asset AssetAutomation, Task Model*Created by "
+        "Not set, Version 1*For Asset AssetAutomation, Task Model*Created by "
         + tk_test_current_user["name"]
         + " on*Reviewed here: sven.png*Comments:*This file was published by the Toolkit UI automation*"
     ].exists(), "Version info is missing or wrong"
@@ -693,8 +703,8 @@ def test_publishes_tab(app_dialog, tk_test_create_project, tk_test_create_entiti
         "Published File Type"
     ].exists(), "Published File Type attribute is missing"
     assert app_dialog.root.captions[
-        "Image"
-    ].exists(), "Wrong published file type, Should be Image."
+        "Not set"
+    ].exists(), "Wrong published file type, Should be Not set."
     assert app_dialog.root.captions["Status"].exists(), "Status attribute is missing"
     assert app_dialog.root.captions[
         "*Waiting to Start"
