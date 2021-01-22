@@ -25,7 +25,7 @@ except ImportError:
 # This fixture will launch tk-run-app on first usage
 # and will remain valid until the test run ends.
 @pytest.fixture(scope="session")
-def host_application(tk_test_create_project, tk_test_create_entities):
+def host_application(tk_test_project, tk_test_entities):
     """
     Launch the host application for the Toolkit application.
 
@@ -47,9 +47,9 @@ def host_application(tk_test_create_project, tk_test_create_entities):
             "--location",
             os.path.dirname(__file__),
             "--context-entity-type",
-            tk_test_create_project["type"],
+            tk_test_project["type"],
             "--context-entity-id",
-            str(tk_test_create_project["id"]),
+            str(tk_test_project["id"]),
         ]
     )
     try:
@@ -111,9 +111,7 @@ class AppDialogAppWrapper(object):
         self.root.buttons["Close"].get().mouseClick()
 
 
-def test_my_tasks(
-    app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user
-):
+def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current_user):
     """
     My Tasks tab validation
     """
@@ -214,7 +212,7 @@ def test_my_tasks(
     ].exists(), "Duration attribute is missing"
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
     assert app_dialog.root.captions[
-        str(tk_test_create_entities[0]["id"])
+        str(tk_test_entities[0]["id"])
     ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions["Link"].exists(), "Link attribute is missing"
     assert app_dialog.root.captions[
@@ -228,7 +226,7 @@ def test_my_tasks(
     ].exists(), "Wrong pipeline step. SHould be Model"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
     assert app_dialog.root.captions[
-        str(tk_test_create_project["name"])
+        str(tk_test_project["name"])
     ].exists(), "Wrong project name."
     assert app_dialog.root.captions[
         "Start Date"
@@ -254,7 +252,7 @@ def test_my_tasks(
 
 
 def test_activity_notes_tabs(
-    app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user
+    app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
     """
     Activity and Notes tabs validation
@@ -322,7 +320,7 @@ def test_activity_notes_tabs(
         "Asset AssetAutomation was created"
     ].exists(), "Asset AssetAutomation creation is missing in the activity stream"
     assert app_dialog.root.captions[
-        "Project " + str(tk_test_create_project["name"]) + " was created"
+        "Project " + str(tk_test_project["name"]) + " was created"
     ].exists(), (
         "Project Toolkit UI Automation creation is missing in the activity stream"
     )
@@ -342,9 +340,9 @@ def test_activity_notes_tabs(
     # Open the note item
     app_dialog.root.listitems.waitExist(timeout=30)
     app_dialog.root.listitems.mouseDoubleClick()
-    app_dialog.root.captions[
-        "*Note on " + str(tk_test_create_project["name"])
-    ].waitExist(timeout=30)
+    app_dialog.root.captions["*Note on " + str(tk_test_project["name"])].waitExist(
+        timeout=30
+    )
     assert app_dialog.root.captions[
         "New note created by automation"
     ].exists(), "New Note is missing"
@@ -354,7 +352,7 @@ def test_activity_notes_tabs(
         + "*Written on*Addressed to: "
         + tk_test_current_user["name"]
         + "*Associated With:*"
-        + tk_test_create_project["name"]
+        + tk_test_project["name"]
         + "*"
     ].exists(), "Not the Notes details"
 
@@ -439,7 +437,7 @@ def test_activity_notes_tabs(
 
 
 def test_versions_tab(
-    app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user
+    app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
     """
     Versions tab validation
@@ -492,9 +490,9 @@ def test_versions_tab(
     app_dialog.root.captions["sven.png"].waitExist(timeout=30)
     # Click back again and make sure the Versions tab is selected
     app_dialog.root.buttons["Click to go back"].mouseClick()
-    app_dialog.root.captions[
-        "Project " + str(tk_test_create_project["name"])
-    ].waitExist(timeout=30)
+    app_dialog.root.captions["Project " + str(tk_test_project["name"])].waitExist(
+        timeout=30
+    )
     assert app_dialog.root.tabs[
         "Versions"
     ].selected, "Activity tab should be selected by default"
@@ -558,7 +556,7 @@ def test_versions_tab(
     ].exists(), "Frame Rate attribute is missing"
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
     assert app_dialog.root.captions[
-        str(tk_test_create_entities[2]["id"])
+        str(tk_test_entities[2]["id"])
     ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions[
         "Last Frame"
@@ -581,7 +579,7 @@ def test_versions_tab(
     ].exists(), "Playlists attribute is missing"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
     assert app_dialog.root.captions[
-        str(tk_test_create_project["name"])
+        str(tk_test_project["name"])
     ].exists(), "Wrong project. Should be Toolkit UI Automation"
     assert app_dialog.root.captions[
         "Published Files"
@@ -613,7 +611,7 @@ def test_versions_tab(
 
 
 def test_publishes_tab(
-    app_dialog, tk_test_create_project, tk_test_create_entities, tk_test_current_user
+    app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
     """
     Publishes tab validation
@@ -682,7 +680,7 @@ def test_publishes_tab(
     ].exists(), "Missing or wrong description."
     assert app_dialog.root.captions["Id"].exists(), "Id attribute is missing"
     assert app_dialog.root.captions[
-        str(tk_test_create_entities[1]["id"])
+        str(tk_test_entities[1]["id"])
     ].exists(), "Not getting the right id for Model task"
     assert app_dialog.root.captions["Link"].exists(), "Link attribute is missing"
     assert app_dialog.root.captions[
@@ -694,7 +692,7 @@ def test_publishes_tab(
     ].exists(), "Wrong published file name. Should be sven.png"
     assert app_dialog.root.captions["Project"].exists(), "Project attribute is missing"
     assert app_dialog.root.captions[
-        str(tk_test_create_project["name"])
+        str(tk_test_project["name"])
     ].exists(), "Wrong project name."
     assert app_dialog.root.captions[
         "Published File Name"
