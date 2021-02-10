@@ -232,7 +232,7 @@ class ShotgunPanelApp(Application):
         :returns: The widget associated with the dialog.
         """
         app_payload = self.import_module("app")
-        widget = self.engine.show_dialog("Shotgun", self, app_payload.AppDialog)
+        widget = self.engine.show_dialog("Panel", self, app_payload.AppDialog)
         self._current_dialog = widget
         return widget
 
