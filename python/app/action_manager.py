@@ -150,7 +150,7 @@ class ActionManager(QtCore.QObject):
                     action_defs = self._app.execute_hook_method(
                         "actions_hook",
                         "generate_actions",
-                        sg_data=sg_data,
+                        sg_publish_data=sg_data,
                         actions=actions_to_evaluate,
                         ui_area=ui_area_str,
                     )
@@ -229,7 +229,7 @@ class ActionManager(QtCore.QObject):
                 "execute_action",
                 name=action_name,
                 params=params,
-                sg_data=sg_data,
+                sg_publish_data=sg_data,
             )
 
             # refresh UI
