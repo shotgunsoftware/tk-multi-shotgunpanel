@@ -20,7 +20,7 @@ class NukeActions(HookBaseClass):
     Shotgun Panel Actions for Nuke
     """
 
-    def generate_actions(self, sg_data, actions, ui_area):
+    def generate_actions(self, sg_publish_data, actions, ui_area):
         """
         Returns a list of action instances for a particular object.
         The data returned from this hook will be used to populate the
@@ -38,7 +38,7 @@ class NukeActions(HookBaseClass):
         - If it will be shown in the main browsing area, "main" is passed.
         - If it will be shown in the details area, "details" is passed.
 
-        :param sg_data: Shotgun data dictionary.
+        :param sg_publish_data: Shotgun data dictionary.
         :param actions: List of action strings which have been defined in the app configuration.
         :param ui_area: String denoting the UI Area (see above).
         :returns List of dictionaries, each with keys name, params, caption and description
@@ -46,7 +46,7 @@ class NukeActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Generate actions called for UI element %s. "
-            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data)
+            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_publish_data)
         )
 
         action_instances = []
@@ -54,7 +54,7 @@ class NukeActions(HookBaseClass):
         try:
             # call base class first
             action_instances += HookBaseClass.generate_actions(
-                self, sg_data, actions, ui_area
+                self, sg_publish_data, actions, ui_area
             )
         except AttributeError as e:
             # base class doesn't have the method, so ignore and continue
@@ -102,45 +102,45 @@ class NukeActions(HookBaseClass):
 
         return action_instances
 
-    def execute_action(self, name, params, sg_data):
+    def execute_action(self, name, params, sg_publish_data):
         """
         Execute a given action. The data sent to this be method will
         represent one of the actions enumerated by the generate_actions method.
 
         :param name: Action name string representing one of the items returned by generate_actions.
         :param params: Params data, as specified by generate_actions.
-        :param sg_data: Shotgun data dictionary
+        :param sg_publish_data: Shotgun data dictionary
         :returns: No return value expected.
         """
         app = self.parent
         app.log_debug(
             "Execute action called for action %s. "
-            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
+            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_publish_data)
         )
 
         if name == "read_node":
             # resolve path - forward slashes on all platforms in Nuke
-            path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
-            self._create_read_node(path, sg_data)
+            path = self.get_publish_path(sg_publish_data).replace(os.path.sep, "/")
+            self._create_read_node(path, sg_publish_data)
 
         elif name == "script_import":
             # resolve path - forward slashes on all platforms in Nuke
-            path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
-            self._import_script(path, sg_data)
+            path = self.get_publish_path(sg_publish_data).replace(os.path.sep, "/")
+            self._import_script(path, sg_publish_data)
 
         elif name == "open_project":
             # resolve path - forward slashes on all platforms in Nuke
-            path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
-            self._open_project(path, sg_data)
+            path = self.get_publish_path(sg_publish_data).replace(os.path.sep, "/")
+            self._open_project(path, sg_publish_data)
 
         elif name == "clip_import":
             # resolve path - forward slashes on all platforms in Nuke
-            path = self.get_publish_path(sg_data).replace(os.path.sep, "/")
-            self._import_clip(path, sg_data)
+            path = self.get_publish_path(sg_publish_data).replace(os.path.sep, "/")
+            self._import_clip(path, sg_publish_data)
 
         else:
             try:
-                HookBaseClass.execute_action(self, name, params, sg_data)
+                HookBaseClass.execute_action(self, name, params, sg_publish_data)
             except AttributeError as e:
                 # base class doesn't have the method, so ignore and continue
                 pass

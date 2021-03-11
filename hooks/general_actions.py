@@ -19,7 +19,7 @@ class GeneralActions(HookBaseClass):
     General Shotgun Panel Actions that apply to all DCCs
     """
 
-    def generate_actions(self, sg_data, actions, ui_area):
+    def generate_actions(self, sg_publish_data, actions, ui_area):
         """
         Returns a list of action instances for a particular object.
         The data returned from this hook will be used to populate the
@@ -37,7 +37,7 @@ class GeneralActions(HookBaseClass):
         - If it will be shown in the main browsing area, "main" is passed.
         - If it will be shown in the details area, "details" is passed.
 
-        :param sg_data: Shotgun data dictionary with a set of standard fields.
+        :param sg_publish_data: Shotgun data dictionary with a set of standard fields.
         :param actions: List of action strings which have been defined in the app configuration.
         :param ui_area: String denoting the UI Area (see above).
         :returns List of dictionaries, each with keys name, params, caption, group and description
@@ -45,7 +45,7 @@ class GeneralActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Generate actions called for UI element %s. "
-            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data)
+            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_publish_data)
         )
 
         action_instances = []
@@ -74,7 +74,7 @@ class GeneralActions(HookBaseClass):
 
         if "quicktime_clipboard" in actions:
 
-            if sg_data.get("sg_path_to_movie"):
+            if sg_publish_data.get("sg_path_to_movie"):
                 # path to movie exists, so show the action
                 action_instances.append(
                     {
@@ -88,7 +88,7 @@ class GeneralActions(HookBaseClass):
 
         if "sequence_clipboard" in actions:
 
-            if sg_data.get("sg_path_to_frames"):
+            if sg_publish_data.get("sg_path_to_frames"):
                 # path to frames exists, so show the action
                 action_instances.append(
                     {
@@ -102,7 +102,7 @@ class GeneralActions(HookBaseClass):
 
         if "publish_clipboard" in actions:
 
-            if "path" in sg_data and sg_data["path"].get("local_path"):
+            if "path" in sg_publish_data and sg_publish_data["path"].get("local_path"):
                 # path field exists and the local path is populated
                 action_instances.append(
                     {
@@ -124,7 +124,7 @@ class GeneralActions(HookBaseClass):
             playlists = self.parent.shotgun.find(
                 "Playlist",
                 [
-                    ["project", "is", sg_data.get("project")],
+                    ["project", "is", sg_publish_data.get("project")],
                     {
                         "filter_operator": "any",
                         "filters": [
@@ -139,7 +139,9 @@ class GeneralActions(HookBaseClass):
             )
 
             # playlists this version is already part of
-            existing_playlist_ids = [x["id"] for x in sg_data.get("playlists", [])]
+            existing_playlist_ids = [
+                x["id"] for x in sg_publish_data.get("playlists", [])
+            ]
 
             for playlist in playlists:
                 if playlist["id"] in existing_playlist_ids:
@@ -171,20 +173,20 @@ class GeneralActions(HookBaseClass):
 
         return action_instances
 
-    def execute_action(self, name, params, sg_data):
+    def execute_action(self, name, params, sg_publish_data):
         """
         Execute a given action. The data sent to this be method will
         represent one of the actions enumerated by the generate_actions method.
 
         :param name: Action name string representing one of the items returned by generate_actions.
         :param params: Params data, as specified by generate_actions.
-        :param sg_data: Shotgun data dictionary
+        :param sg_publish_data: Shotgun data dictionary
         :returns: No return value expected.
         """
         app = self.parent
         app.log_debug(
             "Execute action called for action %s. "
-            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
+            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_publish_data)
         )
 
         if name == "assign_task":
@@ -197,35 +199,37 @@ class GeneralActions(HookBaseClass):
                 )
 
             data = app.shotgun.find_one(
-                "Task", [["id", "is", sg_data["id"]]], ["task_assignees"]
+                "Task", [["id", "is", sg_publish_data["id"]]], ["task_assignees"]
             )
             assignees = data["task_assignees"] or []
             assignees.append(app.context.user)
-            app.shotgun.update("Task", sg_data["id"], {"task_assignees": assignees})
+            app.shotgun.update(
+                "Task", sg_publish_data["id"], {"task_assignees": assignees}
+            )
 
         elif name == "add_to_playlist":
             app.shotgun.update(
                 "Version",
-                sg_data["id"],
+                sg_publish_data["id"],
                 {"playlists": [{"type": "Playlist", "id": params["playlist_id"]}]},
                 multi_entity_update_modes={"playlists": "add"},
             )
             self.logger.debug(
                 "Updated playlist %s to include version %s"
-                % (params["playlist_id"], sg_data["id"])
+                % (params["playlist_id"], sg_publish_data["id"])
             )
 
         elif name == "task_to_ip":
-            app.shotgun.update("Task", sg_data["id"], {"sg_status_list": "ip"})
+            app.shotgun.update("Task", sg_publish_data["id"], {"sg_status_list": "ip"})
 
         elif name == "quicktime_clipboard":
-            self._copy_to_clipboard(sg_data["sg_path_to_movie"])
+            self._copy_to_clipboard(sg_publish_data["sg_path_to_movie"])
 
         elif name == "sequence_clipboard":
-            self._copy_to_clipboard(sg_data["sg_path_to_frames"])
+            self._copy_to_clipboard(sg_publish_data["sg_path_to_frames"])
 
         elif name == "publish_clipboard":
-            self._copy_to_clipboard(sg_data["path"]["local_path"])
+            self._copy_to_clipboard(sg_publish_data["path"]["local_path"])
 
     def _copy_to_clipboard(self, text):
         """

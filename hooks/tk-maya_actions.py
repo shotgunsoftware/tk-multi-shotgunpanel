@@ -23,7 +23,7 @@ class MayaActions(HookBaseClass):
     Shotgun Panel Actions for Maya
     """
 
-    def generate_actions(self, sg_data, actions, ui_area):
+    def generate_actions(self, sg_publish_data, actions, ui_area):
         """
         Returns a list of action instances for a particular object.
         The data returned from this hook will be used to populate the
@@ -41,7 +41,7 @@ class MayaActions(HookBaseClass):
         - If it will be shown in the main browsing area, "main" is passed.
         - If it will be shown in the details area, "details" is passed.
 
-        :param sg_data: Shotgun data dictionary with all the standard shotgun fields.
+        :param sg_publish_data: Shotgun data dictionary with all the standard shotgun fields.
         :param actions: List of action strings which have been defined in the app configuration.
         :param ui_area: String denoting the UI Area (see above).
         :returns List of dictionaries, each with keys name, params, caption and description
@@ -49,7 +49,7 @@ class MayaActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Generate actions called for UI element %s. "
-            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data)
+            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_publish_data)
         )
 
         action_instances = []
@@ -57,7 +57,7 @@ class MayaActions(HookBaseClass):
         try:
             # call base class first
             action_instances += HookBaseClass.generate_actions(
-                self, sg_data, actions, ui_area
+                self, sg_publish_data, actions, ui_area
             )
         except AttributeError as e:
             # base class doesn't have the method, so ignore and continue
@@ -118,45 +118,45 @@ class MayaActions(HookBaseClass):
 
         return action_instances
 
-    def execute_action(self, name, params, sg_data):
+    def execute_action(self, name, params, sg_publish_data):
         """
         Execute a given action. The data sent to this be method will
         represent one of the actions enumerated by the generate_actions method.
 
         :param name: Action name string representing one of the items returned by generate_actions.
         :param params: Params data, as specified by generate_actions.
-        :param sg_data: Shotgun data dictionary
+        :param sg_publish_data: Shotgun data dictionary
         :returns: No return value expected.
         """
         app = self.parent
         app.log_debug(
             "Execute action called for action %s. "
-            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
+            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_publish_data)
         )
 
         if name == "reference":
-            path = self.get_publish_path(sg_data)
-            self._create_reference(path, sg_data)
+            path = self.get_publish_path(sg_publish_data)
+            self._create_reference(path, sg_publish_data)
 
         elif name == "import":
-            path = self.get_publish_path(sg_data)
-            self._do_import(path, sg_data)
+            path = self.get_publish_path(sg_publish_data)
+            self._do_import(path, sg_publish_data)
 
         elif name == "texture_node":
-            path = self.get_publish_path(sg_data)
-            self._create_texture_node(path, sg_data)
+            path = self.get_publish_path(sg_publish_data)
+            self._create_texture_node(path, sg_publish_data)
 
         elif name == "udim_texture_node":
-            path = self.get_publish_path(sg_data)
-            self._create_udim_texture_node(path, sg_data)
+            path = self.get_publish_path(sg_publish_data)
+            self._create_udim_texture_node(path, sg_publish_data)
 
         elif name == "image_plane":
-            path = self.get_publish_path(sg_data)
-            self._create_image_plane(path, sg_data)
+            path = self.get_publish_path(sg_publish_data)
+            self._create_image_plane(path, sg_publish_data)
 
         else:
             try:
-                HookBaseClass.execute_action(self, name, params, sg_data)
+                HookBaseClass.execute_action(self, name, params, sg_publish_data)
             except AttributeError as e:
                 # base class doesn't have the method, so ignore and continue
                 pass
