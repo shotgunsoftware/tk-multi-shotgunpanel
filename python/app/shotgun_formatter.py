@@ -570,7 +570,7 @@ class ShotgunTypeFormatter(object):
             if self._entity_type == "Task":
                 # show tasks i am assigned to
                 link_filters.append(["task_assignees", "in", [sg_location.entity_dict]])
-                link_filters.append(["sg_status_list", "is_not", "fin"])
+                link_filters.extend(self._app.get_setting('my_tasks_filters'))
                 if context_project:
                     # we are in a non-site context. only tasks from this project
                     link_filters.append(["project", "is", context_project])
@@ -713,7 +713,7 @@ class ShotgunTypeFormatter(object):
                     )
 
                 link_filters.append(["task_assignees", "in", [current_user]])
-                link_filters.append(["sg_status_list", "is_not", "fin"])
+                link_filters.extend(self._app.get_setting('my_tasks_filters'))
                 link_filters.append(["project", "is", sg_location.entity_dict])
 
             else:
