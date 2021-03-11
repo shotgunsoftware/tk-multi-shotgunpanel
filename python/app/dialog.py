@@ -9,7 +9,7 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-from tank.util import sgre as re
+from sgtk.util import sgre as re
 import pprint
 import os
 import tempfile
