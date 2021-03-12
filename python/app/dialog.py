@@ -843,7 +843,31 @@ class AppDialog(QtGui.QWidget):
 
     def build_entity_tabs(self):
         """
-        Dynamically build the entity tab widgets.
+        Build the dictionary data for each entity tab defined in `ENTITY_TABS`. The entity tab
+        dictionary data:
+
+            Required:
+                'widget': the containing widget for the tab
+                'entity_type': the entity type for this tab
+                'has_description': indicates whether or not the tab has a description
+                'has_view': indicates whether or not the tab has a view
+                'has_filter': indicates whether or not the tab has a checkbox filter
+
+            Optional:
+                'description': a label to dispaly in the tab
+                'filter_checkbox': a checkbox that filters the tab data
+
+            Optional and set in method `setup_entity_model_view`:
+                'view': a view to display the tab data
+                'model': a data model for the view
+                'model_class': the class for the tab 'model'
+                'delegate': a delegate to set for the view
+                'delegate_class': the class for the tab 'delegate'
+                'sort_proxy': a proxy model for the 'model'
+                'overlay': an overlay widget that may be used when the tab is loading, not data found, etc.
+
+        :return: The data for each entity tab.
+        :rtype: dict
         """
 
         tab_data = {}
@@ -914,14 +938,18 @@ class AppDialog(QtGui.QWidget):
                 data["has_description"] = False
                 data["has_view"] = False
 
-                model = ActivityStreamWidget(tab_widget)
-                model.setObjectName("entity_activity_stream")
-                model.set_bg_task_manager(self._task_manager)
-                model.entity_requested.connect(self.navigate_to_entity)
-                model.playback_requested.connect(self._playback_version)
-                model.note_widget.entity_created.connect(self._update_note_thumbnail)
-                tab_widget.layout().addWidget(model)
-                data["model"] = model
+                activity_widget = ActivityStreamWidget(tab_widget)
+                activity_widget.setObjectName("entity_activity_stream")
+                activity_widget.set_bg_task_manager(self._task_manager)
+                activity_widget.entity_requested.connect(self.navigate_to_entity)
+                activity_widget.playback_requested.connect(self._playback_version)
+                activity_widget.note_widget.entity_created.connect(
+                    self._update_note_thumbnail
+                )
+                tab_widget.layout().addWidget(activity_widget)
+                # The ActivityWStreamWidget is the model in this case (e.g. it implements the necessary
+                # `load_data` mehthod).
+                data["model"] = activity_widget
 
             elif entity_tab_name == self.ENTITY_TAB_INFO:
                 data["has_description"] = False
@@ -935,8 +963,8 @@ class AppDialog(QtGui.QWidget):
                 model.data_updated.connect(info_widget.set_data)
                 data["model"] = model
 
-            # Add the widgets to the layout in this order: description (label),
-            # view (QListView), filter (checkbox)
+            # Add the widgets to the layout in this order: description (QLabel),
+            # view (QListView), filter (QCheckbox)
             if data["has_description"]:
                 label = self.create_entity_tab_label(entity_tab_name, tab_widget)
                 tab_widget.layout().addWidget(label)
@@ -952,6 +980,9 @@ class AppDialog(QtGui.QWidget):
                 data["filter_checkbox"] = checkbox
 
             data["widget"] = tab_widget
+
+            # Set up the model, view and delegate for the tab. This method will modify the
+            # enttiy data passed in with the created model, view, delegate and other necessary objects
             self.setup_entity_model_view(data)
             tab_data[entity_tab_name] = data
 
@@ -959,7 +990,12 @@ class AppDialog(QtGui.QWidget):
 
     def create_entity_tab_widget(self, name):
         """
-        Create a Qt widget for the entity tab widget.
+        Create a QWidget to be used by an entity tab.
+
+        :param name: The name of the entity tab. This will be used to set the QWidget object name.
+        :type name: str
+        :return: A widget intended to be used for an entity tab.
+        :rtype: :class:`sgtk.platform.qt.QtGui.QWidget`
         """
 
         widget = QtGui.QWidget()
@@ -971,7 +1007,14 @@ class AppDialog(QtGui.QWidget):
 
     def create_entity_tab_label(self, name, parent):
         """
-        Create a Qt label for the entity tab widget.
+        Create a QLabel to be used by an entity tab.
+
+        :param name: The name of the entity tab. This will be used to set the QLabel object name.
+        :type name: str
+        :param parent: The QLabel parent widget. This should be the entity tab widget.
+        :type parent: :class:`sgtk.platform.qt.QtGui.QWidget`
+        :return: A label intended to be used for an entity tab.
+        :rtype: :class:`sgtk.platform.qt.QtGui.QLabel`
         """
 
         label = QtGui.QLabel(parent)
@@ -990,7 +1033,14 @@ class AppDialog(QtGui.QWidget):
 
     def create_entity_tab_view(self, name, parent):
         """
-        Create a Qt view.
+        Create a QListView to be used by an entity tab.
+
+        :param name: The name of the entity tab. This will be used to set the QListView object name.
+        :type name: str
+        :param parent: The QListView parent widget. This should be the entity tab widget.
+        :type parent: :class:`sgtk.platform.qt.QtGui.QWidget`
+        :return: A view intended to be used for an entity tab.
+        :rtype: :class:`sgtk.platform.qt.QtGui.QListView`
         """
 
         view = QtGui.QListView(parent)
@@ -1002,7 +1052,16 @@ class AppDialog(QtGui.QWidget):
 
     def create_entity_tab_checkbox(self, name, parent, text=""):
         """
-        Create a Qt checkbox.
+        Create a QCheckBox to be used by an entity tab.
+
+        :param name: The name of the entity tab. This will be used to set the QCheckBox object name.
+        :type name: str
+        :param parent: The QCheckBox parent widget. This should be the entity tab widget.
+        :type parent: :class:`sgtk.platform.qt.QtGui.QWidget`
+        :param text: Optional text to dispaly with the checkbox. Defaults to the empty string.
+        :type text: str
+        :return: A checkbox intended to be used for an entity tab.
+        :rtype: :class:`sgtk.platform.qt.QtGui.QCheckBox`
         """
 
         checkbox = QtGui.QCheckBox(text, parent)
@@ -1011,9 +1070,15 @@ class AppDialog(QtGui.QWidget):
 
     def setup_entity_model_view(self, entity_data):
         """
-        Set up the model view and delegate.
+        Given the entiy tab data, set up a model and view for the tab. This method
+        will modify the `entity_data` dict passed in with the created model and view.
+
+        :param entity_data:
+        :type entity_data: dict
+        :return: None
         """
 
+        # Check for the required entity data to set up the model and view.
         if not (
             entity_data.get("model_class", None)
             and entity_data.get("delegate_class", None)
