@@ -17,7 +17,6 @@ from sgtk.platform.qt import QtCore, QtGui
 from .ui.dialog import Ui_Dialog
 
 from .shotgun_location import ShotgunLocation
-from .delegate_list_item import ListItemDelegate
 from .action_manager import ActionManager
 from .model_entity_listing import SgEntityListingModel
 from .model_version_listing import SgVersionModel
@@ -33,6 +32,7 @@ from .not_found_overlay import NotFoundModelOverlay
 from .shotgun_formatter import ShotgunTypeFormatter
 from .note_updater import NoteUpdater
 from .work_area_dialog import WorkAreaDialog
+from .work_area_button import WorkAreaButton
 
 shotgun_model = sgtk.platform.import_framework(
     "tk-framework-shotgunutils", "shotgun_model"
@@ -55,6 +55,9 @@ overlay_module = sgtk.platform.import_framework(
     "tk-framework-qtwidgets", "overlay_widget"
 )
 ShotgunModelOverlayWidget = overlay_module.ShotgunModelOverlayWidget
+
+delegates = sgtk.platform.import_framework("tk-framework-qtwidgets", "delegates")
+ViewItemDelegate = delegates.ViewItemDelegate
 
 # maximum size of the details field in the top part of the UI
 MAX_LEN_UPPER_BODY_DETAILS = 1200
@@ -246,7 +249,7 @@ class AppDialog(QtGui.QWidget):
         idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_NOTES)
         self._detail_tabs[idx] = {
             "model_class": SgEntityListingModel,
-            "delegate_class": ListItemDelegate,
+            "delegate_class": ViewItemDelegate,
             "view": self.ui.entity_note_view,
             "entity_type": "Note",
         }
@@ -254,7 +257,7 @@ class AppDialog(QtGui.QWidget):
         idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_VERSIONS)
         self._detail_tabs[idx] = {
             "model_class": SgVersionModel,
-            "delegate_class": ListItemDelegate,
+            "delegate_class": ViewItemDelegate,
             "view": self.ui.entity_version_view,
             "entity_type": "Version",
         }
@@ -262,7 +265,7 @@ class AppDialog(QtGui.QWidget):
         idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_PUBLISHES)
         self._detail_tabs[idx] = {
             "model_class": SgLatestPublishListingModel,
-            "delegate_class": ListItemDelegate,
+            "delegate_class": ViewItemDelegate,
             "view": self.ui.entity_publish_view,
             "entity_type": self._publish_entity_type,
         }
@@ -270,7 +273,7 @@ class AppDialog(QtGui.QWidget):
         idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_TASKS)
         self._detail_tabs[idx] = {
             "model_class": SgTaskListingModel,
-            "delegate_class": ListItemDelegate,
+            "delegate_class": ViewItemDelegate,
             "view": self.ui.entity_task_view,
             "entity_type": "Task",
         }
@@ -279,7 +282,7 @@ class AppDialog(QtGui.QWidget):
         idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_HISTORY)
         self._detail_tabs[idx] = {
             "model_class": SgPublishHistoryListingModel,
-            "delegate_class": ListItemDelegate,
+            "delegate_class": ViewItemDelegate,
             "view": self.ui.publish_history_view,
             "entity_type": self._publish_entity_type,
         }
@@ -287,7 +290,7 @@ class AppDialog(QtGui.QWidget):
         idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_CONTAINS)
         self._detail_tabs[idx] = {
             "model_class": SgPublishDependencyDownstreamListingModel,
-            "delegate_class": ListItemDelegate,
+            "delegate_class": ViewItemDelegate,
             "view": self.ui.publish_upstream_view,
             "entity_type": self._publish_entity_type,
         }
@@ -295,7 +298,7 @@ class AppDialog(QtGui.QWidget):
         idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_USED_IN)
         self._detail_tabs[idx] = {
             "model_class": SgPublishDependencyUpstreamListingModel,
-            "delegate_class": ListItemDelegate,
+            "delegate_class": ViewItemDelegate,
             "view": self.ui.publish_downstream_view,
             "entity_type": self._publish_entity_type,
         }
@@ -304,7 +307,7 @@ class AppDialog(QtGui.QWidget):
         idx = (self.VERSION_PAGE_IDX, self.VERSION_TAB_NOTES)
         self._detail_tabs[idx] = {
             "model_class": SgEntityListingModel,
-            "delegate_class": ListItemDelegate,
+            "delegate_class": ViewItemDelegate,
             "view": self.ui.version_note_view,
             "entity_type": "Note",
         }
@@ -312,7 +315,7 @@ class AppDialog(QtGui.QWidget):
         idx = (self.VERSION_PAGE_IDX, self.VERSION_TAB_PUBLISHES)
         self._detail_tabs[idx] = {
             "model_class": SgLatestPublishListingModel,
-            "delegate_class": ListItemDelegate,
+            "delegate_class": ViewItemDelegate,
             "view": self.ui.version_publish_view,
             "entity_type": self._publish_entity_type,
         }
@@ -323,8 +326,6 @@ class AppDialog(QtGui.QWidget):
         for tab_dict in self._detail_tabs.values():
 
             ModelClass = tab_dict["model_class"]
-            DelegateClass = tab_dict["delegate_class"]
-
             self._app.log_debug("Creating %r..." % ModelClass)
 
             # create model
@@ -351,11 +352,15 @@ class AppDialog(QtGui.QWidget):
             tab_dict["view"].setModel(tab_dict["sort_proxy"])
             # set up a global on-click handler for
             tab_dict["view"].doubleClicked.connect(self._on_entity_doubleclicked)
-            # create delegate
-            tab_dict["delegate"] = DelegateClass(tab_dict["view"], self._action_manager)
-            tab_dict["delegate"].change_work_area.connect(self._change_work_area)
-            # hook up delegate renderer with view
-            tab_dict["view"].setItemDelegate(tab_dict["delegate"])
+
+            DelegateClass = tab_dict["delegate_class"]
+            # Currently only support for the ViewItemDelegate. If other delegate classes are required,
+            # handling for that delegate class must be added below.
+            assert DelegateClass is ViewItemDelegate, "Unsupported delegate type"
+
+            # Create and set the item delegate for the view
+            tab_dict["delegate"] = self._create_view_item_delegate(tab_dict["view"])
+
             # and set up a spinner overlay
             tab_dict["overlay"] = NotFoundModelOverlay(
                 tab_dict["model"], tab_dict["view"]
@@ -403,6 +408,72 @@ class AppDialog(QtGui.QWidget):
         self._overlay.show_message_pixmap(splash_pix)
         QtCore.QCoreApplication.processEvents()
         QtCore.QTimer.singleShot(SPLASH_UI_TIME_MILLISECONDS, self._overlay.hide)
+
+    def _create_view_item_delegate(self, view):
+        """
+        Create and set up a :class:`ViewItemDelegate` object for the given view.
+
+        :param view: The view object for this delegate.
+        :type view: :class:`sgtk.platform.qt.QtGui.QAbstractItemView`
+
+        :return: The delegated that was created.
+        :rtype: :class:`ViewItemDelegate`
+        """
+
+        delegate = ViewItemDelegate(view)
+
+        # Set the item data roles used by the delegate to render an item.
+        delegate.title_role = SgEntityListingModel.VIEW_ITEM_TITLE_ROLE
+        delegate.subtitle_role = SgEntityListingModel.VIEW_ITEM_SUBTITLE_ROLE
+        delegate.details_role = SgEntityListingModel.VIEW_ITEM_DETAILS_ROLE
+        # Set the item data role used by the delegate to expand and collapse an item row.
+        delegate.expand_role = SgEntityListingModel.VIEW_ITEM_EXPAND_ROLE
+
+        # Adding padding around each item rect.
+        delegate.item_padding = 10
+        # Fix the thumbnail width to ensure the item text is aligned between rows.
+        delegate.thumbnail_width = 90
+
+        # Add a menu button to display and execute the item's actions.
+        delegate.add_actions(
+            [
+                {
+                    "icon": ":/tk_multi_infopanel/down_arrow.png",
+                    "padding": 0,
+                    "callback": self._show_action_menu,
+                },
+            ],
+            ViewItemDelegate.TOP_RIGHT,
+        )
+
+        if self._app.get_setting("enable_context_switch"):
+            # Add a button to set the context.
+            work_area_icon = QtGui.QIcon(":/tk_multi_infopanel/pin.png")
+            work_area_icon.addPixmap(
+                QtGui.QPixmap(":/tk_multi_infopanel/pin_blue.png"),
+                QtGui.QIcon.Disabled,
+                QtGui.QIcon.Off,
+            )
+            delegate.add_actions(
+                [
+                    {
+                        "icon": work_area_icon,
+                        "icon_size": QtCore.QSize(24, 24),
+                        "padding": 0,
+                        "get_data": self._get_work_area_action_data,
+                        "callback": self._change_work_area_requested,
+                    },
+                ],
+                ViewItemDelegate.FLOAT_BOTTOM_RIGHT,
+            )
+
+        # Enable mouse tracking for the delegate to receive mouse events
+        view.setMouseTracking(True)
+        # Set item sizes to non-uniform and put the onus on the delegate to determine item sizes.
+        view.setUniformItemSizes(False)
+
+        view.setItemDelegate(delegate)
+        return delegate
 
     def closeEvent(self, event):
         """
@@ -856,6 +927,124 @@ class AppDialog(QtGui.QWidget):
         else:
             # all other links are dispatched to the OS
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+
+    def _change_work_area_requested(self, view, index, pos):
+        """
+        Change the work area to the item associated with the given index.
+
+        :param view: The view that the selected item belongs to.
+        :type view: :class:`sgkt.platform.qt.QtGui.QAbstractItemView`
+        :param index: The index to show the menu for.
+        :type index: :class:`sgtk.platform.qt.QtCore.QModelIndex`
+        :param pos: The point relative to the view to show the menu.
+        :type pos: :class:`sgkt.platform.qt.QtCore.QPoint`
+        :return: None
+        """
+
+        view.selectionModel().select(index, QtGui.QItemSelectionModel.ClearAndSelect)
+
+        if isinstance(index.model(), QtGui.QSortFilterProxyModel):
+            index = index.model().mapToSource(index)
+
+        item = index.model().itemFromIndex(index)
+        sg_data = item.get_sg_data()
+
+        self._change_work_area(sg_data["type"], sg_data["id"])
+
+    def _show_action_menu(self, view, index, pos):
+        """
+        Shows the actions menu for the current selection.
+
+        :param view: The view that the selected item belongs to.
+        :type view: :class:`sgkt.platform.qt.QtGui.QAbstractItemView`
+        :param index: The index to show the menu for.
+        :type index: :class:`sgtk.platform.qt.QtCore.QModelIndex`
+        :param pos: The point relative to the view to show the menu.
+        :type pos: :class:`sgkt.platform.qt.QtCore.QPoint`
+        :return: None
+        """
+
+        view.selectionModel().select(index, QtGui.QItemSelectionModel.ClearAndSelect)
+
+        sg_data = shotgun_model.get_sg_data(index)
+
+        menu = shotgun_menus.ShotgunMenu(view)
+        num_actions = self._action_manager.populate_menu(
+            menu, sg_data, self._action_manager.UI_AREA_MAIN
+        )
+        if num_actions <= 0:
+            menu.add_label("No Actions")
+
+        menu.exec_(view.mapToGlobal(pos))
+
+    def _get_work_area_action_data(self, parent, index):
+        """
+        Callback triggered by the :class:`ViewItemDelegate` to request the data for the index's
+        set work area context action.
+
+        :param parent: The parent of the :class:`ViewItemDelegate`.
+        :type parent: :class:`sgtk.platform.qt.QtGui.QAbstractItemView`
+        :param index: The index to get thate action state for.
+        :type index: :class:`sgtk.platform.qt.QtCore.QModelIndex`
+
+        :return: The current data for the item's set work area context action.
+        :rtype: dict, e.g.:
+            {
+                "visible": bool                                           # Flag indicating if the action shoudl be shown
+                "state":   :class:`sgtk.platform.qt.QtCore.QStyle.State`  # Flags indicating the action state
+                "name":    str                                            # Override the default action's display text
+                "tooltip": str                                            # Tooltip text to display over the action
+            }
+
+        """
+
+        visible = True
+        state = QtGui.QStyle.State_Active
+        name = None
+        tooltip = None
+
+        if isinstance(index.model(), QtGui.QSortFilterProxyModel):
+            index = index.model().mapToSource(index)
+        item = index.model().itemFromIndex(index)
+        sg_data = item.get_sg_data()
+        entity_id = sg_data["id"]
+        entity_type = sg_data["type"]
+
+        context = self._app.context
+        context_entity = context.task or context.entity or context.project or None
+
+        if (
+            context_entity
+            and context_entity["type"] == entity_type
+            and context_entity["id"] == entity_id
+        ):
+            # The work area is currently set to the context of this item.
+            tooltip = (
+                "This is your current work area.\n"
+                "The work you do will be associated with this item in Shotgun."
+            )
+
+        elif entity_type in WorkAreaButton.NON_WORK_AREA_TYPES:
+            # Action not valid for this entitiy type.
+            visible = False
+
+        else:
+            # The work area is not currently set to the context of this item.
+            state |= QtGui.QStyle.State_Enabled
+            if entity_type == "Task":
+                name = "Set Work Area"
+                tooltip = "Click to set your work area to the current task."
+
+            else:
+                name = "Pick Work Area"
+                tooltip = "Click to select a task."
+
+        return {
+            "visible": visible,
+            "state": state,
+            "name": name,
+            "tooltip": tooltip,
+        }
 
     ###################################################################################################
     # navigation
