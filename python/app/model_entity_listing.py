@@ -19,8 +19,11 @@ shotgun_model = sgtk.platform.import_framework(
 )
 ShotgunModel = shotgun_model.ShotgunModel
 
+delegates = sgtk.platform.import_framework("tk-framework-qtwidgets", "delegates")
+ViewItemRolesMixin = delegates.ViewItemRolesMixin
 
-class SgEntityListingModel(ShotgunModel):
+
+class SgEntityListingModel(ShotgunModel, ViewItemRolesMixin):
     """
     Model used to display long listings of data in the tabs.
 
@@ -36,6 +39,12 @@ class SgEntityListingModel(ShotgunModel):
     # maximum number of items to show in the listings
     SG_RECORD_LIMIT = 50
 
+    # Additional data roles defined for the model
+    _BASE_ROLE = QtCore.Qt.UserRole + 32
+    # Keep track of the last model role. This will be used by the ViewItemRolesMixin as an offset when
+    # adding more roles to the model. Update this if more custom roles are added.
+    LAST_ROLE = _BASE_ROLE
+
     def __init__(self, entity_type, parent, bg_task_manager):
         """
         Constructor.
@@ -45,6 +54,22 @@ class SgEntityListingModel(ShotgunModel):
         """
         self._sg_location = None
         self._sg_formatter = ShotgunTypeFormatter(entity_type)
+
+        app = sgtk.platform.current_bundle()
+
+        # Initialize the roles for the ViewItemDelegate
+        self.initialize_roles(self.LAST_ROLE)
+
+        view_config_hook_path = app.get_setting("view_configuration_hook")
+        view_item_config_hook = app.create_hook_instance(view_config_hook_path)
+        # Create a mapping of model item data roles to the method that should be called to retrieve
+        # the data for the item. These methods must accept two parameters: (1) QStandardItem (2) dict
+        self.role_methods = {
+            SgEntityListingModel.VIEW_ITEM_THUMBNAIL_ROLE: view_item_config_hook.get_item_thumbnail,
+            SgEntityListingModel.VIEW_ITEM_TITLE_ROLE: view_item_config_hook.get_item_title,
+            SgEntityListingModel.VIEW_ITEM_SUBTITLE_ROLE: view_item_config_hook.get_item_subtitle,
+            SgEntityListingModel.VIEW_ITEM_DETAILS_ROLE: view_item_config_hook.get_item_details,
+        }
 
         # init base class
         ShotgunModel.__init__(
@@ -178,3 +203,17 @@ class SgEntityListingModel(ShotgunModel):
         sg_data = item.get_sg_data()
         icon = self._sg_formatter.create_thumbnail(image, sg_data)
         item.setIcon(QtGui.QIcon(icon))
+
+    def _populate_item(self, item, sg_data):
+        """
+        Whenever an item is constructed, this methods is called. It allows subclasses to intercept
+        the construction of a QStandardItem and add additional metadata or make other changes
+        that may be useful. Nothing needs to be returned.
+
+        :param item: QStandardItem that is about to be added to the model. This has been primed
+                     with the standard settings that the ShotgunModel handles.
+        :param sg_data: Shotgun data dictionary that was received from Shotgun given the fields
+                        and other settings specified in load_data()
+        """
+
+        self.set_data_for_role_methods(item, sg_data)
