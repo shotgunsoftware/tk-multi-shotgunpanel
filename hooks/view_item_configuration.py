@@ -128,8 +128,9 @@ class ViewConfiguration(HookClass):
         data is in the form a tuple, where item (1) is a templated string that has Shotgun tokens
         to resolve using the Shotgun data for the item, and (2) the Shotgun data.
 
-        For more details on the template string foramt and how Shotgun tokens are resolved, see
-        the framework `tk-framework-qtwidgets` `utils.py` module.
+        For more details on the template string format and how Shotgun tokens are resolved, see
+        the `shotgun_fields` hook, or the framework `tk-framework-qtwidgets` `utils.py` module where
+        the template string may be resolved (e.g. when using the ViewItemDelegaet).
 
         :return: The display data for the item's field.
         :rtype: tuple(str,str)
