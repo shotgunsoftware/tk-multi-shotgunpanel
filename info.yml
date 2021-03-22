@@ -31,6 +31,11 @@ configuration:
         default_value_tk-maya: "{self}/general_actions.py:{self}/{engine_name}_actions.py"
         description: Hook which contains all methods for action management.
 
+    view_configuration_hook:
+        type: hook
+        default_value: "{self}/view_item_configuration.py"
+        description: Specify a hook that, if needed, can configure the display of the entity views.
+
     action_mappings:
         type: dict
         description: Associates shotgun objects with actions. The actions are all defined
