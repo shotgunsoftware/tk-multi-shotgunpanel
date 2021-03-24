@@ -447,6 +447,9 @@ class AppDialog(QtGui.QWidget):
         )
 
         if self._app.get_setting("enable_context_switch"):
+            # Set a minimum height for all items. This ensure item actions on top and bottom do not overlap each other.
+            delegate.min_height = 75
+
             # Add a button to set the context.
             work_area_icon = QtGui.QIcon(":/tk_multi_infopanel/pin.png")
             work_area_icon.addPixmap(
