@@ -45,7 +45,7 @@ class GeneralActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Generate actions called for UI element %s. "
-            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data)
+            "Actions: %s. SG Data: %s" % (ui_area, actions, sg_data)
         )
 
         action_instances = []
@@ -184,16 +184,16 @@ class GeneralActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Execute action called for action %s. "
-            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
+            "Parameters: %s. SG Data: %s" % (name, params, sg_data)
         )
 
         if name == "assign_task":
             if app.context.user is None:
                 raise Exception(
-                    "Shotgun Toolkit does not know what Shotgun user you are. "
+                    "SG Toolkit does not know what SG user you are. "
                     "This can be due to the use of a script key for authentication "
                     "rather than using a user name and password login. To assign a "
-                    "Task, you will need to log in using you Shotgun user account."
+                    "Task, you will need to log in using you SG user account."
                 )
 
             data = app.shotgun.find_one(
