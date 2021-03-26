@@ -66,9 +66,9 @@ class SgEntityListingModel(ShotgunModel, ViewItemRolesMixin):
         # the data for the item. These methods must accept two parameters: (1) QStandardItem (2) dict
         self.role_methods = {
             SgEntityListingModel.VIEW_ITEM_THUMBNAIL_ROLE: view_item_config_hook.get_item_thumbnail,
-            SgEntityListingModel.VIEW_ITEM_TITLE_ROLE: view_item_config_hook.get_item_title,
+            SgEntityListingModel.VIEW_ITEM_HEADER_ROLE: view_item_config_hook.get_item_title,
             SgEntityListingModel.VIEW_ITEM_SUBTITLE_ROLE: view_item_config_hook.get_item_subtitle,
-            SgEntityListingModel.VIEW_ITEM_DETAILS_ROLE: view_item_config_hook.get_item_details,
+            SgEntityListingModel.VIEW_ITEM_TEXT_ROLE: view_item_config_hook.get_item_details,
         }
 
         # init base class

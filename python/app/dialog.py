@@ -423,9 +423,9 @@ class AppDialog(QtGui.QWidget):
         delegate = ViewItemDelegate(view)
 
         # Set the item data roles used by the delegate to render an item.
-        delegate.title_role = SgEntityListingModel.VIEW_ITEM_TITLE_ROLE
+        delegate.header_role = SgEntityListingModel.VIEW_ITEM_HEADER_ROLE
         delegate.subtitle_role = SgEntityListingModel.VIEW_ITEM_SUBTITLE_ROLE
-        delegate.details_role = SgEntityListingModel.VIEW_ITEM_DETAILS_ROLE
+        delegate.text_role = SgEntityListingModel.VIEW_ITEM_TEXT_ROLE
         # Set the item data role used by the delegate to expand and collapse an item row.
         delegate.expand_role = SgEntityListingModel.VIEW_ITEM_EXPAND_ROLE
 
@@ -438,7 +438,7 @@ class AppDialog(QtGui.QWidget):
         delegate.add_actions(
             [
                 {
-                    "icon": ":/tk_multi_infopanel/down_arrow.png",
+                    "icon": QtGui.QIcon(":/tk_multi_infopanel/down_arrow.png"),
                     "padding": 0,
                     "callback": self._show_action_menu,
                 },
