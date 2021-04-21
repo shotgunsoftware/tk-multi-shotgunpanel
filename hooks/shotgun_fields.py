@@ -430,7 +430,44 @@ class ShotgunFields(HookBaseClass):
         Define which tabs are shown in the Shotgun Panel for an item of a given entity type.
 
         Returns a dictionary with a key-value pair for each entity tab defined in
-        tk-multi-shotgunpanel AppDialog.ENTITY_TABS. Each key-value will be a dictionarycontaining data for the tab.
+        tk-multi-shotgunpanel AppDialog.ENTITY_TABS. Each key-value will be a dictionary
+        containing data for the tab.
+
+        The following keys are supported:
+            "activity"
+            "notes"
+            "versions"
+            "publishes"
+            "publish_history"
+            "publish_downstream"
+            "publish_upstream"
+            "tasks"
+            "info
+
+        The following value dict keys are supported:
+            name:
+                type: str
+                description: The text displayed for the tab (e.g. the tab label).
+            description:
+                type: str
+                description: A short description displayed at the top of the entity
+                             tab widget.
+            enabled:
+                type: bool
+                description: Set to True to display the tab, or False to hide it.
+            enable_checkbox:
+                type: bool
+                description: Set to True to enable the checkbox filter for this
+                            entity (if there is one), else False to hide it.
+            tooltip:
+                supported entity types: Version only
+                type: str
+                description: Text to display in tooltip when hovering over an item
+                             in the entity list view.
+            sort:
+                supported entity types: Version only
+                type: str
+                description: The entity field to sort the entity list view by.
 
         :param entity_type: Shotgun entity type to provide tab info for.
         :return: The entity tabs definition data used to build the Shotgun panel tab widgets.
