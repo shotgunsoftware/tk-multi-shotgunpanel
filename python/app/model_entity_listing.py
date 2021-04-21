@@ -110,7 +110,7 @@ class SgEntityListingModel(ShotgunModel):
             hierarchy = [item["field_name"] for item in sort_order]
 
         else:
-            raise ValueError("Invalid sort field argument type '%s'" % type(sort_field))
+            raise TypeError("Invalid sort field argument type '%s'" % type(sort_field))
 
         fields = self._sg_formatter.fields
         if additional_fields:
