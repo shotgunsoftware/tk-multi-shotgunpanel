@@ -90,10 +90,6 @@ class ShotgunFilters(HookBaseClass):
                     }
                 )
 
-                if context_project:
-                    # we are in a non-site context. only tasks from this project
-                    link_filters.append(["project", "is", context_project])
-
             elif entity_type == "Note":
                 # another user that isn't me.
                 # show notes that are by this user or where this user has replied
