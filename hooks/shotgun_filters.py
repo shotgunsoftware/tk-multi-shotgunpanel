@@ -198,8 +198,8 @@ class ShotgunFilters(HookBaseClass):
                 link_filters.append(["entity", "is", sg_location.entity_dict])
 
         self.logger.debug(
-            "%s Resolved %s into the following sg query:\n%s",
-            (self, sg_location, pprint.pformat(link_filters)),
+            "%s Resolved %s into the following sg query:\n%s"
+            % (self, sg_location, pprint.pformat(link_filters)),
         )
 
         return link_filters
