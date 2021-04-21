@@ -188,8 +188,6 @@ class GeneralActions(HookBaseClass):
             "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
         )
 
-        result = None
-
         if name == "assign_task":
             if app.context.user is None:
                 raise Exception(
@@ -230,7 +228,7 @@ class GeneralActions(HookBaseClass):
         elif name == "publish_clipboard":
             self._copy_to_clipboard(sg_data["path"]["local_path"])
 
-        return result
+        return dict()
 
     def execute_entity_doubleclicked_action(self, sg_data):
         """
