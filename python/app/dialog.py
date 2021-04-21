@@ -320,28 +320,34 @@ class AppDialog(QtGui.QWidget):
         # Block signals emitting on the tab widget to avoid triggering unnecessary data loads
         self.ui.entity_tab_widget.blockSignals(True)
 
-        self.ui.entity_tab_widget.clear()
-        self._current_entity_tabs = []
-        formatter = self._current_location.sg_formatter
-        for tab_name in self.ENTITY_TABS:
-            (enabled, text) = formatter.show_entity_tab(tab_name)
-            if enabled:
-                tab_widget = self._entity_tabs[tab_name]["widget"]
-                self.ui.entity_tab_widget.addTab(tab_widget, text)
-                self._current_entity_tabs.append(tab_name)
+        try:
+            self.ui.entity_tab_widget.clear()
+            self._current_entity_tabs = []
+            formatter = self._current_location.sg_formatter
+            for tab_name in self.ENTITY_TABS:
+                (enabled, text) = formatter.show_entity_tab(tab_name)
+                if enabled:
+                    tab_widget = self._entity_tabs[tab_name]["widget"]
+                    self.ui.entity_tab_widget.addTab(tab_widget, text)
+                    self._current_entity_tabs.append(tab_name)
 
-                if self._entity_tabs[tab_name].get("description", None):
-                    text = formatter.get_entity_tab_description(tab_name)
-                    self._entity_tabs[tab_name]["description"].setText(text)
+                    if self._entity_tabs[tab_name].get("description", None):
+                        text = formatter.get_entity_tab_description(tab_name)
+                        self._entity_tabs[tab_name]["description"].setText(text)
 
-                if self._entity_tabs[tab_name].get("filter_checkbox", None):
-                    enabled = formatter.get_tab_data(
-                        tab_name, "enable_checkbox", default_value=False
-                    )
-                    self._entity_tabs[tab_name]["filter_checkbox"].setEnabled(enabled)
-                    self._entity_tabs[tab_name]["filter_checkbox"].setVisible(enabled)
+                    if self._entity_tabs[tab_name].get("filter_checkbox", None):
+                        enabled = formatter.get_tab_data(
+                            tab_name, "enable_checkbox", default_value=False
+                        )
+                        self._entity_tabs[tab_name]["filter_checkbox"].setEnabled(
+                            enabled
+                        )
+                        self._entity_tabs[tab_name]["filter_checkbox"].setVisible(
+                            enabled
+                        )
 
-        self.ui.entity_tab_widget.blockSignals(False)
+        finally:
+            self.ui.entity_tab_widget.blockSignals(False)
 
         # get the tab index associated with the location and
         # show that tab. This means that the 'current tab' is
