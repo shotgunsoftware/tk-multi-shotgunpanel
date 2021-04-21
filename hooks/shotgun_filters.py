@@ -51,9 +51,6 @@ class ShotgunFilters(HookBaseClass):
                 # show tasks i am assigned to
                 link_filters.append(["task_assignees", "in", [sg_location.entity_dict]])
                 link_filters.append(["sg_status_list", "is_not", "fin"])
-                if context_project:
-                    # we are in a non-site context. only tasks from this project
-                    link_filters.append(["project", "is", context_project])
 
             elif (
                 entity_type == "Note"
@@ -112,16 +109,9 @@ class ShotgunFilters(HookBaseClass):
                     }
                 )
 
-                if context_project:
-                    # we are in a non-site context. only tasks from this project
-                    link_filters.append(["project", "is", context_project])
-
             else:
                 # for other things, show items created by me
                 link_filters.append(["created_by", "is", sg_location.entity_dict])
-                if context_project:
-                    # we are in a non-site context. only tasks from this project
-                    link_filters.append(["project", "is", context_project])
 
         elif sg_location.entity_type in ["ClientUser", "ApiUser"]:
             # the logic for users is different
