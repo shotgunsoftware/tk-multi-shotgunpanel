@@ -529,13 +529,14 @@ class AppDialog(QtGui.QWidget):
         Someone double clicked an entity
         """
         sg_item = shotgun_model.get_sg_data(model_index)
-        entity = self._app.execute_hook_method(
+        proceed = self._app.execute_hook_method(
             "actions_hook", "execute_entity_doubleclicked_action", sg_data=sg_item,
         )
 
-        if entity and entity.get("type", None) and entity.get("id", None):
-            sg_location = ShotgunLocation(entity["type"], entity["id"])
-            self._navigate_to(sg_location)
+        if proceed:
+            if sg_item and sg_item.get("type") and sg_item.get("id"):
+                sg_location = ShotgunLocation(sg_item["type"], sg_item["id"])
+                self._navigate_to(sg_location)
 
     def navigate_to_entity(self, entity_type, entity_id):
         """
