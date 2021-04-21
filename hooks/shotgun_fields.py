@@ -68,7 +68,8 @@ class ShotgunFields(HookBaseClass):
         - body: content to display in the main area of the item
 
         :param entity_type: Shotgun entity type to provide a template for
-        :returns: Dictionary containing template strings
+        :return: Dictionary containing template strings
+        :rtype: dict
         """
 
         # define a set of defaults
@@ -124,7 +125,8 @@ class ShotgunFields(HookBaseClass):
         for a given entity type.
 
         :param entity_type: Shotgun entity type to provide a template for
-        :returns: List of Shotgun fields
+        :return: The Shotgun fields
+        :rtype: list
         """
 
         # supported by all normal fields
@@ -280,7 +282,8 @@ class ShotgunFields(HookBaseClass):
         - body: content to display in the main info area
 
         :param entity_type: Shotgun entity type to provide a template for
-        :returns: Dictionary containing template strings
+        :return: A mapping of UI field to template string data
+        :rtype: dict
         """
 
         values = {
@@ -430,7 +433,8 @@ class ShotgunFields(HookBaseClass):
         tk-multi-shotgunpanel AppDialog.ENTITY_TABS. Each key-value will be a dictionarycontaining data for the tab.
 
         :param entity_type: Shotgun entity type to provide tab info for.
-        :returns: Dictionary
+        :return: The entity tabs definition data used to build the Shotgun panel tab widgets.
+        :rtype: dict
         """
 
         # Default tab config, unless specified otherwise by entity type.
@@ -561,6 +565,10 @@ class ShotgunFields(HookBaseClass):
         """
         Return the name of the default tab for this entity type. Tab name should
         be one of the defined tab names in tk-multi-shotgunpanel AppDialog.ENTITY_TABS.
+
+        :param entity_type: Shotgun entity type to get the default for.
+        :return: The default tab name
+        :rtype str:
         """
 
         if entity_type == "Project":
