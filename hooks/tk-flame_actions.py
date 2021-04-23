@@ -44,7 +44,7 @@ class FlameActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Generate actions called for UI element %s. "
-            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data)
+            "Actions: %s. SG Data: %s" % (ui_area, actions, sg_data)
         )
 
         action_instances = []
@@ -73,7 +73,7 @@ class FlameActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Execute action called for action %s. "
-            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
+            "Parameters: %s. SG Data: %s" % (name, params, sg_data)
         )
 
         try:

@@ -100,7 +100,7 @@ class ShotgunTypeFormatter(object):
         self._token_fields = set(fields)
 
     def __repr__(self):
-        return "<Shotgun '%s' type formatter>" % self._entity_type
+        return "<SG '%s' type formatter>" % self._entity_type
 
     ###############################################################################################
     # helper methods
@@ -707,7 +707,7 @@ class ShotgunTypeFormatter(object):
 
                 if current_user is None:
                     raise sgtk.TankError(
-                        "Use of the My Tasks tab is not supported when a current Shotgun user "
+                        "Use of the My Tasks tab is not supported when a current SG user "
                         "cannot be determined. This is most often the case when a script key "
                         "is used for authentication rather than a user name and password."
                     )
@@ -760,7 +760,7 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         self._entity_id = entity_id
 
     def __repr__(self):
-        return "<Shotgun %s %s entity formatter>" % (self._entity_type, self._entity_id)
+        return "<SG %s %s entity formatter>" % (self._entity_type, self._entity_id)
 
     @property
     def entity_id(self):
