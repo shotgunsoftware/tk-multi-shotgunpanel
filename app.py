@@ -58,7 +58,7 @@ class ShotgunPanelApp(Application):
         # also register a menu entry on the shotgun menu so that users
         # can launch the panel
         self.engine.register_command(
-            "SG Panel...",
+            "Shotgun Panel...",
             self.create_panel,
             {
                 "type": "panel",
