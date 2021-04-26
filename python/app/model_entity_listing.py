@@ -8,9 +8,10 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
-
-from sgtk.platform.qt import QtCore, QtGui
 import sgtk
+from sgtk.platform.qt import QtGui
+from tank_vendor.six import string_types
+
 from .shotgun_formatter import ShotgunTypeFormatter
 
 # import the shotgun_model module from the shotgun utils framework
@@ -100,11 +101,20 @@ class SgEntityListingModel(ShotgunModel):
         # update date (unix time), in descending order
         sort_field = sort_field or "updated_at"
 
+        if isinstance(sort_field, string_types):
+            sort_order = [{"field_name": sort_field, "direction": "desc"}]
+            hierarchy = [sort_field]
+
+        elif isinstance(sort_field, list):
+            sort_order = sort_field
+            hierarchy = [item["field_name"] for item in sort_order]
+
+        else:
+            raise TypeError("Invalid sort field argument type '%s'" % type(sort_field))
+
         fields = self._sg_formatter.fields
         if additional_fields:
             fields += additional_fields
-
-        hierarchy = [sort_field]
 
         # This is wrapped here to account for the situation where we can't
         # query for the My Tasks tab if we don't have a Shotgun user. This
@@ -122,7 +132,7 @@ class SgEntityListingModel(ShotgunModel):
             filters,
             hierarchy,
             fields,
-            [{"field_name": sort_field, "direction": "desc"}],
+            sort_order,
             limit=self.SG_RECORD_LIMIT,
         )
         self._refresh_data()

@@ -30,7 +30,7 @@ class ActionManager(QtCore.QObject):
     """
 
     # emitted when the user requests a refresh via the actions system
-    refresh_request = QtCore.Signal()
+    refresh_request = QtCore.Signal(object)
 
     # the area of the UI that an action is being requested/run for.
     UI_AREA_MAIN = 0x1
@@ -224,7 +224,7 @@ class ActionManager(QtCore.QObject):
         )
 
         try:
-            self._app.execute_hook_method(
+            result = self._app.execute_hook_method(
                 "actions_hook",
                 "execute_action",
                 name=action_name,
@@ -233,7 +233,7 @@ class ActionManager(QtCore.QObject):
             )
 
             # refresh UI
-            self.refresh_request.emit()
+            self.refresh_request.emit(result)
 
         except Exception as e:
             self._app.log_exception("Could not execute execute_action hook.")

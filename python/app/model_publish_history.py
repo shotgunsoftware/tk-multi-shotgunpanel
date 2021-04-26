@@ -8,8 +8,9 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
-from sgtk.platform.qt import QtCore, QtGui
 import sgtk
+from sgtk.platform.qt import QtGui
+from sgtk import TankError
 
 # import the shotgun_model module from the shotgun utils framework
 shotgun_model = sgtk.platform.import_framework(
@@ -110,48 +111,59 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
 
             # process the data
             sg_records = data["sg"]
+            num_records = len(sg_records)
+            error_msg = None
 
-            if len(sg_records) != 1 and self._overlay:
-                self._overlay.show_error_message("Publish could not be found!")
+            if num_records == 1:
+                sg_data = sg_records[0]
 
-            sg_data = sg_records[0]
+                # figure out which publish type we are after
+                if self._sg_formatter.entity_type == "PublishedFile":
+                    publish_type_field = "published_file_type"
+                else:
+                    publish_type_field = "tank_type"
 
-            # figure out which publish type we are after
-            if self._sg_formatter.entity_type == "PublishedFile":
-                publish_type_field = "published_file_type"
+                # when we filter out which other publishes are associated with this one,
+                # to effectively get the "version history", we look for items
+                # which have the same project, same entity assocation, same name, same type
+                # and the same task.
+                filters = [
+                    ["project", "is", sg_data["project"]],
+                    ["name", "is", sg_data["name"]],
+                    ["task", "is", sg_data["task"]],
+                    ["entity", "is", sg_data["entity"]],
+                    [publish_type_field, "is", sg_data[publish_type_field]],
+                ]
+
+                # the proxy model that is sorting this model will
+                # sort based on id (pk), meaning that more recently
+                # commited transactions will appear later in the list.
+                # This ensures that publishes with no version number defined
+                # (yes, these exist) are also sorted correctly.
+                hierarchy = ["created_at"]
+
+                self._current_version = sg_data["version_number"]
+
+                ShotgunModel._load_data(
+                    self,
+                    self._sg_formatter.entity_type,
+                    filters,
+                    hierarchy,
+                    self._sg_formatter.fields,
+                )
+
+                self._refresh_data()
+
+            elif num_records < 1:
+                error_msg = "Publish could not be found!"
             else:
-                publish_type_field = "tank_type"
+                error_msg = "More than one Publish found!"
 
-            # when we filter out which other publishes are associated with this one,
-            # to effectively get the "version history", we look for items
-            # which have the same project, same entity assocation, same name, same type
-            # and the same task.
-            filters = [
-                ["project", "is", sg_data["project"]],
-                ["name", "is", sg_data["name"]],
-                ["task", "is", sg_data["task"]],
-                ["entity", "is", sg_data["entity"]],
-                [publish_type_field, "is", sg_data[publish_type_field]],
-            ]
-
-            # the proxy model that is sorting this model will
-            # sort based on id (pk), meaning that more recently
-            # commited transactions will appear later in the list.
-            # This ensures that publishes with no version number defined
-            # (yes, these exist) are also sorted correctly.
-            hierarchy = ["created_at"]
-
-            self._current_version = sg_data["version_number"]
-
-            ShotgunModel._load_data(
-                self,
-                self._sg_formatter.entity_type,
-                filters,
-                hierarchy,
-                self._sg_formatter.fields,
-            )
-
-            self._refresh_data()
+            if error_msg:
+                if self._overlay:
+                    self._overlay.show_error_message(error_msg)
+                else:
+                    raise TankError(error_msg)
 
     ############################################################################################
     # public interface
