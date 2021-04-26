@@ -168,7 +168,7 @@ class ShotgunFilters(HookBaseClass):
                 # my tasks tab on project
                 if context_user is None:
                     raise sgtk.TankError(
-                        "Use of the My Tasks tab is not supported when a current Shotgun user "
+                        "Use of the My Tasks tab is not supported when a current SG user "
                         "cannot be determined. This is most often the case when a script key "
                         "is used for authentication rather than a user name and password."
                     )

@@ -268,7 +268,7 @@ def test_activity_notes_tabs(
     # Wait until note creation field is showing up.
     wait = time.time()
     while wait + 30 > time.time():
-        if app_dialog.root.captions["Loading Shotgun Data..."].exists():
+        if app_dialog.root.captions["Loading SG Data..."].exists():
             time.sleep(1)
         else:
             break
@@ -326,7 +326,7 @@ def test_activity_notes_tabs(
     )
     assert app_dialog.root.buttons[
         "Click here to see the Activity stream in Shotgun."
-    ].exists(), "Hyperlink to see the Activity Stream in Shotgun is missing"
+    ].exists(), "Hyperlink to see the Activity Stream in SG is missing"
 
     # Click on the Notes tab
     app_dialog.root.tabs["Notes"].mouseClick()

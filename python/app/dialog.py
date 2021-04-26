@@ -262,7 +262,7 @@ class AppDialog(QtGui.QWidget):
             self._task_manager.shut_down()
 
         except Exception as e:
-            self._app.log_exception("Error running Shotgun Panel App closeEvent()")
+            self._app.log_exception("Error running SG Panel App closeEvent()")
 
         # close splash
         self._overlay.hide()
@@ -692,7 +692,7 @@ class AppDialog(QtGui.QWidget):
         else:
             self._app.log_warning(
                 "Navigation to the current user is not supported when "
-                "the Shotgun user cannot be determined. This is often the "
+                "the SG user cannot be determined. This is often the "
                 "case when Toolkit has been authenticated using a script key "
                 "rather than with a user name and password."
             )
@@ -813,16 +813,16 @@ class AppDialog(QtGui.QWidget):
 
                     if self._app.context.user is None:
                         self._app.log_error(
-                            "Shotgun Toolkit does not know what Shotgun user you are. "
+                            "SG Toolkit does not know what SG user you are. "
                             "This can be due to the use of a script key for authentication "
                             "rather than using a user name and password login. To create and "
-                            "assign a Task, you will need to log in using you Shotgun user "
+                            "assign a Task, you will need to log in using you SG user "
                             "account."
                         )
                         return
 
                     # create new task and assign!
-                    self._app.log_debug("Resolving shotgun project...")
+                    self._app.log_debug("Resolving SG project...")
                     entity_data = self._app.shotgun.find_one(
                         entity_type, [["id", "is", entity_id]], ["project"]
                     )

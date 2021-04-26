@@ -111,7 +111,7 @@ class ShotgunTypeFormatter(object):
         self._token_fields = set(fields)
 
     def __repr__(self):
-        return "<Shotgun '%s' type formatter>" % self._entity_type
+        return "<SG '%s' type formatter>" % self._entity_type
 
     ###############################################################################################
     # helper methods
@@ -590,7 +590,7 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         self._entity_id = entity_id
 
     def __repr__(self):
-        return "<Shotgun %s %s entity formatter>" % (self._entity_type, self._entity_id)
+        return "<SG %s %s entity formatter>" % (self._entity_type, self._entity_id)
 
     @property
     def entity_id(self):
