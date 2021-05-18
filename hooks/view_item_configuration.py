@@ -122,6 +122,20 @@ class ViewConfiguration(HookClass):
 
         return self._get_item_data(item, sg_data, self.DETAILS_FIELD)
 
+    def get_item_icons(self, item, sg_data):
+        """
+        """
+
+        icons = {}
+
+        if sg_data.get("type") == "Note" and sg_data.get("replies"):
+            icons["top-left"] = {
+                "pixmap": ":/tk_multi_infopanel/unread_indicator.png",
+                "inset": False,
+            }
+
+        return icons
+
     def _get_item_data(self, item, sg_data, field):
         """
         Returns the data to display for the given model item, Shotgun data and field. The display

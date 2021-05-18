@@ -94,7 +94,12 @@ class ShotgunFields(HookBaseClass):
             values["top_left"] = "<big>{subject}</big>"
             values["top_right"] = "{sg_status_list}"
             values["body"] = "<br/>".join(
-                ["Author: {user}", "{content|Note has no content.}"]
+                [
+                    "Author: {user}",
+                    "{content|Note has no content.}",
+                    "{[Attachments: ]attachments::No attachments}",
+                    "{[Replies: ]replies|No replies}",
+                ]
             )
 
         elif entity_type == "Version":

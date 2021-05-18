@@ -70,6 +70,7 @@ class SgEntityListingModel(ShotgunModel, ViewItemRolesMixin):
             SgEntityListingModel.VIEW_ITEM_HEADER_ROLE: view_item_config_hook.get_item_title,
             SgEntityListingModel.VIEW_ITEM_SUBTITLE_ROLE: view_item_config_hook.get_item_subtitle,
             SgEntityListingModel.VIEW_ITEM_TEXT_ROLE: view_item_config_hook.get_item_details,
+            SgEntityListingModel.VIEW_ITEM_ICON_ROLE: view_item_config_hook.get_item_icons,
         }
 
         # init base class
