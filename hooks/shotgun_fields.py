@@ -68,7 +68,8 @@ class ShotgunFields(HookBaseClass):
         - body: content to display in the main area of the item
 
         :param entity_type: Shotgun entity type to provide a template for
-        :returns: Dictionary containing template strings
+        :return: Dictionary containing template strings
+        :rtype: dict
         """
 
         # define a set of defaults
@@ -125,7 +126,8 @@ class ShotgunFields(HookBaseClass):
         for a given entity type.
 
         :param entity_type: Shotgun entity type to provide a template for
-        :returns: List of Shotgun fields
+        :return: The Shotgun fields
+        :rtype: list
         """
 
         # supported by all normal fields
@@ -281,7 +283,8 @@ class ShotgunFields(HookBaseClass):
         - body: content to display in the main info area
 
         :param entity_type: Shotgun entity type to provide a template for
-        :returns: Dictionary containing template strings
+        :return: A mapping of UI field to template string data
+        :rtype: dict
         """
 
         values = {
@@ -422,3 +425,204 @@ class ShotgunFields(HookBaseClass):
                 """
 
         return values
+
+    def get_entity_tabs_definition(self, entity_type, shotgun_globals):
+        """
+        Define which tabs are shown in the Shotgun Panel for an item of a given entity type.
+
+        Returns a dictionary with a key-value pair for each entity tab defined in
+        tk-multi-shotgunpanel AppDialog.ENTITY_TABS. Each key-value will be a dictionary
+        containing data for the tab.
+
+        The following keys are supported:
+            "activity"
+            "notes"
+            "versions"
+            "publishes"
+            "publish_history"
+            "publish_downstream"
+            "publish_upstream"
+            "tasks"
+            "info
+
+        The following value dict keys are supported:
+            name:
+                type: str
+                description: The text displayed for the tab (e.g. the tab label).
+            description:
+                type: str
+                description: A short description displayed at the top of the entity
+                             tab widget.
+            enabled:
+                type: bool
+                description: Set to True to display the tab, or False to hide it.
+            enable_checkbox:
+                type: bool
+                description: Set to True to enable the checkbox filter for this
+                            entity (if there is one), else False to hide it.
+            tooltip:
+                supported entity types: Version only
+                type: str
+                description: Text to display in tooltip when hovering over an item
+                             in the entity list view.
+            sort:
+                supported entity types: Version only
+                type: str
+                description: The entity field to sort the entity list view by.
+
+        :param entity_type: Shotgun entity type to provide tab info for.
+        :return: The entity tabs definition data used to build the Shotgun panel tab widgets.
+        :rtype: dict
+        """
+
+        # Default tab config, unless specified otherwise by entity type.
+        values = {
+            "activity": {"enabled": True, "name": "Activity"},
+            "info": {"enabled": True, "name": "Details"},
+            "notes": {
+                "enabled": True,
+                "name": "Notes",
+                "description": "Notes associated with this %s, in update order."
+                % shotgun_globals.get_type_display_name(entity_type),
+            },
+            "tasks": {
+                "enabled": True,
+                "name": "Tasks",
+                "description": "All tasks for this %s."
+                % shotgun_globals.get_type_display_name(entity_type),
+            },
+            "versions": {
+                "enabled": True,
+                "name": "Versions",
+                "description": "Review versions for this %s, in creation order."
+                % shotgun_globals.get_type_display_name(entity_type),
+                "enable_checkbox": True,
+            },
+            "publishes": {
+                "enabled": True,
+                "name": "Publishes",
+                "description": "Publishes for this %s, in creation order."
+                % shotgun_globals.get_type_display_name(entity_type),
+                "enable_checkbox": True,
+            },
+            "publish_history": {
+                "enabled": False,
+                "name": "Version History",
+                "description": "The version history for this publish.",
+            },
+            "publish_downstream": {
+                "enabled": False,
+                "name": "Uses",
+                "description": "Publishes being referenced by this publish.",
+            },
+            "publish_upstream": {
+                "enabled": False,
+                "name": "Used By",
+                "description": "Publishes that are referencing this publish.",
+            },
+        }
+
+        if entity_type == "ApiUser":
+            values["activity"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+            values["notes"][
+                "description"
+            ] = "Notes that the user has written or replied to, in update order."
+
+        elif entity_type == "ClientUser":
+            values["activity"]["enabled"] = False
+            values["publishes"]["enabled"] = False
+            values["versions"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+            values["notes"][
+                "description"
+            ] = "Notes that the user has written or replied to, in update order."
+
+        elif entity_type == "Department":
+            values["activity"]["enabled"] = False
+            values["notes"]["enabled"] = False
+            values["publishes"]["enabled"] = False
+            values["versions"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+
+        elif entity_type == "Group":
+            values["activity"]["enabled"] = False
+            values["notes"]["enabled"] = False
+            values["publishes"]["enabled"] = False
+            values["versions"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+
+        elif entity_type == "HumanUser":
+            values["activity"]["enabled"] = False
+            values["tasks"]["description"] = "Active tasks assigned to this user."
+            values["versions"][
+                "description"
+            ] = "Review versions by this user, in creation order."
+            values["publishes"][
+                "description"
+            ] = "Publishes by this user, in creation order."
+            values["notes"][
+                "description"
+            ] = "Notes that the user has written or replied to, in update order."
+
+        elif entity_type == "ScriptUser":
+            values["activity"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+
+        elif entity_type == "Project":
+            values["info"]["enabled"] = False
+            values["tasks"]["description"] = "Your active tasks for this project."
+            values["versions"][
+                "description"
+            ] = "All review versions submitted for this project."
+            values["publishes"][
+                "description"
+            ] = "All publishes for the project, in creation order."
+            values["notes"][
+                "description"
+            ] = "All notes for this project, in update order."
+
+        elif entity_type == "Version":
+            values["versions"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+            values["publishes"]["enable_checkbox"] = False
+
+        elif entity_type in ["PublishedFile", "TankPublishedFile"]:
+            values["activity"]["enabled"] = False
+            values["notes"]["enabled"] = False
+            values["publishes"]["enabled"] = False
+            values["versions"]["enabled"] = False
+            values["tasks"]["enabled"] = False
+            values["publish_history"]["enabled"] = True
+            values["publish_downstream"]["enabled"] = True
+            values["publish_upstream"]["enabled"] = True
+
+        return values
+
+    def get_entity_default_tab(self, entity_type):
+        """
+        Return the name of the default tab for this entity type. Tab name should
+        be one of the defined tab names in tk-multi-shotgunpanel AppDialog.ENTITY_TABS.
+
+        :param entity_type: Shotgun entity type to get the default for.
+        :return: The default tab name
+        :rtype str:
+        """
+
+        if entity_type == "Project":
+            # my tasks is the default tab for projects
+            return "tasks"
+
+        if entity_type in ["Group", "Department"]:
+            # these items don't have much stuff turned on so show details
+            return "info"
+
+        if entity_type in ["ClientUser", "HumanUser", "ScriptUser", "ApiUser"]:
+            # these types don't have the activity stream
+            return "notes"
+
+        if entity_type in ["PublishedFile", "TankPublishedFile"]:
+            return "publish_history"
+
+        # for everything else, default to the activity stream
+        return "activity"

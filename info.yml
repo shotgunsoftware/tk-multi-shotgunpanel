@@ -24,6 +24,11 @@ configuration:
         default_value: "{self}/shotgun_fields.py"
         description: Hook which controls how values are presented
 
+    shotgun_filters_hook:
+        type: hook
+        default_value: "{self}/shotgun_filters.py"
+        description: Hook which controls how data is retrieved
+
     actions_hook:
         type: hook
         default_value: "{self}/general_actions.py"

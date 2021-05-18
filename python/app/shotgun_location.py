@@ -24,8 +24,8 @@ class ShotgunLocation(object):
         self._entity_id = entity_id
         self._formatter = ShotgunEntityFormatter(self._entity_type, entity_id)
 
-        # The ui tab index currently focused on for this location
-        self._tab_index = self._formatter.default_tab
+        # The ui tab currently focused on for this location
+        self.tab = self._formatter.default_tab
 
     def __repr__(self):
         """
@@ -34,7 +34,7 @@ class ShotgunLocation(object):
         return "<ShotgunLocation %s %s tab index %s>" % (
             self._entity_type,
             self._entity_id,
-            self._tab_index,
+            self.tab,
         )
 
     @classmethod
@@ -66,23 +66,25 @@ class ShotgunLocation(object):
             sg_location = cls(ctx.user["type"], ctx.user["id"])
 
         else:
-            raise NotImplementedError("The Shotgun panel requires a non-empty context.")
+            raise NotImplementedError("The SG panel requires a non-empty context.")
 
         return sg_location
 
-    def set_tab_index(self, index):
-        """
-        Update the associated tab index
-        :param int index: tab index
-        """
-        self._tab_index = index
-
     @property
-    def tab_index(self):
+    def tab(self):
         """
-        The tab index associated with this location
+        Getter for property tab. This value will be the unique tab name representing
+        the current location.
         """
-        return self._tab_index
+        return self._tab
+
+    @tab.setter
+    def tab(self, value):
+        """
+        Setter for property tab.
+        """
+
+        self._tab = value
 
     @property
     def entity_type(self):
