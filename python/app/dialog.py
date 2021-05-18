@@ -213,156 +213,6 @@ class AppDialog(QtGui.QWidget):
 
         # notes
         self.ui.note_reply_widget.entity_requested.connect(self.navigate_to_entity)
-        # <<<<<<< HEAD
-        # self.ui.entity_activity_stream.entity_requested.connect(self.navigate_to_entity)
-        # self.ui.version_activity_stream.entity_requested.connect(
-        #     self.navigate_to_entity
-        # )
-
-        # self.ui.entity_activity_stream.playback_requested.connect(
-        #     self._playback_version
-        # )
-        # self.ui.version_activity_stream.playback_requested.connect(
-        #     self._playback_version
-        # )
-
-        # # set up the UI tabs. Each tab has a model, a delegate, a view and
-        # # an associated enity type
-
-        # self._detail_tabs = {}
-
-        # # tabs on entity view
-        # idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_NOTES)
-        # self._detail_tabs[idx] = {
-        #     "model_class": SgEntityListingModel,
-        #     "delegate_class": ViewItemDelegate,
-        #     "view": self.ui.entity_note_view,
-        #     "entity_type": "Note",
-        # }
-
-        # idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_VERSIONS)
-        # self._detail_tabs[idx] = {
-        #     "model_class": SgVersionModel,
-        #     "delegate_class": ViewItemDelegate,
-        #     "view": self.ui.entity_version_view,
-        #     "entity_type": "Version",
-        # }
-
-        # idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_PUBLISHES)
-        # self._detail_tabs[idx] = {
-        #     "model_class": SgLatestPublishListingModel,
-        #     "delegate_class": ViewItemDelegate,
-        #     "view": self.ui.entity_publish_view,
-        #     "entity_type": self._publish_entity_type,
-        # }
-
-        # idx = (self.ENTITY_PAGE_IDX, self.ENTITY_TAB_TASKS)
-        # self._detail_tabs[idx] = {
-        #     "model_class": SgTaskListingModel,
-        #     "delegate_class": ViewItemDelegate,
-        #     "view": self.ui.entity_task_view,
-        #     "entity_type": "Task",
-        # }
-
-        # # tabs on publish view
-        # idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_HISTORY)
-        # self._detail_tabs[idx] = {
-        #     "model_class": SgPublishHistoryListingModel,
-        #     "delegate_class": ViewItemDelegate,
-        #     "view": self.ui.publish_history_view,
-        #     "entity_type": self._publish_entity_type,
-        # }
-
-        # idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_CONTAINS)
-        # self._detail_tabs[idx] = {
-        #     "model_class": SgPublishDependencyDownstreamListingModel,
-        #     "delegate_class": ViewItemDelegate,
-        #     "view": self.ui.publish_upstream_view,
-        #     "entity_type": self._publish_entity_type,
-        # }
-
-        # idx = (self.PUBLISH_PAGE_IDX, self.PUBLISH_TAB_USED_IN)
-        # self._detail_tabs[idx] = {
-        #     "model_class": SgPublishDependencyUpstreamListingModel,
-        #     "delegate_class": ViewItemDelegate,
-        #     "view": self.ui.publish_downstream_view,
-        #     "entity_type": self._publish_entity_type,
-        # }
-
-        # # tabs on version view
-        # idx = (self.VERSION_PAGE_IDX, self.VERSION_TAB_NOTES)
-        # self._detail_tabs[idx] = {
-        #     "model_class": SgEntityListingModel,
-        #     "delegate_class": ViewItemDelegate,
-        #     "view": self.ui.version_note_view,
-        #     "entity_type": "Note",
-        # }
-
-        # idx = (self.VERSION_PAGE_IDX, self.VERSION_TAB_PUBLISHES)
-        # self._detail_tabs[idx] = {
-        #     "model_class": SgLatestPublishListingModel,
-        #     "delegate_class": ViewItemDelegate,
-        #     "view": self.ui.version_publish_view,
-        #     "entity_type": self._publish_entity_type,
-        # }
-
-        # # now initialize all tabs. This will add two model and delegate keys
-        # # to all the dicts
-
-        # for tab_dict in self._detail_tabs.values():
-
-        #     ModelClass = tab_dict["model_class"]
-        #     self._app.log_debug("Creating %r..." % ModelClass)
-
-        #     # create model
-        #     tab_dict["model"] = ModelClass(
-        #         tab_dict["entity_type"], tab_dict["view"], self._task_manager
-        #     )
-
-        #     # create proxy for sorting
-        #     tab_dict["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
-        #     tab_dict["sort_proxy"].setSourceModel(tab_dict["model"])
-
-        #     # now use the proxy model to sort the data to ensure
-        #     # higher version numbers appear earlier in the list
-        #     # the history model is set up so that the default display
-        #     # role contains the version number field in shotgun.
-        #     # This field is what the proxy model sorts by default
-        #     # We set the dynamic filter to true, meaning QT will keep
-        #     # continously sorting. And then tell it to use column 0
-        #     # (we only have one column in our models) and descending order.
-        #     tab_dict["sort_proxy"].setDynamicSortFilter(True)
-        #     tab_dict["sort_proxy"].sort(0, QtCore.Qt.DescendingOrder)
-
-        #     # set up model
-        #     tab_dict["view"].setModel(tab_dict["sort_proxy"])
-        #     # set up a global on-click handler for
-        #     tab_dict["view"].doubleClicked.connect(self._on_entity_doubleclicked)
-
-        #     DelegateClass = tab_dict["delegate_class"]
-        #     # Currently only support for the ViewItemDelegate. If other delegate classes are required,
-        #     # handling for that delegate class must be added below.
-        #     assert DelegateClass is ViewItemDelegate, "Unsupported delegate type"
-
-        #     # Create and set the item delegate for the view
-        #     tab_dict["delegate"] = self._create_view_item_delegate(tab_dict["view"])
-
-        #     # and set up a spinner overlay
-        #     tab_dict["overlay"] = NotFoundModelOverlay(
-        #         tab_dict["model"], tab_dict["view"]
-        #     )
-
-        #     if ModelClass == SgPublishHistoryListingModel:
-        #         # this class needs special access to the overlay
-        #         tab_dict["model"].set_overlay(tab_dict["overlay"])
-
-        # # set up the all fields tabs
-        # self._entity_details_model = SgAllFieldsModel(self, self._task_manager)
-        # self._entity_details_overlay = ShotgunModelOverlayWidget(
-        #     self._entity_details_model, self.ui.entity_info_widget
-        # )
-        # =======
-        # >>>>>>> master
 
         # build the tabs for the entity page
         self._entity_tabs = self.build_entity_tabs()
@@ -381,75 +231,6 @@ class AppDialog(QtGui.QWidget):
         self._overlay.show_message_pixmap(splash_pix)
         QtCore.QCoreApplication.processEvents()
         QtCore.QTimer.singleShot(SPLASH_UI_TIME_MILLISECONDS, self._overlay.hide)
-
-    def _create_view_item_delegate(self, view):
-        """
-        Create and set up a :class:`ViewItemDelegate` object for the given view.
-
-        :param view: The view object for this delegate.
-        :type view: :class:`sgtk.platform.qt.QtGui.QAbstractItemView`
-
-        :return: The delegated that was created.
-        :rtype: :class:`ViewItemDelegate`
-        """
-
-        delegate = ViewItemDelegate(view)
-
-        # Set the item data roles used by the delegate to render an item.
-        delegate.header_role = SgEntityListingModel.VIEW_ITEM_HEADER_ROLE
-        delegate.subtitle_role = SgEntityListingModel.VIEW_ITEM_SUBTITLE_ROLE
-        delegate.text_role = SgEntityListingModel.VIEW_ITEM_TEXT_ROLE
-        # Set the item data role used by the delegate to expand and collapse an item row.
-        delegate.expand_role = SgEntityListingModel.VIEW_ITEM_EXPAND_ROLE
-
-        # Adding padding around each item rect.
-        delegate.item_padding = 10
-        # Fix the thumbnail width to ensure the item text is aligned between rows.
-        delegate.thumbnail_width = 90
-
-        # Add a menu button to display and execute the item's actions.
-        delegate.add_actions(
-            [
-                {
-                    "icon": QtGui.QIcon(":/tk_multi_infopanel/down_arrow.png"),
-                    "padding": 0,
-                    "callback": self._show_action_menu,
-                },
-            ],
-            ViewItemDelegate.TOP_RIGHT,
-        )
-
-        if self._app.get_setting("enable_context_switch"):
-            # Set a minimum height for all items. This ensure item actions on top and bottom do not overlap each other.
-            delegate.min_height = 75
-
-            # Add a button to set the context.
-            work_area_icon = QtGui.QIcon(":/tk_multi_infopanel/pin.png")
-            work_area_icon.addPixmap(
-                QtGui.QPixmap(":/tk_multi_infopanel/pin_blue.png"),
-                QtGui.QIcon.Disabled,
-                QtGui.QIcon.Off,
-            )
-            delegate.add_actions(
-                [
-                    {
-                        "icon": work_area_icon,
-                        "icon_size": QtCore.QSize(24, 24),
-                        "padding": 0,
-                        "get_data": self._get_work_area_action_data,
-                        "callback": self._change_work_area_requested,
-                    },
-                ],
-                ViewItemDelegate.FLOAT_BOTTOM_RIGHT,
-            )
-
-        # Enable mouse tracking for the delegate to receive mouse events
-        view.setMouseTracking(True)
-        # Set item sizes to non-uniform and put the onus on the delegate to determine item sizes.
-        view.setUniformItemSizes(False)
-
-        view.setItemDelegate(delegate)
-        return delegate
 
     def closeEvent(self, event):
         """
@@ -1229,32 +1010,26 @@ class AppDialog(QtGui.QWidget):
 
             if entity_tab_name == self.ENTITY_TAB_NOTES:
                 data["model_class"] = SgEntityListingModel
-                # data["delegate_class"] = ViewItemDelegate
                 data["entity_type"] = "Note"
 
             elif entity_tab_name == self.ENTITY_TAB_TASKS:
                 data["model_class"] = SgTaskListingModel
-                # data["delegate_class"] = ViewItemDelegate
                 data["entity_type"] = "Task"
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_HISTORY:
                 data["model_class"] = SgPublishHistoryListingModel
-                # data["delegate_class"] = ViewItemDelegate
                 data["entity_type"] = self._publish_entity_type
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_UPSTREAM:
                 data["model_class"] = SgPublishDependencyUpstreamListingModel
-                # data["delegate_class"] = ViewItemDelegate
                 data["entity_type"] = self._publish_entity_type
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_DOWNSTREAM:
                 data["model_class"] = SgPublishDependencyDownstreamListingModel
-                # data["delegate_class"] = ViewItemDelegate
                 data["entity_type"] = self._publish_entity_type
 
             elif entity_tab_name == self.ENTITY_TAB_VERSIONS:
                 data["model_class"] = SgVersionModel
-                # data["delegate_class"] = ViewItemDelegate
                 data["entity_type"] = "Version"
                 data["has_filter"] = True
 
@@ -1270,7 +1045,6 @@ class AppDialog(QtGui.QWidget):
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISHES:
                 data["model_class"] = SgLatestPublishListingModel
-                # data["delegate_class"] = ViewItemDelegate
                 data["entity_type"] = self._publish_entity_type
                 data["has_filter"] = True
 
@@ -1428,7 +1202,6 @@ class AppDialog(QtGui.QWidget):
         # Check for the required entity data to set up the model and view.
         if not (
             entity_data.get("model_class", None)
-            # and entity_data.get("delegate_class", None)
             and entity_data.get("entity_type", None)
             and entity_data.get("view", None)
         ):
@@ -1463,15 +1236,16 @@ class AppDialog(QtGui.QWidget):
         entity_data["view"].doubleClicked.connect(self._on_entity_doubleclicked)
 
         # create delegate
-        # DelegateClass = entity_data["delegate_class"]
-        # assert DelegateClass is ViewItemDelegate, "Unsupported delegate type {}".format(DelegateClass.__name__)
-        entity_data["delegate"] = self._create_view_item_delegate(entity_data["view"])
-        # entity_data["delegate"] = DelegateClass(
-        # entity_data["view"], self._action_manager
-        # )
-        # entity_data["delegate"].change_work_area.connect(self._change_work_area)
-        # hook up delegate renderer with view
-        # entity_data["view"].setItemDelegate(entity_data["delegate"])
+        DelegateClass = entity_data.get("delegate_class")
+        if DelegateClass:
+            entity_data["delegate"] = DelegateClass(
+                entity_data["view"], self._action_manager
+            )
+            entity_data["delegate"].change_work_area.connect(self._change_work_area)
+        else:
+            entity_data["delegate"] = self._create_view_item_delegate(
+                entity_data["view"]
+            )
 
         # and set up a spinner overlay
         entity_data["overlay"] = NotFoundModelOverlay(
@@ -1481,3 +1255,72 @@ class AppDialog(QtGui.QWidget):
         if ModelClass == SgPublishHistoryListingModel:
             # this class needs special access to the overlay
             entity_data["model"].set_overlay(entity_data["overlay"])
+
+    def _create_view_item_delegate(self, view):
+        """
+        Create and set up a :class:`ViewItemDelegate` object for the given view.
+
+        :param view: The view object for this delegate.
+        :type view: :class:`sgtk.platform.qt.QtGui.QAbstractItemView`
+
+        :return: The delegated that was created.
+        :rtype: :class:`ViewItemDelegate`
+        """
+
+        delegate = ViewItemDelegate(view)
+
+        # Set the item data roles used by the delegate to render an item.
+        delegate.header_role = SgEntityListingModel.VIEW_ITEM_HEADER_ROLE
+        delegate.subtitle_role = SgEntityListingModel.VIEW_ITEM_SUBTITLE_ROLE
+        delegate.text_role = SgEntityListingModel.VIEW_ITEM_TEXT_ROLE
+        # Set the item data role used by the delegate to expand and collapse an item row.
+        delegate.expand_role = SgEntityListingModel.VIEW_ITEM_EXPAND_ROLE
+
+        # Adding padding around each item rect.
+        delegate.item_padding = 10
+        # Fix the thumbnail width to ensure the item text is aligned between rows.
+        delegate.thumbnail_width = 90
+
+        # Add a menu button to display and execute the item's actions.
+        delegate.add_actions(
+            [
+                {
+                    "icon": QtGui.QIcon(":/tk_multi_infopanel/down_arrow.png"),
+                    "padding": 0,
+                    "callback": self._show_action_menu,
+                },
+            ],
+            ViewItemDelegate.TOP_RIGHT,
+        )
+
+        if self._app.get_setting("enable_context_switch"):
+            # Set a minimum height for all items. This ensure item actions on top and bottom do not overlap each other.
+            delegate.min_height = 75
+
+            # Add a button to set the context.
+            work_area_icon = QtGui.QIcon(":/tk_multi_infopanel/pin.png")
+            work_area_icon.addPixmap(
+                QtGui.QPixmap(":/tk_multi_infopanel/pin_blue.png"),
+                QtGui.QIcon.Disabled,
+                QtGui.QIcon.Off,
+            )
+            delegate.add_actions(
+                [
+                    {
+                        "icon": work_area_icon,
+                        "icon_size": QtCore.QSize(24, 24),
+                        "padding": 0,
+                        "get_data": self._get_work_area_action_data,
+                        "callback": self._change_work_area_requested,
+                    },
+                ],
+                ViewItemDelegate.FLOAT_BOTTOM_RIGHT,
+            )
+
+        # Enable mouse tracking for the delegate to receive mouse events
+        view.setMouseTracking(True)
+        # Set item sizes to non-uniform and put the onus on the delegate to determine item sizes.
+        view.setUniformItemSizes(False)
+
+        view.setItemDelegate(delegate)
+        return delegate
