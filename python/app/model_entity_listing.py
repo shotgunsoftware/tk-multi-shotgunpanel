@@ -9,7 +9,7 @@
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
 import sgtk
-from sgtk.platform.qt import QtGui
+from sgtk.platform.qt import QtCore, QtGui
 from tank_vendor.six import string_types
 
 from .shotgun_formatter import ShotgunTypeFormatter
