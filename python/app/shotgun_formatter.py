@@ -374,7 +374,8 @@ class ShotgunTypeFormatter(object):
         """
         Returns the default pixmap associated with this location
         """
-        if self.entity_type in ["Note", "HumanUser", "ApiUser", "ClientUser"]:
+        if self.entity_type in ["HumanUser", "ApiUser", "ClientUser"]:
+            # if self.entity_type in ["Note", "HumanUser", "ApiUser", "ClientUser"]:
             return self._round_default_icon
         else:
             return self._rect_default_icon
@@ -386,6 +387,7 @@ class ShotgunTypeFormatter(object):
         """
         if self.entity_type == "Note":
             return [
+                "image",
                 "user.HumanUser.image",
                 "user.ClientUser.image",
                 "user.ApiUser.image",

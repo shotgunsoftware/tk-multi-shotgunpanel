@@ -77,7 +77,8 @@ class SgEntityListingModel(ShotgunModel, ViewItemRolesMixin):
             self,
             parent,
             download_thumbs=True,
-            bg_load_thumbs=True,
+            bg_load_thumbs=False,
+            # bg_load_thumbs=True,
             bg_task_manager=bg_task_manager,
         )
 
@@ -210,9 +211,10 @@ class SgEntityListingModel(ShotgunModel, ViewItemRolesMixin):
             # ignore and not display.
             return
 
-        sg_data = item.get_sg_data()
-        icon = self._sg_formatter.create_thumbnail(image, sg_data)
-        item.setIcon(QtGui.QIcon(icon))
+        # sg_data = item.get_sg_data()
+        # icon = self._sg_formatter.create_thumbnail(image, sg_data)
+        # item.setIcon(QtGui.QIcon(icon))
+        item.setIcon(QtGui.QIcon(path))
 
     def _populate_item(self, item, sg_data):
         """
