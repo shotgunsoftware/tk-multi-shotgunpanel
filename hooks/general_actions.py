@@ -114,7 +114,8 @@ class GeneralActions(HookBaseClass):
                     }
                 )
 
-        if "add_to_playlist" in actions and ui_area == "details":
+        # if "add_to_playlist" in actions and ui_area == "details":
+        if "add_to_playlist" in actions:
             # retrieve the 10 most recently updated non-closed playlists for this project
 
             from tank_vendor.shotgun_api3.lib.sgtimezone import LocalTimezone
