@@ -81,7 +81,6 @@ class ShotgunFields(HookBaseClass):
 
         # override
         if entity_type == "PublishedFile":
-
             values["top_left"] = "<big>{name} v{version_number}</big>"
             values["top_right"] = "{created_at}"
             values[
@@ -92,13 +91,13 @@ class ShotgunFields(HookBaseClass):
                 """
 
         elif entity_type == "Note":
-
             values["top_left"] = "<big>{subject}</big>"
             values["top_right"] = "{sg_status_list}"
-            values["body"] = "{content}"
+            values["body"] = "<br/>".join(
+                ["Author: {user}", "{content|Note has no content.}"]
+            )
 
         elif entity_type == "Version":
-
             values[
                 "body"
             ] = """
@@ -107,7 +106,6 @@ class ShotgunFields(HookBaseClass):
                 """
 
         elif entity_type == "Task":
-
             values["top_left"] = "<big>{content}</big>"
             values["top_right"] = "{sg_status_list}"
             values[
