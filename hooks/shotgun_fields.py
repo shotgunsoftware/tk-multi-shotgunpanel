@@ -92,7 +92,8 @@ class ShotgunFields(HookBaseClass):
 
         elif entity_type == "Note":
 
-            values["top_left"] = "<big>{created_by}</big>"
+            values["top_left"] = "<big>{subject}</big>"
+            values["top_right"] = "{sg_status_list}"
             values["body"] = "{content}"
 
         elif entity_type == "Version":
