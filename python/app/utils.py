@@ -106,6 +106,7 @@ def create_round_512x400_note_thumbnail(image, client=False, unread=False):
         painter.translate(inlay_offset_w, inlay_offset_h)
         painter.drawEllipse(0, 0, CIRCLE_SIZE, CIRCLE_SIZE)
 
+        # if unread or True:
         if unread:
             UNREAD_NOTE_INDICATOR = QtGui.QPixmap(
                 ":/tk_multi_infopanel/unread_indicator.png"
@@ -114,6 +115,7 @@ def create_round_512x400_note_thumbnail(image, client=False, unread=False):
 
         painter.translate(0, 250)
 
+        # if client or True:
         if client:
             CLIENT_NOTE_INDICATOR = QtGui.QPixmap(
                 ":/tk_multi_infopanel/client_note_indicator.png"

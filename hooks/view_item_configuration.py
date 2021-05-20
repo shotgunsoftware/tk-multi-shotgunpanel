@@ -128,11 +128,17 @@ class ViewConfiguration(HookClass):
 
         icons = {}
 
-        if sg_data.get("type") == "Note" and sg_data.get("replies"):
-            icons["top-left"] = {
-                "pixmap": ":/tk_multi_infopanel/unread_indicator.png",
-                "inset": False,
-            }
+        if sg_data.get("type") == "Note":
+            if sg_data.get("replies"):
+                icons["top-left"] = {
+                    "pixmap": ":/tk_multi_infopanel/unread_indicator.png",
+                    "inset": False,
+                }
+            if len(sg_data.get("attachments", [])) > 1:
+                icons["bottom-left"] = {
+                    "pixmap": ":/tk_multi_infopanel/rings_large.png",
+                    "inset": False,
+                }
 
         return icons
 

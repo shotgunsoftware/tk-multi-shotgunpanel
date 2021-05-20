@@ -102,6 +102,8 @@ class ShotgunTypeFormatter(object):
             fields.append("read_by_current_user")
             fields.append("client_note")
             fields.append("project")
+            fields.append("replies")
+            fields.append("attachments")
         if entity_type == "PublishedFile":
             fields.append("path")
             fields.append("project")
@@ -458,6 +460,8 @@ class ShotgunTypeFormatter(object):
                 unread = False
 
             return utils.create_round_512x400_note_thumbnail(image, client_note, unread)
+            # return utils.create_rectangular_512x400_thumbnail(image)
+            # return image
 
         elif self.entity_type == "Task" and sg_data["type"] == "HumanUser":
             # a user icon for a task

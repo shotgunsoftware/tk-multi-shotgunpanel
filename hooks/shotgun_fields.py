@@ -97,8 +97,11 @@ class ShotgunFields(HookBaseClass):
                 [
                     "Author: {user}",
                     "{content|Note has no content.}",
-                    "{[Attachments: ]attachments::No attachments}",
-                    "{[Replies: ]replies|No replies}",
+                    # "{[Attachments: ]attachments::No attachments}",
+                    # "{attachments.Attachment.id}",
+                    # "{[Attachments: ]attachments.Attachment.image::No attachments}",
+                    # "{[Replies: ]replies|No replies}",
+                    # "{replies.Reply.user}",
                 ]
             )
 
@@ -268,6 +271,9 @@ class ShotgunFields(HookBaseClass):
                 "project",
                 "content",
             ]
+
+        # elif entity_type == "Note":
+        #     values = std_values + ["replies"]
 
         else:
             values = std_values

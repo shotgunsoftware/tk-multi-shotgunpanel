@@ -123,6 +123,15 @@ class AppDialog(QtGui.QWidget):
         """
         Constructor
         """
+
+        import sys
+
+        sys.path.append("/Users/oues/python_libs")
+        import ptvsd
+
+        ptvsd.enable_attach()
+        ptvsd.wait_for_attach()
+
         # first, call the base class and let it do its thing.
         QtGui.QWidget.__init__(self, parent)
 
@@ -465,7 +474,8 @@ class AppDialog(QtGui.QWidget):
 
                 tab["model"].load_data(*args, **kwargs)
                 if tab.get("filter_menu"):
-                    filters = tab.get("filter_menu").get_entity_filters(tab["model"])
+                    filters = tab.get("filter_menu").get_entity_filters()
+                    # filters = tab.get("filter_menu").get_entity_filters(tab["model"])
                     tab.get("filter_menu").build_menu(filters)
 
         else:
@@ -1018,10 +1028,26 @@ class AppDialog(QtGui.QWidget):
             if entity_tab_name == self.ENTITY_TAB_NOTES:
                 data["model_class"] = SgEntityListingModel
                 data["entity_type"] = "Note"
+                data["filter_fields"] = [
+                    "user",
+                    # "created_by",
+                    "created_at",
+                    "addressings_to",
+                    "addressings_cc",
+                    "tasks",
+                ]
 
             elif entity_tab_name == self.ENTITY_TAB_TASKS:
                 data["model_class"] = SgTaskListingModel
                 data["entity_type"] = "Task"
+                data["filter_fields"] = [
+                    "sg_status_list",
+                    "due_date",
+                    "tags",
+                    "addressings_cc",
+                    "task_assignees",
+                    "content",
+                ]
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_HISTORY:
                 data["model_class"] = SgPublishHistoryListingModel
@@ -1114,7 +1140,9 @@ class AppDialog(QtGui.QWidget):
                     and hasattr(data_model, "get_entity_type")
                 ):
                     # Add filtering for models
-                    filter_menu = ShotgunFilterMenu(data_model, parent=None)
+                    filter_menu = ShotgunFilterMenu(
+                        data_model, None, data.get("filter_fields")
+                    )
                     filter_menu.filters_changed.connect(
                         lambda m=proxy_model, menu=filter_menu: self.update_filters(
                             m, menu
@@ -1122,7 +1150,8 @@ class AppDialog(QtGui.QWidget):
                     )
                     filter_menu_btn = QtGui.QToolButton()
                     filter_menu_btn.setPopupMode(QtGui.QToolButton.InstantPopup)
-                    filter_menu_btn.setText("Filters")
+                    # FIXME why does the menu arrow display over the button text?
+                    filter_menu_btn.setText("Filters    ")
                     filter_menu_btn.setMenu(filter_menu)
                     data["filter_menu"] = filter_menu
 
@@ -1134,15 +1163,7 @@ class AppDialog(QtGui.QWidget):
                 else:
                     tab_widget.layout().addWidget(label)
 
-                # label = self.create_entity_tab_label(entity_tab_name, tab_widget)
-                # layout.addWidget(label)
-                # tab_widget.layout().addWidget(label)
-                # data["description"] = label
-
             if data.get("view"):
-                # view = self.create_entity_tab_view(entity_tab_name, tab_widget)
-                # tab_widget.layout().addWidget(view)
-                # data["view"] = view
                 tab_widget.layout().addWidget(data.get("view"))
 
             if data["has_filter"]:
