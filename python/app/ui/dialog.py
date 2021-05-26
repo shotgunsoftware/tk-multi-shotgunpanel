@@ -242,7 +242,7 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "SG Browser", None, QtGui.QApplication.UnicodeUTF8))
+        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "ShotGrid Browser", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_home.setToolTip(QtGui.QApplication.translate("Dialog", "Click to go to your work area", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_prev.setToolTip(QtGui.QApplication.translate("Dialog", "Click to go back", None, QtGui.QApplication.UnicodeUTF8))
         self.navigation_next.setToolTip(QtGui.QApplication.translate("Dialog", "Click to go forward", None, QtGui.QApplication.UnicodeUTF8))
@@ -251,7 +251,6 @@ class Ui_Dialog(object):
         self.search.setToolTip(QtGui.QApplication.translate("Dialog", "Search ShotGrid", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_search.setText(QtGui.QApplication.translate("Dialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.details_text_middle.setText(QtGui.QApplication.translate("Dialog", "Details Text", None, QtGui.QApplication.UnicodeUTF8))
-
 
 from ..qtwidgets import ShotgunPlaybackLabel, ReplyListWidget, GlobalSearchWidget
 from ..work_area_button import WorkAreaButton
