@@ -193,7 +193,7 @@ class ActionManager(QtCore.QObject):
         refresh = QtGui.QAction("Refresh", None)
         refresh.triggered[()].connect(lambda: self._refresh(sg_data))
 
-        view_in_sg = QtGui.QAction("View in Shotgun", None)
+        view_in_sg = QtGui.QAction("View in ShotGrid", None)
         view_in_sg.triggered[()].connect(lambda: self._show_in_sg(sg_data))
 
         copy_url = QtGui.QAction("Copy SG url to clipboard", None)

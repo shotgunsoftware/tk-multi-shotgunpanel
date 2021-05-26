@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Shotgun Browser</string>
+   <string>ShotGrid Browser</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_23">
    <property name="spacing">
@@ -292,7 +292,7 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Search Shotgun</string>
+                   <string>Search ShotGrid</string>
                   </property>
                   <property name="icon">
                    <iconset resource="resources.qrc">

@@ -58,7 +58,7 @@ class ShotgunPanelApp(Application):
         # also register a menu entry on the shotgun menu so that users
         # can launch the panel
         self.engine.register_command(
-            "Shotgun Panel...",
+            "ShotGrid Panel...",
             self.create_panel,
             {
                 "type": "panel",
@@ -207,7 +207,7 @@ class ShotgunPanelApp(Application):
         # start the UI
         try:
             widget = self.engine.show_panel(
-                self._unique_panel_id, "Shotgun", self, app_payload.AppDialog
+                self._unique_panel_id, "ShotGrid", self, app_payload.AppDialog
             )
         except AttributeError as e:
             # just to gracefully handle older engines and older cores
@@ -232,7 +232,7 @@ class ShotgunPanelApp(Application):
         :returns: The widget associated with the dialog.
         """
         app_payload = self.import_module("app")
-        widget = self.engine.show_dialog("Shotgun", self, app_payload.AppDialog)
+        widget = self.engine.show_dialog("ShotGrid", self, app_payload.AppDialog)
         self._current_dialog = widget
         return widget
 

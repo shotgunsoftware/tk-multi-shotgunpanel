@@ -248,7 +248,7 @@ class Ui_Dialog(object):
         self.navigation_next.setToolTip(QtGui.QApplication.translate("Dialog", "Click to go forward", None, QtGui.QApplication.UnicodeUTF8))
         self.details_text_header.setText(QtGui.QApplication.translate("Dialog", "Header Text", None, QtGui.QApplication.UnicodeUTF8))
         self.set_context.setToolTip(QtGui.QApplication.translate("Dialog", "Click to go to your work area", None, QtGui.QApplication.UnicodeUTF8))
-        self.search.setToolTip(QtGui.QApplication.translate("Dialog", "Search Shotgun", None, QtGui.QApplication.UnicodeUTF8))
+        self.search.setToolTip(QtGui.QApplication.translate("Dialog", "Search ShotGrid", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_search.setText(QtGui.QApplication.translate("Dialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.details_text_middle.setText(QtGui.QApplication.translate("Dialog", "Details Text", None, QtGui.QApplication.UnicodeUTF8))
 
