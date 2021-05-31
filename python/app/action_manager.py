@@ -254,7 +254,7 @@ class ActionManager(QtCore.QObject):
 
         :param entity: std sg entity dict with keys type, id and name
         """
-        self.refresh_request.emit()
+        self.refresh_request.emit(None)
 
     def _show_in_sg(self, entity):
         """
