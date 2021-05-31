@@ -65,6 +65,7 @@ delegates = sgtk.platform.import_framework("tk-framework-qtwidgets", "delegates"
 ViewItemDelegate = delegates.ViewItemDelegate
 
 filtering = sgtk.platform.import_framework("tk-framework-qtwidgets", "filtering")
+FilterMenuButton = filtering.FilterMenuButton
 ShotgunFilterMenu = filtering.ShotgunFilterMenu
 TreeProxyModel = filtering.TreeProxyModel
 
@@ -473,10 +474,10 @@ class AppDialog(QtGui.QWidget):
                     args = [self._current_location]
 
                 tab["model"].load_data(*args, **kwargs)
-                if tab.get("filter_menu"):
-                    filters = tab.get("filter_menu").get_entity_filters()
-                    # filters = tab.get("filter_menu").get_entity_filters(tab["model"])
-                    tab.get("filter_menu").build_menu(filters)
+                # if tab.get("filter_menu"):
+                # filters = tab.get("filter_menu").get_entity_filters()
+                # filters = tab.get("filter_menu").get_entity_filters(tab["model"])
+                # tab.get("filter_menu").build_menu(filters)
 
         else:
             self._app.log_error(
@@ -1141,18 +1142,20 @@ class AppDialog(QtGui.QWidget):
                 ):
                     # Add filtering for models
                     filter_menu = ShotgunFilterMenu(
-                        data_model, None, data.get("filter_fields")
+                        # data_model, None, data.get("filter_fields")
+                        data_model,
+                        proxy_model,
+                        None,
+                        fields=data.get("filter_fields"),
                     )
                     filter_menu.filters_changed.connect(
                         lambda m=proxy_model, menu=filter_menu: self.update_filters(
                             m, menu
                         )
                     )
-                    filter_menu_btn = QtGui.QToolButton()
-                    filter_menu_btn.setPopupMode(QtGui.QToolButton.InstantPopup)
+
                     # FIXME why does the menu arrow display over the button text?
-                    filter_menu_btn.setText("Filters    ")
-                    filter_menu_btn.setMenu(filter_menu)
+                    filter_menu_btn = FilterMenuButton(filter_menu, "Filters   ")
                     data["filter_menu"] = filter_menu
 
                     layout = QtGui.QHBoxLayout()
