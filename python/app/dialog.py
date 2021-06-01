@@ -1030,24 +1030,23 @@ class AppDialog(QtGui.QWidget):
                 data["model_class"] = SgEntityListingModel
                 data["entity_type"] = "Note"
                 data["filter_fields"] = [
-                    "user",
-                    # "created_by",
-                    "created_at",
-                    "addressings_to",
-                    "addressings_cc",
-                    "tasks",
+                    "Note.user",
+                    "Note.created_at",
+                    "Note.addressings_to",
+                    "Note.addressings_cc",
+                    "Note.tasks",
                 ]
 
             elif entity_tab_name == self.ENTITY_TAB_TASKS:
                 data["model_class"] = SgTaskListingModel
                 data["entity_type"] = "Task"
                 data["filter_fields"] = [
-                    "sg_status_list",
-                    "due_date",
-                    "tags",
-                    "addressings_cc",
-                    "task_assignees",
-                    "content",
+                    "Task.sg_status_list",
+                    "Task.due_date",
+                    "Task.tags",
+                    "Task.addressings_cc",
+                    "Task.task_assignees",
+                    "Task.content",
                 ]
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_HISTORY:
@@ -1142,10 +1141,9 @@ class AppDialog(QtGui.QWidget):
                 ):
                     # Add filtering for models
                     filter_menu = ShotgunFilterMenu(
-                        # data_model, None, data.get("filter_fields")
                         data_model,
                         proxy_model,
-                        None,
+                        data.get("view"),
                         fields=data.get("filter_fields"),
                     )
                     filter_menu.filters_changed.connect(
