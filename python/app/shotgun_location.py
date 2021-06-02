@@ -31,7 +31,7 @@ class ShotgunLocation(object):
         """
         String representation
         """
-        return "<ShotgunLocation %s %s tab index %s>" % (
+        return "<ShotGridLocation %s %s tab index %s>" % (
             self._entity_type,
             self._entity_id,
             self.tab,
