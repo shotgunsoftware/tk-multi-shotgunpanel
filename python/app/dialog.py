@@ -61,6 +61,11 @@ overlay_module = sgtk.platform.import_framework(
 )
 ShotgunModelOverlayWidget = overlay_module.ShotgunModelOverlayWidget
 
+filtering = sgtk.platform.import_framework("tk-framework-qtwidgets", "filtering")
+FilterMenuButton = filtering.FilterMenuButton
+ShotgunFilterMenu = filtering.ShotgunFilterMenu
+FilterProxyModel = filtering.FilterProxyModel
+
 # maximum size of the details field in the top part of the UI
 MAX_LEN_UPPER_BODY_DETAILS = 1200
 
@@ -891,11 +896,26 @@ class AppDialog(QtGui.QWidget):
                 data["model_class"] = SgEntityListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = "Note"
+                data["filter_fields"] = [
+                    "Note.user",
+                    "Note.created_at",
+                    "Note.addressings_to",
+                    "Note.addressings_cc",
+                    "Note.tasks",
+                ]
 
             elif entity_tab_name == self.ENTITY_TAB_TASKS:
                 data["model_class"] = SgTaskListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = "Task"
+                data["filter_fields"] = [
+                    "Task.sg_status_list",
+                    "Task.due_date",
+                    "Task.tags",
+                    "Task.addressings_cc",
+                    "Task.task_assignees",
+                    "Task.content",
+                ]
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_HISTORY:
                 data["model_class"] = SgPublishHistoryListingModel
@@ -970,17 +990,49 @@ class AppDialog(QtGui.QWidget):
                 model.data_updated.connect(info_widget.set_data)
                 data["model"] = model
 
+            if data["has_view"]:
+                view = self.create_entity_tab_view(entity_tab_name, tab_widget)
+                data["view"] = view
+
+            # Set up the model, view and delegate for the tab. This method will modify the
+            # enttiy data passed in with the created model, view, delegate and other necessary objects
+            self.setup_entity_model_view(data)
+
             # Add the widgets to the layout in this order: description (QLabel),
             # view (QListView), filter (QCheckbox)
             if data["has_description"]:
                 label = self.create_entity_tab_label(entity_tab_name, tab_widget)
-                tab_widget.layout().addWidget(label)
                 data["description"] = label
 
-            if data["has_view"]:
-                view = self.create_entity_tab_view(entity_tab_name, tab_widget)
-                tab_widget.layout().addWidget(view)
-                data["view"] = view
+                # FIXME filters should be added regardless of whether there is a label or not
+                data_model = data.get("model")
+                proxy_model = data.get("sort_proxy")
+                if (
+                    data_model
+                    and proxy_model
+                    and hasattr(data_model, "get_entity_type")
+                ):
+                    # Add filtering for models
+                    filter_menu = ShotgunFilterMenu(data.get("view"))
+                    filter_menu.visible_fields = data.get("filter_fields")
+                    filter_menu.set_filter_model(proxy_model)
+                    filter_menu.build_menu()
+
+                    # FIXME add some buffer to the "Filter" text on the button so that it does
+                    # not overlap with the menu arrow
+                    filter_menu_btn = FilterMenuButton(self, filter_menu, "Filter   ")
+                    data["filter_menu"] = filter_menu
+
+                    layout = QtGui.QHBoxLayout()
+                    layout.addWidget(filter_menu_btn)
+                    layout.addStretch()
+                    layout.addWidget(label)
+                    tab_widget.layout().addLayout(layout)
+                else:
+                    tab_widget.layout().addWidget(label)
+
+            if data.get("view"):
+                tab_widget.layout().addWidget(data.get("view"))
 
             if data["has_filter"]:
                 tab_widget.layout().addWidget(checkbox)
@@ -988,9 +1040,6 @@ class AppDialog(QtGui.QWidget):
 
             data["widget"] = tab_widget
 
-            # Set up the model, view and delegate for the tab. This method will modify the
-            # enttiy data passed in with the created model, view, delegate and other necessary objects
-            self.setup_entity_model_view(data)
             tab_data[entity_tab_name] = data
 
         return tab_data
@@ -1105,7 +1154,7 @@ class AppDialog(QtGui.QWidget):
         )
 
         # create proxy for sorting
-        entity_data["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
+        entity_data["sort_proxy"] = FilterProxyModel(self)
         entity_data["sort_proxy"].setSourceModel(entity_data["model"])
 
         # now use the proxy model to sort the data to ensure
