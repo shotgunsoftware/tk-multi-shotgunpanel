@@ -64,7 +64,9 @@ ShotgunModelOverlayWidget = overlay_module.ShotgunModelOverlayWidget
 filtering = sgtk.platform.import_framework("tk-framework-qtwidgets", "filtering")
 FilterMenuButton = filtering.FilterMenuButton
 ShotgunFilterMenu = filtering.ShotgunFilterMenu
-FilterProxyModel = filtering.FilterProxyModel
+
+models = sgtk.platform.import_framework("tk-framework-qtwidgets", "models")
+FilterItemProxyModel = models.FilterItemProxyModel
 
 # maximum size of the details field in the top part of the UI
 MAX_LEN_UPPER_BODY_DETAILS = 1200
@@ -1154,7 +1156,7 @@ class AppDialog(QtGui.QWidget):
         )
 
         # create proxy for sorting
-        entity_data["sort_proxy"] = FilterProxyModel(self)
+        entity_data["sort_proxy"] = FilterItemProxyModel(self)
         entity_data["sort_proxy"].setSourceModel(entity_data["model"])
 
         # now use the proxy model to sort the data to ensure
