@@ -23,7 +23,7 @@ class ShotgunPanelApp(Application):
     (PANEL, DIALOG, NEW_DIALOG) = range(3)
 
     documentation_url = (
-        "https://support.shotgunsoftware.com/hc/en-us/articles/219033098-Shotgun-Panel"
+        "https://developer.shotgridsoftware.com/c0b0ce05/?title=ShotGrid+Panel"
     )
 
     def init_app(self):
