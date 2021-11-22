@@ -45,7 +45,7 @@ class GeneralActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Generate actions called for UI element %s. "
-            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data)
+            "Actions: %s. SG Data: %s" % (ui_area, actions, sg_data)
         )
 
         action_instances = []
@@ -179,21 +179,22 @@ class GeneralActions(HookBaseClass):
         :param name: Action name string representing one of the items returned by generate_actions.
         :param params: Params data, as specified by generate_actions.
         :param sg_data: Shotgun data dictionary
-        :returns: No return value expected.
+        :returns: Dictionary representing an Entity if action requires a context change in the panel,
+                  otherwise no return value expected.
         """
         app = self.parent
         app.log_debug(
             "Execute action called for action %s. "
-            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
+            "Parameters: %s. SG Data: %s" % (name, params, sg_data)
         )
 
         if name == "assign_task":
             if app.context.user is None:
                 raise Exception(
-                    "Shotgun Toolkit does not know what Shotgun user you are. "
+                    "SG Toolkit does not know what SG user you are. "
                     "This can be due to the use of a script key for authentication "
                     "rather than using a user name and password login. To assign a "
-                    "Task, you will need to log in using you Shotgun user account."
+                    "Task, you will need to log in using you SG user account."
                 )
 
             data = app.shotgun.find_one(
@@ -226,6 +227,27 @@ class GeneralActions(HookBaseClass):
 
         elif name == "publish_clipboard":
             self._copy_to_clipboard(sg_data["path"]["local_path"])
+
+        return dict()
+
+    def execute_entity_doubleclicked_action(self, sg_data):
+        """
+        This action is triggered when an entity is double-clicked.
+        Return True to indicate to the caller to continue with the
+        double-click action, or False to abort the action.
+
+        This base hook method simply returns True to continue with the
+        double-click action without any custom actions. Override this
+        method to perform any specific handling.
+
+        :param sg_data: Dictionary containing data for the entity that
+                        was double-clicked.
+        :return: True if the panel should navigate to the entity that was
+                 double-clicked, else False.
+        :rtype: bool
+        """
+
+        return True
 
     def _copy_to_clipboard(self, text):
         """

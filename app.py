@@ -23,7 +23,7 @@ class ShotgunPanelApp(Application):
     (PANEL, DIALOG, NEW_DIALOG) = range(3)
 
     documentation_url = (
-        "https://support.shotgunsoftware.com/hc/en-us/articles/219033098-Shotgun-Panel"
+        "https://developer.shotgridsoftware.com/c0b0ce05/?title=ShotGrid+Panel"
     )
 
     def init_app(self):
@@ -58,7 +58,7 @@ class ShotgunPanelApp(Application):
         # also register a menu entry on the shotgun menu so that users
         # can launch the panel
         self.engine.register_command(
-            "Shotgun Panel...",
+            "ShotGrid Panel...",
             self.create_panel,
             {
                 "type": "panel",
@@ -207,7 +207,7 @@ class ShotgunPanelApp(Application):
         # start the UI
         try:
             widget = self.engine.show_panel(
-                self._unique_panel_id, "Shotgun", self, app_payload.AppDialog
+                self._unique_panel_id, "ShotGrid", self, app_payload.AppDialog
             )
         except AttributeError as e:
             # just to gracefully handle older engines and older cores
