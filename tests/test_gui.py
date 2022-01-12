@@ -99,7 +99,7 @@ class AppDialogAppWrapper(object):
         """
         :param root:
         """
-        self.root = parent["ShotGrid: ShotGrid"].get()
+        self.root = parent["ShotGrid: Panel"].get()
 
     def exists(self):
         """
