@@ -207,7 +207,7 @@ class ShotgunPanelApp(Application):
         # start the UI
         try:
             widget = self.engine.show_panel(
-                self._unique_panel_id, "ShotGrid", self, app_payload.AppDialog
+                self._unique_panel_id, "ShotGrid Panel", self, app_payload.AppDialog
             )
         except AttributeError as e:
             # just to gracefully handle older engines and older cores
