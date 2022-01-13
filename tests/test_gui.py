@@ -325,7 +325,7 @@ def test_activity_notes_tabs(
         "Project Toolkit UI Automation creation is missing in the activity stream"
     )
     assert app_dialog.root.buttons[
-        "Click here to see the Activity stream in ShotGrid Panel."
+        "Click here to see the Activity stream in ShotGrid Panel"
     ].exists(), "Hyperlink to see the Activity Stream in SG is missing"
 
     # Click on the Notes tab
