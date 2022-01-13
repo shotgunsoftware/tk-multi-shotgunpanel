@@ -325,7 +325,7 @@ def test_activity_notes_tabs(
         "Project Toolkit UI Automation creation is missing in the activity stream"
     )
     assert app_dialog.root.buttons[
-        "Click here to see the Activity stream in ShotGrid Panel"
+        "Click here to see the Activity stream in ShotGrid"
     ].exists(), "Hyperlink to see the Activity Stream in SG is missing"
 
     # Click on the Notes tab
@@ -735,7 +735,7 @@ def test_search(app_dialog):
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
     # Click on the search button
-    app_dialog.root.buttons["Search ShotGrid Panel"].mouseClick()
+    app_dialog.root.buttons["Search ShotGrid"].mouseClick()
     app_dialog.root.textfields.waitExist(timeout=30)
 
     # Search for sven.png
