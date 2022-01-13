@@ -727,7 +727,6 @@ def test_publishes_tab(
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
-@pytest.mark.skip()
 def test_search(app_dialog):
     """
     Search widget validation
