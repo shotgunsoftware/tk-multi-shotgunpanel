@@ -436,6 +436,7 @@ def test_activity_notes_tabs(
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
+@pytest.mark.skip()
 def test_versions_tab(
     app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
@@ -610,6 +611,7 @@ def test_versions_tab(
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
+@pytest.mark.skip()
 def test_publishes_tab(
     app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
@@ -726,6 +728,7 @@ def test_publishes_tab(
     app_dialog.root.buttons["Click to go to your work area"].mouseClick()
 
 
+@pytest.mark.skip()
 def test_search(app_dialog):
     """
     Search widget validation
