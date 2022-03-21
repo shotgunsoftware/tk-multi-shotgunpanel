@@ -121,11 +121,10 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
     else:
         app_dialog.root.buttons[9].mouseClick()
-    assert app_dialog.root.tabs[
-        "My Tasks"
-    ].selected or app_dialog.root.tabs[
-        "My Tasks"
-    ].focused, "My Tasks tab should be selected by default"
+    assert (
+        app_dialog.root.tabs["My Tasks"].selected
+        or app_dialog.root.tabs["My Tasks"].focused
+    ), "My Tasks tab should be selected by default"
     # Wait for the task item to show up and then double click on it
     app_dialog.root.listitems.waitExist(timeout=30)
     wait = time.time()
@@ -139,11 +138,10 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
 
     # Activity tab validation
     assert app_dialog.root.captions["Task Model"].exists(), "Not on the right context"
-    assert app_dialog.root.tabs[
-        "Activity"
-    ].selected or app_dialog.root.tabs[
-        "Activity"
-    ].focused, "Activity tab should be selected by default"
+    assert (
+        app_dialog.root.tabs["Activity"].selected
+        or app_dialog.root.tabs["Activity"].focused
+    ), "Activity tab should be selected by default"
     assert app_dialog.root.captions[
         "Status:*Waiting to Start*Asset AssetAutomation*Assigned to: "
         + tk_test_current_user["name"]
@@ -277,11 +275,10 @@ def test_activity_notes_tabs(
 
     # Click on the Activity tab
     app_dialog.root.tabs["Activity"].mouseClick()
-    assert app_dialog.root.tabs[
-        "Activity"
-    ].selected or app_dialog.root.tabs[
-        "Activity"
-    ].focused, "Activity tab should be selected by default"
+    assert (
+        app_dialog.root.tabs["Activity"].selected
+        or app_dialog.root.tabs["Activity"].focused
+    ), "Activity tab should be selected by default"
 
     # Wait until note creation field is showing up.
     wait = time.time()
@@ -296,22 +293,22 @@ def test_activity_notes_tabs(
 
     # Validate that all buttons are available
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
-    assert app_dialog.root.buttons[
-        "Cancel"
-    ].exists() or app_dialog.root.buttons[
-        27].exists(), "Cancel buttons is not showing up"
-    assert app_dialog.root.buttons[
-        "Attach Files"
-    ].exists() or app_dialog.root.buttons[
-        28].exists(), "Attach Screenshot buttons is not showing up"
-    assert app_dialog.root.buttons[
-        "Take Screenshot"
-    ].exists() or app_dialog.root.buttons[
-        29].exists(), "Take Screenshot buttons is not showing up"
-    assert app_dialog.root.buttons[
-        "Create Note"
-    ].exists() or app_dialog.root.buttons[
-        30].exists(), "Create Note buttons is not showing up"
+    assert (
+        app_dialog.root.buttons["Cancel"].exists()
+        or app_dialog.root.buttons[27].exists()
+    ), "Cancel buttons is not showing up"
+    assert (
+        app_dialog.root.buttons["Attach Files"].exists()
+        or app_dialog.root.buttons[28].exists()
+    ), "Attach Screenshot buttons is not showing up"
+    assert (
+        app_dialog.root.buttons["Take Screenshot"].exists()
+        or app_dialog.root.buttons[29].exists()
+    ), "Take Screenshot buttons is not showing up"
+    assert (
+        app_dialog.root.buttons["Create Note"].exists()
+        or app_dialog.root.buttons[30].exists()
+    ), "Create Note buttons is not showing up"
 
     # Add a note
     app_dialog.root.textfields.typeIn("New note created by automation")
@@ -357,11 +354,9 @@ def test_activity_notes_tabs(
 
     # Click on the Notes tab
     app_dialog.root.tabs["Notes"].mouseClick()
-    assert app_dialog.root.tabs[
-        "Notes"
-    ].selected or app_dialog.root.tabs[
-        "Notes"
-    ].focused, "Noted tab should be selected by default"
+    assert (
+        app_dialog.root.tabs["Notes"].selected or app_dialog.root.tabs["Notes"].focused
+    ), "Noted tab should be selected by default"
 
     # Notes tab validation
     app_dialog.root.captions["All notes for this project, in update order."].waitExist(
@@ -393,22 +388,22 @@ def test_activity_notes_tabs(
 
     # Validate that all buttons are available
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Cancel"
-    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
-        1].exists(), "Cancel buttons is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Attach Files"
-    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
-        2].exists(), "Attach Screenshot buttons is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Take Screenshot"
-    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
-        3].exists(), "Take Screenshot buttons is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Create Note"
-    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
-        4].exists(), "Create Note buttons is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Cancel"].exists()
+        or app_dialog.root.dialogs["Reply"].buttons[1].exists()
+    ), "Cancel buttons is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Attach Files"].exists()
+        or app_dialog.root.dialogs["Reply"].buttons[2].exists()
+    ), "Attach Screenshot buttons is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Take Screenshot"].exists()
+        or app_dialog.root.dialogs["Reply"].buttons[3].exists()
+    ), "Take Screenshot buttons is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Create Note"].exists()
+        or app_dialog.root.dialogs["Reply"].buttons[4].exists()
+    ), "Create Note buttons is not showing up"
 
     # Validate that the File browser is showing up after clicking on the Files to attach button then close it
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
@@ -439,20 +434,20 @@ def test_activity_notes_tabs(
 
     # Validate that all buttons are available
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Cancel"
-    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
-        1].exists(), "Cancel button is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "add_button"
-    ].exists(), "Add attachments button is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "remove_button"
-        ].exists(), "Remove attachments button is not showing up"
-    assert app_dialog.root.dialogs["Reply"].buttons[
-        "Create Note"
-    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
-        2].exists(), "Create Note button is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Cancel"].exists()
+        or app_dialog.root.dialogs["Reply"].buttons[1].exists()
+    ), "Cancel button is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["add_button"].exists()
+    ), "Add attachments button is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["remove_button"].exists()
+    ), "Remove attachments button is not showing up"
+    assert (
+        app_dialog.root.dialogs["Reply"].buttons["Create Note"].exists()
+        or app_dialog.root.dialogs["Reply"].buttons[2].exists()
+    ), "Create Note button is not showing up"
     if app_dialog.root.dialogs["Reply"].buttons["Create Note"].exists() is True:
         app_dialog.root.dialogs["Reply"].buttons["Create Note"].mouseClick()
     else:
@@ -513,11 +508,10 @@ def test_versions_tab(
 
     # Click on the Versions tab
     app_dialog.root.tabs["Versions"].mouseClick()
-    assert app_dialog.root.tabs[
-        "Versions"
-    ].selected or app_dialog.root.tabs[
-        "Versions"
-    ].focused, "Versions tab should be selected by default"
+    assert (
+        app_dialog.root.tabs["Versions"].selected
+        or app_dialog.root.tabs["Versions"].focused
+    ), "Versions tab should be selected by default"
     app_dialog.root.listitems.waitExist(timeout=30)
     assert (
         app_dialog.root.checkboxes["Only show versions pending review"].checked is False
@@ -528,11 +522,10 @@ def test_versions_tab(
     app_dialog.root.captions[
         "This version was created by the Toolkit UI automation"
     ].waitExist(timeout=30)
-    assert app_dialog.root.tabs[
-        "Activity"
-    ].selected or app_dialog.root.tabs[
-        "Activity"
-    ].focused, "Activity tab should be selected by default"
+    assert (
+        app_dialog.root.tabs["Activity"].selected
+        or app_dialog.root.tabs["Activity"].focused
+    ), "Activity tab should be selected by default"
     app_dialog.root.captions["sven.png"].waitExist(timeout=30)
     assert app_dialog.root.captions[
         "Version sven.png was created on Asset AssetAutomation"
@@ -575,11 +568,10 @@ def test_versions_tab(
     app_dialog.root.captions["Project " + str(tk_test_project["name"])].waitExist(
         timeout=30
     )
-    assert app_dialog.root.tabs[
-        "Versions"
-    ].selected or app_dialog.root.tabs[
-        "Versions"
-    ].focused, "Versions tab should be selected by default"
+    assert (
+        app_dialog.root.tabs["Versions"].selected
+        or app_dialog.root.tabs["Versions"].focused
+    ), "Versions tab should be selected by default"
 
     # Re-select the version item
     app_dialog.root.listitems.mouseDoubleClick()
@@ -713,11 +705,10 @@ def test_publishes_tab(
 
     # Click on the Publishes tab
     app_dialog.root.tabs["Publishes"].mouseClick()
-    assert app_dialog.root.tabs[
-        "Publishes"
-    ].selected or app_dialog.root.tabs[
-        "Publishes"
-    ].focused, "Publishes tab should be selected by default"
+    assert (
+        app_dialog.root.tabs["Publishes"].selected
+        or app_dialog.root.tabs["Publishes"].focused
+    ), "Publishes tab should be selected by default"
     app_dialog.root.listitems.waitExist(timeout=30)
     assert app_dialog.root.checkboxes[
         "Only show latest versions"
@@ -728,11 +719,10 @@ def test_publishes_tab(
     app_dialog.root.captions["The version history for this publish."].waitExist(
         timeout=30
     )
-    assert app_dialog.root.tabs[
-        "Version History"
-    ].selected or app_dialog.root.tabs[
-        "Version History"
-    ].focused, "Version History tab should be selected by default"
+    assert (
+        app_dialog.root.tabs["Version History"].selected
+        or app_dialog.root.tabs["Version History"].focused
+    ), "Version History tab should be selected by default"
     app_dialog.root.captions["sven.png"].waitExist()
     assert app_dialog.root.captions[
         "Not set, Version 1*For Asset AssetAutomation, Task Model*Created by "
