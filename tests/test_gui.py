@@ -116,11 +116,16 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
     My Tasks tab validation
     """
     # Wait for the UI to show up, click on the home button and make sure My Tasks tab is selected by default
-    app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
-    app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
     assert app_dialog.root.tabs[
         "My Tasks"
-    ].selected, "My Tasks tab should be selected by default"
+    ].selected or app_dialog.root.tabs[
+        "My Tasks"
+    ].focused, "My Tasks tab should be selected by default"
     # Wait for the task item to show up and then double click on it
     app_dialog.root.listitems.waitExist(timeout=30)
     wait = time.time()
@@ -136,7 +141,9 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
     assert app_dialog.root.captions["Task Model"].exists(), "Not on the right context"
     assert app_dialog.root.tabs[
         "Activity"
-    ].selected, "Activity tab should be selected by default"
+    ].selected or app_dialog.root.tabs[
+        "Activity"
+    ].focused, "Activity tab should be selected by default"
     assert app_dialog.root.captions[
         "Status:*Waiting to Start*Asset AssetAutomation*Assigned to: "
         + tk_test_current_user["name"]
@@ -248,7 +255,11 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
     ].exists(), "tag_list attribute is missing"
 
     # Go back to the default work area
-    app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
 
 
 def test_activity_notes_tabs(
@@ -258,12 +269,19 @@ def test_activity_notes_tabs(
     Activity and Notes tabs validation
     """
     # Wait for the UI to show up and click on the Activity tab
-    app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
-    app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
 
     # Click on the Activity tab
     app_dialog.root.tabs["Activity"].mouseClick()
-    assert app_dialog.root.tabs["Activity"].selected, "Activity tab should be selected"
+    assert app_dialog.root.tabs[
+        "Activity"
+    ].selected or app_dialog.root.tabs[
+        "Activity"
+    ].focused, "Activity tab should be selected by default"
 
     # Wait until note creation field is showing up.
     wait = time.time()
@@ -277,22 +295,31 @@ def test_activity_notes_tabs(
     app_dialog.root.captions["Click to create a new note..."].mouseClick()
 
     # Validate that all buttons are available
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
     assert app_dialog.root.buttons[
         "Cancel"
-    ].exists(), "Cancel buttons is not showing up"
+    ].exists() or app_dialog.root.buttons[
+        27].exists(), "Cancel buttons is not showing up"
     assert app_dialog.root.buttons[
         "Attach Files"
-    ].exists(), "Attach Screenshot buttons is not showing up"
+    ].exists() or app_dialog.root.buttons[
+        28].exists(), "Attach Screenshot buttons is not showing up"
     assert app_dialog.root.buttons[
         "Take Screenshot"
-    ].exists(), "Take Screenshot buttons is not showing up"
+    ].exists() or app_dialog.root.buttons[
+        29].exists(), "Take Screenshot buttons is not showing up"
     assert app_dialog.root.buttons[
         "Create Note"
-    ].exists(), "Create Note buttons is not showing up"
+    ].exists() or app_dialog.root.buttons[
+        30].exists(), "Create Note buttons is not showing up"
 
     # Add a note
     app_dialog.root.textfields.typeIn("New note created by automation")
-    app_dialog.root.buttons["Create Note"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Create Note"].exists() is True:
+        app_dialog.root.buttons["Create Note"].mouseClick()
+    else:
+        app_dialog.root.buttons[30].mouseClick()
     app_dialog.root.captions["Reply to this Note"].waitExist(timeout=30)
 
     # Validate the Note gets created
@@ -330,7 +357,11 @@ def test_activity_notes_tabs(
 
     # Click on the Notes tab
     app_dialog.root.tabs["Notes"].mouseClick()
-    assert app_dialog.root.tabs["Notes"].selected, "Notes tab should be selected"
+    assert app_dialog.root.tabs[
+        "Notes"
+    ].selected or app_dialog.root.tabs[
+        "Notes"
+    ].focused, "Noted tab should be selected by default"
 
     # Notes tab validation
     app_dialog.root.captions["All notes for this project, in update order."].waitExist(
@@ -361,21 +392,30 @@ def test_activity_notes_tabs(
     app_dialog.root.dialogs["Reply"].waitExist(timeout=30)
 
     # Validate that all buttons are available
-    assert (
-        app_dialog.root.dialogs["Reply"].buttons["Cancel"].exists()
-    ), "Cancel buttons is not showing up"
-    assert (
-        app_dialog.root.dialogs["Reply"].buttons["Attach Files"].exists()
-    ), "Attach Screenshot buttons is not showing up"
-    assert (
-        app_dialog.root.dialogs["Reply"].buttons["Take Screenshot"].exists()
-    ), "Take Screenshot buttons is not showing up"
-    assert (
-        app_dialog.root.dialogs["Reply"].buttons["Create Note"].exists()
-    ), "Create Note buttons is not showing up"
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    assert app_dialog.root.dialogs["Reply"].buttons[
+        "Cancel"
+    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
+        1].exists(), "Cancel buttons is not showing up"
+    assert app_dialog.root.dialogs["Reply"].buttons[
+        "Attach Files"
+    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
+        2].exists(), "Attach Screenshot buttons is not showing up"
+    assert app_dialog.root.dialogs["Reply"].buttons[
+        "Take Screenshot"
+    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
+        3].exists(), "Take Screenshot buttons is not showing up"
+    assert app_dialog.root.dialogs["Reply"].buttons[
+        "Create Note"
+    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
+        4].exists(), "Create Note buttons is not showing up"
 
     # Validate that the File browser is showing up after clicking on the Files to attach button then close it
-    app_dialog.root.dialogs["Reply"].buttons["Attach Files"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.dialogs["Reply"].buttons["Attach Files"].exists() is True:
+        app_dialog.root.dialogs["Reply"].buttons["Attach Files"].mouseClick()
+    else:
+        app_dialog.root.dialogs["Reply"].buttons[2].mouseClick()
     app_dialog.root.dialogs["Select files to attach."].waitExist(timeout=30)
 
     # Get image path to be published
@@ -398,22 +438,32 @@ def test_activity_notes_tabs(
     )
 
     # Validate that all buttons are available
-    assert (
-        app_dialog.root.dialogs["Reply"].buttons["Cancel"].exists()
-    ), "Cancel button is not showing up"
-    assert (
-        app_dialog.root.dialogs["Reply"].buttons["add_button"].exists()
-    ), "Add attachments button is not showing up"
-    assert (
-        app_dialog.root.dialogs["Reply"].buttons["remove_button"].exists()
-    ), "Remove attachments button is not showing up"
-    assert (
-        app_dialog.root.dialogs["Reply"].buttons["Create Note"].exists()
-    ), "Create Note button is not showing up"
-    app_dialog.root.dialogs["Reply"].buttons["Create Note"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    assert app_dialog.root.dialogs["Reply"].buttons[
+        "Cancel"
+    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
+        1].exists(), "Cancel button is not showing up"
+    assert app_dialog.root.dialogs["Reply"].buttons[
+        "add_button"
+    ].exists(), "Add attachments button is not showing up"
+    assert app_dialog.root.dialogs["Reply"].buttons[
+        "remove_button"
+        ].exists(), "Remove attachments button is not showing up"
+    assert app_dialog.root.dialogs["Reply"].buttons[
+        "Create Note"
+    ].exists() or app_dialog.root.dialogs["Reply"].buttons[
+        2].exists(), "Create Note button is not showing up"
+    if app_dialog.root.dialogs["Reply"].buttons["Create Note"].exists() is True:
+        app_dialog.root.dialogs["Reply"].buttons["Create Note"].mouseClick()
+    else:
+        app_dialog.root.dialogs["Reply"].buttons[2].mouseClick()
 
     # Take a screenshot
-    app_dialog.root.dialogs["Reply"].buttons["Take Screenshot"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.dialogs["Reply"].buttons["Take Screenshot"].exists() is True:
+        app_dialog.root.dialogs["Reply"].buttons["Take Screenshot"].mouseClick()
+    else:
+        app_dialog.root.dialogs["Reply"].buttons[3].mouseClick()
     app_window = first(app_dialog.root)
     width, height = app_window.size
     app_window.mouseSlide(width * 0, height * 0)
@@ -421,11 +471,19 @@ def test_activity_notes_tabs(
 
     # Add a note
     app_dialog.root.dialogs["Reply"].textfields.typeIn("New Reply")
-    app_dialog.root.dialogs["Reply"].buttons["Create Note"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.dialogs["Reply"].buttons["Create Note"].exists() is True:
+        app_dialog.root.dialogs["Reply"].buttons["Create Note"].mouseClick()
+    else:
+        app_dialog.root.dialogs["Reply"].buttons[4].mouseClick()
     app_dialog.root.captions["New Reply"].waitExist(timeout=30)
 
     # Validate the note gets created
-    app_dialog.root.buttons["Click to go back"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go back"].exists() is True:
+        app_dialog.root.buttons["Click to go back"].mouseClick()
+    else:
+        app_dialog.root.buttons[10].mouseClick()
     app_dialog.root.captions["All notes for this project, in update order."].waitExist(
         timeout=30
     )
@@ -433,7 +491,11 @@ def test_activity_notes_tabs(
     app_dialog.root.captions["New Reply"].waitExist(timeout=30)
 
     # Go back to the default work area
-    app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
 
 
 def test_versions_tab(
@@ -443,12 +505,19 @@ def test_versions_tab(
     Versions tab validation
     """
     # Wait for the UI to show up and click on the Versions tab
-    app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
-    app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
 
     # Click on the Versions tab
     app_dialog.root.tabs["Versions"].mouseClick()
-    assert app_dialog.root.tabs["Versions"].selected, "Versions tab should be selected"
+    assert app_dialog.root.tabs[
+        "Versions"
+    ].selected or app_dialog.root.tabs[
+        "Versions"
+    ].focused, "Versions tab should be selected by default"
     app_dialog.root.listitems.waitExist(timeout=30)
     assert (
         app_dialog.root.checkboxes["Only show versions pending review"].checked is False
@@ -461,7 +530,9 @@ def test_versions_tab(
     ].waitExist(timeout=30)
     assert app_dialog.root.tabs[
         "Activity"
-    ].selected, "Activity tab should be selected by default"
+    ].selected or app_dialog.root.tabs[
+        "Activity"
+    ].focused, "Activity tab should be selected by default"
     app_dialog.root.captions["sven.png"].waitExist(timeout=30)
     assert app_dialog.root.captions[
         "Version sven.png was created on Asset AssetAutomation"
@@ -475,7 +546,11 @@ def test_versions_tab(
     # Create a note on the version
     app_dialog.root.captions["Click to create a new note..."].mouseClick()
     app_dialog.root.textfields.typeIn("New note on a version created by automation")
-    app_dialog.root.buttons["Create Note"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Create Note"].exists() is True:
+        app_dialog.root.buttons["Create Note"].mouseClick()
+    else:
+        app_dialog.root.buttons[21].mouseClick()
     app_dialog.root.captions["Reply to this Note"].waitExist(timeout=30)
 
     # Click on the Notes tab and wait to make sure the note is showing up in the list item
@@ -486,16 +561,25 @@ def test_versions_tab(
     app_dialog.root.listitems.mouseDoubleClick()
     app_dialog.root.captions["*Note on sven.png, AssetAutomation"].waitExist(timeout=30)
     # Go back to the Note page and make sure breadcrumb is good
-    app_dialog.root.buttons["Click to go back"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go back"].exists() is True:
+        app_dialog.root.buttons["Click to go back"].mouseClick()
+    else:
+        app_dialog.root.buttons[10].mouseClick()
     app_dialog.root.captions["sven.png"].waitExist(timeout=30)
     # Click back again and make sure the Versions tab is selected
-    app_dialog.root.buttons["Click to go back"].mouseClick()
+    if app_dialog.root.buttons["Click to go back"].exists() is True:
+        app_dialog.root.buttons["Click to go back"].mouseClick()
+    else:
+        app_dialog.root.buttons[10].mouseClick()
     app_dialog.root.captions["Project " + str(tk_test_project["name"])].waitExist(
         timeout=30
     )
     assert app_dialog.root.tabs[
         "Versions"
-    ].selected, "Activity tab should be selected by default"
+    ].selected or app_dialog.root.tabs[
+        "Versions"
+    ].focused, "Versions tab should be selected by default"
 
     # Re-select the version item
     app_dialog.root.listitems.mouseDoubleClick()
@@ -607,7 +691,11 @@ def test_versions_tab(
     ].exists(), "tag_list attribute is missing"
 
     # Go back to the default work area
-    app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
 
 
 def test_publishes_tab(
@@ -617,14 +705,19 @@ def test_publishes_tab(
     Publishes tab validation
     """
     # Wait for the UI to show up and click on the Publishes tab
-    app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
-    app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
 
     # Click on the Publishes tab
     app_dialog.root.tabs["Publishes"].mouseClick()
     assert app_dialog.root.tabs[
         "Publishes"
-    ].selected, "Publishes tab should be selected"
+    ].selected or app_dialog.root.tabs[
+        "Publishes"
+    ].focused, "Publishes tab should be selected by default"
     app_dialog.root.listitems.waitExist(timeout=30)
     assert app_dialog.root.checkboxes[
         "Only show latest versions"
@@ -637,7 +730,9 @@ def test_publishes_tab(
     )
     assert app_dialog.root.tabs[
         "Version History"
-    ].selected, "Version History tab should be selected by default"
+    ].selected or app_dialog.root.tabs[
+        "Version History"
+    ].focused, "Version History tab should be selected by default"
     app_dialog.root.captions["sven.png"].waitExist()
     assert app_dialog.root.captions[
         "Not set, Version 1*For Asset AssetAutomation, Task Model*Created by "
@@ -723,7 +818,11 @@ def test_publishes_tab(
     assert app_dialog.root.captions["1"].exists(), "Wrong version number. Should be 1"
 
     # Go back to the default work area
-    app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
 
 
 def test_search(app_dialog):
@@ -731,11 +830,18 @@ def test_search(app_dialog):
     Search widget validation
     """
     # Wait for the UI to show up and click on the Versions tab
-    app_dialog.root.buttons["Click to go to your work area"].waitExist(timeout=30)
-    app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
 
     # Click on the search button
-    app_dialog.root.buttons["Search ShotGrid"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Search ShotGrid"].exists() is True:
+        app_dialog.root.buttons["Search ShotGrid"].mouseClick()
+    else:
+        app_dialog.root.buttons[12].mouseClick()
     app_dialog.root.textfields.waitExist(timeout=30)
 
     # Search for sven.png
@@ -743,7 +849,7 @@ def test_search(app_dialog):
     topwindows.listitems["sven.png"].waitExist(timeout=30)
 
     # Clear the search text field
-    app_dialog.root.textfields.buttons.mouseClick()
+    app_dialog.root.textfields.buttons.mouseDoubleClick()
 
     # Do another search for asset
     app_dialog.root.textfields.mouseClick()
@@ -760,7 +866,7 @@ def test_search(app_dialog):
     ].exists(), "sven.png isn't showing up in the search list."
 
     # Clear the search text field
-    app_dialog.root.textfields.buttons.mouseClick()
+    app_dialog.root.textfields.buttons.mouseDoubleClick()
 
     # Do another search with a value that has not match
     app_dialog.root.textfields.mouseClick()
@@ -771,4 +877,8 @@ def test_search(app_dialog):
     app_dialog.root.buttons["Cancel"].mouseClick()
 
     # Go back to the default work area
-    app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
