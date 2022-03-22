@@ -116,6 +116,7 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
     My Tasks tab validation
     """
     # Wait for the UI to show up, click on the home button and make sure My Tasks tab is selected by default
+    app_dialog.root.tabs["Activity"].waitExist(timeout=30)
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
     if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -267,6 +268,7 @@ def test_activity_notes_tabs(
     Activity and Notes tabs validation
     """
     # Wait for the UI to show up and click on the Activity tab
+    app_dialog.root.tabs["Activity"].waitExist(timeout=30)
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
     if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -500,6 +502,7 @@ def test_versions_tab(
     Versions tab validation
     """
     # Wait for the UI to show up and click on the Versions tab
+    app_dialog.root.tabs["Activity"].waitExist(timeout=30)
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
     if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -697,6 +700,7 @@ def test_publishes_tab(
     Publishes tab validation
     """
     # Wait for the UI to show up and click on the Publishes tab
+    app_dialog.root.tabs["Activity"].waitExist(timeout=30)
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
     if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
@@ -820,6 +824,7 @@ def test_search(app_dialog):
     Search widget validation
     """
     # Wait for the UI to show up and click on the Versions tab
+    app_dialog.root.tabs["Activity"].waitExist(timeout=30)
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
     if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
