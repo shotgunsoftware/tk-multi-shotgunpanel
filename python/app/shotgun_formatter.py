@@ -17,9 +17,13 @@ import pprint
 from . import utils
 
 shotgun_globals = sgtk.platform.import_framework(
-    "tk-framework-shotgunutils", "shotgun_globals",
+    "tk-framework-shotgunutils",
+    "shotgun_globals",
 )
-qtwidgets_utils = sgtk.platform.import_framework("tk-framework-qtwidgets", "utils",)
+qtwidgets_utils = sgtk.platform.import_framework(
+    "tk-framework-qtwidgets",
+    "utils",
+)
 
 
 class ShotgunTypeFormatter(object):
@@ -271,7 +275,8 @@ class ShotgunTypeFormatter(object):
                 str_val = link_name
             else:
                 str_val = qtwidgets_utils.get_hyperlink_html(
-                    url="sgtk:%s:%s" % (value["type"], value["id"]), name=link_name,
+                    url="sgtk:%s:%s" % (value["type"], value["id"]),
+                    name=link_name,
                 )
 
         elif isinstance(value, list):

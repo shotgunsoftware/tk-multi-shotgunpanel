@@ -536,7 +536,9 @@ class AppDialog(QtGui.QWidget):
         """
         sg_item = shotgun_model.get_sg_data(model_index)
         proceed = self._app.execute_hook_method(
-            "actions_hook", "execute_entity_doubleclicked_action", sg_data=sg_item,
+            "actions_hook",
+            "execute_entity_doubleclicked_action",
+            sg_data=sg_item,
         )
 
         if proceed:
@@ -920,7 +922,9 @@ class AppDialog(QtGui.QWidget):
 
                 # TODO handle checkbox filters more generically
                 checkbox = self.create_entity_tab_checkbox(
-                    entity_tab_name, tab_widget, "Only show versions pending review",
+                    entity_tab_name,
+                    tab_widget,
+                    "Only show versions pending review",
                 )
                 checked = self._settings_manager.retrieve(
                     "pending_versions_only", False
