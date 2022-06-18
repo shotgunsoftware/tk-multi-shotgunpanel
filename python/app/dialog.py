@@ -59,6 +59,15 @@ shotgun_menus = sgtk.platform.import_framework(
 overlay_module = sgtk.platform.import_framework(
     "tk-framework-qtwidgets", "overlay_widget"
 )
+shotgun_fields = sgtk.platform.import_framework(
+    "tk-framework-qtwidgets", "shotgun_fields"
+)
+filtering = sgtk.platform.import_framework("tk-framework-qtwidgets", "filtering")
+FilterMenu = filtering.FilterMenu
+ShotgunFilterMenu = filtering.ShotgunFilterMenu
+FilterMenuButton = filtering.FilterMenuButton
+FilterItemProxyModel = filtering.FilterItemProxyModel
+FilterItemTreeProxyModel = filtering.FilterItemTreeProxyModel
 ShotgunModelOverlayWidget = overlay_module.ShotgunModelOverlayWidget
 
 # maximum size of the details field in the top part of the UI
@@ -152,6 +161,16 @@ class AppDialog(QtGui.QWidget):
         # where it shows up elsewhere on screen (as in Houdini)
         self._menu = shotgun_menus.ShotgunMenu(self.ui.action_button)
         self.ui.action_button.setMenu(self._menu)
+
+        # Create a Horizontal widget layout
+        # to place the Filter and Sort menus
+        self._sort_filter_layout = QtGui.QHBoxLayout()
+        # The layout to contain the label and menus
+        self._third_layout = QtGui.QHBoxLayout()
+        # Create the filter menu
+        self._sg_filter_menu = None
+        # create the sort menu
+        self._entity_field_menu = None
 
         # this forces the menu to be right aligned with the button. This is
         # preferable since many DCCs show the embed panel on the far right. In
@@ -887,6 +906,7 @@ class AppDialog(QtGui.QWidget):
                 "has_description": True,
                 "has_view": True,
                 "has_filter": False,
+                "has_filter_menu": False,
             }
 
             if entity_tab_name == self.ENTITY_TAB_NOTES:
@@ -898,6 +918,7 @@ class AppDialog(QtGui.QWidget):
                 data["model_class"] = SgTaskListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = "Task"
+                data["has_filter_menu"] = True
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_HISTORY:
                 data["model_class"] = SgPublishHistoryListingModel
@@ -978,13 +999,30 @@ class AppDialog(QtGui.QWidget):
             # view (QListView), filter (QCheckbox)
             if data["has_description"]:
                 label = self.create_entity_tab_label(entity_tab_name, tab_widget)
-                tab_widget.layout().addWidget(label)
+                if data["entity_type"] == "Task":
+                    # Create the Label Vertical Layout
+                    label_lay = QtGui.QHBoxLayout()
+                    label_lay.addWidget(label)
+                    # Add the label layout to the container layout
+                    self._third_layout.addLayout(label_lay)
+                else:
+                    tab_widget.layout().addWidget(label)
                 data["description"] = label
 
             if data["has_view"]:
                 view = self.create_entity_tab_view(entity_tab_name, tab_widget)
-                tab_widget.layout().addWidget(view)
-                data["view"] = view
+                if data["entity_type"] == "Task":
+                    data["view"] = view
+                    data["widget"] = tab_widget
+                    # Insert the new method that configure the menus here
+                    # It should be configured here to fit above the List View.
+                    entity_data = self.setup_task_menus(data)
+                    # Add the view to the widget
+                    entity_data["widget"].layout().addWidget(view)
+
+                else:
+                    data["view"] = view
+                    tab_widget.layout().addWidget(view)
 
             if data["has_filter"]:
                 tab_widget.layout().addWidget(checkbox)
@@ -1104,9 +1142,11 @@ class AppDialog(QtGui.QWidget):
         self._app.log_debug("Creating %r..." % ModelClass)
 
         # create model
-        entity_data["model"] = ModelClass(
-            entity_data["entity_type"], entity_data["view"], self._task_manager
-        )
+        if not entity_data["has_filter_menu"]:
+            # This is to avoid override the model when the tab entity is Task
+            entity_data["model"] = ModelClass(
+                entity_data["entity_type"], entity_data["view"], self._task_manager
+            )
 
         # create proxy for sorting
         entity_data["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
@@ -1124,7 +1164,8 @@ class AppDialog(QtGui.QWidget):
         entity_data["sort_proxy"].sort(0, QtCore.Qt.DescendingOrder)
 
         # set up model
-        entity_data["view"].setModel(entity_data["sort_proxy"])
+        if not entity_data["has_filter_menu"]:
+            entity_data["view"].setModel(entity_data["sort_proxy"])
         # set up a global on-click handler for
         entity_data["view"].doubleClicked.connect(self._on_entity_doubleclicked)
         # create delegate
@@ -1142,3 +1183,155 @@ class AppDialog(QtGui.QWidget):
         if ModelClass == SgPublishHistoryListingModel:
             # this class needs special access to the overlay
             entity_data["model"].set_overlay(entity_data["overlay"])
+
+
+    def setup_task_menus(self, entity_data):
+        """
+        Given the Task tab data, set up the
+         Task filter and sorting menus.
+        """
+        ModelClass = entity_data["model_class"]
+
+        self._app.log_debug("Creating %r..." % ModelClass)
+        # Set up the SG source model for the menus
+        entity_data["model"] = ModelClass(
+            entity_data["entity_type"], entity_data["view"], self._task_manager
+        )
+
+        entity_data = self._filter_menu_setup(entity_data)
+        self._sort_menu_setup(entity_data)  # Configure the sort Menu too
+
+        return entity_data
+
+
+    def _filter_menu_setup(self, entity_data):
+        """
+        Set up the filter proxy for a given entity tab.
+        :param entity_data_model : The entity data source model.
+        """
+
+        # FILTER PROXY CONFIG
+        # 1. create proxy for filter
+        entity_data["filter_proxy"] = FilterItemTreeProxyModel(self) #QtGui.QSortFilterProxyModel(self) #
+
+        # 2. Call setSourceModel with the model as argument (Set the proxy Model)
+        entity_data["filter_proxy"].setSourceModel(entity_data["model"])
+
+        # FILTER MENU CONFIG
+        # 1. Create a 'ShotGrid' specific filter menu since we are using a 'ShotGrid' model.
+        self._sg_filter_menu = ShotgunFilterMenu(self)  # FilterMenu(self)
+        # 2. Before initializing the menu, (set the filter/proxy model on the menu.)
+        self._sg_filter_menu.set_filter_model(entity_data["filter_proxy"])
+
+        # Default filter fields to show on open (these default fields can be saved/restored using
+        # QSettings).
+        self._sg_filter_menu.set_visible_fields(
+            ["Task.sg_status_list", "Task.entity", "Task.step", "Task.id"]
+        )
+
+        # 3. Now the menu is ready to be initialized.
+        self._sg_filter_menu.initialize_menu()
+
+        # INITIALIZE THE VIEW
+        # Initialize the view to display the SG model data to filter on.
+        entity_data['view'].setModel(entity_data["filter_proxy"])
+
+        # INITIALIZE THE FILTER MENU BUTTON
+        # Initialize the filter button to display the SG filter menu.
+        self._filter_menu_btn = FilterMenuButton(self)
+        self._filter_menu_btn.setMenu(self._sg_filter_menu)
+
+
+
+        # Update the sort_filt_hlayout with the first Menu
+        #(Add the filter menu button to the menus Horizontal layout)
+        self._sort_filter_layout.addStretch(0)
+        self._sort_filter_layout.addWidget(self._filter_menu_btn)
+
+        # Configure the Sort Menu
+        #self._sort_menu(entity_data, hlayout)
+
+        return entity_data
+
+
+    def _sort_menu_setup(self, entity_data): #, hlayout):
+        """
+        Configure a new Menu for
+        sorting the Task tab.
+        """
+
+        # Build the sort menu to display Project entity fields
+        self._entity_type = entity_data['entity_type']
+        project_id = self._app.context.project['id']
+
+        self._entity_field_menu = shotgun_menus.EntityFieldMenu(
+            self._entity_type, self, bg_task_manager=self._task_manager, project_id=project_id
+        )
+
+        self.sort_menu_button = QtGui.QPushButton(
+            "Sort"
+        )
+        self.sort_menu_button.setObjectName("sort_menu_button")
+        self.sort_menu_button.setStyleSheet("border :None")
+
+        # show the sort menu when the button is clicked
+        self.sort_menu_button.clicked.connect(
+            lambda: self._entity_field_menu.exec_(QtGui.QCursor.pos())
+        )
+
+        # Set the sort menu icon
+        icon_path = self._switch_sort_icon()
+        self.sort_menu_button.setIcon(QtGui.QIcon(icon_path))
+
+        # Add the sort menu button The Sort Filter Horizontal Layout
+        self._sort_filter_layout.addWidget(self.sort_menu_button)
+
+        # Nest the sort and filter menus layout to a Horizontal Layout
+        self._third_layout.addLayout(self._sort_filter_layout) # This should be renamed nested layout ?
+        # Nest the Horizontal Layout to the Vertical main app layout
+        entity_data["widget"].layout().addLayout(self._third_layout)
+
+        # the fields manager is used to query which fields are supported
+        # for display. it can also be used to find out which fields are
+        # visible to the user and editable by the user. the fields manager
+        # needs time to initialize itself. once that's done, the widgets can
+        # begin to be populated.
+        fields_manager = shotgun_fields.ShotgunFieldManager(
+            self, bg_task_manager=self._task_manager
+        )
+        fields_manager.initialized.connect(self._field_filters)
+        fields_manager.initialize()
+        self._sort_menu_actions()
+
+
+    def _field_filters(self):
+
+        # ---- define a few simple filter methods for use by the menu
+
+        def field_filter(field):
+            # if field == 'step':
+            #     return True
+            # elif field == 'sg_status_list':
+            #     return False
+            # elif field == 'due_date':
+            #     return True
+            return False # By returning True for all it will display all the fields in ShotGrid for this entity
+
+        def checked_filter(field):
+            # none of the fields are checked
+            # if field == 'due_date':
+            #     return True
+            # elif field == 'sg_status_list':
+            #     return True
+            return False
+
+        def disabled_filter(field):
+            # none of the fields are disabled
+            # if field == 'step':
+            #     return True
+            return False
+
+        # attach our filters
+        self._entity_field_menu.set_field_filter(field_filter)
+        self._entity_field_menu.set_checked_filter(checked_filter)
+        self._entity_field_menu.set_disabled_filter(disabled_filter)
