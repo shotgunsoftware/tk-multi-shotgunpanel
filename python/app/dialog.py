@@ -162,6 +162,10 @@ class AppDialog(QtGui.QWidget):
         self._menu = shotgun_menus.ShotgunMenu(self.ui.action_button)
         self.ui.action_button.setMenu(self._menu)
 
+        # Last sort menu item selected, by default is sorted 'due_date'
+        self._current_menu_sort_item = 'due_date'
+        self._current_menu_sort_order = 'desc'
+
         # Create a Horizontal widget layout
         # to place the Filter and Sort menus
         self._sort_filter_layout = QtGui.QHBoxLayout()
