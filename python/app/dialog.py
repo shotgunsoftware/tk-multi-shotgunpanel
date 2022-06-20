@@ -163,8 +163,8 @@ class AppDialog(QtGui.QWidget):
         self.ui.action_button.setMenu(self._menu)
 
         # Last sort menu item selected, by default is sorted 'due_date'
-        self._current_menu_sort_item = 'due_date'
-        self._current_menu_sort_order = 'desc'
+        self._current_menu_sort_item = "due_date"
+        self._current_menu_sort_order = "desc"
 
         # Create a Horizontal widget layout
         # to place the Filter and Sort menus
@@ -476,14 +476,24 @@ class AppDialog(QtGui.QWidget):
                     )
                     args = [self._current_location, show_latest_only]
 
-                elif tab_name == 'tasks':
+                elif tab_name == "tasks":
                     formatter = self._current_location.sg_formatter
                     args = [self._current_location]
-                    sort_by = sort_by if sort_by is not None else self._current_menu_sort_item
-                    sort_order = sort_order if sort_order is not None else self._current_menu_sort_order
+                    sort_by = (
+                        sort_by if sort_by is not None else self._current_menu_sort_item
+                    )
+                    sort_order = (
+                        sort_order
+                        if sort_order is not None
+                        else self._current_menu_sort_order
+                    )
                     sort_field = formatter.get_tab_data(tab_name, "sort", sort_by)
-                    additional_fields = ['step', 'id']
-                    kwargs = {"sort_field": sort_field, "additional_fields": additional_fields, "direction": sort_order}
+                    additional_fields = ["step", "id"]
+                    kwargs = {
+                        "sort_field": sort_field,
+                        "additional_fields": additional_fields,
+                        "direction": sort_order,
+                    }
 
                 else:
                     args = [self._current_location]
@@ -1197,7 +1207,6 @@ class AppDialog(QtGui.QWidget):
             # this class needs special access to the overlay
             entity_data["model"].set_overlay(entity_data["overlay"])
 
-
     def setup_task_menus(self, entity_data):
         """
         Given the Task tab data, set up the
@@ -1216,7 +1225,6 @@ class AppDialog(QtGui.QWidget):
 
         return entity_data
 
-
     def _filter_menu_setup(self, entity_data):
         """
         Set up the filter proxy for a given entity tab.
@@ -1225,7 +1233,9 @@ class AppDialog(QtGui.QWidget):
 
         # FILTER PROXY CONFIG
         # 1. create proxy for filter
-        entity_data["filter_proxy"] = FilterItemTreeProxyModel(self) #QtGui.QSortFilterProxyModel(self) #
+        entity_data["filter_proxy"] = FilterItemTreeProxyModel(
+            self
+        )
 
         # 2. Call setSourceModel with the model as argument (Set the proxy Model)
         entity_data["filter_proxy"].setSourceModel(entity_data["model"])
@@ -1247,43 +1257,41 @@ class AppDialog(QtGui.QWidget):
 
         # INITIALIZE THE VIEW
         # Initialize the view to display the SG model data to filter on.
-        entity_data['view'].setModel(entity_data["filter_proxy"])
+        entity_data["view"].setModel(entity_data["filter_proxy"])
 
         # INITIALIZE THE FILTER MENU BUTTON
         # Initialize the filter button to display the SG filter menu.
         self._filter_menu_btn = FilterMenuButton(self)
         self._filter_menu_btn.setMenu(self._sg_filter_menu)
 
-
-
         # Update the sort_filt_hlayout with the first Menu
-        #(Add the filter menu button to the menus Horizontal layout)
+        # (Add the filter menu button to the menus Horizontal layout)
         self._sort_filter_layout.addStretch(0)
         self._sort_filter_layout.addWidget(self._filter_menu_btn)
 
         # Configure the Sort Menu
-        #self._sort_menu(entity_data, hlayout)
+        # self._sort_menu(entity_data, hlayout)
 
         return entity_data
 
-
-    def _sort_menu_setup(self, entity_data): #, hlayout):
+    def _sort_menu_setup(self, entity_data):  # , hlayout):
         """
         Configure a new Menu for
         sorting the Task tab.
         """
 
         # Build the sort menu to display Project entity fields
-        self._entity_type = entity_data['entity_type']
-        project_id = self._app.context.project['id']
+        self._entity_type = entity_data["entity_type"]
+        project_id = self._app.context.project["id"]
 
         self._entity_field_menu = shotgun_menus.EntityFieldMenu(
-            self._entity_type, self, bg_task_manager=self._task_manager, project_id=project_id
+            self._entity_type,
+            self,
+            bg_task_manager=self._task_manager,
+            project_id=project_id,
         )
 
-        self.sort_menu_button = QtGui.QPushButton(
-            "Sort"
-        )
+        self.sort_menu_button = QtGui.QPushButton("Sort")
         self.sort_menu_button.setObjectName("sort_menu_button")
         self.sort_menu_button.setStyleSheet("border :None")
 
@@ -1300,7 +1308,9 @@ class AppDialog(QtGui.QWidget):
         self._sort_filter_layout.addWidget(self.sort_menu_button)
 
         # Nest the sort and filter menus layout to a Horizontal Layout
-        self._third_layout.addLayout(self._sort_filter_layout) # This should be renamed nested layout ?
+        self._third_layout.addLayout(
+            self._sort_filter_layout
+        )  # This should be renamed nested layout ?
         # Nest the Horizontal Layout to the Vertical main app layout
         entity_data["widget"].layout().addLayout(self._third_layout)
 
@@ -1315,7 +1325,6 @@ class AppDialog(QtGui.QWidget):
         fields_manager.initialized.connect(self._field_filters)
         fields_manager.initialize()
         self._sort_menu_actions()
-
 
     def _field_filters(self):
 
@@ -1341,40 +1350,70 @@ class AppDialog(QtGui.QWidget):
     def _sort_menu_actions(self):
 
         # Create Sort Menu actions
-        sort_asc = self._entity_field_menu._get_qaction('ascending', 'Ascending')
-        sort_desc = self._entity_field_menu._get_qaction('descending', 'Descending')
+        sort_asc = self._entity_field_menu._get_qaction("ascending", "Ascending")
+        sort_desc = self._entity_field_menu._get_qaction("descending", "Descending")
         separator = self._entity_field_menu.addSeparator()
-        status_action = self._entity_field_menu._get_qaction('sg_status_list', 'Status')
-        step_action = self._entity_field_menu._get_qaction('step', 'Step')
-        start_date_action = self._entity_field_menu._get_qaction('start_date', 'Start date')
-        due_date_action = self._entity_field_menu._get_qaction('due_date', 'Due date')
-        id_action = self._entity_field_menu._get_qaction('id', 'Id')
+        status_action = self._entity_field_menu._get_qaction("sg_status_list", "Status")
+        step_action = self._entity_field_menu._get_qaction("step", "Step")
+        start_date_action = self._entity_field_menu._get_qaction(
+            "start_date", "Start date"
+        )
+        due_date_action = self._entity_field_menu._get_qaction("due_date", "Due date")
+        id_action = self._entity_field_menu._get_qaction("id", "Id")
 
         # Actions group list ordered
-        sort_actions = [id_action, due_date_action, start_date_action, status_action, separator, sort_asc, sort_desc]
+        sort_actions = [
+            id_action,
+            due_date_action,
+            start_date_action,
+            status_action,
+            separator,
+            sort_asc,
+            sort_desc,
+        ]
 
         # By default it sort Tasks due date in descending order
         sort_desc.setChecked(True)
         due_date_action.setChecked(True)
         # Menu sort order actions
-        sort_asc.triggered[()].connect(lambda: self.load_sort_data('ascending', sort_asc, sort_actions, sort_order='asc'))
-        sort_desc.triggered[()].connect(lambda: self.load_sort_data('descending', sort_desc, sort_actions, sort_order='desc'))
+        sort_asc.triggered[()].connect(
+            lambda: self.load_sort_data(
+                "ascending", sort_asc, sort_actions, sort_order="asc"
+            )
+        )
+        sort_desc.triggered[()].connect(
+            lambda: self.load_sort_data(
+                "descending", sort_desc, sort_actions, sort_order="desc"
+            )
+        )
         # Menu sort field actions
-        status_action.triggered[()].connect(lambda: self.load_sort_data('sg_status_list', status_action, sort_actions))
-        step_action.triggered[()].connect(lambda: self.load_sort_data('step', step_action, sort_actions))
-        start_date_action.triggered[()].connect(lambda: self.load_sort_data('start_date', start_date_action, sort_actions))
-        due_date_action.triggered[()].connect(lambda: self.load_sort_data('due_date', due_date_action, sort_actions))
-        id_action.triggered[()].connect(lambda: self.load_sort_data('id', id_action, sort_actions))
+        status_action.triggered[()].connect(
+            lambda: self.load_sort_data("sg_status_list", status_action, sort_actions)
+        )
+        step_action.triggered[()].connect(
+            lambda: self.load_sort_data("step", step_action, sort_actions)
+        )
+        start_date_action.triggered[()].connect(
+            lambda: self.load_sort_data("start_date", start_date_action, sort_actions)
+        )
+        due_date_action.triggered[()].connect(
+            lambda: self.load_sort_data("due_date", due_date_action, sort_actions)
+        )
+        id_action.triggered[()].connect(
+            lambda: self.load_sort_data("id", id_action, sort_actions)
+        )
         # Add actions to the entity Menu
         self._entity_field_menu.add_group(sort_actions, "Sort menu")
         # Once added remove from the list
         sort_actions.remove(separator)
 
-
-
     def load_sort_data(self, field, sort_action, actions_list, **sort_order):
 
-        sort_order = sort_order.get("sort_order", None) if sort_order else self._current_menu_sort_order
+        sort_order = (
+            sort_order.get("sort_order", None)
+            if sort_order
+            else self._current_menu_sort_order
+        )
 
         # Change the sort icon in the menu button according the sort direction
         icon_path = self._switch_sort_icon(sort_order)
@@ -1384,7 +1423,7 @@ class AppDialog(QtGui.QWidget):
             if action == sort_action:
                 sort_action.setChecked(True)
             else:
-                if sort_action.data().get("field", None) in ['ascending', 'descending']:
+                if sort_action.data().get("field", None) in ["ascending", "descending"]:
                     # If the current list element is equal to the latest field selected
                     # Check it True
                     if action.data().get("field", None) == self._current_menu_sort_item:
@@ -1395,16 +1434,24 @@ class AppDialog(QtGui.QWidget):
                     action.setChecked(False)
 
         # Last menu field item selected
-        field = field if not(field in ['ascending', 'descending']) else self._current_menu_sort_item
+        field = (
+            field
+            if not (field in ["ascending", "descending"])
+            else self._current_menu_sort_item
+        )
 
         if field:
-            self._load_entity_tab_data(self.ui.entity_tab_widget.currentIndex(), sort_by=field, sort_order=sort_order)
+            self._load_entity_tab_data(
+                self.ui.entity_tab_widget.currentIndex(),
+                sort_by=field,
+                sort_order=sort_order,
+            )
 
         # Set checked the current sort order in the Menu
-        if sort_order == 'asc':
+        if sort_order == "asc":
             actions_list[4].setChecked(True)
             actions_list[5].setChecked(False)
-        elif sort_order == 'desc':
+        elif sort_order == "desc":
             actions_list[5].setChecked(True)
             actions_list[4].setChecked(False)
 
@@ -1413,19 +1460,21 @@ class AppDialog(QtGui.QWidget):
         # Encapsulate the Last sort item selected
         self._current_menu_sort_order = sort_order
 
-
         print(f"Selected field: {field}!")
 
-
-    def _switch_sort_icon(self, sort_order='desc'):
+    def _switch_sort_icon(self, sort_order="desc"):
         """
         Return the image path according to the sort direction
         selected.
         """
-        if sort_order == 'asc':
+        if sort_order == "asc":
             this_dir, tail = os.path.split(__file__)
-            image_path = os.path.join(this_dir, "icon_my_tasks_sort_asc_dark.png")  # icon_my_tasks_sort_asc_dark.png
+            image_path = os.path.join(
+                this_dir, "icon_my_tasks_sort_asc_dark.png"
+            )  # icon_my_tasks_sort_asc_dark.png
         else:
             this_dir, tail = os.path.split(__file__)
-            image_path = os.path.join(this_dir, "icon_my_tasks_sort_desc_dark.png")  # icon_my_tasks_sort_asc_dark.png
+            image_path = os.path.join(
+                this_dir, "icon_my_tasks_sort_desc_dark.png"
+            )  # icon_my_tasks_sort_asc_dark.png
         return image_path
