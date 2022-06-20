@@ -1323,25 +1323,14 @@ class AppDialog(QtGui.QWidget):
 
         def field_filter(field):
             # if field == 'step':
-            #     return True
-            # elif field == 'sg_status_list':
-            #     return False
-            # elif field == 'due_date':
-            #     return True
-            return False # By returning True for all it will display all the fields in ShotGrid for this entity
+            return False
 
         def checked_filter(field):
             # none of the fields are checked
-            # if field == 'due_date':
-            #     return True
-            # elif field == 'sg_status_list':
-            #     return True
             return False
 
         def disabled_filter(field):
             # none of the fields are disabled
-            # if field == 'step':
-            #     return True
             return False
 
         # attach our filters
