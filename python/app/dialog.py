@@ -1230,7 +1230,7 @@ class AppDialog(QtGui.QWidget):
 
     def _filter_menu_setup(self, task_tab_data):
         """
-        Set up the filter proxy for a given task tab.
+        Set up the filter menu for a given task tab.
         :param task_tab_data:
         :type task_tab_data: dict
         :return: task_tab_data dict
@@ -1243,7 +1243,7 @@ class AppDialog(QtGui.QWidget):
         task_tab_data["filter_proxy"].setSourceModel(task_tab_data["model"])
 
         # Create a 'ShotGrid' specific filter menu since we are using a 'ShotGrid' model.
-        self._sg_filter_menu = ShotgunFilterMenu(self)  # FilterMenu(self)
+        self._sg_filter_menu = ShotgunFilterMenu(self)
         # Set the filter/proxy model on the menu.
         self._sg_filter_menu.set_filter_model(task_tab_data["filter_proxy"])
 
