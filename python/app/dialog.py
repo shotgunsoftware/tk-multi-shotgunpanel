@@ -169,8 +169,8 @@ class AppDialog(QtGui.QWidget):
         # Create a Horizontal widget layout
         # to place the Filter and Sort menus
         self._sort_filter_layout = QtGui.QHBoxLayout()
-        # The layout to contain the label and menus
-        self._third_layout = QtGui.QHBoxLayout()
+        # The layout to nest the label and sort_filter layout
+        self._label_menus_layout = QtGui.QHBoxLayout()
         # Create the filter menu
         self._sg_filter_menu = None
         # create the sort menu
@@ -1026,8 +1026,8 @@ class AppDialog(QtGui.QWidget):
                     # Create the Label Vertical Layout
                     label_lay = QtGui.QHBoxLayout()
                     label_lay.addWidget(label)
-                    # Add the label layout to the container layout
-                    self._third_layout.addLayout(label_lay)
+                    # Nest the label layout to the label_menus layout
+                    self._label_menus_layout.addLayout(label_lay)
                 else:
                     tab_widget.layout().addWidget(label)
                 data["description"] = label
@@ -1037,8 +1037,8 @@ class AppDialog(QtGui.QWidget):
                 if data["entity_type"] == "Task":
                     data["view"] = view
                     data["widget"] = tab_widget
-                    # Insert the new method that configure the menus here
-                    # It should be configured here to fit above the List View.
+                    # Run setup_task_menus() before adding the view to the widget to
+                    # place the sort and filter menus at the top right of My tasks tab
                     entity_data = self.setup_task_menus(data)
                     # Add the view to the widget
                     entity_data["widget"].layout().addWidget(view)
@@ -1054,7 +1054,7 @@ class AppDialog(QtGui.QWidget):
             data["widget"] = tab_widget
 
             # Set up the model, view and delegate for the tab. This method will modify the
-            # enttiy data passed in with the created model, view, delegate and other necessary objects
+            # entity data passed in with the created model, view, delegate and other necessary objects
             self.setup_entity_model_view(data)
             tab_data[entity_tab_name] = data
 
@@ -1142,7 +1142,7 @@ class AppDialog(QtGui.QWidget):
 
     def setup_entity_model_view(self, entity_data):
         """
-        Given the entiy tab data, set up a model and view for the tab. This method
+        Given the entity tab data, set up a model and view for the tab. This method
         will modify the `entity_data` dict passed in with the created model and view.
 
         :param entity_data:
@@ -1207,79 +1207,79 @@ class AppDialog(QtGui.QWidget):
             # this class needs special access to the overlay
             entity_data["model"].set_overlay(entity_data["overlay"])
 
-    def setup_task_menus(self, entity_data):
+    def setup_task_menus(self, task_tab_data):
         """
         Given the Task tab data, set up the
          Task filter and sorting menus.
+        :param task_tab_data:
+        :type task_tab_data: dict
+        :return: None
         """
-        ModelClass = entity_data["model_class"]
+        ModelClass = task_tab_data["model_class"]
 
         self._app.log_debug("Creating %r..." % ModelClass)
         # Set up the SG source model for the menus
-        entity_data["model"] = ModelClass(
-            entity_data["entity_type"], entity_data["view"], self._task_manager
+        task_tab_data["model"] = ModelClass(
+            task_tab_data["entity_type"], task_tab_data["view"], self._task_manager
         )
-
-        entity_data = self._filter_menu_setup(entity_data)
-        self._sort_menu_setup(entity_data)  # Configure the sort Menu too
+        # Set up the filter and sort menus
+        entity_data = self._filter_menu_setup(task_tab_data)
+        self._sort_menu_setup(task_tab_data)
 
         return entity_data
 
-    def _filter_menu_setup(self, entity_data):
+    def _filter_menu_setup(self, task_tab_data):
         """
-        Set up the filter proxy for a given entity tab.
-        :param entity_data_model : The entity data source model.
+        Set up the filter proxy for a given task tab.
+        :param task_tab_data:
+        :type task_tab_data: dict
+        :return: task_tab_data dict
         """
 
-        # FILTER PROXY CONFIG
-        # 1. create proxy for filter
-        entity_data["filter_proxy"] = FilterItemTreeProxyModel(self)
+        # Create proxy for filter
+        task_tab_data["filter_proxy"] = FilterItemTreeProxyModel(self)
 
-        # 2. Call setSourceModel with the model as argument (Set the proxy Model)
-        entity_data["filter_proxy"].setSourceModel(entity_data["model"])
+        # Set the proxy Model
+        task_tab_data["filter_proxy"].setSourceModel(task_tab_data["model"])
 
-        # FILTER MENU CONFIG
-        # 1. Create a 'ShotGrid' specific filter menu since we are using a 'ShotGrid' model.
+        # Create a 'ShotGrid' specific filter menu since we are using a 'ShotGrid' model.
         self._sg_filter_menu = ShotgunFilterMenu(self)  # FilterMenu(self)
-        # 2. Before initializing the menu, (set the filter/proxy model on the menu.)
-        self._sg_filter_menu.set_filter_model(entity_data["filter_proxy"])
+        # Set the filter/proxy model on the menu.
+        self._sg_filter_menu.set_filter_model(task_tab_data["filter_proxy"])
 
-        # Default filter fields to show on open (these default fields can be saved/restored using
-        # QSettings).
+        # Default filter fields to show on open.
         self._sg_filter_menu.set_visible_fields(
             ["Task.sg_status_list", "Task.entity", "Task.step", "Task.id"]
         )
 
-        # 3. Now the menu is ready to be initialized.
+        # Initialize the menu.
         self._sg_filter_menu.initialize_menu()
 
-        # INITIALIZE THE VIEW
         # Initialize the view to display the SG model data to filter on.
-        entity_data["view"].setModel(entity_data["filter_proxy"])
+        task_tab_data["view"].setModel(task_tab_data["filter_proxy"])
 
-        # INITIALIZE THE FILTER MENU BUTTON
         # Initialize the filter button to display the SG filter menu.
         self._filter_menu_btn = FilterMenuButton(self)
         self._filter_menu_btn.setMenu(self._sg_filter_menu)
 
-        # Update the sort_filt_hlayout with the first Menu
-        # (Add the filter menu button to the menus Horizontal layout)
+        # Add the filter menu button to the sort_filter Horizontal layout
         self._sort_filter_layout.addStretch(0)
         self._sort_filter_layout.addWidget(self._filter_menu_btn)
 
-        # Configure the Sort Menu
-        # self._sort_menu(entity_data, hlayout)
+        return task_tab_data
 
-        return entity_data
 
-    def _sort_menu_setup(self, entity_data):  # , hlayout):
+    def _sort_menu_setup(self, task_tab_data):
         """
         Configure a new Menu for
         sorting the Task tab.
+        :param task_tab_data:
+        :type task_tab_data: dict
+        :return: None
         """
 
-        # Build the sort menu to display Project entity fields
-        self._entity_type = entity_data["entity_type"]
+        # Build the sort menu to display entity fields
+        self._entity_type = task_tab_data["entity_type"]
         project_id = self._app.context.project["id"]
 
         self._entity_field_menu = shotgun_menus.EntityFieldMenu(
@@ -1305,12 +1305,12 @@ class AppDialog(QtGui.QWidget):
         # Add the sort menu button The Sort Filter Horizontal Layout
         self._sort_filter_layout.addWidget(self.sort_menu_button)
 
-        # Nest the sort and filter menus layout to a Horizontal Layout
-        self._third_layout.addLayout(
+        # Nest the sort and filter menus layout to the label_menus Horizontal Layout
+        self._label_menus_layout.addLayout(
             self._sort_filter_layout
-        )  # This should be renamed nested layout ?
-        # Nest the Horizontal Layout to the Vertical main app layout
-        entity_data["widget"].layout().addLayout(self._third_layout)
+        )
+        # Nest the label_menus Horizontal Layout to the Vertical main app layout
+        task_tab_data["widget"].layout().addLayout(self._label_menus_layout)
 
         # the fields manager is used to query which fields are supported
         # for display. it can also be used to find out which fields are
@@ -1329,7 +1329,7 @@ class AppDialog(QtGui.QWidget):
         # ---- define a few simple filter methods for use by the menu
 
         def field_filter(field):
-            # if field == 'step':
+            # none of the fields are included
             return False
 
         def checked_filter(field):
@@ -1340,12 +1340,15 @@ class AppDialog(QtGui.QWidget):
             # none of the fields are disabled
             return False
 
-        # attach our filters
+        # attach the filters
         self._entity_field_menu.set_field_filter(field_filter)
         self._entity_field_menu.set_checked_filter(checked_filter)
         self._entity_field_menu.set_disabled_filter(disabled_filter)
 
     def _sort_menu_actions(self):
+        """
+        Populate the sort menu with actions.
+        """
 
         # Create Sort Menu actions
         sort_asc = self._entity_field_menu._get_qaction("ascending", "Ascending")
@@ -1402,10 +1405,19 @@ class AppDialog(QtGui.QWidget):
         )
         # Add actions to the entity Menu
         self._entity_field_menu.add_group(sort_actions, "Sort menu")
-        # Once added remove from the list
+        # Remove the separator from the list
         sort_actions.remove(separator)
 
     def load_sort_data(self, field, sort_action, actions_list, **sort_order):
+        """
+        Loads the data for MyTasks UI tab according to the selected
+        menu sort option.
+
+        :param field: task field string.
+        :param sort_action: selected task QAction object.
+        :param action_list: Dict of task QAction objects.
+        :param sort_order: Selected sort order.
+        """
 
         sort_order = (
             sort_order.get("sort_order", None)
@@ -1453,24 +1465,26 @@ class AppDialog(QtGui.QWidget):
             actions_list[5].setChecked(True)
             actions_list[4].setChecked(False)
 
-        # Encapsulate the last menu item selected
+        # Save the last menu item selected
         self._current_menu_sort_item = field
-        # Encapsulate the Last sort item selected
+        # Save the Last sort item selected
         self._current_menu_sort_order = sort_order
 
     def _switch_sort_icon(self, sort_order="desc"):
         """
-        Return the image path according to the sort direction
+        Return the sort Icon path according to the sort direction
         selected.
+        :param sort_order: Selected sort order, "desc" by default.
+        :return: Sort icon path.
         """
         if sort_order == "asc":
             this_dir, tail = os.path.split(__file__)
             image_path = os.path.join(
                 this_dir, "icon_my_tasks_sort_asc_dark.png"
-            )  # icon_my_tasks_sort_asc_dark.png
+            )
         else:
             this_dir, tail = os.path.split(__file__)
             image_path = os.path.join(
                 this_dir, "icon_my_tasks_sort_desc_dark.png"
-            )  # icon_my_tasks_sort_asc_dark.png
+            )
         return image_path
