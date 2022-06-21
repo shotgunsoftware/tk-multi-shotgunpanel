@@ -1268,7 +1268,6 @@ class AppDialog(QtGui.QWidget):
 
         return task_tab_data
 
-
     def _sort_menu_setup(self, task_tab_data):
         """
         Configure a new Menu for
@@ -1306,9 +1305,7 @@ class AppDialog(QtGui.QWidget):
         self._sort_filter_layout.addWidget(self.sort_menu_button)
 
         # Nest the sort and filter menus layout to the label_menus Horizontal Layout
-        self._label_menus_layout.addLayout(
-            self._sort_filter_layout
-        )
+        self._label_menus_layout.addLayout(self._sort_filter_layout)
         # Nest the label_menus Horizontal Layout to the Vertical main app layout
         task_tab_data["widget"].layout().addLayout(self._label_menus_layout)
 
@@ -1479,12 +1476,8 @@ class AppDialog(QtGui.QWidget):
         """
         if sort_order == "asc":
             this_dir, tail = os.path.split(__file__)
-            image_path = os.path.join(
-                this_dir, "icon_my_tasks_sort_asc_dark.png"
-            )
+            image_path = os.path.join(this_dir, "icon_my_tasks_sort_asc_dark.png")
         else:
             this_dir, tail = os.path.split(__file__)
-            image_path = os.path.join(
-                this_dir, "icon_my_tasks_sort_desc_dark.png"
-            )
+            image_path = os.path.join(this_dir, "icon_my_tasks_sort_desc_dark.png")
         return image_path
