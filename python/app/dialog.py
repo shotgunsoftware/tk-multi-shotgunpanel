@@ -1037,8 +1037,8 @@ class AppDialog(QtGui.QWidget):
                 if data["entity_type"] == "Task":
                     data["view"] = view
                     data["widget"] = tab_widget
-                    # Run setup_task_menus() before adding the view to the widget to
-                    # place the sort and filter menus at the top right of My tasks tab
+                    # If entity_type is "Task", run setup_task_menus() before adding the view
+                    # to the widget to place the sort and filter menus at the top right of My tasks tab
                     entity_data = self.setup_task_menus(data)
                     # Add the view to the widget
                     entity_data["widget"].layout().addWidget(view)
