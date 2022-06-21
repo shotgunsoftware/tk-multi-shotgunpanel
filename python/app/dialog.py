@@ -1460,7 +1460,6 @@ class AppDialog(QtGui.QWidget):
         # Encapsulate the Last sort item selected
         self._current_menu_sort_order = sort_order
 
-        print(f"Selected field: {field}!")
 
     def _switch_sort_icon(self, sort_order="desc"):
         """
