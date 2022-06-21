@@ -1233,9 +1233,7 @@ class AppDialog(QtGui.QWidget):
 
         # FILTER PROXY CONFIG
         # 1. create proxy for filter
-        entity_data["filter_proxy"] = FilterItemTreeProxyModel(
-            self
-        )
+        entity_data["filter_proxy"] = FilterItemTreeProxyModel(self)
 
         # 2. Call setSourceModel with the model as argument (Set the proxy Model)
         entity_data["filter_proxy"].setSourceModel(entity_data["model"])
@@ -1459,7 +1457,6 @@ class AppDialog(QtGui.QWidget):
         self._current_menu_sort_item = field
         # Encapsulate the Last sort item selected
         self._current_menu_sort_order = sort_order
-
 
     def _switch_sort_icon(self, sort_order="desc"):
         """
