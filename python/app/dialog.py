@@ -518,7 +518,7 @@ class AppDialog(QtGui.QWidget):
         # QToolbutton needs a QIcon
         self.ui.current_user.setIcon(QtGui.QIcon(curr_user_pixmap))
 
-        # updat the reply icon
+        # Update the reply icon
         sg_data = self._current_user_model.get_sg_data()
         if sg_data:
             first_name = sg_data.get("firstname") or "Noname"
