@@ -1181,7 +1181,7 @@ class AppDialog(QtGui.QWidget):
         # role contains the version number field in shotgun.
         # This field is what the proxy model sorts by default
         # We set the dynamic filter to true, meaning QT will keep
-        # continously sorting. And then tell it to use column 0
+        # continuously sorting. And then tell it to use column 0
         # (we only have one column in our models) and descending order.
         entity_data["sort_proxy"].setDynamicSortFilter(True)
         entity_data["sort_proxy"].sort(0, QtCore.Qt.DescendingOrder)
