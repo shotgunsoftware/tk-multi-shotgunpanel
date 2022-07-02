@@ -1003,7 +1003,7 @@ class AppDialog(QtGui.QWidget):
                 )
                 tab_widget.layout().addWidget(activity_widget)
                 # The ActivityWStreamWidget is the model in this case (e.g. it implements the necessary
-                # `load_data` mehthod).
+                # `load_data` method).
                 data["model"] = activity_widget
 
             elif entity_tab_name == self.ENTITY_TAB_INFO:
