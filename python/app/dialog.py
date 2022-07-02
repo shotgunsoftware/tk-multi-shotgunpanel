@@ -476,7 +476,7 @@ class AppDialog(QtGui.QWidget):
                     )
                     args = [self._current_location, show_latest_only]
 
-                elif tab_name == "tasks":
+                elif tab_name == self.ENTITY_TAB_TASKS:
                     formatter = self._current_location.sg_formatter
                     args = [self._current_location]
                     sort_by = (
