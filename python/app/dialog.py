@@ -166,16 +166,6 @@ class AppDialog(QtGui.QWidget):
         self._current_menu_sort_item = "due_date"
         self._current_menu_sort_order = "desc"
 
-        # Create a Horizontal widget layout
-        # to place the Filter and Sort menus
-        self._sort_filter_layout = QtGui.QHBoxLayout()
-        # The layout to nest the label and sort_filter layout
-        self._label_menus_layout = QtGui.QHBoxLayout()
-        # Create the filter menu
-        self._sg_filter_menu = None
-        # create the sort menu
-        self._entity_field_menu = None
-
         # this forces the menu to be right aligned with the button. This is
         # preferable since many DCCs show the embed panel on the far right. In
         # houdini at least, before forcing this layout direction, the menu was
