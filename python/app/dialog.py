@@ -929,19 +929,32 @@ class AppDialog(QtGui.QWidget):
                 "has_description": True,
                 "has_view": True,
                 "has_filter": False,
-                "has_filter_menu": False,
             }
 
             if entity_tab_name == self.ENTITY_TAB_NOTES:
                 data["model_class"] = SgEntityListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = "Note"
+                data["filter_fields"] = [
+                    "Note.user",
+                    "Note.created_at",
+                    "Note.addressings_to",
+                    "Note.addressings_cc",
+                    "Note.tasks",
+                ]
 
             elif entity_tab_name == self.ENTITY_TAB_TASKS:
                 data["model_class"] = SgTaskListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = "Task"
-                data["has_filter_menu"] = True
+                data["filter_fields"] = [
+                    "Task.sg_status_list",
+                    "Task.due_date",
+                    "Task.tags",
+                    "Task.addressings_cc",
+                    "Task.task_assignees",
+                    "Task.content",
+                ]
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_HISTORY:
                 data["model_class"] = SgPublishHistoryListingModel
@@ -1018,34 +1031,56 @@ class AppDialog(QtGui.QWidget):
                 model.data_updated.connect(info_widget.set_data)
                 data["model"] = model
 
+            if data["has_view"]:
+                view = self.create_entity_tab_view(entity_tab_name, tab_widget)
+                data["view"] = view
+
+            # Set up the model, view and delegate for the tab. This method will modify the
+            # enttiy data passed in with the created model, view, delegate and other necessary objects
+            self.setup_entity_model_view(data)
+
             # Add the widgets to the layout in this order: description (QLabel),
             # view (QListView), filter (QCheckbox)
             if data["has_description"]:
                 label = self.create_entity_tab_label(entity_tab_name, tab_widget)
-                if data["entity_type"] == "Task":
-                    # Create the Label Vertical Layout
-                    label_lay = QtGui.QHBoxLayout()
-                    label_lay.addWidget(label)
-                    # Nest the label layout to the label_menus layout
-                    self._label_menus_layout.addLayout(label_lay)
-                else:
-                    tab_widget.layout().addWidget(label)
                 data["description"] = label
 
-            if data["has_view"]:
-                view = self.create_entity_tab_view(entity_tab_name, tab_widget)
-                if data["entity_type"] == "Task":
-                    data["view"] = view
-                    data["widget"] = tab_widget
-                    # If entity_type is "Task", run setup_task_menus() before adding the view
-                    # to the widget to place the sort and filter menus at the top right of My tasks tab
-                    entity_data = self.setup_task_menus(data)
-                    # Add the view to the widget
-                    entity_data["widget"].layout().addWidget(view)
+                # FIXME filters should be added regardless of whether there is a label or not
+                data_model = data.get("model")
+                proxy_model = data.get("sort_proxy")
+                if (
+                    data_model
+                    and proxy_model
+                    and hasattr(data_model, "get_entity_type")
+                ):
+                    # Add filtering for models
+                    filter_menu = ShotgunFilterMenu(data.get("view"))
+                    filter_menu.set_visible_fields(data.get("filter_fields"))
+                    filter_menu.set_filter_model(proxy_model)
 
+                    # Initialize the menu.
+                    filter_menu.initialize_menu()
+
+                    # FIXME add some buffer to the "Filter" text on the button so that it does
+                    # not overlap with the menu arrow
+                    filter_menu_btn = FilterMenuButton(self)
+                    filter_menu_btn.setMenu(filter_menu)
+                    data["filter_menu"] = filter_menu
+
+                    layout = QtGui.QHBoxLayout()
+                    layout.addWidget(label)
+                    layout.addStretch()
+                    # If is a Task entity type add the sort menu to the layout
+                    if data["entity_type"] == "Task":
+                        self._sort_menu_setup(data)
+                        layout.addWidget(self.sort_menu_button)
+                    layout.addWidget(filter_menu_btn)
+                    tab_widget.layout().addLayout(layout)
                 else:
-                    data["view"] = view
-                    tab_widget.layout().addWidget(view)
+                    tab_widget.layout().addWidget(label)
+
+            if data.get("view"):
+                tab_widget.layout().addWidget(data.get("view"))
 
             if data["has_filter"]:
                 tab_widget.layout().addWidget(checkbox)
@@ -1053,9 +1088,6 @@ class AppDialog(QtGui.QWidget):
 
             data["widget"] = tab_widget
 
-            # Set up the model, view and delegate for the tab. This method will modify the
-            # entity data passed in with the created model, view, delegate and other necessary objects
-            self.setup_entity_model_view(data)
             tab_data[entity_tab_name] = data
 
         return tab_data
