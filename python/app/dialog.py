@@ -62,13 +62,11 @@ overlay_module = sgtk.platform.import_framework(
 shotgun_fields = sgtk.platform.import_framework(
     "tk-framework-qtwidgets", "shotgun_fields"
 )
-filtering = sgtk.platform.import_framework("tk-framework-qtwidgets", "filtering")
-FilterMenu = filtering.FilterMenu
-ShotgunFilterMenu = filtering.ShotgunFilterMenu
-FilterMenuButton = filtering.FilterMenuButton
-FilterItemProxyModel = filtering.FilterItemProxyModel
-FilterItemTreeProxyModel = filtering.FilterItemTreeProxyModel
 ShotgunModelOverlayWidget = overlay_module.ShotgunModelOverlayWidget
+filtering = sgtk.platform.import_framework("tk-framework-qtwidgets", "filtering")
+FilterMenuButton = filtering.FilterMenuButton
+ShotgunFilterMenu = filtering.ShotgunFilterMenu
+FilterItemProxyModel = filtering.FilterItemProxyModel
 
 # maximum size of the details field in the top part of the UI
 MAX_LEN_UPPER_BODY_DETAILS = 1200
