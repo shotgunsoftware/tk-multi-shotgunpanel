@@ -1207,66 +1207,8 @@ class AppDialog(QtGui.QWidget):
             # this class needs special access to the overlay
             entity_data["model"].set_overlay(entity_data["overlay"])
 
-    def setup_task_menus(self, task_tab_data):
-        """
-        Given the Task tab data, set up the
-         Task filter and sorting menus.
-        :param task_tab_data:
-        :type task_tab_data: dict
-        :return: None
-        """
-        ModelClass = task_tab_data["model_class"]
 
-        self._app.log_debug("Creating %r..." % ModelClass)
-        # Set up the SG source model for the menus
-        task_tab_data["model"] = ModelClass(
-            task_tab_data["entity_type"], task_tab_data["view"], self._task_manager
-        )
-        # Set up the filter and sort menus
-        entity_data = self._filter_menu_setup(task_tab_data)
-        self._sort_menu_setup(task_tab_data)
 
-        return entity_data
-
-    def _filter_menu_setup(self, task_tab_data):
-        """
-        Set up the filter menu for a given task tab.
-        :param task_tab_data:
-        :type task_tab_data: dict
-        :return: task_tab_data dict
-        """
-
-        # Create proxy for filter
-        task_tab_data["filter_proxy"] = FilterItemTreeProxyModel(self)
-
-        # Set the proxy Model
-        task_tab_data["filter_proxy"].setSourceModel(task_tab_data["model"])
-
-        # Create a 'ShotGrid' specific filter menu since we are using a 'ShotGrid' model.
-        self._sg_filter_menu = ShotgunFilterMenu(self)
-        # Set the filter/proxy model on the menu.
-        self._sg_filter_menu.set_filter_model(task_tab_data["filter_proxy"])
-
-        # Default filter fields to show on open.
-        self._sg_filter_menu.set_visible_fields(
-            ["Task.sg_status_list", "Task.entity", "Task.step", "Task.id"]
-        )
-
-        # Initialize the menu.
-        self._sg_filter_menu.initialize_menu()
-
-        # Initialize the view to display the SG model data to filter on.
-        task_tab_data["view"].setModel(task_tab_data["filter_proxy"])
-
-        # Initialize the filter button to display the SG filter menu.
-        self._filter_menu_btn = FilterMenuButton(self)
-        self._filter_menu_btn.setMenu(self._sg_filter_menu)
-
-        # Add the filter menu button to the sort_filter Horizontal layout
-        self._sort_filter_layout.addStretch(0)
-        self._sort_filter_layout.addWidget(self._filter_menu_btn)
-
-        return task_tab_data
 
     def _sort_menu_setup(self, task_tab_data):
         """
