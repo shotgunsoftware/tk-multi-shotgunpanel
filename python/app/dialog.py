@@ -1165,14 +1165,12 @@ class AppDialog(QtGui.QWidget):
         self._app.log_debug("Creating %r..." % ModelClass)
 
         # create model
-        if not entity_data.get("model", None):
-            # This is to avoid override the model when the tab entity is Task
-            entity_data["model"] = ModelClass(
-                entity_data["entity_type"], entity_data["view"], self._task_manager
-            )
+        entity_data["model"] = ModelClass(
+            entity_data["entity_type"], entity_data["view"], self._task_manager
+        )
 
         # create proxy for sorting
-        entity_data["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
+        entity_data["sort_proxy"] = FilterItemProxyModel(self)
         entity_data["sort_proxy"].setSourceModel(entity_data["model"])
 
         # now use the proxy model to sort the data to ensure
@@ -1184,11 +1182,9 @@ class AppDialog(QtGui.QWidget):
         # continuously sorting. And then tell it to use column 0
         # (we only have one column in our models) and descending order.
         entity_data["sort_proxy"].setDynamicSortFilter(True)
-        entity_data["sort_proxy"].sort(0, QtCore.Qt.DescendingOrder)
 
         # set up model
-        if not entity_data['view'].model():
-            entity_data["view"].setModel(entity_data["sort_proxy"])
+        entity_data["view"].setModel(entity_data["sort_proxy"])
         # set up a global on-click handler for
         entity_data["view"].doubleClicked.connect(self._on_entity_doubleclicked)
         # create delegate
