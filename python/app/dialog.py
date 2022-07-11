@@ -1024,7 +1024,7 @@ class AppDialog(QtGui.QWidget):
                 data["view"] = view
 
             # Set up the model, view and delegate for the tab. This method will modify the
-            # enttiy data passed in with the created model, view, delegate and other necessary objects
+            # entity data passed in with the created model, view, delegate and other necessary objects
             self.setup_entity_model_view(data)
 
             # Add the widgets to the layout in this order: description (QLabel),
