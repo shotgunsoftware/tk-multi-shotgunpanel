@@ -1417,13 +1417,8 @@ class AppDialog(QtGui.QWidget):
         :return: Sort icon path.
         """
         if sort_order == "asc":
-            this_dir, tail = os.path.split(__file__)
-            image_path = os.path.join(
-                this_dir, "../../resources/icon_my_tasks_sort_asc_dark.png"
-            )
+            image_path = QtGui.QPixmap(":/tk_multi_infopanel/icon_my_tasks_sort_asc_dark.png")
         else:
-            this_dir, tail = os.path.split(__file__)
-            image_path = os.path.join(
-                this_dir, "../../resources/icon_my_tasks_sort_desc_dark.png"
-            )
+            image_path = QtGui.QPixmap(":/tk_multi_infopanel/icon_my_tasks_sort_desc_dark.png")
+
         return image_path
