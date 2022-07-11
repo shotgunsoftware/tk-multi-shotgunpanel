@@ -1223,9 +1223,6 @@ class AppDialog(QtGui.QWidget):
             # this class needs special access to the overlay
             entity_data["model"].set_overlay(entity_data["overlay"])
 
-
-
-
     def _sort_menu_setup(self, task_tab_data):
         """
         Configure a new Menu for
@@ -1258,14 +1255,6 @@ class AppDialog(QtGui.QWidget):
         # Set the sort menu icon
         icon_path = self._switch_sort_icon()
         self.sort_menu_button.setIcon(QtGui.QIcon(icon_path))
-
-        # Add the sort menu button The Sort Filter Horizontal Layout
-        self._sort_filter_layout.addWidget(self.sort_menu_button)
-
-        # Nest the sort and filter menus layout to the label_menus Horizontal Layout
-        self._label_menus_layout.addLayout(self._sort_filter_layout)
-        # Nest the label_menus Horizontal Layout to the Vertical main app layout
-        task_tab_data["widget"].layout().addLayout(self._label_menus_layout)
 
         # the fields manager is used to query which fields are supported
         # for display. it can also be used to find out which fields are
