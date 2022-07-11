@@ -1304,7 +1304,6 @@ class AppDialog(QtGui.QWidget):
             "start_date", "Start date"
         )
         due_date_action = self._entity_field_menu._get_qaction("due_date", "Due date")
-        #id_action = self._entity_field_menu._get_qaction("id", "Id")
 
         # Actions group list ordered
         sort_actions = [
@@ -1343,9 +1342,6 @@ class AppDialog(QtGui.QWidget):
         due_date_action.triggered[()].connect(
             lambda: self.load_sort_data("due_date", due_date_action, sort_actions)
         )
-        # id_action.triggered[()].connect(
-        #     lambda: self.load_sort_data("id", id_action, sort_actions)
-        # )
         # Add actions to the entity Menu
         self._entity_field_menu.add_group(sort_actions, "Sort menu")
         # Remove the separator from the list
@@ -1422,8 +1418,12 @@ class AppDialog(QtGui.QWidget):
         """
         if sort_order == "asc":
             this_dir, tail = os.path.split(__file__)
-            image_path = os.path.join(this_dir, "../../resources/icon_my_tasks_sort_asc_dark.png")
+            image_path = os.path.join(
+                this_dir, "../../resources/icon_my_tasks_sort_asc_dark.png"
+            )
         else:
             this_dir, tail = os.path.split(__file__)
-            image_path = os.path.join(this_dir, "../../resources/icon_my_tasks_sort_desc_dark.png")
+            image_path = os.path.join(
+                this_dir, "../../resources/icon_my_tasks_sort_desc_dark.png"
+            )
         return image_path
