@@ -1058,7 +1058,7 @@ class AppDialog(QtGui.QWidget):
                     layout = QtGui.QHBoxLayout()
                     layout.addWidget(label)
                     layout.addStretch()
-                    # If is a Task entity type add the sort menu to the layout
+                    # If is a Task entity type, add the sort menu to the layout
                     if data["entity_type"] == "Task":
                         self._sort_menu_setup(data)
                         layout.addWidget(self.sort_menu_button)
@@ -1304,11 +1304,10 @@ class AppDialog(QtGui.QWidget):
             "start_date", "Start date"
         )
         due_date_action = self._entity_field_menu._get_qaction("due_date", "Due date")
-        id_action = self._entity_field_menu._get_qaction("id", "Id")
+        #id_action = self._entity_field_menu._get_qaction("id", "Id")
 
         # Actions group list ordered
         sort_actions = [
-            id_action,
             due_date_action,
             start_date_action,
             status_action,
@@ -1344,9 +1343,9 @@ class AppDialog(QtGui.QWidget):
         due_date_action.triggered[()].connect(
             lambda: self.load_sort_data("due_date", due_date_action, sort_actions)
         )
-        id_action.triggered[()].connect(
-            lambda: self.load_sort_data("id", id_action, sort_actions)
-        )
+        # id_action.triggered[()].connect(
+        #     lambda: self.load_sort_data("id", id_action, sort_actions)
+        # )
         # Add actions to the entity Menu
         self._entity_field_menu.add_group(sort_actions, "Sort menu")
         # Remove the separator from the list
@@ -1403,11 +1402,11 @@ class AppDialog(QtGui.QWidget):
 
         # Set checked the current sort order in the Menu
         if sort_order == "asc":
-            actions_list[4].setChecked(True)
-            actions_list[5].setChecked(False)
-        elif sort_order == "desc":
-            actions_list[5].setChecked(True)
+            actions_list[3].setChecked(True)
             actions_list[4].setChecked(False)
+        elif sort_order == "desc":
+            actions_list[4].setChecked(True)
+            actions_list[3].setChecked(False)
 
         # Save the last menu item selected
         self._current_menu_sort_item = field
