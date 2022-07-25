@@ -1053,7 +1053,7 @@ class AppDialog(QtGui.QWidget):
                     # not overlap with the menu arrow
                     filter_menu_btn = FilterMenuButton(self)
                     filter_menu_btn.setMenu(filter_menu)
-                    filter_menu_btn.setStyleSheet('QToolButton {padding-right:0.5em; }')
+                    filter_menu_btn.setStyleSheet("QToolButton {padding-right:0.5em;}")
                     data["filter_menu"] = filter_menu
 
                     layout = QtGui.QHBoxLayout()
