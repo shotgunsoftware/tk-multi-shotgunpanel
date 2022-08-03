@@ -244,7 +244,7 @@ class AppDialog(QtGui.QWidget):
         # register a shutdown overlay
         splash_pix = QtGui.QPixmap(":/tk_multi_infopanel/bye_for_now.png")
         self._overlay.show_message_pixmap(splash_pix)
-        QtCore.QCoreApplication.processEvents()
+        self._overlay.repaint()
 
         try:
 
