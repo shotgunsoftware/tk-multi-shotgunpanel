@@ -59,7 +59,14 @@ shotgun_menus = sgtk.platform.import_framework(
 overlay_module = sgtk.platform.import_framework(
     "tk-framework-qtwidgets", "overlay_widget"
 )
+shotgun_fields = sgtk.platform.import_framework(
+    "tk-framework-qtwidgets", "shotgun_fields"
+)
 ShotgunModelOverlayWidget = overlay_module.ShotgunModelOverlayWidget
+filtering = sgtk.platform.import_framework("tk-framework-qtwidgets", "filtering")
+FilterMenuButton = filtering.FilterMenuButton
+ShotgunFilterMenu = filtering.ShotgunFilterMenu
+FilterItemProxyModel = filtering.FilterItemProxyModel
 
 # maximum size of the details field in the top part of the UI
 MAX_LEN_UPPER_BODY_DETAILS = 1200
@@ -152,6 +159,10 @@ class AppDialog(QtGui.QWidget):
         # where it shows up elsewhere on screen (as in Houdini)
         self._menu = shotgun_menus.ShotgunMenu(self.ui.action_button)
         self.ui.action_button.setMenu(self._menu)
+
+        # Last sort menu item selected, by default is sorted 'due_date'
+        self._current_menu_sort_item = "due_date"
+        self._current_menu_sort_order = "desc"
 
         # this forces the menu to be right aligned with the button. This is
         # preferable since many DCCs show the embed panel on the far right. In
@@ -404,7 +415,7 @@ class AppDialog(QtGui.QWidget):
         # refresh the versions tab
         self._load_entity_tab_data(self.ui.entity_tab_widget.currentIndex())
 
-    def _load_entity_tab_data(self, index):
+    def _load_entity_tab_data(self, index, sort_by=None, sort_order=None):
         """
         Loads the data for one of the UI tabs in the entity family
 
@@ -453,6 +464,25 @@ class AppDialog(QtGui.QWidget):
                     )
                     args = [self._current_location, show_latest_only]
 
+                elif tab_name == self.ENTITY_TAB_TASKS:
+                    formatter = self._current_location.sg_formatter
+                    args = [self._current_location]
+                    sort_by = (
+                        sort_by if sort_by is not None else self._current_menu_sort_item
+                    )
+                    sort_order = (
+                        sort_order
+                        if sort_order is not None
+                        else self._current_menu_sort_order
+                    )
+                    sort_field = formatter.get_tab_data(tab_name, "sort", sort_by)
+                    additional_fields = ["step", "id"]
+                    kwargs = {
+                        "sort_field": sort_field,
+                        "additional_fields": additional_fields,
+                        "direction": sort_order,
+                    }
+
                 else:
                     args = [self._current_location]
 
@@ -476,7 +506,7 @@ class AppDialog(QtGui.QWidget):
         # QToolbutton needs a QIcon
         self.ui.current_user.setIcon(QtGui.QIcon(curr_user_pixmap))
 
-        # updat the reply icon
+        # Update the reply icon
         sg_data = self._current_user_model.get_sg_data()
         if sg_data:
             first_name = sg_data.get("firstname") or "Noname"
@@ -893,11 +923,26 @@ class AppDialog(QtGui.QWidget):
                 data["model_class"] = SgEntityListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = "Note"
+                data["filter_fields"] = [
+                    "Note.user",
+                    "Note.created_at",
+                    "Note.addressings_to",
+                    "Note.addressings_cc",
+                    "Note.tasks",
+                ]
 
             elif entity_tab_name == self.ENTITY_TAB_TASKS:
                 data["model_class"] = SgTaskListingModel
                 data["delegate_class"] = ListItemDelegate
                 data["entity_type"] = "Task"
+                data["filter_fields"] = [
+                    "Task.sg_status_list",
+                    "Task.due_date",
+                    "Task.tags",
+                    "Task.addressings_cc",
+                    "Task.task_assignees",
+                    "Task.content",
+                ]
 
             elif entity_tab_name == self.ENTITY_TAB_PUBLISH_HISTORY:
                 data["model_class"] = SgPublishHistoryListingModel
@@ -959,7 +1004,7 @@ class AppDialog(QtGui.QWidget):
                 )
                 tab_widget.layout().addWidget(activity_widget)
                 # The ActivityWStreamWidget is the model in this case (e.g. it implements the necessary
-                # `load_data` mehthod).
+                # `load_data` method).
                 data["model"] = activity_widget
 
             elif entity_tab_name == self.ENTITY_TAB_INFO:
@@ -974,17 +1019,57 @@ class AppDialog(QtGui.QWidget):
                 model.data_updated.connect(info_widget.set_data)
                 data["model"] = model
 
+            if data["has_view"]:
+                view = self.create_entity_tab_view(entity_tab_name, tab_widget)
+                data["view"] = view
+
+            # Set up the model, view and delegate for the tab. This method will modify the
+            # entity data passed in with the created model, view, delegate and other necessary objects
+            self.setup_entity_model_view(data)
+
             # Add the widgets to the layout in this order: description (QLabel),
             # view (QListView), filter (QCheckbox)
             if data["has_description"]:
                 label = self.create_entity_tab_label(entity_tab_name, tab_widget)
-                tab_widget.layout().addWidget(label)
                 data["description"] = label
 
-            if data["has_view"]:
-                view = self.create_entity_tab_view(entity_tab_name, tab_widget)
-                tab_widget.layout().addWidget(view)
-                data["view"] = view
+                # FIXME filters should be added regardless of whether there is a label or not
+                data_model = data.get("model")
+                proxy_model = data.get("sort_proxy")
+                if (
+                    data_model
+                    and proxy_model
+                    and hasattr(data_model, "get_entity_type")
+                ):
+                    # Add filtering for models
+                    filter_menu = ShotgunFilterMenu(data.get("view"))
+                    filter_menu.set_visible_fields(data.get("filter_fields"))
+                    filter_menu.set_filter_model(proxy_model)
+
+                    # Initialize the menu.
+                    filter_menu.initialize_menu()
+
+                    # FIXME add some buffer to the "Filter" text on the button so that it does
+                    # not overlap with the menu arrow
+                    filter_menu_btn = FilterMenuButton(self)
+                    filter_menu_btn.setMenu(filter_menu)
+                    filter_menu_btn.setStyleSheet("QToolButton {padding-right:0.5em;}")
+                    data["filter_menu"] = filter_menu
+
+                    layout = QtGui.QHBoxLayout()
+                    layout.addWidget(label)
+                    layout.addStretch()
+                    # If is a Task entity type, add the sort menu to the layout
+                    if data["entity_type"] == "Task":
+                        self._sort_menu_setup(data)
+                        layout.addWidget(self.sort_menu_button)
+                    layout.addWidget(filter_menu_btn)
+                    tab_widget.layout().addLayout(layout)
+                else:
+                    tab_widget.layout().addWidget(label)
+
+            if data.get("view"):
+                tab_widget.layout().addWidget(data.get("view"))
 
             if data["has_filter"]:
                 tab_widget.layout().addWidget(checkbox)
@@ -992,9 +1077,6 @@ class AppDialog(QtGui.QWidget):
 
             data["widget"] = tab_widget
 
-            # Set up the model, view and delegate for the tab. This method will modify the
-            # enttiy data passed in with the created model, view, delegate and other necessary objects
-            self.setup_entity_model_view(data)
             tab_data[entity_tab_name] = data
 
         return tab_data
@@ -1081,7 +1163,7 @@ class AppDialog(QtGui.QWidget):
 
     def setup_entity_model_view(self, entity_data):
         """
-        Given the entiy tab data, set up a model and view for the tab. This method
+        Given the entity tab data, set up a model and view for the tab. This method
         will modify the `entity_data` dict passed in with the created model and view.
 
         :param entity_data:
@@ -1109,7 +1191,7 @@ class AppDialog(QtGui.QWidget):
         )
 
         # create proxy for sorting
-        entity_data["sort_proxy"] = QtGui.QSortFilterProxyModel(self)
+        entity_data["sort_proxy"] = FilterItemProxyModel(self)
         entity_data["sort_proxy"].setSourceModel(entity_data["model"])
 
         # now use the proxy model to sort the data to ensure
@@ -1118,10 +1200,9 @@ class AppDialog(QtGui.QWidget):
         # role contains the version number field in shotgun.
         # This field is what the proxy model sorts by default
         # We set the dynamic filter to true, meaning QT will keep
-        # continously sorting. And then tell it to use column 0
+        # continuously sorting. And then tell it to use column 0
         # (we only have one column in our models) and descending order.
         entity_data["sort_proxy"].setDynamicSortFilter(True)
-        entity_data["sort_proxy"].sort(0, QtCore.Qt.DescendingOrder)
 
         # set up model
         entity_data["view"].setModel(entity_data["sort_proxy"])
@@ -1142,3 +1223,207 @@ class AppDialog(QtGui.QWidget):
         if ModelClass == SgPublishHistoryListingModel:
             # this class needs special access to the overlay
             entity_data["model"].set_overlay(entity_data["overlay"])
+
+    def _sort_menu_setup(self, task_tab_data):
+        """
+        Configure a new Menu for
+        sorting the Task tab.
+        :param task_tab_data:
+        :type task_tab_data: dict
+        :return: None
+        """
+
+        # Build the sort menu to display entity fields
+        self._entity_type = task_tab_data["entity_type"]
+        project_id = self._app.context.project["id"]
+
+        self._entity_field_menu = shotgun_menus.EntityFieldMenu(
+            self._entity_type,
+            self,
+            bg_task_manager=self._task_manager,
+            project_id=project_id,
+        )
+
+        self.sort_menu_button = QtGui.QPushButton("Sort")
+        self.sort_menu_button.setObjectName("sort_menu_button")
+        self.sort_menu_button.setStyleSheet("border :None")
+
+        # show the sort menu when the button is clicked
+        self.sort_menu_button.clicked.connect(
+            lambda: self._entity_field_menu.exec_(QtGui.QCursor.pos())
+        )
+
+        # Set the sort menu icon
+        icon_path = self._switch_sort_icon()
+        self.sort_menu_button.setIcon(QtGui.QIcon(icon_path))
+
+        # the fields manager is used to query which fields are supported
+        # for display. it can also be used to find out which fields are
+        # visible to the user and editable by the user. the fields manager
+        # needs time to initialize itself. once that's done, the widgets can
+        # begin to be populated.
+        fields_manager = shotgun_fields.ShotgunFieldManager(
+            self, bg_task_manager=self._task_manager
+        )
+        fields_manager.initialized.connect(self._field_filters)
+        fields_manager.initialize()
+        self._sort_menu_actions()
+
+    def _field_filters(self):
+
+        # ---- define a few simple filter methods for use by the menu
+
+        def field_filter(field):
+            # none of the fields are included
+            return False
+
+        def checked_filter(field):
+            # none of the fields are checked
+            return False
+
+        def disabled_filter(field):
+            # none of the fields are disabled
+            return False
+
+        # attach the filters
+        self._entity_field_menu.set_field_filter(field_filter)
+        self._entity_field_menu.set_checked_filter(checked_filter)
+        self._entity_field_menu.set_disabled_filter(disabled_filter)
+
+    def _sort_menu_actions(self):
+        """
+        Populate the sort menu with actions.
+        """
+
+        # Create Sort Menu actions
+        sort_asc = self._entity_field_menu._get_qaction("ascending", "Ascending")
+        sort_desc = self._entity_field_menu._get_qaction("descending", "Descending")
+        separator = self._entity_field_menu.addSeparator()
+        status_action = self._entity_field_menu._get_qaction("sg_status_list", "Status")
+        step_action = self._entity_field_menu._get_qaction("step", "Step")
+        start_date_action = self._entity_field_menu._get_qaction(
+            "start_date", "Start date"
+        )
+        due_date_action = self._entity_field_menu._get_qaction("due_date", "Due date")
+
+        # Actions group list ordered
+        sort_actions = [
+            due_date_action,
+            start_date_action,
+            status_action,
+            separator,
+            sort_asc,
+            sort_desc,
+        ]
+
+        # By default it sort Tasks due date in descending order
+        sort_desc.setChecked(True)
+        due_date_action.setChecked(True)
+        # Menu sort order actions
+        sort_asc.triggered[()].connect(
+            lambda: self.load_sort_data(
+                "ascending", sort_asc, sort_actions, sort_order="asc"
+            )
+        )
+        sort_desc.triggered[()].connect(
+            lambda: self.load_sort_data(
+                "descending", sort_desc, sort_actions, sort_order="desc"
+            )
+        )
+        # Menu sort field actions
+        status_action.triggered[()].connect(
+            lambda: self.load_sort_data("sg_status_list", status_action, sort_actions)
+        )
+        step_action.triggered[()].connect(
+            lambda: self.load_sort_data("step", step_action, sort_actions)
+        )
+        start_date_action.triggered[()].connect(
+            lambda: self.load_sort_data("start_date", start_date_action, sort_actions)
+        )
+        due_date_action.triggered[()].connect(
+            lambda: self.load_sort_data("due_date", due_date_action, sort_actions)
+        )
+        # Add actions to the entity Menu
+        self._entity_field_menu.add_group(sort_actions, "Sort menu")
+        # Remove the separator from the list
+        sort_actions.remove(separator)
+
+    def load_sort_data(self, field, sort_action, actions_list, **sort_order):
+        """
+        Loads the data for MyTasks UI tab according to the selected
+        menu sort option.
+
+        :param field: task field string.
+        :param sort_action: selected task QAction object.
+        :param action_list: Dict of task QAction objects.
+        :param sort_order: Selected sort order.
+        """
+
+        sort_order = (
+            sort_order.get("sort_order", None)
+            if sort_order
+            else self._current_menu_sort_order
+        )
+
+        # Change the sort icon in the menu button according the sort direction
+        icon_path = self._switch_sort_icon(sort_order)
+        self.sort_menu_button.setIcon(QtGui.QIcon(icon_path))
+
+        for action in actions_list:
+            if action == sort_action:
+                sort_action.setChecked(True)
+            else:
+                if sort_action.data().get("field", None) in ["ascending", "descending"]:
+                    # If the current list element is equal to the latest field selected
+                    # Check it True
+                    if action.data().get("field", None) == self._current_menu_sort_item:
+                        sort_action.setChecked(True)
+                    else:
+                        continue
+                else:
+                    action.setChecked(False)
+
+        # Last menu field item selected
+        field = (
+            field
+            if not (field in ["ascending", "descending"])
+            else self._current_menu_sort_item
+        )
+
+        if field:
+            self._load_entity_tab_data(
+                self.ui.entity_tab_widget.currentIndex(),
+                sort_by=field,
+                sort_order=sort_order,
+            )
+
+        # Set checked the current sort order in the Menu
+        if sort_order == "asc":
+            actions_list[3].setChecked(True)
+            actions_list[4].setChecked(False)
+        elif sort_order == "desc":
+            actions_list[4].setChecked(True)
+            actions_list[3].setChecked(False)
+
+        # Save the last menu item selected
+        self._current_menu_sort_item = field
+        # Save the Last sort item selected
+        self._current_menu_sort_order = sort_order
+
+    def _switch_sort_icon(self, sort_order="desc"):
+        """
+        Return the sort Icon path according to the sort direction
+        selected.
+        :param sort_order: Selected sort order, "desc" by default.
+        :return: Sort icon path.
+        """
+        if sort_order == "asc":
+            image_path = QtGui.QPixmap(
+                ":/tk_multi_infopanel/icon_my_tasks_sort_asc_dark.png"
+            )
+        else:
+            image_path = QtGui.QPixmap(
+                ":/tk_multi_infopanel/icon_my_tasks_sort_desc_dark.png"
+            )
+
+        return image_path

@@ -77,7 +77,9 @@ class SgEntityListingModel(ShotgunModel):
         """
         return False
 
-    def load_data(self, sg_location, additional_fields=None, sort_field=None):
+    def load_data(
+        self, sg_location, additional_fields=None, sort_field=None, direction="desc"
+    ):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists and schedules an async refresh.
@@ -102,7 +104,7 @@ class SgEntityListingModel(ShotgunModel):
         sort_field = sort_field or "updated_at"
 
         if isinstance(sort_field, string_types):
-            sort_order = [{"field_name": sort_field, "direction": "desc"}]
+            sort_order = [{"field_name": sort_field, "direction": direction}]
             hierarchy = [sort_field]
 
         elif isinstance(sort_field, list):
