@@ -46,7 +46,7 @@ class NukeActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Generate actions called for UI element %s. "
-            "Actions: %s. Shotgun Data: %s" % (ui_area, actions, sg_data)
+            "Actions: %s. SG Data: %s" % (ui_area, actions, sg_data)
         )
 
         action_instances = []
@@ -115,7 +115,7 @@ class NukeActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Execute action called for action %s. "
-            "Parameters: %s. Shotgun Data: %s" % (name, params, sg_data)
+            "Parameters: %s. SG Data: %s" % (name, params, sg_data)
         )
 
         if name == "read_node":
@@ -303,7 +303,10 @@ class NukeActions(HookBaseClass):
 
         # We need to get all files that match the pattern from disk so that we
         # can determine what the min and max frame number is.
-        glob_path = "%s%s" % (re.sub(frame_pattern, "*", root), ext,)
+        glob_path = "%s%s" % (
+            re.sub(frame_pattern, "*", root),
+            ext,
+        )
         files = glob.glob(glob_path)
 
         # Our pattern from above matches against the file root, so we need
