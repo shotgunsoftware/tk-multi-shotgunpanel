@@ -169,6 +169,28 @@ class GeneralActions(HookBaseClass):
                     }
                 )
 
+        if "note_to_ip" in actions:
+            action_instances.append(
+                {
+                    "name": "note_to_ip",
+                    "params": None,
+                    "group": "Update Note",
+                    "caption": "Set to In Progress",
+                    "description": "Set the note status to In Progress.",
+                }
+            )
+
+        if "note_to_closed" in actions:
+            action_instances.append(
+                {
+                    "name": "note_to_closed",
+                    "params": None,
+                    "group": "Update Note",
+                    "caption": "Set to Closed",
+                    "description": "Set the note status to Closed.",
+                }
+            )
+
         return action_instances
 
     def execute_action(self, name, params, sg_data):
@@ -227,6 +249,12 @@ class GeneralActions(HookBaseClass):
 
         elif name == "publish_clipboard":
             self._copy_to_clipboard(sg_data["path"]["local_path"])
+
+        elif name == "note_to_ip":
+            app.shotgun.update("Note", sg_data["id"], {"sg_status_list": "ip"})
+
+        elif name == "note_to_closed":
+            app.shotgun.update("Note", sg_data["id"], {"sg_status_list": "clsd"})
 
         return dict()
 
