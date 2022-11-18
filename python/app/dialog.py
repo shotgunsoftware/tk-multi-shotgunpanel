@@ -1030,7 +1030,7 @@ class AppDialog(QtGui.QWidget):
             # Add the widgets to the layout in this order:
             # HBox: description (QLabel) - strech [- sort] [- filter]
             # view (QListView)
-            # [filter (QCheckbox)]
+            # Hbox: [filter (QCheckbox)] [- strech - partial result (QLabel)]
             if data["has_description"]:
                 label = self.create_entity_tab_label(entity_tab_name, tab_widget)
                 data["description"] = label
@@ -1073,10 +1073,23 @@ class AppDialog(QtGui.QWidget):
             if data.get("view"):
                 tab_widget.layout().addWidget(data.get("view"))
 
-            if data["has_filter"]:
-                tab_widget.layout().addWidget(checkbox)
-                data["filter_checkbox"] = checkbox
+            if data["has_view"] or data["has_filter"]:
+                layout = QtGui.QHBoxLayout()
 
+                if data["has_filter"]:
+                    layout.addWidget(checkbox)
+                    data["filter_checkbox"] = checkbox
+
+                if data["has_view"]:
+                    qlabel_partial = self.create_entity_tab_label(entity_tab_name, tab_widget)
+                    qlabel_partial.setVisible(False)
+
+                    layout.addStretch()
+                    layout.addWidget(qlabel_partial)
+                    data["model"].label_partial = qlabel_partial
+
+                tab_widget.layout().addLayout(layout)
+ 
             data["widget"] = tab_widget
 
             tab_data[entity_tab_name] = data

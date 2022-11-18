@@ -153,6 +153,14 @@ class SgTaskListingModel(SgEntityListingModel):
             icon = self._sg_formatter.create_thumbnail(image, sg_data)
             item.setIcon(QtGui.QIcon(icon))
 
+    ############################################################################################
+    # protected interface
+    def _format_partial_tooltip(self, text):
+        return text + """
+
+Please use the "Sort" button to load items from ShotGrid in a different
+order and access hidden items here."""
+
 
 class TaskAssigneeModel(ShotgunModel):
     """
