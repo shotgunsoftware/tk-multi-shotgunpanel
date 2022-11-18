@@ -35,7 +35,7 @@ class SgEntityListingModel(ShotgunModel):
     """
 
     # maximum number of items to show in the listings
-    SG_RECORD_LIMIT = 50
+    SG_RECORD_LIMIT = 200
 
     def __init__(self, entity_type, parent, bg_task_manager):
         """
