@@ -1081,7 +1081,9 @@ class AppDialog(QtGui.QWidget):
                     data["filter_checkbox"] = checkbox
 
                 if data["has_view"]:
-                    qlabel_partial = self.create_entity_tab_label(entity_tab_name, tab_widget)
+                    qlabel_partial = self.create_entity_tab_label(
+                        entity_tab_name, tab_widget
+                    )
                     qlabel_partial.setVisible(False)
 
                     layout.addStretch()

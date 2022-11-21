@@ -56,12 +56,11 @@ class SgEntityListingModel(ShotgunModel):
             bg_task_manager=bg_task_manager,
         )
 
-        self.my_record_limit = self.SG_RECORD_LIMIT + 1 # partial result detection
+        self.my_record_limit = self.SG_RECORD_LIMIT + 1  # partial result detection
         self.content_is_partial = False
         self.label_partial = None
 
         self.data_refreshed.connect(self._on_data_updated)
-
 
     ############################################################################################
     # public interface
@@ -204,7 +203,7 @@ class SgEntityListingModel(ShotgunModel):
         processing takes place.
         """
 
-        self.content_is_partial = len(data)>= self.my_record_limit
+        self.content_is_partial = len(data) >= self.my_record_limit
         if self.content_is_partial:
             data = data[:-1]
 
@@ -223,18 +222,24 @@ class SgEntityListingModel(ShotgunModel):
         if not self.label_partial:
             return
 
-        self.label_partial.setVisible(self.rowCount()>0)
+        self.label_partial.setVisible(self.rowCount() > 0)
 
         text = "{num} items loaded"
         tooltip = "This is the number of items loaded from ShotGrid."
         if self.content_is_partial:
             text += " (partial result)"
-            tooltip = self._format_partial_tooltip("This panel only loads a maximum of {num} items from ShotGrid.")
+            tooltip = self._format_partial_tooltip(
+                "This panel only loads a maximum of {num} items from ShotGrid."
+            )
 
-        self.label_partial.setText(text.format(
-            num=self.rowCount(),
-        ))
+        self.label_partial.setText(
+            text.format(
+                num=self.rowCount(),
+            )
+        )
 
-        self.label_partial.setToolTip(tooltip.format(
-            num = self.SG_RECORD_LIMIT,
-        ))
+        self.label_partial.setToolTip(
+            tooltip.format(
+                num=self.SG_RECORD_LIMIT,
+            )
+        )
