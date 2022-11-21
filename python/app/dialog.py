@@ -1089,7 +1089,7 @@ class AppDialog(QtGui.QWidget):
                     data["model"].label_partial = qlabel_partial
 
                 tab_widget.layout().addLayout(layout)
- 
+
             data["widget"] = tab_widget
 
             tab_data[entity_tab_name] = data
