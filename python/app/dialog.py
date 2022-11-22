@@ -1028,9 +1028,9 @@ class AppDialog(QtGui.QWidget):
             self.setup_entity_model_view(data)
 
             # Add the widgets to the layout in this order:
-            # HBox: description (QLabel) - strech [- sort] [- filter]
+            # HBox: description (QLabel) - stretch [- sort] [- filter]
             # view (QListView)
-            # Hbox: [filter (QCheckbox)] [- strech - partial result (QLabel)]
+            # Hbox: [filter (QCheckbox)] [- stretch - partial result (QLabel)]
             if data["has_description"]:
                 label = self.create_entity_tab_label(entity_tab_name, tab_widget)
                 data["description"] = label
