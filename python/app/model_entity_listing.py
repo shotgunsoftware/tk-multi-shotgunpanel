@@ -37,6 +37,14 @@ class SgEntityListingModel(ShotgunModel):
     # maximum number of items to show in the listings
     SG_RECORD_LIMIT = 200
 
+    TEXT_NUM_ITEMS = "{num} items loaded"
+    TEXT_NUM_ITEMS_PARTIAL_SUFFIX = "(partial result)"
+    TEXT_NUM_ITEMS_TT = "This is the number of items loaded from ShotGrid."
+    TEXT_NUM_ITEMS_TT_PATIAL = (
+        "This panel only loads a maximum of {max_num} items from ShotGrid."
+    )
+    TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA = None
+
     def __init__(self, entity_type, parent, bg_task_manager):
         """
         Constructor.
@@ -56,9 +64,8 @@ class SgEntityListingModel(ShotgunModel):
             bg_task_manager=bg_task_manager,
         )
 
-        self.my_record_limit = self.SG_RECORD_LIMIT + 1  # partial result detection
         self.content_is_partial = False
-        self.label_partial = None
+        self.label_nb_items_status = None
 
         self.data_refreshed.connect(self._on_data_updated)
 
@@ -141,7 +148,9 @@ class SgEntityListingModel(ShotgunModel):
             hierarchy,
             fields,
             sort_order,
-            limit=self.my_record_limit,
+            limit=self.SG_RECORD_LIMIT + 1  # partial result detection
+            # FIXME The api3/json provides paging_info.has_next_page but python-api does not
+            # return this information
         )
         self._refresh_data()
 
@@ -199,47 +208,45 @@ class SgEntityListingModel(ShotgunModel):
 
     def _before_data_processing(self, data):
         """
+        Util function defined in ShotgunQueryModel parent class (tk-framework-shotgunutils)
+
         Called just after data has been retrieved from Shotgun but before any
         processing takes place.
         """
 
-        self.content_is_partial = len(data) >= self.my_record_limit
+        self.content_is_partial = len(data) > self.SG_RECORD_LIMIT
         if self.content_is_partial:
             data = data[:-1]
 
         return data
 
-    def _format_partial_tooltip(self, text):
-        """
-        Used by children classes to alter the text.
-        """
-        return text
-
     ############################################################################################
     # private methods
 
     def _on_data_updated(self):
-        if not self.label_partial:
+        if not self.label_nb_items_status:
             return
 
-        self.label_partial.setVisible(self.rowCount() > 0)
+        self.label_nb_items_status.setVisible(self.rowCount() > 0)
 
-        text = "{num} items loaded"
-        tooltip = "This is the number of items loaded from ShotGrid."
+        text = self.TEXT_NUM_ITEMS
+        tooltip = self.TEXT_NUM_ITEMS_TT
         if self.content_is_partial:
-            text += " (partial result)"
-            tooltip = self._format_partial_tooltip(
-                "This panel only loads a maximum of {num} items from ShotGrid."
-            )
+            text += " " + self.TEXT_NUM_ITEMS_PARTIAL_SUFFIX
+            tooltip = self.TEXT_NUM_ITEMS_TT_PATIAL
+            if self.TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA:
+                tooltip += "\n\n" + self.TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA
 
-        self.label_partial.setText(
+        self.label_nb_items_status.setText(
             text.format(
                 num=self.rowCount(),
+                max_num=self.SG_RECORD_LIMIT,
             )
         )
 
-        self.label_partial.setToolTip(
+        self.label_nb_items_status.setToolTip(
             tooltip.format(
-                num=self.SG_RECORD_LIMIT,
+                num=self.rowCount(),
+                max_num=self.SG_RECORD_LIMIT,
             )
         )

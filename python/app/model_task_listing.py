@@ -38,6 +38,11 @@ class SgTaskListingModel(SgEntityListingModel):
 
     request_user_thumbnails = QtCore.Signal(list)
 
+    TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA = (
+        'Please use the "Sort" button to load items from ShotGrid in a'
+        "different order and access hidden items here."
+    )
+
     def __init__(self, entity_type, parent, bg_task_manager):
         """
         Constructor.
@@ -152,17 +157,6 @@ class SgTaskListingModel(SgEntityListingModel):
             sg_data = item.get_sg_data()
             icon = self._sg_formatter.create_thumbnail(image, sg_data)
             item.setIcon(QtGui.QIcon(icon))
-
-    ############################################################################################
-    # protected interface
-    def _format_partial_tooltip(self, text):
-        return (
-            text
-            + """
-
-Please use the "Sort" button to load items from ShotGrid in a different
-order and access hidden items here."""
-        )
 
 
 class TaskAssigneeModel(ShotgunModel):
