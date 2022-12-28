@@ -50,7 +50,8 @@ class GeneralActions(HookBaseClass):
 
         action_instances = []
 
-        if "assign_task" in actions:
+        if "assign_task" in actions and \
+                self.parent.context.user not in sg_data["task_assignees"]:
             action_instances.append(
                 {
                     "name": "assign_task",
@@ -61,7 +62,7 @@ class GeneralActions(HookBaseClass):
                 }
             )
 
-        if "task_to_ip" in actions:
+        if "task_to_ip" in actions and sg_data.get("sg_status_list") != "ip":
             action_instances.append(
                 {
                     "name": "task_to_ip",
