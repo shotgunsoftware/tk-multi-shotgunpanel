@@ -50,8 +50,10 @@ class GeneralActions(HookBaseClass):
 
         action_instances = []
 
-        if "assign_task" in actions and \
-                self.parent.context.user not in sg_data["task_assignees"]:
+        if (
+            "assign_task" in actions
+            and self.parent.context.user not in sg_data["task_assignees"]
+        ):
             action_instances.append(
                 {
                     "name": "assign_task",
