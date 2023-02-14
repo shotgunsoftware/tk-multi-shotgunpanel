@@ -39,7 +39,7 @@ class SgTaskListingModel(SgEntityListingModel):
     request_user_thumbnails = QtCore.Signal(list)
 
     TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA = (
-        'Please use the "Sort" button to load items from ShotGrid in a'
+        'Please use the "Sort" button to load tasks from ShotGrid in a'
         "different order and access hidden items here."
     )
 

@@ -37,11 +37,12 @@ class SgEntityListingModel(ShotgunModel):
     # maximum number of items to show in the listings
     SG_RECORD_LIMIT = 200
 
-    TEXT_NUM_ITEMS = "{num} items loaded"
-    TEXT_NUM_ITEMS_PARTIAL_SUFFIX = "(partial result)"
-    TEXT_NUM_ITEMS_TT = "This is the number of items loaded from ShotGrid."
+    TEXT_NUM_ITEMS_FULL = "Showing {num} {entity_type}s"
+    TEXT_NUM_ITEMS_PARTIAL = "Only showing the first {num} {entity_type}s"
+    TEXT_NUM_ITEMS_TT_FULL = "This is the number of items loaded from ShotGrid."
     TEXT_NUM_ITEMS_TT_PATIAL = (
-        "This panel only loads a maximum of {max_num} items from ShotGrid."
+        "Results are limited. "
+        "To see a list of all results, visit your entity pages in ShotGrid."
     )
     TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA = None
 
@@ -229,10 +230,10 @@ class SgEntityListingModel(ShotgunModel):
 
         self.label_nb_items_status.setVisible(self.rowCount() > 0)
 
-        text = self.TEXT_NUM_ITEMS
-        tooltip = self.TEXT_NUM_ITEMS_TT
+        text = self.TEXT_NUM_ITEMS_FULL
+        tooltip = self.TEXT_NUM_ITEMS_TT_FULL
         if self.content_is_partial:
-            text += " " + self.TEXT_NUM_ITEMS_PARTIAL_SUFFIX
+            text = self.TEXT_NUM_ITEMS_PARTIAL
             tooltip = self.TEXT_NUM_ITEMS_TT_PATIAL
             if self.TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA:
                 tooltip += "\n\n" + self.TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA
@@ -241,6 +242,7 @@ class SgEntityListingModel(ShotgunModel):
             text.format(
                 num=self.rowCount(),
                 max_num=self.SG_RECORD_LIMIT,
+                entity_type=self._sg_formatter.entity_type.lower(),
             )
         )
 
@@ -248,5 +250,6 @@ class SgEntityListingModel(ShotgunModel):
             tooltip.format(
                 num=self.rowCount(),
                 max_num=self.SG_RECORD_LIMIT,
+                entity_type=self._sg_formatter.entity_type.lower(),
             )
         )
