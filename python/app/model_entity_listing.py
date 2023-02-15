@@ -39,12 +39,12 @@ class SgEntityListingModel(ShotgunModel):
 
     TEXT_NUM_ITEMS_FULL = "Showing {num} {entity_type}s"
     TEXT_NUM_ITEMS_PARTIAL = "Only showing the first {num} {entity_type}s"
-    TEXT_NUM_ITEMS_TT_FULL = "This is the number of items loaded from ShotGrid."
-    TEXT_NUM_ITEMS_TT_PATIAL = (
-        "Results are limited. "
+    TEXT_NUM_ITEMS_TT_FULL = "This number of records is loaded from ShotGrid."
+    TEXT_NUM_ITEMS_TT_PARTIAL_FIRST = "Results are limited."
+    TEXT_NUM_ITEMS_TT_PARTIAL_MIDDLE = None
+    TEXT_NUM_ITEMS_TT_PARTIAL_LAST = (
         "To see a list of all results, visit your entity pages in ShotGrid."
     )
-    TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA = None
 
     def __init__(self, entity_type, parent, bg_task_manager):
         """
@@ -230,13 +230,16 @@ class SgEntityListingModel(ShotgunModel):
 
         self.label_nb_items_status.setVisible(self.rowCount() > 0)
 
-        text = self.TEXT_NUM_ITEMS_FULL
-        tooltip = self.TEXT_NUM_ITEMS_TT_FULL
         if self.content_is_partial:
             text = self.TEXT_NUM_ITEMS_PARTIAL
-            tooltip = self.TEXT_NUM_ITEMS_TT_PATIAL
-            if self.TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA:
-                tooltip += "\n\n" + self.TEXT_NUM_ITEMS_TT_PARTIAL_EXTRA
+            tooltip = self.TEXT_NUM_ITEMS_TT_PARTIAL_FIRST
+            if self.TEXT_NUM_ITEMS_TT_PARTIAL_MIDDLE:
+                tooltip += " " + self.TEXT_NUM_ITEMS_TT_PARTIAL_MIDDLE
+
+            tooltip += " " + self.TEXT_NUM_ITEMS_TT_PARTIAL_LAST
+        else:
+            text = self.TEXT_NUM_ITEMS_FULL
+            tooltip = self.TEXT_NUM_ITEMS_TT_FULL
 
         self.label_nb_items_status.setText(
             text.format(
