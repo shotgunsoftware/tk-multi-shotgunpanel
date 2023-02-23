@@ -1235,7 +1235,9 @@ class AppDialog(QtGui.QWidget):
 
         # Build the sort menu to display entity fields
         self._entity_type = task_tab_data["entity_type"]
-        project_id = self._app.context.project["id"]
+        project_id = None
+        if self._app.context.project:
+            project_id = self._app.context.project["id"]
 
         self._entity_field_menu = shotgun_menus.EntityFieldMenu(
             self._entity_type,
