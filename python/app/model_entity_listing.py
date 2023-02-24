@@ -35,7 +35,16 @@ class SgEntityListingModel(ShotgunModel):
     """
 
     # maximum number of items to show in the listings
-    SG_RECORD_LIMIT = 50
+    SG_RECORD_LIMIT = 200
+
+    TEXT_NUM_ITEMS_FULL = "Showing {num} {entity_type}s"
+    TEXT_NUM_ITEMS_PARTIAL = "Only showing the first {num} {entity_type}s"
+    TEXT_NUM_ITEMS_TT_FULL = "This number of records is loaded from ShotGrid."
+    TEXT_NUM_ITEMS_TT_PARTIAL_FIRST = "Results are limited."
+    TEXT_NUM_ITEMS_TT_PARTIAL_MIDDLE = None
+    TEXT_NUM_ITEMS_TT_PARTIAL_LAST = (
+        "To see a list of all results, visit your entity pages in ShotGrid."
+    )
 
     def __init__(self, entity_type, parent, bg_task_manager):
         """
@@ -55,6 +64,11 @@ class SgEntityListingModel(ShotgunModel):
             bg_load_thumbs=True,
             bg_task_manager=bg_task_manager,
         )
+
+        self.content_is_partial = False
+        self.label_nb_items_status = None
+
+        self.data_refreshed.connect(self._on_data_updated)
 
     ############################################################################################
     # public interface
@@ -135,7 +149,9 @@ class SgEntityListingModel(ShotgunModel):
             hierarchy,
             fields,
             sort_order,
-            limit=self.SG_RECORD_LIMIT,
+            limit=self.SG_RECORD_LIMIT + 1  # partial result detection
+            # FIXME The api3/json provides paging_info.has_next_page but python-api does not
+            # return this information
         )
         self._refresh_data()
 
@@ -190,3 +206,53 @@ class SgEntityListingModel(ShotgunModel):
         sg_data = item.get_sg_data()
         icon = self._sg_formatter.create_thumbnail(image, sg_data)
         item.setIcon(QtGui.QIcon(icon))
+
+    def _before_data_processing(self, data):
+        """
+        Util function defined in ShotgunQueryModel parent class (tk-framework-shotgunutils)
+
+        Called just after data has been retrieved from Shotgun but before any
+        processing takes place.
+        """
+
+        self.content_is_partial = len(data) > self.SG_RECORD_LIMIT
+        if self.content_is_partial:
+            data = data[:-1]
+
+        return data
+
+    ############################################################################################
+    # private methods
+
+    def _on_data_updated(self):
+        if not self.label_nb_items_status:
+            return
+
+        self.label_nb_items_status.setVisible(self.rowCount() > 0)
+
+        if self.content_is_partial:
+            text = self.TEXT_NUM_ITEMS_PARTIAL
+            tooltip = self.TEXT_NUM_ITEMS_TT_PARTIAL_FIRST
+            if self.TEXT_NUM_ITEMS_TT_PARTIAL_MIDDLE:
+                tooltip += " " + self.TEXT_NUM_ITEMS_TT_PARTIAL_MIDDLE
+
+            tooltip += " " + self.TEXT_NUM_ITEMS_TT_PARTIAL_LAST
+        else:
+            text = self.TEXT_NUM_ITEMS_FULL
+            tooltip = self.TEXT_NUM_ITEMS_TT_FULL
+
+        self.label_nb_items_status.setText(
+            text.format(
+                num=self.rowCount(),
+                max_num=self.SG_RECORD_LIMIT,
+                entity_type=self._sg_formatter.entity_type.lower(),
+            )
+        )
+
+        self.label_nb_items_status.setToolTip(
+            tooltip.format(
+                num=self.rowCount(),
+                max_num=self.SG_RECORD_LIMIT,
+                entity_type=self._sg_formatter.entity_type.lower(),
+            )
+        )

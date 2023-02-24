@@ -38,6 +38,10 @@ class SgTaskListingModel(SgEntityListingModel):
 
     request_user_thumbnails = QtCore.Signal(list)
 
+    TEXT_NUM_ITEMS_TT_PARTIAL_MIDDLE = (
+        "Use the Sort option to see results presented in a different order."
+    )
+
     def __init__(self, entity_type, parent, bg_task_manager):
         """
         Constructor.
