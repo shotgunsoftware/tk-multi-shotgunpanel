@@ -20,6 +20,8 @@ try:
     from MA.UI import first
 except ImportError:
     pytestmark = pytest.mark.skip()
+else:
+    print("Imported Successfully")
 
 
 # This fixture will launch tk-run-app on first usage
