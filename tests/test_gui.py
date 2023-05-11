@@ -60,9 +60,9 @@ def host_application(tk_test_project, tk_test_entities):
         # We're done. Grab all the output from the process
         # and print it so that is there was an error
         # we'll know about it.
-        stdout, stderr = process.communicate()
-        sys.stdout.write(stdout or "")
-        sys.stderr.write(stderr or "")
+        # stdout, stderr = process.communicate()
+        # sys.stdout.write(stdout or "")
+        # sys.stderr.write(stderr or "")
         process.poll()
         # If returncode is not set, then the process
         # was hung and we need to kill it
