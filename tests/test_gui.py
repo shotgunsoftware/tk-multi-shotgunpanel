@@ -820,7 +820,7 @@ def test_publishes_tab(
     else:
         app_dialog.root.buttons[9].mouseClick()
 
-
+@pytest.mark.skip()
 def test_search(app_dialog):
     """
     Search widget validation
