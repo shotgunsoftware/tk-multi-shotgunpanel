@@ -16,7 +16,7 @@ import sys
 import sgtk
 
 try:
-    import MA.UI
+    import MA.UI # noqa
     from MA.UI import topwindows
     from MA.UI import first
 except ImportError:
@@ -106,7 +106,7 @@ class AppDialogAppWrapper(object):
             self.root = parent["ShotGrid: ShotGrid Panel"].get()
         except MA.UI.ControlNotFoundError as e:
             wind_parents = parent.__str__().split("\n")
-            print(f"Top Windows are: {wind_parents!r}")
+            raise RuntimeError(f"Top Windows are: {wind_parents!r}")
 
     def exists(self):
         """
