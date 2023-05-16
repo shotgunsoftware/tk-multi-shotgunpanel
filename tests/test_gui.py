@@ -14,6 +14,7 @@ import time
 import os
 import sys
 import sgtk
+import copy
 
 try:
     import MA.UI # noqa
@@ -38,6 +39,10 @@ def host_application(tk_test_project, tk_test_entities):
      tested to define a fixture named context and this fixture
      would consume it.
     """
+    PACKAGES_PATH = r"C:\hostedtoolcache\windows\Python\3.7.9\x64\lib"
+    env = copy.copy(os.environ)
+    env["PYTHONPATH"] = os.path.join(PACKAGES_PATH, "site-packages")
+
     process = subprocess.Popen(
         [
             "python.exe",
@@ -53,7 +58,8 @@ def host_application(tk_test_project, tk_test_entities):
             tk_test_project["type"],
             "--context-entity-id",
             str(tk_test_project["id"]),
-        ]
+        ],
+        env=env
     )
     try:
         yield
@@ -825,7 +831,6 @@ def test_publishes_tab(
     else:
         app_dialog.root.buttons[9].mouseClick()
 
-@pytest.mark.skip()
 def test_search(app_dialog):
     """
     Search widget validation
