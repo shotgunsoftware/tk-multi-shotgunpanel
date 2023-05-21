@@ -17,7 +17,7 @@ import sgtk
 import copy
 
 try:
-    import MA.UI # noqa
+    import MA.UI  # noqa
     from MA.UI import topwindows
     from MA.UI import first
 except ImportError:
@@ -59,7 +59,7 @@ def host_application(tk_test_project, tk_test_entities):
             "--context-entity-id",
             str(tk_test_project["id"]),
         ],
-        env=env
+        env=env,
     )
     try:
         yield
@@ -830,6 +830,7 @@ def test_publishes_tab(
         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
     else:
         app_dialog.root.buttons[9].mouseClick()
+
 
 def test_search(app_dialog):
     """
