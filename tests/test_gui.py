@@ -45,7 +45,7 @@ def host_application(tk_test_project, tk_test_entities):
 
     process = subprocess.Popen(
         [
-            "python.exe",
+            sys.executable,
             "-m",
             "tk_toolchain.cmd_line_tools.tk_run_app",
             # Allows the test for this application to be invoked from
