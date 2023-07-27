@@ -226,8 +226,13 @@ class GeneralActions(HookBaseClass):
                 "Task", [["id", "is", sg_data["id"]]], ["task_assignees"]
             )
             assignees = data["task_assignees"] or []
-            assignees.append(app.context.user)
-            app.shotgun.update("Task", sg_data["id"], {"task_assignees": assignees})
+            try:
+                # Check if the user is already assigned
+                next(user for user in assignees if user["id"] == app.context.user["id"])
+            except StopIteration:
+                # User not assigned yet, make the request to update
+                assignees.append(app.context.user)
+                app.shotgun.update("Task", sg_data["id"], {"task_assignees": assignees})
 
         elif name == "add_to_playlist":
             app.shotgun.update(
