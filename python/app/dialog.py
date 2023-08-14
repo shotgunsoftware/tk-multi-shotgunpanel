@@ -34,6 +34,7 @@ from .model_details import SgEntityDetailsModel
 from .model_current_user import SgCurrentUserModel
 from .not_found_overlay import NotFoundModelOverlay
 from .qtwidgets import ActivityStreamWidget
+from .qtwidgets import SGQIcon
 from .shotgun_formatter import ShotgunTypeFormatter
 from .note_updater import NoteUpdater
 from .widget_all_fields import AllFieldsWidget
@@ -145,6 +146,10 @@ class AppDialog(QtGui.QWidget):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
 
+        # set up button
+        self.ui.refresh_button.setIcon(SGQIcon.refresh())
+        self.ui.refresh_button.setToolTip("Click to refresh the current view.")
+
         # create a note updater to run operations on notes in the db
         self._note_updater = NoteUpdater(self._task_manager, self)
 
@@ -193,6 +198,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.navigation_home.clicked.connect(self._on_home_clicked)
         self.ui.navigation_next.clicked.connect(self._on_next_clicked)
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
+        self.ui.refresh_button.clicked.connect(self.refresh)
 
         # search
         self.ui.search.clicked.connect(self._on_search_clicked)
