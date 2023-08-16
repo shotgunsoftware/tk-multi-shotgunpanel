@@ -31,9 +31,7 @@ playback_label = sgtk.platform.import_framework(
 )
 ShotgunPlaybackLabel = playback_label.ShotgunPlaybackLabel
 
-sg_qicons = sgtk.platform.import_framework(
-    "tk-framework-qtwidgets", "sg_qicons"
-)
+sg_qicons = sgtk.platform.import_framework("tk-framework-qtwidgets", "sg_qicons")
 SGQIcon = sg_qicons.SGQIcon
 
 global_search_widget = sgtk.platform.import_framework(
