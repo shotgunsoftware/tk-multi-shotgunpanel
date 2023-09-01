@@ -39,8 +39,7 @@ def host_application(tk_test_project, tk_test_entities):
      tested to define a fixture named context and this fixture
      would consume it.
     """
-    # stderr_log = open("sdterr.log", "w+")
-    print("Using Python Executable: {}".format(sys.executable))
+    print(">>> Using Python Executable: {}".format(sys.executable))
     EXEC_PATH = sys.executable.replace("python.exe", "")
     env = copy.copy(os.environ)
     env["PYTHONPATH"] = os.path.join(EXEC_PATH, "Lib", "site-packages")
@@ -62,8 +61,8 @@ def host_application(tk_test_project, tk_test_entities):
             str(tk_test_project["id"]),
         ],
         env=env,
-        # stderr=stderr_log,
     )
+    print(process)
     try:
         yield
     finally:
@@ -71,12 +70,6 @@ def host_application(tk_test_project, tk_test_entities):
         # and print it so that is there was an error
         # we'll know about it.
         stdout, stderr = process.communicate()
-        # stderr_log.seek(0)
-        # print("-------------------- STDERR --------------------")
-        # sys.stderr.write(stderr_log.read() or "")
-        # print("------------------------------------------------")
-        # stderr_log.close()
-
         process.poll()
         # If returncode is not set, then the process
         # was hung and we need to kill it
