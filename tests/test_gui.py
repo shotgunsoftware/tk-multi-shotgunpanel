@@ -41,11 +41,10 @@ def host_application(tk_test_project, tk_test_entities):
     """
     stderr_log = open("sdterr.log", "w+")
     print("Using Python Executable: {}".format(sys.executable))
-    PACKAGES_PATH = r"C:\hostedtoolcache\windows\Python\3.9.13\x64\lib"
+    EXEC_PATH = sys.executable.replace("python.exe", "")
     env = copy.copy(os.environ)
-    env["PYTHONPATH"] = os.path.join(PACKAGES_PATH, "site-packages")
-    print(f"PYTHONPATH: {env['PYTHONPATH']}")
-    print(tk_test_project)
+    env["PYTHONPATH"] = os.path.join(EXEC_PATH, "Lib", "site-packages")
+    print("Using PYTHONPATH: {}".format(env["PYTHONPATH"]))
 
     process = subprocess.Popen(
         [
@@ -66,7 +65,6 @@ def host_application(tk_test_project, tk_test_entities):
         env=env,
         stderr=stderr_log,
     )
-    print("PASSED SUBPROCESS")
     try:
         yield
     finally:
@@ -95,6 +93,7 @@ def app_dialog(host_application):
     Retrieve the application dialog and return the AppDialogAppWrapper.
     """
     before = time.time()
+    print(">>> app_dialog")
     while before + 60 > time.time():
         if sgtk.util.is_windows():
             app_dialog = AppDialogAppWrapper(topwindows)
@@ -102,6 +101,7 @@ def app_dialog(host_application):
             app_dialog = AppDialogAppWrapper(topwindows["python"])
 
         if app_dialog.exists():
+            print(">>> app_dialog exists")
             yield app_dialog
             app_dialog.close()
             return
@@ -842,7 +842,7 @@ def test_publishes_tab(
         app_dialog.root.buttons[9].mouseClick()
 
 
-def test_search(app_dialog):
+def test_search(app_dialog, tk_test_project, tk_test_entities, tk_test_current_user):
     """
     Search widget validation
     """
