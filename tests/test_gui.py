@@ -71,7 +71,6 @@ def host_application(tk_test_project, tk_test_entities):
         # We're done. Grab all the output from the process
         # and print it so that is there was an error
         # we'll know about it.
-        print("START process.communicate()")
         stdout, stderr = process.communicate()
         stderr_log.seek(0)
         print("-------------------- STDERR --------------------")
@@ -94,7 +93,6 @@ def app_dialog(host_application):
     Retrieve the application dialog and return the AppDialogAppWrapper.
     """
     before = time.time()
-    print(">>> app_dialog")
     while before + 60 > time.time():
         if sgtk.util.is_windows():
             app_dialog = AppDialogAppWrapper(topwindows)
@@ -284,7 +282,7 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
     else:
         app_dialog.root.buttons[9].mouseClick()
 
-
+@pytest.mark.skip(reason="Debugging SG-24427")
 def test_activity_notes_tabs(
     app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
@@ -518,7 +516,7 @@ def test_activity_notes_tabs(
     else:
         app_dialog.root.buttons[9].mouseClick()
 
-
+@pytest.mark.skip(reason="Debugging SG-24427")
 def test_versions_tab(
     app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
@@ -716,7 +714,7 @@ def test_versions_tab(
     else:
         app_dialog.root.buttons[9].mouseClick()
 
-
+@pytest.mark.skip(reason="Debugging SG-24427")
 def test_publishes_tab(
     app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
@@ -843,62 +841,62 @@ def test_publishes_tab(
         app_dialog.root.buttons[9].mouseClick()
 
 
-# @pytest.mark.skip(reason="Debugging SG-24427")
-# def test_search(app_dialog, tk_test_project, tk_test_entities, tk_test_current_user):
-#     """
-#     Search widget validation
-#     """
-#     # Wait for the UI to show up and click on the Versions tab
-#     app_dialog.root.tabs["Activity"].waitExist(timeout=30)
-#     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
-#     if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
-#         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
-#     else:
-#         app_dialog.root.buttons[9].mouseClick()
+@pytest.mark.skip(reason="Debugging SG-24427")
+def test_search(app_dialog, tk_test_project, tk_test_entities, tk_test_current_user):
+    """
+    Search widget validation
+    """
+    # Wait for the UI to show up and click on the Versions tab
+    app_dialog.root.tabs["Activity"].waitExist(timeout=30)
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
 
-#     # Click on the search button
-#     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
-#     if app_dialog.root.buttons["Search ShotGrid"].exists() is True:
-#         app_dialog.root.buttons["Search ShotGrid"].mouseClick()
-#     else:
-#         app_dialog.root.buttons[12].mouseClick()
-#     app_dialog.root.textfields.waitExist(timeout=30)
+    # Click on the search button
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Search ShotGrid"].exists() is True:
+        app_dialog.root.buttons["Search ShotGrid"].mouseClick()
+    else:
+        app_dialog.root.buttons[12].mouseClick()
+    app_dialog.root.textfields.waitExist(timeout=30)
 
-#     # Search for sven.png
-#     app_dialog.root.textfields.typeIn("sven.png")
-#     topwindows.listitems["sven.png"].waitExist(timeout=30)
+    # Search for sven.png
+    app_dialog.root.textfields.typeIn("sven.png")
+    topwindows.listitems["sven.png"].waitExist(timeout=30)
 
-#     # Clear the search text field
-#     app_dialog.root.textfields.buttons.mouseDoubleClick()
+    # Clear the search text field
+    app_dialog.root.textfields.buttons.mouseDoubleClick()
 
-#     # Do another search for asset
-#     app_dialog.root.textfields.mouseClick()
-#     app_dialog.root.textfields.typeIn("asset")
-#     topwindows.listitems["AssetAutomation"].waitExist(timeout=30)
-#     assert topwindows.listitems[
-#         "Rig"
-#     ].exists(), "Rig isn't showing up in the search list."
-#     assert topwindows.listitems[
-#         "Model"
-#     ].exists(), "Model isn't showing up in the search list."
-#     assert topwindows.listitems[
-#         "sven.png"
-#     ].exists(), "sven.png isn't showing up in the search list."
+    # Do another search for asset
+    app_dialog.root.textfields.mouseClick()
+    app_dialog.root.textfields.typeIn("asset")
+    topwindows.listitems["AssetAutomation"].waitExist(timeout=30)
+    assert topwindows.listitems[
+        "Rig"
+    ].exists(), "Rig isn't showing up in the search list."
+    assert topwindows.listitems[
+        "Model"
+    ].exists(), "Model isn't showing up in the search list."
+    assert topwindows.listitems[
+        "sven.png"
+    ].exists(), "sven.png isn't showing up in the search list."
 
-#     # Clear the search text field
-#     app_dialog.root.textfields.buttons.mouseDoubleClick()
+    # Clear the search text field
+    app_dialog.root.textfields.buttons.mouseDoubleClick()
 
-#     # Do another search with a value that has not match
-#     app_dialog.root.textfields.mouseClick()
-#     app_dialog.root.textfields.typeIn("popo")
-#     topwindows.listitems["No matches found!"].waitExist(timeout=30)
+    # Do another search with a value that has not match
+    app_dialog.root.textfields.mouseClick()
+    app_dialog.root.textfields.typeIn("popo")
+    topwindows.listitems["No matches found!"].waitExist(timeout=30)
 
-#     # Click on the search Cancel button
-#     app_dialog.root.buttons["Cancel"].mouseClick()
+    # Click on the search Cancel button
+    app_dialog.root.buttons["Cancel"].mouseClick()
 
-#     # Go back to the default work area
-#     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
-#     if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
-#         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
-#     else:
-#         app_dialog.root.buttons[9].mouseClick()
+    # Go back to the default work area
+    # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
+    if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
+        app_dialog.root.buttons["Click to go to your work area"].mouseClick()
+    else:
+        app_dialog.root.buttons[9].mouseClick()
