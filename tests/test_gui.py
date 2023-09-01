@@ -39,12 +39,11 @@ def host_application(tk_test_project, tk_test_entities):
      tested to define a fixture named context and this fixture
      would consume it.
     """
-    stderr_log = open("sdterr.log", "w+")
+    # stderr_log = open("sdterr.log", "w+")
     print("Using Python Executable: {}".format(sys.executable))
     EXEC_PATH = sys.executable.replace("python.exe", "")
     env = copy.copy(os.environ)
     env["PYTHONPATH"] = os.path.join(EXEC_PATH, "Lib", "site-packages")
-    print("Using PYTHONPATH: {}".format(env["PYTHONPATH"]))
 
     process = subprocess.Popen(
         [
@@ -63,7 +62,7 @@ def host_application(tk_test_project, tk_test_entities):
             str(tk_test_project["id"]),
         ],
         env=env,
-        stderr=stderr_log,
+        # stderr=stderr_log,
     )
     try:
         yield
@@ -72,11 +71,11 @@ def host_application(tk_test_project, tk_test_entities):
         # and print it so that is there was an error
         # we'll know about it.
         stdout, stderr = process.communicate()
-        stderr_log.seek(0)
-        print("-------------------- STDERR --------------------")
-        sys.stderr.write(stderr_log.read() or "")
-        print("------------------------------------------------")
-        stderr_log.close()
+        # stderr_log.seek(0)
+        # print("-------------------- STDERR --------------------")
+        # sys.stderr.write(stderr_log.read() or "")
+        # print("------------------------------------------------")
+        # stderr_log.close()
 
         process.poll()
         # If returncode is not set, then the process
@@ -100,7 +99,6 @@ def app_dialog(host_application):
             app_dialog = AppDialogAppWrapper(topwindows["python"])
 
         if app_dialog.exists():
-            print(">>> app_dialog exists")
             yield app_dialog
             app_dialog.close()
             return
@@ -281,6 +279,7 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
     else:
         app_dialog.root.buttons[9].mouseClick()
+
 
 @pytest.mark.skip(reason="Debugging SG-24427")
 def test_activity_notes_tabs(
@@ -516,6 +515,7 @@ def test_activity_notes_tabs(
     else:
         app_dialog.root.buttons[9].mouseClick()
 
+
 @pytest.mark.skip(reason="Debugging SG-24427")
 def test_versions_tab(
     app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
@@ -713,6 +713,7 @@ def test_versions_tab(
         app_dialog.root.buttons["Click to go to your work area"].mouseClick()
     else:
         app_dialog.root.buttons[9].mouseClick()
+
 
 @pytest.mark.skip(reason="Debugging SG-24427")
 def test_publishes_tab(
