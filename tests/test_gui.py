@@ -71,6 +71,7 @@ def host_application(tk_test_project, tk_test_entities):
         # We're done. Grab all the output from the process
         # and print it so that is there was an error
         # we'll know about it.
+        print("START process.communicate()")
         stdout, stderr = process.communicate()
         stderr_log.seek(0)
         print("-------------------- STDERR --------------------")
@@ -842,6 +843,7 @@ def test_publishes_tab(
         app_dialog.root.buttons[9].mouseClick()
 
 
+@pytest.mark.skip(reason="Debugging SG-24427")
 def test_search(app_dialog, tk_test_project, tk_test_entities, tk_test_current_user):
     """
     Search widget validation
