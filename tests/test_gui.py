@@ -41,9 +41,11 @@ def host_application(tk_test_project, tk_test_entities):
     """
     stderr_log = open("sdterr.log", "w+")
     print("Using Python Executable: {}".format(sys.executable))
-    PACKAGES_PATH = r"C:\hostedtoolcache\windows\Python\3.7.9\x64\lib"
+    PACKAGES_PATH = r"C:\hostedtoolcache\windows\Python\3.9.13\x64\lib"
     env = copy.copy(os.environ)
     env["PYTHONPATH"] = os.path.join(PACKAGES_PATH, "site-packages")
+    print(f"PYTHONPATH: {env['PYTHONPATH']}")
+    print(tk_test_project)
 
     process = subprocess.Popen(
         [
@@ -64,6 +66,7 @@ def host_application(tk_test_project, tk_test_entities):
         env=env,
         stderr=stderr_log,
     )
+    print("PASSED SUBPROCESS")
     try:
         yield
     finally:
