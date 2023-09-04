@@ -85,19 +85,15 @@ def app_dialog(host_application):
     """
     before = time.time()
     while before + 60 > time.time():
-        print(">>> waiting for app_dialog...")
         if sgtk.util.is_windows():
-            print(">>> is windows")
             app_dialog = AppDialogAppWrapper(topwindows)
         else:
-            print(">>> else")
             app_dialog = AppDialogAppWrapper(topwindows["python"])
 
         if app_dialog.exists():
             yield app_dialog
             app_dialog.close()
             return
-        print(">>> does not exist")
     else:
         raise RuntimeError("Timeout waiting for the app dialog to launch.")
 
@@ -112,10 +108,9 @@ class AppDialogAppWrapper(object):
         :param root:
         """
         try:
-            print(">>> wrapper get")
             self.root = parent["ShotGrid: ShotGrid Panel"].get()
-            print(">>>", self.root)
-        except MA.UI.ControlNotFoundError as e:
+        # except MA.UI.ControlNotFoundError as e:
+        except Exception as e:
             wind_parents = parent.__str__().split("\n")
             raise RuntimeError(f"Top Windows are: {wind_parents!r}")
 
@@ -123,7 +118,6 @@ class AppDialogAppWrapper(object):
         """
         ``True`` if the widget was found, ``False`` otherwise.
         """
-        print(">>> wrapper exists")
         return self.root.exists()
 
     def close(self):
