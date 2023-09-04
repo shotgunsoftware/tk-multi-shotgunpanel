@@ -66,6 +66,9 @@ def host_application(tk_test_project, tk_test_entities):
     )
     try:
         yield
+    except Exception as e:
+        print(e)
+
     finally:
         # We're done. Grab all the output from the process
         # and print it so that is there was an error
@@ -109,17 +112,10 @@ class AppDialogAppWrapper(object):
         """
         :param root:
         """
-        try:
+        if "ShotGrid: ShotGrid Panel" not in parent:
             wind_parents = parent.__str__().split("\n")
-            print(f"Top Windows are: {wind_parents!r}")
-            print("Exists:", "ShotGrid: ShotGrid Panel" not in parent)
-            if "ShotGrid: ShotGrid Panel" not in parent:
-                raise RuntimeError
-            self.root = parent["ShotGrid: ShotGrid Panel"].get()
-            print(">>> root is", self.root)
-        except Exception as e:
-            wind_parents = parent.__str__().split("\n")
-            raise RuntimeError(f"Top Windows are: {wind_parents!r}")
+            raise RuntimeError(f"ShotGrit window is not available. Top Windows are: {wind_parents!r}")
+        self.root = parent["ShotGrid: ShotGrid Panel"].get()
 
     def exists(self):
         """
