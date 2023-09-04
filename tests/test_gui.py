@@ -108,7 +108,10 @@ class AppDialogAppWrapper(object):
         :param root:
         """
         try:
-            print(">>>", parent)
+            wind_parents = parent.__str__().split("\n")
+            print(f"Top Windows are: {wind_parents!r}")
+            print(">>>", type(parent))
+            print(">>>", parent["ShotGrid: ShotGrid Panel"])
             self.root = parent["ShotGrid: ShotGrid Panel"].get()
         # except MA.UI.ControlNotFoundError as e:
         except Exception as e:
