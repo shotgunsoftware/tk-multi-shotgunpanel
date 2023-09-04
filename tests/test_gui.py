@@ -15,6 +15,7 @@ import os
 import sys
 import sgtk
 import copy
+import platform
 
 try:
     import MA.UI  # noqa
@@ -24,6 +25,7 @@ except ImportError:
     pytestmark = pytest.mark.skip()
 else:
     print("Imported Successfully")
+    print(">>>", platform.win32_ver())
 
 
 # This fixture will launch tk-run-app on first usage
@@ -61,7 +63,6 @@ def host_application(tk_test_project, tk_test_entities):
         ],
         env=env,
     )
-    print(process)
     try:
         yield
     finally:
@@ -110,10 +111,7 @@ class AppDialogAppWrapper(object):
         try:
             wind_parents = parent.__str__().split("\n")
             print(f"Top Windows are: {wind_parents!r}")
-            print(">>>", type(parent))
-            print(">>>", parent["ShotGrid: ShotGrid Panel"])
-            self.root = parent["ShotGrid: ShotGrid Panel"].get()
-        # except MA.UI.ControlNotFoundError as e:
+            self.root = parent["ShotGrid: ShotGrid Panel"].get(tries=3)
         except Exception as e:
             wind_parents = parent.__str__().split("\n")
             raise RuntimeError(f"Top Windows are: {wind_parents!r}")
@@ -133,7 +131,6 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
     My Tasks tab validation
     """
     # Wait for the UI to show up, click on the home button and make sure My Tasks tab is selected by default
-    print(">>> first test")
     app_dialog.root.tabs["Activity"].waitExist(timeout=30)
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
     if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
@@ -279,7 +276,6 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
         app_dialog.root.buttons[9].mouseClick()
 
 
-@pytest.mark.skip(reason="Debugging SG-24427")
 def test_activity_notes_tabs(
     app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
@@ -514,7 +510,6 @@ def test_activity_notes_tabs(
         app_dialog.root.buttons[9].mouseClick()
 
 
-@pytest.mark.skip(reason="Debugging SG-24427")
 def test_versions_tab(
     app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
@@ -713,7 +708,6 @@ def test_versions_tab(
         app_dialog.root.buttons[9].mouseClick()
 
 
-@pytest.mark.skip(reason="Debugging SG-24427")
 def test_publishes_tab(
     app_dialog, tk_test_project, tk_test_entities, tk_test_current_user
 ):
@@ -840,7 +834,6 @@ def test_publishes_tab(
         app_dialog.root.buttons[9].mouseClick()
 
 
-@pytest.mark.skip(reason="Debugging SG-24427")
 def test_search(app_dialog, tk_test_project, tk_test_entities, tk_test_current_user):
     """
     Search widget validation
