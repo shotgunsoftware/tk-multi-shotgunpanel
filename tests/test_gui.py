@@ -41,9 +41,7 @@ def host_application(tk_test_project, tk_test_entities):
     """
     env = copy.copy(os.environ)
     env["PYTHONPATH"] = os.path.join(
-        sys.executable.replace("python.exe", ""),
-        "Lib",
-        "site-packages"
+        sys.executable.replace("python.exe", ""), "Lib", "site-packages"
     )
 
     process = subprocess.Popen(
@@ -114,7 +112,9 @@ class AppDialogAppWrapper(object):
         """
         if "ShotGrid: ShotGrid Panel" not in parent:
             wind_parents = parent.__str__().split("\n")
-            raise RuntimeError(f"ShotGrit window is not available. Top Windows are: {wind_parents!r}")
+            raise RuntimeError(
+                f"ShotGrit window is not available. Top Windows are: {wind_parents!r}"
+            )
         self.root = parent["ShotGrid: ShotGrid Panel"].get()
 
     def exists(self):
