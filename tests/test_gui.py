@@ -64,6 +64,7 @@ def host_application(tk_test_project, tk_test_entities):
     )
     print(process)
     try:
+        print(">>>try")
         yield
     finally:
         # We're done. Grab all the output from the process
@@ -86,6 +87,7 @@ def app_dialog(host_application):
     """
     before = time.time()
     while before + 60 > time.time():
+        print(">>> waiting for app_dialog...")
         if sgtk.util.is_windows():
             app_dialog = AppDialogAppWrapper(topwindows)
         else:
@@ -129,6 +131,7 @@ def test_my_tasks(app_dialog, tk_test_project, tk_test_entities, tk_test_current
     My Tasks tab validation
     """
     # Wait for the UI to show up, click on the home button and make sure My Tasks tab is selected by default
+    print(">>> first test")
     app_dialog.root.tabs["Activity"].waitExist(timeout=30)
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
     if app_dialog.root.buttons["Click to go to your work area"].exists() is True:
