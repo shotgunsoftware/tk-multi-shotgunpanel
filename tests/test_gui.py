@@ -15,7 +15,6 @@ import os
 import sys
 import sgtk
 import copy
-import platform
 
 try:
     import MA.UI  # noqa
@@ -25,7 +24,6 @@ except ImportError:
     pytestmark = pytest.mark.skip()
 else:
     print("Imported Successfully")
-    print(">>>", platform.win32_ver())
 
 
 # This fixture will launch tk-run-app on first usage
@@ -41,9 +39,12 @@ def host_application(tk_test_project, tk_test_entities):
      tested to define a fixture named context and this fixture
      would consume it.
     """
-    EXEC_PATH = sys.executable.replace("python.exe", "")
     env = copy.copy(os.environ)
-    env["PYTHONPATH"] = os.path.join(EXEC_PATH, "Lib", "site-packages")
+    env["PYTHONPATH"] = os.path.join(
+        sys.executable.replace("python.exe", ""),
+        "Lib",
+        "site-packages"
+    )
 
     process = subprocess.Popen(
         [
@@ -111,7 +112,11 @@ class AppDialogAppWrapper(object):
         try:
             wind_parents = parent.__str__().split("\n")
             print(f"Top Windows are: {wind_parents!r}")
-            self.root = parent["ShotGrid: ShotGrid Panel"].get(tries=3)
+            print("Exists:", "ShotGrid: ShotGrid Panel" not in parent)
+            if "ShotGrid: ShotGrid Panel" not in parent:
+                raise RuntimeError
+            self.root = parent["ShotGrid: ShotGrid Panel"].get()
+            print(">>> root is", self.root)
         except Exception as e:
             wind_parents = parent.__str__().split("\n")
             raise RuntimeError(f"Top Windows are: {wind_parents!r}")
@@ -834,7 +839,7 @@ def test_publishes_tab(
         app_dialog.root.buttons[9].mouseClick()
 
 
-def test_search(app_dialog, tk_test_project, tk_test_entities, tk_test_current_user):
+def test_search(app_dialog):
     """
     Search widget validation
     """
