@@ -108,6 +108,7 @@ class AppDialogAppWrapper(object):
         :param root:
         """
         try:
+            print(">>>", parent)
             self.root = parent["ShotGrid: ShotGrid Panel"].get()
         # except MA.UI.ControlNotFoundError as e:
         except Exception as e:
