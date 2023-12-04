@@ -1044,7 +1044,9 @@ class AppDialog(QtGui.QWidget):
                     and hasattr(data_model, "get_entity_type")
                 ):
                     # Add filtering for models
-                    filter_menu = ShotgunFilterMenu(data.get("view"))
+                    filter_menu = ShotgunFilterMenu(
+                        data.get("view"), bg_task_manager=self._task_manager
+                    )
                     filter_menu.set_visible_fields(data.get("filter_fields"))
                     filter_menu.set_filter_model(proxy_model)
 
