@@ -38,6 +38,7 @@ from .shotgun_formatter import ShotgunTypeFormatter
 from .note_updater import NoteUpdater
 from .widget_all_fields import AllFieldsWidget
 from .work_area_dialog import WorkAreaDialog
+from .utils import monitor_qobject_lifetime
 
 shotgun_model = sgtk.platform.import_framework(
     "tk-framework-shotgunutils", "shotgun_model"
@@ -135,8 +136,10 @@ class AppDialog(QtGui.QWidget):
 
         # create a background task manager
         self._task_manager = task_manager.BackgroundTaskManager(
-            self, start_processing=True, max_threads=2
+            self, max_threads=2
         )
+        monitor_qobject_lifetime(self._task_manager, "Main task manager")
+        self._task_manager.start_processing()
 
         # register the data fetcher with the global schema manager
         shotgun_globals.register_bg_task_manager(self._task_manager)
@@ -277,6 +280,10 @@ class AppDialog(QtGui.QWidget):
 
         # close splash
         self._overlay.hide()
+
+        # destroy the current Qt Model
+        self._overlay.destroy()
+        self.destroy()
 
         # okay to close dialog
         event.accept()
@@ -869,7 +876,7 @@ class AppDialog(QtGui.QWidget):
                     }
 
                     self._app.log_debug(
-                        "Creating new task:\n%s" % pprint.pprint(sg_data)
+                        "Creating new task:\n%s" % pprint.pformat(sg_data)
                     )
                     task_data = self._app.shotgun.create("Task", sg_data)
                     (entity_type, entity_id) = (task_data["type"], task_data["id"])
@@ -1208,6 +1215,8 @@ class AppDialog(QtGui.QWidget):
         entity_data["model"] = ModelClass(
             entity_data["entity_type"], entity_data["view"], self._task_manager
         )
+        monitor_qobject_lifetime(entity_data["model"])
+
 
         # create proxy for sorting
         entity_data["sort_proxy"] = FilterItemProxyModel(self)
