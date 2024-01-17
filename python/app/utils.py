@@ -254,8 +254,10 @@ def _on_qobject_destroyed(name, uid):
     app = sgtk.platform.current_bundle()
     app.log_debug("%s destroyed" % name)
     global _g_monitored_qobjects
-    if uid in _g_monitored_qobjects:
+    try:
         del _g_monitored_qobjects[uid]
+    except KeyError:
+        pass
 
 
 def report_non_destroyed_qobjects(clear_list=True):
@@ -275,4 +277,4 @@ def report_non_destroyed_qobjects(clear_list=True):
     for msg in _g_monitored_qobjects.values():
         app.log_debug(" - %s" % msg)
     if clear_list:
-        _g_monitored_qobjects = {}
+        _g_monitored_qobjects.clear()
