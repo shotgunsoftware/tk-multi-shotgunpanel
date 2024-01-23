@@ -248,6 +248,28 @@
                  </widget>
                 </item>
                 <item>
+                 <widget class="QToolButton" name="refresh_button">
+                  <property name="minimumSize">
+                   <size>
+                    <width>30</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string/>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="WorkAreaButton" name="set_context">
                   <property name="minimumSize">
                    <size>

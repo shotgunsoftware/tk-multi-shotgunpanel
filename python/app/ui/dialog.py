@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'dialog.ui'
+# Form implementation generated from reading ui file 'C:\Users\qa\sg_envs\dv\tk\tk-multi-shotgunpanel\resources\dialog.ui'
 #
+# Created: Tue Aug 15 13:20:40 2023
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
 
-from tank.platform.qt import QtCore, QtGui
+from sgtk.platform.qt import QtCore, QtGui
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -95,6 +96,13 @@ class Ui_Dialog(object):
         self.details_text_header.setWordWrap(False)
         self.details_text_header.setObjectName("details_text_header")
         self.horizontalLayout.addWidget(self.details_text_header)
+        self.refresh_button = QtGui.QToolButton(self.page)
+        self.refresh_button.setMinimumSize(QtCore.QSize(30, 30))
+        self.refresh_button.setMaximumSize(QtCore.QSize(30, 30))
+        self.refresh_button.setToolTip("")
+        self.refresh_button.setText("")
+        self.refresh_button.setObjectName("refresh_button")
+        self.horizontalLayout.addWidget(self.refresh_button)
         self.set_context = WorkAreaButton(self.page)
         self.set_context.setMinimumSize(QtCore.QSize(30, 30))
         self.set_context.setMaximumSize(QtCore.QSize(30, 30))
