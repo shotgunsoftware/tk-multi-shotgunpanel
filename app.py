@@ -221,7 +221,10 @@ class ShotgunPanelApp(Application):
             )
             widget = self.create_dialog()
         else:
-            self._current_panel = widget
+            if widget.objectName() == "Dialog":
+                self._current_dialog = widget
+            else:
+                self._current_panel = widget
 
         return widget
 
