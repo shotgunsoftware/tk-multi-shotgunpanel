@@ -58,7 +58,7 @@ class ShotgunPanelApp(Application):
         # also register a menu entry on the shotgun menu so that users
         # can launch the panel
         self.engine.register_command(
-            "ShotGrid Panel...",
+            "Flow Production Tracking Panel...",
             self.create_panel,
             {
                 "type": "panel",
@@ -208,7 +208,7 @@ class ShotgunPanelApp(Application):
         try:
             widget = self.engine.show_panel(
                 self._unique_panel_id,
-                "ShotGrid Panel",
+                "Flow Production Tracking Panel",
                 self,
                 app_payload.AppDialog,
             )

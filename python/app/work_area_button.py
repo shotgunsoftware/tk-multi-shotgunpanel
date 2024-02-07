@@ -120,7 +120,7 @@ class WorkAreaButton(QtGui.QToolButton):
             self.setPopupMode(QtGui.QToolButton.DelayedPopup)
             self.setToolTip(
                 "This is your current work area.\n"
-                "The work you do will be associated with this item in ShotGrid."
+                "The work you do will be associated with this item in Flow Production Tracking."
             )
             # set blue icon
             self.setIcon(self._current_work_area_icon)

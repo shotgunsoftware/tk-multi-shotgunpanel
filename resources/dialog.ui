@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ShotGrid Browser</string>
+   <string>Flow Production Tracking Browser</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_23">
    <property name="spacing">
@@ -314,7 +314,7 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Search ShotGrid</string>
+                   <string>Search Flow Production Tracking</string>
                   </property>
                   <property name="icon">
                    <iconset resource="resources.qrc">
