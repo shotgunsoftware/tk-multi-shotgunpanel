@@ -851,7 +851,7 @@ class AppDialog(QtGui.QWidget):
 
                     if self._app.context.user is None:
                         self._app.log_error(
-                            "Flow Production Tracking Toolkit does not know what PTR user you are. "
+                            "Flow Production Tracking does not know what PTR user you are. "
                             "This can be due to the use of a script key for authentication "
                             "rather than using a user name and password login. To create and "
                             "assign a Task, you will need to log in using you PTR user "

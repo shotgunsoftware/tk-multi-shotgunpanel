@@ -216,7 +216,7 @@ class GeneralActions(HookBaseClass):
         if name == "assign_task":
             if app.context.user is None:
                 raise Exception(
-                    "Flow Production Tracking Toolkit does not know what PTR user you are. "
+                    "Flow Production Tracking does not know what PTR user you are. "
                     "This can be due to the use of a script key for authentication "
                     "rather than using a user name and password login. To assign a "
                     "Task, you will need to log in using you PTR user account."
