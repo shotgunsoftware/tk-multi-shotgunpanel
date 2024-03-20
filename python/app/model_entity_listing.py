@@ -39,12 +39,12 @@ class SgEntityListingModel(ShotgunModel):
 
     TEXT_NUM_ITEMS_FULL = "Showing {num} {entity_type}s"
     TEXT_NUM_ITEMS_PARTIAL = "Only showing the first {num} {entity_type}s"
-    TEXT_NUM_ITEMS_TT_FULL = "This number of records is loaded from ShotGrid."
+    TEXT_NUM_ITEMS_TT_FULL = (
+        "This number of records is loaded from Flow Production Tracking."
+    )
     TEXT_NUM_ITEMS_TT_PARTIAL_FIRST = "Results are limited."
     TEXT_NUM_ITEMS_TT_PARTIAL_MIDDLE = None
-    TEXT_NUM_ITEMS_TT_PARTIAL_LAST = (
-        "To see a list of all results, visit your entity pages in ShotGrid."
-    )
+    TEXT_NUM_ITEMS_TT_PARTIAL_LAST = "To see a list of all results, visit your entity pages in Flow Production Tracking."
 
     def __init__(self, entity_type, parent, bg_task_manager):
         """

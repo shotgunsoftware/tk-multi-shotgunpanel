@@ -91,7 +91,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
 
         if uid == self._sg_query_id:
             self._app.log_warning("History model query error: %s" % msg)
-            full_msg = "Error retrieving data from ShotGrid: %s" % msg
+            full_msg = "Error retrieving data from Flow Production Tracking: %s" % msg
             if self._overlay:
                 self._overlay.show_error_message(full_msg)
 

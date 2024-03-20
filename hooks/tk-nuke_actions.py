@@ -46,7 +46,7 @@ class NukeActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Generate actions called for UI element %s. "
-            "Actions: %s. SG Data: %s" % (ui_area, actions, sg_data)
+            "Actions: %s. PTR Data: %s" % (ui_area, actions, sg_data)
         )
 
         action_instances = []
@@ -115,7 +115,7 @@ class NukeActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Execute action called for action %s. "
-            "Parameters: %s. SG Data: %s" % (name, params, sg_data)
+            "Parameters: %s. PTR Data: %s" % (name, params, sg_data)
         )
 
         if name == "read_node":

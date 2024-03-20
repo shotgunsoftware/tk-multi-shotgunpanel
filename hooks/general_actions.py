@@ -45,7 +45,7 @@ class GeneralActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Generate actions called for UI element %s. "
-            "Actions: %s. SG Data: %s" % (ui_area, actions, sg_data)
+            "Actions: %s. PTR Data: %s" % (ui_area, actions, sg_data)
         )
 
         action_instances = []
@@ -210,16 +210,16 @@ class GeneralActions(HookBaseClass):
         app = self.parent
         app.log_debug(
             "Execute action called for action %s. "
-            "Parameters: %s. SG Data: %s" % (name, params, sg_data)
+            "Parameters: %s. PTR Data: %s" % (name, params, sg_data)
         )
 
         if name == "assign_task":
             if app.context.user is None:
                 raise Exception(
-                    "SG Toolkit does not know what SG user you are. "
-                    "This can be due to the use of a script key for authentication "
-                    "rather than using a user name and password login. To assign a "
-                    "Task, you will need to log in using you SG user account."
+                    "Flow Production Tracking Toolkit does not know what PTR user "
+                    "you are. This can be due to the use of a script key for "
+                    "authentication rather than using a user name and password login. "
+                    "To assign a Task, you will need to log in using you PTR user account."
                 )
 
             data = app.shotgun.find_one(

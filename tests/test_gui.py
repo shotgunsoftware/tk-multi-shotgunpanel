@@ -99,7 +99,9 @@ class AppDialogAppWrapper(object):
         """
         :param root:
         """
-        self.root = parent["ShotGrid: ShotGrid Panel"].get()
+        self.root = parent[
+            "Flow Production Tracking: Flow Production Tracking Panel"
+        ].get()
 
     def exists(self):
         """
@@ -285,7 +287,7 @@ def test_activity_notes_tabs(
     # Wait until note creation field is showing up.
     wait = time.time()
     while wait + 30 > time.time():
-        if app_dialog.root.captions["Loading SG Data..."].exists():
+        if app_dialog.root.captions["Loading PTR Data..."].exists():
             time.sleep(1)
         else:
             break
@@ -351,8 +353,8 @@ def test_activity_notes_tabs(
         "Project Toolkit UI Automation creation is missing in the activity stream"
     )
     assert app_dialog.root.buttons[
-        "Click here to see the Activity stream in ShotGrid."
-    ].exists(), "Hyperlink to see the Activity Stream in SG is missing"
+        "Click here to see the Activity stream in Flow Production Tracking."
+    ].exists(), "Hyperlink to see the Activity Stream in PTR is missing"
 
     # Click on the Notes tab
     app_dialog.root.tabs["Notes"].mouseClick()
@@ -833,8 +835,8 @@ def test_search(app_dialog):
 
     # Click on the search button
     # PySide2 doesn't see button's name so we need to use integer to point to it in the hierarchy list
-    if app_dialog.root.buttons["Search ShotGrid"].exists() is True:
-        app_dialog.root.buttons["Search ShotGrid"].mouseClick()
+    if app_dialog.root.buttons["Search Flow Production Tracking"].exists() is True:
+        app_dialog.root.buttons["Search Flow Production Tracking"].mouseClick()
     else:
         app_dialog.root.buttons[12].mouseClick()
     app_dialog.root.textfields.waitExist(timeout=30)

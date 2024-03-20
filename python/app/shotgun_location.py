@@ -66,7 +66,7 @@ class ShotgunLocation(object):
             sg_location = cls(ctx.user["type"], ctx.user["id"])
 
         else:
-            raise NotImplementedError("The SG panel requires a non-empty context.")
+            raise NotImplementedError("The PTR panel requires a non-empty context.")
 
         return sg_location
 
