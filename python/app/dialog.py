@@ -147,7 +147,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.setupUi(self)
 
         # set up button
-        self.ui.refresh_button.setIcon(SGQIcon.refresh())
+        self.ui.refresh_button.setIcon(SGQIcon.refresh(SGQIcon.SIZE_16x16))
         self.ui.refresh_button.setToolTip("Click to refresh the current view.")
 
         self.user_icon_orig = self.ui.current_user.icon()
