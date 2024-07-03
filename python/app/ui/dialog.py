@@ -99,6 +99,7 @@ class Ui_Dialog(object):
         self.refresh_button = QtGui.QToolButton(self.page)
         self.refresh_button.setMinimumSize(QtCore.QSize(30, 30))
         self.refresh_button.setMaximumSize(QtCore.QSize(30, 30))
+        self.refresh_button.setIconSize(QtCore.QSize(30, 30))
         self.refresh_button.setToolTip("")
         self.refresh_button.setText("")
         self.refresh_button.setObjectName("refresh_button")
