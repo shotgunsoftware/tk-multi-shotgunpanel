@@ -25,8 +25,8 @@
     <file>pin_white.png</file>
     <file>pin_large.png</file>
     <file>folder.png</file>
-    <file>icon_my_tasks_sort_asc_dark.png</file>
-    <file>icon_my_tasks_sort_desc_dark.png</file>
+    <file>chevron-up-svgrepo-com.svg</file>
+    <file>chevron-down-svgrepo-com.svg</file>
 
 </qresource>
 </RCC>
