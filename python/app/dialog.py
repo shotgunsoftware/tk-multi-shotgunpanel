@@ -1285,8 +1285,8 @@ class AppDialog(QtGui.QWidget):
         )
 
         # Set the sort menu icon
-        icon_path = self._switch_sort_icon()
-        self.sort_menu_button.setIcon(QtGui.QIcon(icon_path))
+        icon = self._switch_sort_icon()
+        self.sort_menu_button.setIcon(icon)
 
         # the fields manager is used to query which fields are supported
         # for display. it can also be used to find out which fields are
@@ -1397,8 +1397,8 @@ class AppDialog(QtGui.QWidget):
         )
 
         # Change the sort icon in the menu button according the sort direction
-        icon_path = self._switch_sort_icon(sort_order)
-        self.sort_menu_button.setIcon(QtGui.QIcon(icon_path))
+        icon = self._switch_sort_icon(sort_order)
+        self.sort_menu_button.setIcon(icon)
 
         for action in actions_list:
             if action == sort_action:
@@ -1448,13 +1448,13 @@ class AppDialog(QtGui.QWidget):
         :param sort_order: Selected sort order, "desc" by default.
         :return: Sort icon path.
         """
-        if sort_order == "asc":
-            image_path = QtGui.QPixmap(
-                ":/tk_multi_infopanel/icon_my_tasks_sort_asc_dark.png"
-            )
-        else:
-            image_path = QtGui.QPixmap(
-                ":/tk_multi_infopanel/icon_my_tasks_sort_desc_dark.png"
-            )
 
-        return image_path
+        if sort_order == "asc":
+            image_path = ":/tk_multi_infopanel/chevron-up-svgrepo-com.svg"
+        else:
+            image_path = ":/tk_multi_infopanel/chevron-down-svgrepo-com.svg"
+
+        if True: # TMP DEBUG
+            image_path = "C:/Users/langloj/git/sgtk/tk-multi-shotgunpanel/resources" + image_path[len(":/tk_multi_infopanel"):]
+
+        return QtGui.QIcon(image_path)
