@@ -211,6 +211,7 @@ class AppDialog(QtGui.QWidget):
         self._current_user_model.data_updated.connect(self._update_current_user)
         self._current_user_model.load()
         self.ui.current_user.clicked.connect(self._on_user_home_clicked)
+        self.user_icon_orig = self.ui.current_user.icon()
 
         # top detail section
         self._details_model = SgEntityDetailsModel(self, self._task_manager)
@@ -509,8 +510,12 @@ class AppDialog(QtGui.QWidget):
         """
         curr_user_pixmap = self._current_user_model.get_pixmap()
         if curr_user_pixmap:
-            # QToolbutton needs a QIcon
-            self.ui.current_user.setIcon(QtGui.QIcon(curr_user_pixmap))
+            icon = QtGui.QIcon(curr_user_pixmap)
+        else:
+            icon = self.user_icon_orig
+
+        # QToolbutton needs a QIcon
+        self.ui.current_user.setIcon(icon)
 
         # Update the reply icon
         sg_data = self._current_user_model.get_sg_data()
