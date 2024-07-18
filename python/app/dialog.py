@@ -150,6 +150,8 @@ class AppDialog(QtGui.QWidget):
         self.ui.refresh_button.setIcon(SGQIcon.refresh())
         self.ui.refresh_button.setToolTip("Click to refresh the current view.")
 
+        self.user_icon_orig = self.ui.current_user.icon()
+
         # create a note updater to run operations on notes in the db
         self._note_updater = NoteUpdater(self._task_manager, self)
 
@@ -211,7 +213,6 @@ class AppDialog(QtGui.QWidget):
         self._current_user_model.data_updated.connect(self._update_current_user)
         self._current_user_model.load()
         self.ui.current_user.clicked.connect(self._on_user_home_clicked)
-        self.user_icon_orig = self.ui.current_user.icon()
 
         # top detail section
         self._details_model = SgEntityDetailsModel(self, self._task_manager)
