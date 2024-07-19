@@ -34,6 +34,7 @@ from .model_details import SgEntityDetailsModel
 from .model_current_user import SgCurrentUserModel
 from .not_found_overlay import NotFoundModelOverlay
 from .qtwidgets import ActivityStreamWidget
+from .qtwidgets import SGQIcon
 from .shotgun_formatter import ShotgunTypeFormatter
 from .note_updater import NoteUpdater
 from .widget_all_fields import AllFieldsWidget
@@ -145,6 +146,10 @@ class AppDialog(QtGui.QWidget):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
 
+        # set up button
+        self.ui.refresh_button.setIcon(SGQIcon.refresh())
+        self.ui.refresh_button.setToolTip("Click to refresh the current view.")
+
         # create a note updater to run operations on notes in the db
         self._note_updater = NoteUpdater(self._task_manager, self)
 
@@ -193,6 +198,7 @@ class AppDialog(QtGui.QWidget):
         self.ui.navigation_home.clicked.connect(self._on_home_clicked)
         self.ui.navigation_next.clicked.connect(self._on_next_clicked)
         self.ui.navigation_prev.clicked.connect(self._on_prev_clicked)
+        self.ui.refresh_button.clicked.connect(self.refresh)
 
         # search
         self.ui.search.clicked.connect(self._on_search_clicked)
@@ -273,7 +279,7 @@ class AppDialog(QtGui.QWidget):
             self._task_manager.shut_down()
 
         except Exception as e:
-            self._app.log_exception("Error running SG Panel App closeEvent()")
+            self._app.log_exception("Error running PTR Panel App closeEvent()")
 
         # close splash
         self._overlay.hide()
@@ -724,7 +730,7 @@ class AppDialog(QtGui.QWidget):
         else:
             self._app.log_warning(
                 "Navigation to the current user is not supported when "
-                "the SG user cannot be determined. This is often the "
+                "the PTR user cannot be determined. This is often the "
                 "case when Toolkit has been authenticated using a script key "
                 "rather than with a user name and password."
             )
@@ -845,16 +851,16 @@ class AppDialog(QtGui.QWidget):
 
                     if self._app.context.user is None:
                         self._app.log_error(
-                            "SG Toolkit does not know what SG user you are. "
-                            "This can be due to the use of a script key for authentication "
-                            "rather than using a user name and password login. To create and "
-                            "assign a Task, you will need to log in using you SG user "
-                            "account."
+                            "Flow Production Tracking Toolkit does not know what PTR user "
+                            "you are. This can be due to the use of a script key for "
+                            "authentication rather than using a user name and password login. "
+                            "To create and assign a Task, you will need to log in using you "
+                            "PTR user account."
                         )
                         return
 
                     # create new task and assign!
-                    self._app.log_debug("Resolving SG project...")
+                    self._app.log_debug("Resolving PTR project...")
                     entity_data = self._app.shotgun.find_one(
                         entity_type, [["id", "is", entity_id]], ["project"]
                     )
@@ -1044,7 +1050,9 @@ class AppDialog(QtGui.QWidget):
                     and hasattr(data_model, "get_entity_type")
                 ):
                     # Add filtering for models
-                    filter_menu = ShotgunFilterMenu(data.get("view"))
+                    filter_menu = ShotgunFilterMenu(
+                        data.get("view"), bg_task_manager=self._task_manager
+                    )
                     filter_menu.set_visible_fields(data.get("filter_fields"))
                     filter_menu.set_filter_model(proxy_model)
 

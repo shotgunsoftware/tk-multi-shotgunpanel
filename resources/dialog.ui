@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ShotGrid Browser</string>
+   <string>Flow Production Tracking Browser</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_23">
    <property name="spacing">
@@ -248,6 +248,28 @@
                  </widget>
                 </item>
                 <item>
+                 <widget class="QToolButton" name="refresh_button">
+                  <property name="minimumSize">
+                   <size>
+                    <width>30</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string/>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="WorkAreaButton" name="set_context">
                   <property name="minimumSize">
                    <size>
@@ -292,7 +314,7 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Search ShotGrid</string>
+                   <string>Search Flow Production Tracking</string>
                   </property>
                   <property name="icon">
                    <iconset resource="resources.qrc">

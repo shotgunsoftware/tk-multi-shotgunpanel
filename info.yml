@@ -81,8 +81,8 @@ supported_engines:
 requires_shotgun_fields:
 
 # More verbose description of this item
-display_name: "ShotGrid Panel"
-description: "Panel UI with ShotGrid information about your scene, yourself and the things around you."
+display_name: "Flow Production Tracking Panel"
+description: "Panel UI with Flow Production Tracking information about your scene, yourself and the things around you."
 
 # Required minimum versions for this item to run
 requires_shotgun_version: "v6.2.0"
@@ -92,4 +92,4 @@ requires_engine_version:
 # the frameworks required to run this app
 frameworks:
     - {"name": "tk-framework-shotgunutils", "version": "v5.x.x", "minimum_version": "v5.2.0"}
-    - {"name": "tk-framework-qtwidgets", "version": "v2.x.x", "minimum_version": "v2.10.5"}
+    - {"name": "tk-framework-qtwidgets", "version": "v2.x.x", "minimum_version": "v2.10.9"}
