@@ -1,0 +1,15 @@
+# YAML Configuration File for Qt Resource Building
+#
+# See tk-toolchain doc...
+
+
+- ui_src: resources
+  ui_files:
+    - dialog
+    - list_item_widget
+    - all_fields_widget
+    - work_area_dialog
+  res_files:
+    - resources
+  py_dest: python/app/ui
+  # import_pattern: "."
