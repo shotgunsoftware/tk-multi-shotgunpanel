@@ -150,6 +150,8 @@ class AppDialog(QtGui.QWidget):
         self.ui.refresh_button.setIcon(SGQIcon.refresh())
         self.ui.refresh_button.setToolTip("Click to refresh the current view.")
 
+        self.user_icon_orig = self.ui.current_user.icon()
+
         # create a note updater to run operations on notes in the db
         self._note_updater = NoteUpdater(self._task_manager, self)
 
@@ -508,9 +510,13 @@ class AppDialog(QtGui.QWidget):
         Update the current user icon
         """
         curr_user_pixmap = self._current_user_model.get_pixmap()
+        if curr_user_pixmap:
+            icon = QtGui.QIcon(curr_user_pixmap)
+        else:
+            icon = self.user_icon_orig
 
         # QToolbutton needs a QIcon
-        self.ui.current_user.setIcon(QtGui.QIcon(curr_user_pixmap))
+        self.ui.current_user.setIcon(icon)
 
         # Update the reply icon
         sg_data = self._current_user_model.get_sg_data()
