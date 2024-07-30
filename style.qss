@@ -30,7 +30,7 @@ QMenu::item {
 }
 
 QMenu::item:selected {
-    background-color: rgb(24, 167, 227, 75);
+    background-color: rgba(24, 167, 227, 75);
     border: 1px solid {{SG_HIGHLIGHT_COLOR}};
 }
 
@@ -46,7 +46,7 @@ QMenu::separator {
 /* Main tab section                                             */
 
 QTabWidget::pane {
-    border-top: 1px solid rgb(255, 255, 255, 20);
+    border-top: 1px solid rgba(255, 255, 255, 20);
     padding-top: 8px;
 }
 
@@ -57,7 +57,7 @@ QTabBar::tab {
     padding-right: 12px;
     padding-bottom: 12px;
     padding-top: 0px;
-    border-bottom: 2px solid rgb(255, 255, 255, 5);
+    border-bottom: 2px solid rgba(255, 255, 255, 5);
 }
 
 
