@@ -12,4 +12,3 @@
   res_files:
     - resources
   py_dest: python/app/ui
-
