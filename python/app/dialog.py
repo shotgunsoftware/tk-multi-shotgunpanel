@@ -1332,15 +1332,15 @@ class AppDialog(QtGui.QWidget):
         sort_asc = self._entity_field_menu._get_qaction("ascending", "Ascending")
         sort_desc = self._entity_field_menu._get_qaction("descending", "Descending")
         separator = self._entity_field_menu.addSeparator()
-        field_sort_actions = [self._entity_field_menu._get_qaction(field["field_code"], field["display_name"]) for field in sort_fields]
+        field_sort_actions = [
+            self._entity_field_menu._get_qaction(
+                field["field_code"], field["display_name"]
+            )
+            for field in sort_fields
+        ]
 
         # Actions group list ordered
-        sort_actions = [
-            sort_asc,
-            sort_desc,
-            separator,
-            *field_sort_actions
-        ]
+        sort_actions = [sort_asc, sort_desc, separator, *field_sort_actions]
 
         # By default it sorts in descending order and the default field is set in the configuration
         sort_desc.setChecked(True)
@@ -1365,9 +1365,11 @@ class AppDialog(QtGui.QWidget):
             if is_default:
                 field_sort_action.setChecked(True)
 
-            field_code = sort_field['field_code']
+            field_code = sort_field["field_code"]
             field_sort_action.triggered[()].connect(
-                lambda fc=field_code, fsa=field_sort_action: self.load_sort_data(fc, fsa, sort_actions)
+                lambda fc=field_code, fsa=field_sort_action: self.load_sort_data(
+                    fc, fsa, sort_actions
+                )
             )
 
         # Add actions to the entity Menu
