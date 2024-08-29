@@ -1358,19 +1358,26 @@ class AppDialog(QtGui.QWidget):
         )
 
         # Menu sort field actions
+        default_set = False
         for index, field_sort_action in enumerate(field_sort_actions):
             sort_field = sort_fields[index]
+            field_code = sort_field["field_code"]
 
             is_default = sort_field.get("default", False)
             if is_default:
+                default_set = True
                 field_sort_action.setChecked(True)
+                self._current_menu_sort_item = field_code
 
-            field_code = sort_field["field_code"]
             field_sort_action.triggered[()].connect(
                 lambda fc=field_code, fsa=field_sort_action: self.load_sort_data(
                     fc, fsa, sort_actions
                 )
             )
+
+        if not default_set and sort_fields:
+            field_sort_actions[0].setChecked(True)
+            self._current_menu_sort_item = sort_fields[0]["field_code"]
 
         # Add actions to the entity Menu
         self._entity_field_menu.add_group(sort_actions, "Sort menu")
