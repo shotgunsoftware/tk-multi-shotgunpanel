@@ -38,8 +38,10 @@ configuration:
 
     sort_fields:
         type: dict
-        description: "Controls what fields appear for sorting
-                     "
+        description: Controls what fields appear for sorting in the UI.
+                     Currently the sort menu only shows on the tasks tab.
+                     You can add any field that would normally be suitable for sorting a query
+                     by for the tab's given entity type.
         allows_empty: True
         default_value:
             "tasks":
