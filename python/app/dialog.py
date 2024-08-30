@@ -929,6 +929,7 @@ class AppDialog(QtGui.QWidget):
                 "has_description": True,
                 "has_view": True,
                 "has_filter": False,
+                "tab_name": entity_tab_name,
             }
 
             if entity_tab_name == self.ENTITY_TAB_NOTES:
@@ -1298,7 +1299,7 @@ class AppDialog(QtGui.QWidget):
         )
         fields_manager.initialized.connect(self._field_filters)
         fields_manager.initialize()
-        self._sort_menu_actions()
+        self._sort_menu_actions(task_tab_data["tab_name"])
 
     def _field_filters(self):
 
@@ -1321,12 +1322,12 @@ class AppDialog(QtGui.QWidget):
         self._entity_field_menu.set_checked_filter(checked_filter)
         self._entity_field_menu.set_disabled_filter(disabled_filter)
 
-    def _sort_menu_actions(self):
+    def _sort_menu_actions(self, tab_name):
         """
         Populate the sort menu with actions.
         """
 
-        sort_fields = self._app.get_setting("my_task_sort_fields")
+        sort_fields = self._app.get_setting("sort_fields").get(tab_name, [])
 
         # Create Sort Menu actions
         sort_asc = self._entity_field_menu._get_qaction("ascending", "Ascending")
