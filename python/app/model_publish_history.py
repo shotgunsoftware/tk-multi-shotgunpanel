@@ -168,7 +168,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
     ############################################################################################
     # public interface
 
-    def load_data(self, sg_location):
+    def load_data(self, sg_location, filters=[]):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists.
@@ -187,7 +187,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         else:
             publish_type_field = "tank_type"
 
-        filters = [["id", "is", sg_location.entity_id]]
+        filters = [["id", "is", sg_location.entity_id]] + filters
 
         fields = [
             "name",

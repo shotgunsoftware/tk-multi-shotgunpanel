@@ -22,7 +22,7 @@ class SgPublishDependencyUpstreamListingModel(SgEntityListingModel):
 
     # note: no constructor implemented - use base class version
 
-    def load_data(self, sg_location):
+    def load_data(self, sg_location, filters=[]):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists and schedules an async refresh.
@@ -34,7 +34,9 @@ class SgPublishDependencyUpstreamListingModel(SgEntityListingModel):
         """
         # for publishes, sort them by id (e.g. creation date) rather than
         # by update date.
-        SgEntityListingModel.load_data(self, sg_location, sort_field="id")
+        SgEntityListingModel.load_data(
+            self, sg_location, sort_field="id", filters=filters
+        )
 
     def _get_filters(self):
         """

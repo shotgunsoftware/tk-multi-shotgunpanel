@@ -494,6 +494,11 @@ class AppDialog(QtGui.QWidget):
                 else:
                     args = [self._current_location]
 
+                if tab.get("filter_menu", None):
+                    filters = tab["filter_menu"].get_active_named_filter()
+                    filters = filters if filters else []
+                    kwargs["filters"] = filters
+
                 tab["model"].load_data(*args, **kwargs)
 
         else:
@@ -1059,6 +1064,16 @@ class AppDialog(QtGui.QWidget):
                     filter_menu = ShotgunFilterMenu(
                         data.get("view"), bg_task_manager=self._task_manager
                     )
+                    named_filters = self._app.execute_hook_method(
+                        "shotgun_filters_hook",
+                        "get_named_filters",
+                        tab_name=entity_tab_name,
+                    )
+                    if type(named_filters) is dict:
+                        filter_menu.set_named_filters(named_filters)
+
+                    # TODO: this will mean the app requires the updated QTwidgets framework
+                    filter_menu.filter_changed.connect(self._on_filter_change)
                     filter_menu.set_visible_fields(data.get("filter_fields"))
                     filter_menu.set_filter_model(proxy_model)
 
@@ -1320,6 +1335,10 @@ class AppDialog(QtGui.QWidget):
         self._entity_field_menu.set_field_filter(field_filter)
         self._entity_field_menu.set_checked_filter(checked_filter)
         self._entity_field_menu.set_disabled_filter(disabled_filter)
+
+    def _on_filter_change(self, filter, checked):
+        print("_on_filter_change", filter, checked)
+        self.refresh(False)
 
     def _sort_menu_actions(self):
         """

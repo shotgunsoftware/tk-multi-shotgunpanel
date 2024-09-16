@@ -203,3 +203,11 @@ class ShotgunFilters(HookBaseClass):
         )
 
         return link_filters
+
+    def get_named_filters(self, tab_name):
+        print("tab_name", tab_name)
+        if tab_name == "tasks":
+            return {
+                "Asset Tasks": [["entity", "type_is", "Asset"]],
+                "Shot Tasks": [["entity", "type_is", "Shot"]],
+            }

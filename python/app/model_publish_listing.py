@@ -36,7 +36,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         # init base class
         SgEntityListingModel.__init__(self, entity_type, parent, bg_task_manager)
 
-    def load_data(self, sg_location, show_latest_only):
+    def load_data(self, sg_location, show_latest_only, filters=[]):
         """
         Clears the model and sets it up for a particular entity.
 
@@ -59,6 +59,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
             sg_location,
             additional_fields=["version", "task", self._publish_type_field],
             sort_field="created_at",
+            filters=[],
         )
 
     def _before_data_processing(self, sg_data_list):

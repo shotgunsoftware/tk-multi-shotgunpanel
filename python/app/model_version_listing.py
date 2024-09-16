@@ -78,7 +78,7 @@ class SgVersionModel(SgEntityListingModel):
     ############################################################################################
     # public interface
 
-    def load_data(self, sg_location, show_pending_only, sort_field="id"):
+    def load_data(self, sg_location, show_pending_only, sort_field="id", filters=[]):
         """
         Clears the model and sets it up for a particular entity.
 
@@ -99,4 +99,5 @@ class SgVersionModel(SgEntityListingModel):
             sg_location,
             additional_fields=["sg_status_list"],
             sort_field=sort_field,
+            filters=filters,
         )
