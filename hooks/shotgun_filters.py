@@ -1,4 +1,4 @@
-# Copyright (c) 2020 Autdesk, Inc.
+# Copyright (c) 2020 Autodesk, Inc.
 #
 # CONFIDENTIAL AND PROPRIETARY
 #
@@ -204,8 +204,7 @@ class ShotgunFilters(HookBaseClass):
 
         return link_filters
 
-    def get_named_filters(self, tab_name):
-        print("tab_name", tab_name)
+    def get_preset_filters(self, tab_name):
         if tab_name == "tasks":
             return {
                 "Asset Tasks": [["entity", "type_is", "Asset"]],
