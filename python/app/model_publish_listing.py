@@ -59,7 +59,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
             sg_location,
             additional_fields=["version", "task", self._publish_type_field],
             sort_field="created_at",
-            filters=[],
+            filters=filters,
         )
 
     def _before_data_processing(self, sg_data_list):

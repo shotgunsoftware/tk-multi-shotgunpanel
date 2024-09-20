@@ -1069,7 +1069,7 @@ class AppDialog(QtGui.QWidget):
                         "get_preset_filters",
                         tab_name=entity_tab_name,
                     )
-                    if type(preset_filters) is dict:
+                    if isinstance(preset_filters, dict):
                         filter_menu.set_preset_filters(preset_filters)
 
                     # TODO: this will mean the app requires the updated QTwidgets framework
@@ -1339,6 +1339,10 @@ class AppDialog(QtGui.QWidget):
         self._entity_field_menu.set_disabled_filter(disabled_filter)
 
     def _on_preset_filter_change(self):
+        """
+        Callback when a preset filter is selected in the filter menu.
+        """
+        # Since the preset filters are processed with the server request for the data we need to refresh the data.
         self.refresh(None)
 
     def _sort_menu_actions(self):

@@ -205,6 +205,25 @@ class ShotgunFilters(HookBaseClass):
         return link_filters
 
     def get_preset_filters(self, tab_name):
+        """
+        Returns a dictionary of preset filters for the given tab in the panel app.
+        The keys should be the name of the filter preset that will be shown in the filter menu.
+        The values should be a list of PTR api3 to apply when the preset is toggled.
+        Please note that the filters will be combined with any tab specific filters in an AND operation.
+        :param tab_name: The name of the panel tab.
+          Note this isn't the display name but the name of the tab as defined in the app configuration.
+          The following keys are supported:
+            "activity"
+            "notes"
+            "versions"
+            "publishes"
+            "publish_history"
+            "publish_downstream"
+            "publish_upstream"
+            "tasks"
+            "info
+        :return: dict
+        """
         if tab_name == "tasks":
             return {
                 "Asset Tasks": [["entity", "type_is", "Asset"]],
