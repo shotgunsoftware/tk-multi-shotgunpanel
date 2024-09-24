@@ -204,12 +204,14 @@ class ShotgunFilters(HookBaseClass):
 
         return link_filters
 
-    def get_preset_filters(self, tab_name):
+    def get_preset_filters(self, sg_location, tab_name, entity_type):
         """
         Returns a dictionary of preset filters for the given tab in the panel app.
         The keys should be the name of the filter preset that will be shown in the filter menu.
         The values should be a list of PTR api3 to apply when the preset is toggled.
         Please note that the filters will be combined with any tab specific filters in an AND operation.
+        :param sg_location: Location object describing the context that the panel is showing.
+          This maybe different from the current engine context
         :param tab_name: The name of the panel tab.
           Note this isn't the display name but the name of the tab as defined in the app configuration.
           The following keys are supported:
@@ -222,10 +224,25 @@ class ShotgunFilters(HookBaseClass):
             "publish_upstream"
             "tasks"
             "info
+        :param entity_type: str the entity type that the tab is showing.
         :return: dict
         """
-        if tab_name == "tasks":
+        # get a random number to insert into the filter name for testing purposes
+        import random
+
+        statues = ["ip", "wtg", "fin", "omt", "na", "dis"]
+        random_status = random.choice(statues)
+
+        if entity_type in ["Task", "Version", "PublishedFile"]:
             return {
                 "Asset Tasks": [["entity", "type_is", "Asset"]],
                 "Shot Tasks": [["entity", "type_is", "Shot"]],
+                f"Random Status {random_status}": [
+                    ["sg_status_list", "is", random_status]
+                ],
+            }
+        elif entity_type == "Note":
+            return {
+                "Asset Notes": [["note_links", "type_is", "Asset"]],
+                "Shot Notes": [["note_links", "type_is", "Shot"]],
             }

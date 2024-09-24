@@ -235,6 +235,9 @@ class AppDialog(QtGui.QWidget):
         # The current visible tabs. This will change based on the current entity type
         self._current_entity_tabs = []
         self.ui.entity_tab_widget.currentChanged.connect(self._load_entity_tab_data)
+        self.ui.entity_tab_widget.currentChanged.connect(
+            self._update_preset_filters_on_tab_change
+        )
 
         # the set work area overlay
         self.ui.set_context.change_work_area.connect(self._change_work_area)
@@ -374,6 +377,9 @@ class AppDialog(QtGui.QWidget):
         curr_index = self.ui.entity_tab_widget.currentIndex()
 
         if self._current_entity_tabs[curr_index] == self._current_location.tab:
+            # FIXME: It appears due to the changes above that we are unlikely to hit this point in the code.
+            #        Since the tabs are rebuilt each time the current index is
+            #        never going to match unless you are on the first tab.
             # we are already displaying the right tab
             # kick off a refresh
             self._load_entity_tab_data(curr_index)
@@ -897,6 +903,40 @@ class AppDialog(QtGui.QWidget):
 
                 self._do_work_area_switch(entity_type, entity_id)
 
+    def _update_preset_filters_on_tab_change(self, index):
+        """
+        Update the preset filters for the given tab when the tab is changed.
+        :param index: index of the tab
+        """
+        tab_name = self._current_entity_tabs[index]
+        tab = self._entity_tabs.get(tab_name, None)
+        if not tab:
+            return
+
+        filter_menu = tab.get("filter_menu", None)
+        if not filter_menu:
+            return
+
+        self._update_preset_filters(tab_name, tab, filter_menu)
+
+    def _update_preset_filters(self, tab_name, tab, filter_menu):
+        """
+        Update the preset filters for the given tab.
+        :param tab_name: str
+        :param tab: dict
+        :param filter_menu: ShotgunFilterMenu
+        """
+        # TODO: Do the applied filters change when moving away and back to the tab
+        preset_filters = self._app.execute_hook_method(
+            "shotgun_filters_hook",
+            "get_preset_filters",
+            tab_name=tab_name,
+            entity_type=tab.get("entity_type"),
+            sg_location=self._current_location,
+        )
+        if isinstance(preset_filters, dict):
+            filter_menu.set_preset_filters(preset_filters)
+
     def build_entity_tabs(self):
         """
         Build the dictionary data for each entity tab defined in `ENTITY_TABS`. The entity tab
@@ -1064,15 +1104,8 @@ class AppDialog(QtGui.QWidget):
                     filter_menu = ShotgunFilterMenu(
                         data.get("view"), bg_task_manager=self._task_manager
                     )
-                    preset_filters = self._app.execute_hook_method(
-                        "shotgun_filters_hook",
-                        "get_preset_filters",
-                        tab_name=entity_tab_name,
-                    )
-                    if isinstance(preset_filters, dict):
-                        filter_menu.set_preset_filters(preset_filters)
+                    self._update_preset_filters(entity_tab_name, data, filter_menu)
 
-                    # TODO: this will mean the app requires the updated QTwidgets framework
                     filter_menu.preset_filter_changed.connect(
                         self._on_preset_filter_change
                     )
