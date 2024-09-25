@@ -91,7 +91,12 @@ class SgEntityListingModel(ShotgunModel):
         return False
 
     def load_data(
-        self, sg_location, additional_fields=None, sort_field=None, direction="desc"
+        self,
+        sg_location,
+        additional_fields=None,
+        sort_field=None,
+        direction="desc",
+        filters=[],
     ):
         """
         Clears the model and sets it up for a particular entity.
@@ -136,7 +141,7 @@ class SgEntityListingModel(ShotgunModel):
         # is the case when a script key is used for auth and we can't
         # determine a Shotgun human user by other means.
         try:
-            filters = self._get_filters()
+            filters = self._get_filters() + filters
         except sgtk.TankError as exc:
             self.data_refresh_fail.emit(exc.message)
             return
