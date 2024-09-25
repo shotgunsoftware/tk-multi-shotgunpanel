@@ -917,7 +917,10 @@ class AppDialog(QtGui.QWidget):
         if not filter_menu:
             return
 
+        # from triggering a data load
+        filter_menu.blockSignals(True)
         self._update_preset_filters(tab_name, tab, filter_menu)
+        filter_menu.blockSignals(False)
 
     def _update_preset_filters(self, tab_name, tab, filter_menu):
         """
@@ -926,7 +929,6 @@ class AppDialog(QtGui.QWidget):
         :param tab: dict
         :param filter_menu: ShotgunFilterMenu
         """
-        # TODO: Do the applied filters change when moving away and back to the tab
         preset_filters = self._app.execute_hook_method(
             "shotgun_filters_hook",
             "get_preset_filters",

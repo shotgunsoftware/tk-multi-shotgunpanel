@@ -227,19 +227,10 @@ class ShotgunFilters(HookBaseClass):
         :param entity_type: str the entity type that the tab is showing.
         :return: dict
         """
-        # get a random number to insert into the filter name for testing purposes
-        import random
-
-        statues = ["ip", "wtg", "fin", "omt", "na", "dis"]
-        random_status = random.choice(statues)
-
         if entity_type in ["Task", "Version", "PublishedFile"]:
             return {
                 "Asset Tasks": [["entity", "type_is", "Asset"]],
                 "Shot Tasks": [["entity", "type_is", "Shot"]],
-                f"Random Status {random_status}": [
-                    ["sg_status_list", "is", random_status]
-                ],
             }
         elif entity_type == "Note":
             return {
