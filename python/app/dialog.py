@@ -377,7 +377,7 @@ class AppDialog(QtGui.QWidget):
         curr_index = self.ui.entity_tab_widget.currentIndex()
 
         if self._current_entity_tabs[curr_index] == self._current_location.tab:
-            # FIXME: It appears due to the changes above that we are unlikely to hit this point in the code.
+            # FIXME: SG-36564 It appears due to the changes above that we are unlikely to hit this point in the code.
             #        Since the tabs are rebuilt each time the current index is
             #        never going to match unless you are on the first tab.
             # we are already displaying the right tab
