@@ -22,7 +22,7 @@ class SgPublishDependencyDownstreamListingModel(SgEntityListingModel):
 
     # note: no constructor implemented - use base class version
 
-    def load_data(self, sg_location, filters=[]):
+    def load_data(self, sg_location, filters=None):
         """
         Clears the model and sets it up for a particular entity.
         Loads any cached data that exists and schedules an async refresh.
