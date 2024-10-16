@@ -229,8 +229,8 @@ class ShotgunFilters(HookBaseClass):
         """
         if entity_type in ["Task", "Version", "PublishedFile"]:
             return {
-                "Asset Tasks": [["entity", "type_is", "Asset"]],
-                "Shot Tasks": [["entity", "type_is", "Shot"]],
+                f"Asset {entity_type}s": [["entity", "type_is", "Asset"]],
+                f"Shot {entity_type}s": [["entity", "type_is", "Shot"]],
             }
         elif entity_type == "Note":
             return {
