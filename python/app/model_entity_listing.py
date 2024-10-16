@@ -96,7 +96,7 @@ class SgEntityListingModel(ShotgunModel):
         additional_fields=None,
         sort_field=None,
         direction="desc",
-        filters=[],
+        filters=None,
     ):
         """
         Clears the model and sets it up for a particular entity.
