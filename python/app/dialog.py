@@ -919,9 +919,11 @@ class AppDialog(QtGui.QWidget):
 
         # This prevents any potential filter changes caused by the hook creating a non-deterministic result
         # from triggering a data load
-        filter_menu.blockSignals(True)
-        self._update_preset_filters(tab_name, tab, filter_menu)
-        filter_menu.blockSignals(False)
+        restore_state = filter_menu.blockSignals(True)
+        try:
+            self._update_preset_filters(tab_name, tab, filter_menu)
+        finally:
+            filter_menu.blockSignals(restore_state)
 
     def _update_preset_filters(self, tab_name, tab, filter_menu):
         """
