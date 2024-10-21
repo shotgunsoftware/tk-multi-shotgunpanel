@@ -78,7 +78,7 @@ class SgVersionModel(SgEntityListingModel):
     ############################################################################################
     # public interface
 
-    def load_data(self, sg_location, show_pending_only, sort_field="id"):
+    def load_data(self, sg_location, show_pending_only, sort_field="id", filters=None):
         """
         Clears the model and sets it up for a particular entity.
 
@@ -91,6 +91,8 @@ class SgVersionModel(SgEntityListingModel):
         # figure out our current entity type
         self._show_pending_only = show_pending_only
 
+        filters = filters or []
+
         # make sure that we include the status regardless of how the
         # ui is configured - this is so we can do a status comparison
         # later in the _get_filters method.
@@ -99,4 +101,5 @@ class SgVersionModel(SgEntityListingModel):
             sg_location,
             additional_fields=["sg_status_list"],
             sort_field=sort_field,
+            filters=filters,
         )
