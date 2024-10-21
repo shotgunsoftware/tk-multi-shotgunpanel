@@ -1337,7 +1337,7 @@ class AppDialog(QtGui.QWidget):
             self._entity_field_menu._get_qaction(
                 field["field_code"], field["display_name"]
             )
-            for field in sort_fields
+            for field in sort_fields or []
         ]
 
         # Actions group list ordered
