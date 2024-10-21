@@ -32,6 +32,7 @@ class SgPublishDependencyDownstreamListingModel(SgEntityListingModel):
                configured to display tasks, this sg_location could for example
                point to a Shot for which we want to display tasks.
         """
+        filters = filters or []
         # for publishes, sort them by id (e.g. creation date) rather than
         # by update date.
         SgEntityListingModel.load_data(

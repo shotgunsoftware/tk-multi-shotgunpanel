@@ -91,6 +91,8 @@ class SgVersionModel(SgEntityListingModel):
         # figure out our current entity type
         self._show_pending_only = show_pending_only
 
+        filters = filters or []
+
         # make sure that we include the status regardless of how the
         # ui is configured - this is so we can do a status comparison
         # later in the _get_filters method.

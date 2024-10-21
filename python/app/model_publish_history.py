@@ -187,7 +187,8 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
         else:
             publish_type_field = "tank_type"
 
-        filters = [["id", "is", sg_location.entity_id]] + filters
+        combined_filters = [["id", "is", sg_location.entity_id]]
+        combined_filters.extend(filters or [])
 
         fields = [
             "name",
@@ -200,7 +201,7 @@ class SgPublishHistoryListingModel(SgEntityListingModel):
 
         # get publish details async
         self._sg_query_id = self.__sg_data_retriever.execute_find(
-            self._sg_formatter.entity_type, filters, fields
+            self._sg_formatter.entity_type, combined_filters, fields
         )
 
     def is_highlighted(self, model_index):

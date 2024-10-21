@@ -46,6 +46,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         :param show_latest_only: If true, the listing will be culled so that
                only latest items are shown.
         """
+        filters = filters or []
         # figure out our current entity type
         if self._sg_formatter.entity_type == "PublishedFile":
             self._publish_type_field = "published_file_type"

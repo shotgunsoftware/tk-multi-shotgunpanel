@@ -141,7 +141,8 @@ class SgEntityListingModel(ShotgunModel):
         # is the case when a script key is used for auth and we can't
         # determine a Shotgun human user by other means.
         try:
-            filters = self._get_filters() + filters
+            combined_filters = self._get_filters()
+            combined_filters.extend(filters or [])
         except sgtk.TankError as exc:
             self.data_refresh_fail.emit(exc.message)
             return
@@ -149,7 +150,7 @@ class SgEntityListingModel(ShotgunModel):
         ShotgunModel._load_data(
             self,
             self._sg_formatter.entity_type,
-            filters,
+            combined_filters,
             hierarchy,
             fields,
             sort_order,
