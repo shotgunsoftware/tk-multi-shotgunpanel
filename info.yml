@@ -36,6 +36,27 @@ configuration:
         default_value_tk-maya: "{self}/general_actions.py:{self}/{engine_name}_actions.py"
         description: Hook which contains all methods for action management.
 
+    sort_fields:
+        type: dict
+        description: Controls what fields appear for sorting in the UI.
+                     Currently the sort menu only shows on the tasks tab.
+                     You can add any field that would normally be suitable for sorting a query
+                     by for the tab's given entity type.
+        allows_empty: True
+        default_value:
+            tasks:
+                - { field_code: "due_date", display_name: "Due Date", default: True }
+                - { field_code: "start_date", display_name: "Start Date" }
+                - { field_code: "sg_status_list", display_name: "Status" }
+                - { field_code: "step", display_name: "Step"}
+        values:
+            type: list
+            values:
+                type: dict
+                items:
+                    field_code: { type: str }
+                    display_name: { type: str }
+
     action_mappings:
         type: dict
         description: Associates shotgun objects with actions. The actions are all defined
