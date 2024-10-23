@@ -49,7 +49,6 @@ configuration:
                 - { field_code: "start_date", display_name: "Start Date" }
                 - { field_code: "sg_status_list", display_name: "Status" }
                 - { field_code: "step", display_name: "Step"}
-                - { field_code: "entity.Asset.code", display_name: "Asset Name"}
         values:
             type: list
             values:
