@@ -10,7 +10,6 @@
 
 import sgtk
 from sgtk.platform.qt import QtGui
-from tank_vendor.six import string_types
 
 from .shotgun_formatter import ShotgunTypeFormatter
 
@@ -117,7 +116,7 @@ class SgEntityListingModel(ShotgunModel):
         # update date (unix time), in descending order
         sort_field = sort_field or "updated_at"
 
-        if isinstance(sort_field, string_types):
+        if isinstance(sort_field, str):
             sort_order = [{"field_name": sort_field, "direction": direction}]
             hierarchy = [sort_field]
 
