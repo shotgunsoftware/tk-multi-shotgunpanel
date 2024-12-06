@@ -10,7 +10,6 @@
 
 import sgtk
 from sgtk.platform.qt import QtGui
-from tank_vendor.six import string_types
 
 from .shotgun_formatter import ShotgunTypeFormatter
 
@@ -92,7 +91,12 @@ class SgEntityListingModel(ShotgunModel):
         return False
 
     def load_data(
-        self, sg_location, additional_fields=None, sort_field=None, direction="desc"
+        self,
+        sg_location,
+        additional_fields=None,
+        sort_field=None,
+        direction="desc",
+        filters=None,
     ):
         """
         Clears the model and sets it up for a particular entity.
@@ -117,7 +121,7 @@ class SgEntityListingModel(ShotgunModel):
         # update date (unix time), in descending order
         sort_field = sort_field or "updated_at"
 
-        if isinstance(sort_field, string_types):
+        if isinstance(sort_field, str):
             sort_order = [{"field_name": sort_field, "direction": direction}]
             hierarchy = [sort_field]
 
@@ -137,7 +141,8 @@ class SgEntityListingModel(ShotgunModel):
         # is the case when a script key is used for auth and we can't
         # determine a Shotgun human user by other means.
         try:
-            filters = self._get_filters()
+            combined_filters = self._get_filters()
+            combined_filters.extend(filters or [])
         except sgtk.TankError as exc:
             self.data_refresh_fail.emit(exc.message)
             return
@@ -145,7 +150,7 @@ class SgEntityListingModel(ShotgunModel):
         ShotgunModel._load_data(
             self,
             self._sg_formatter.entity_type,
-            filters,
+            combined_filters,
             hierarchy,
             fields,
             sort_order,

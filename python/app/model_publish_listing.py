@@ -36,7 +36,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         # init base class
         SgEntityListingModel.__init__(self, entity_type, parent, bg_task_manager)
 
-    def load_data(self, sg_location, show_latest_only):
+    def load_data(self, sg_location, show_latest_only, filters=None):
         """
         Clears the model and sets it up for a particular entity.
 
@@ -46,6 +46,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
         :param show_latest_only: If true, the listing will be culled so that
                only latest items are shown.
         """
+        filters = filters or []
         # figure out our current entity type
         if self._sg_formatter.entity_type == "PublishedFile":
             self._publish_type_field = "published_file_type"
@@ -59,6 +60,7 @@ class SgLatestPublishListingModel(SgEntityListingModel):
             sg_location,
             additional_fields=["version", "task", self._publish_type_field],
             sort_field="created_at",
+            filters=filters,
         )
 
     def _before_data_processing(self, sg_data_list):
