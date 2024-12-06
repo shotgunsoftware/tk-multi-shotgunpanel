@@ -979,6 +979,7 @@ class AppDialog(QtGui.QWidget):
                 "has_description": True,
                 "has_view": True,
                 "has_filter": False,
+                "tab_name": entity_tab_name,
             }
 
             if entity_tab_name == self.ENTITY_TAB_NOTES:
@@ -1353,7 +1354,7 @@ class AppDialog(QtGui.QWidget):
         )
         fields_manager.initialized.connect(self._field_filters)
         fields_manager.initialize()
-        self._sort_menu_actions()
+        self._sort_menu_actions(task_tab_data["tab_name"])
 
     def _field_filters(self):
 
@@ -1383,35 +1384,30 @@ class AppDialog(QtGui.QWidget):
         # Since the preset filters are processed with the server request for the data we need to refresh the data.
         self.refresh(None)
 
-    def _sort_menu_actions(self):
+    def _sort_menu_actions(self, tab_name):
         """
         Populate the sort menu with actions.
         """
+
+        sort_fields = self._app.get_setting("sort_fields").get(tab_name, [])
 
         # Create Sort Menu actions
         sort_asc = self._entity_field_menu._get_qaction("ascending", "Ascending")
         sort_desc = self._entity_field_menu._get_qaction("descending", "Descending")
         separator = self._entity_field_menu.addSeparator()
-        status_action = self._entity_field_menu._get_qaction("sg_status_list", "Status")
-        step_action = self._entity_field_menu._get_qaction("step", "Step")
-        start_date_action = self._entity_field_menu._get_qaction(
-            "start_date", "Start date"
-        )
-        due_date_action = self._entity_field_menu._get_qaction("due_date", "Due date")
-
-        # Actions group list ordered
-        sort_actions = [
-            due_date_action,
-            start_date_action,
-            status_action,
-            separator,
-            sort_asc,
-            sort_desc,
+        field_sort_actions = [
+            self._entity_field_menu._get_qaction(
+                field["field_code"], field["display_name"]
+            )
+            for field in sort_fields or []
         ]
 
-        # By default it sort Tasks due date in descending order
+        # Actions group list ordered
+        sort_actions = [sort_asc, sort_desc, separator, *field_sort_actions]
+
+        # By default it sorts in descending order and the default field is set in the configuration
         sort_desc.setChecked(True)
-        due_date_action.setChecked(True)
+
         # Menu sort order actions
         sort_asc.triggered[()].connect(
             lambda: self.load_sort_data(
@@ -1423,19 +1419,29 @@ class AppDialog(QtGui.QWidget):
                 "descending", sort_desc, sort_actions, sort_order="desc"
             )
         )
+
         # Menu sort field actions
-        status_action.triggered[()].connect(
-            lambda: self.load_sort_data("sg_status_list", status_action, sort_actions)
-        )
-        step_action.triggered[()].connect(
-            lambda: self.load_sort_data("step", step_action, sort_actions)
-        )
-        start_date_action.triggered[()].connect(
-            lambda: self.load_sort_data("start_date", start_date_action, sort_actions)
-        )
-        due_date_action.triggered[()].connect(
-            lambda: self.load_sort_data("due_date", due_date_action, sort_actions)
-        )
+        default_set = False
+        for index, field_sort_action in enumerate(field_sort_actions):
+            sort_field = sort_fields[index]
+            field_code = sort_field["field_code"]
+
+            is_default = sort_field.get("default", False)
+            if is_default:
+                default_set = True
+                field_sort_action.setChecked(True)
+                self._current_menu_sort_item = field_code
+
+            field_sort_action.triggered[()].connect(
+                lambda fc=field_code, fsa=field_sort_action: self.load_sort_data(
+                    fc, fsa, sort_actions
+                )
+            )
+
+        if not default_set and sort_fields:
+            field_sort_actions[0].setChecked(True)
+            self._current_menu_sort_item = sort_fields[0]["field_code"]
+
         # Add actions to the entity Menu
         self._entity_field_menu.add_group(sort_actions, "Sort menu")
         # Remove the separator from the list
@@ -1492,11 +1498,11 @@ class AppDialog(QtGui.QWidget):
 
         # Set checked the current sort order in the Menu
         if sort_order == "asc":
-            actions_list[3].setChecked(True)
-            actions_list[4].setChecked(False)
+            actions_list[0].setChecked(True)
+            actions_list[1].setChecked(False)
         elif sort_order == "desc":
-            actions_list[4].setChecked(True)
-            actions_list[3].setChecked(False)
+            actions_list[0].setChecked(False)
+            actions_list[1].setChecked(True)
 
         # Save the last menu item selected
         self._current_menu_sort_item = field
