@@ -27,7 +27,7 @@ configuration:
     shotgun_filters_hook:
         type: hook
         default_value: "{self}/shotgun_filters.py"
-        description: Hook which controls how data is retrieved
+        description: Hook which controls how the data requests are filtered
 
     actions_hook:
         type: hook
@@ -92,4 +92,4 @@ requires_engine_version:
 # the frameworks required to run this app
 frameworks:
     - {"name": "tk-framework-shotgunutils", "version": "v5.x.x", "minimum_version": "v5.2.0"}
-    - {"name": "tk-framework-qtwidgets", "version": "v2.x.x", "minimum_version": "v2.10.9"}
+    - {"name": "tk-framework-qtwidgets", "version": "v2.x.x", "minimum_version": "v2.12.5"}
