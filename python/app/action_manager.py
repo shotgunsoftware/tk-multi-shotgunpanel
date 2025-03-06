@@ -112,7 +112,7 @@ class ActionManager(QtCore.QObject):
                 else:
                     # filters are on the form
                     # field_name: value
-                    for (field_name, field_value) in filters_def.items():
+                    for field_name, field_value in filters_def.items():
 
                         # resolve linked fields into a string value
                         sg_value = sg_data.get(field_name)

@@ -154,7 +154,7 @@ class SgEntityListingModel(ShotgunModel):
             hierarchy,
             fields,
             sort_order,
-            limit=self.SG_RECORD_LIMIT + 1  # partial result detection
+            limit=self.SG_RECORD_LIMIT + 1,  # partial result detection
             # FIXME The api3/json provides paging_info.has_next_page but python-api does not
             # return this information
         )

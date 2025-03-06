@@ -130,7 +130,7 @@ class ShotgunTypeFormatter(object):
         """
         fields = []
 
-        for (_, sg_fields, _, _, _) in self._resolve_tokens(token_str):
+        for _, sg_fields, _, _, _ in self._resolve_tokens(token_str):
             fields.extend(sg_fields)
 
         return fields
