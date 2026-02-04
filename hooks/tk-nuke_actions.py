@@ -224,7 +224,7 @@ class NukeActions(HookBaseClass):
         """
         import nuke
 
-        (_, ext) = os.path.splitext(path)
+        _, ext = os.path.splitext(path)
 
         # If this is an Alembic cache, use a ReadGeo2 and we're done.
         if ext.lower() == ".abc":

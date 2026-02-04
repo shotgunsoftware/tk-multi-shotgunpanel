@@ -115,9 +115,7 @@ class ListItemDelegate(shotgun_view.EditSelectedWidgetDelegate):
         sg_formatter = model_index.model().sourceModel().get_formatter()
 
         # ask to format the data
-        (header_left, header_right, body) = sg_formatter.format_list_item_details(
-            sg_item
-        )
+        header_left, header_right, body = sg_formatter.format_list_item_details(sg_item)
 
         widget.set_text(header_left, header_right, body)
 
