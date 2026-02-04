@@ -347,7 +347,7 @@ class AppDialog(QtGui.QWidget):
             self._current_entity_tabs = []
             formatter = self._current_location.sg_formatter
             for tab_name in self.ENTITY_TABS:
-                (enabled, text) = formatter.show_entity_tab(tab_name)
+                enabled, text = formatter.show_entity_tab(tab_name)
                 if enabled:
                     tab_widget = self._entity_tabs[tab_name]["widget"]
                     self.ui.entity_tab_widget.addTab(tab_widget, text)
@@ -553,7 +553,7 @@ class AppDialog(QtGui.QWidget):
 
         # populate the text with data
         if sg_data:
-            (header, body) = formatter.format_entity_details(sg_data)
+            header, body = formatter.format_entity_details(sg_data)
             self.ui.details_text_header.setText(header)
             self.ui.details_text_header.setToolTip(header)
 
@@ -644,7 +644,7 @@ class AppDialog(QtGui.QWidget):
 
         if url.startswith("sgtk:"):
             # this is an internal url on the form sgtk:EntityType:entity_id
-            (_, entity_type, entity_id) = url.split(":")
+            _, entity_type, entity_id = url.split(":")
             entity_id = int(entity_id)
             self.navigate_to_entity(entity_type, entity_id)
 
@@ -895,11 +895,11 @@ class AppDialog(QtGui.QWidget):
                         "Creating new task:\n%s" % pprint.pprint(sg_data)
                     )
                     task_data = self._app.shotgun.create("Task", sg_data)
-                    (entity_type, entity_id) = (task_data["type"], task_data["id"])
+                    entity_type, entity_id = (task_data["type"], task_data["id"])
 
                 else:
                     # user selected a task in the UI
-                    (entity_type, entity_id) = dialog.selected_entity
+                    entity_type, entity_id = dialog.selected_entity
 
                 self._do_work_area_switch(entity_type, entity_id)
 
@@ -1202,13 +1202,11 @@ class AppDialog(QtGui.QWidget):
         label.setAlignment(
             QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter
         )
-        label.setStyleSheet(
-            """
+        label.setStyleSheet("""
             font-size: 10px;
             font-weight: 100;
             font-style: italic;
-            """
-        )
+            """)
         return label
 
     def create_entity_tab_view(self, name, parent):

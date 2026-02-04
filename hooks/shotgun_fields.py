@@ -84,9 +84,7 @@ class ShotgunFields(HookBaseClass):
 
             values["top_left"] = "<big>{name} v{version_number}</big>"
             values["top_right"] = "{created_at}"
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 {published_file_type} by {created_by}<br>
                 <b>Comments:</b> {description}
                 """
@@ -99,9 +97,7 @@ class ShotgunFields(HookBaseClass):
 
         elif entity_type == "Version":
 
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 <b>By:</b> {user|created_by}<br>
                 <b>Comments:</b> {description}
                 """
@@ -110,9 +106,7 @@ class ShotgunFields(HookBaseClass):
 
             values["top_left"] = "<big>{content}</big>"
             values["top_right"] = "{sg_status_list}"
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 {[Assigned to ]task_assignees[<br>]}
                 {entity::showtype[<br>]}
                 {[Starts: ]start_date}{[ Due:]due_date}
@@ -295,9 +289,7 @@ class ShotgunFields(HookBaseClass):
         if entity_type == "HumanUser":
             values["title"] = "{name}"
 
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 Login: {login}<br>
                 Email: {email}<br>
                 Department: {department}
@@ -306,9 +298,7 @@ class ShotgunFields(HookBaseClass):
         if entity_type == "ClientUser":
             values["title"] = "{name}"
 
-            values[
-                "body"
-            ] = """<br>
+            values["body"] = """<br>
                 <b>Shotgun Client User</b><br><br>
                 Email: {email}
                 """
@@ -316,9 +306,7 @@ class ShotgunFields(HookBaseClass):
         if entity_type == "ApiUser":
             values["title"] = "{firstname}"
 
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 <b>Shotgun Api Script</b><br><br>
                 Script Version: {lastname}<br>
                 Maintainer: {email}<br>
@@ -328,17 +316,13 @@ class ShotgunFields(HookBaseClass):
         if entity_type == "Group":
             values["title"] = "{code}"
 
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 <b>Group of users</b><br><br>
                 Members: {users}
                 """
 
         elif entity_type == "Shot":
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 Sequence: {sg_sequence}<br>
                 Status: {sg_status_list}<br>
                 {[Cut In: ]sg_cut_in[  ]}{[Cut Out:]sg_cut_out[  ]}{[Duration: ]sg_cut_duration}<br>
@@ -347,9 +331,7 @@ class ShotgunFields(HookBaseClass):
 
         elif entity_type == "Task":
             values["title"] = "Task {content}"
-            values[
-                "body"
-            ] = """
+            values["body"] = """
 
                 <big>Status: {sg_status_list}</big><br>
                 {entity::showtype[<br>]}
@@ -358,9 +340,7 @@ class ShotgunFields(HookBaseClass):
                 """
 
         elif entity_type == "Asset":
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 Asset Type: {sg_asset_type}<br>
                 Status: {sg_status_list}<br>
                 Description: {description}
@@ -369,9 +349,7 @@ class ShotgunFields(HookBaseClass):
         elif entity_type == "Project":
             values["title"] = "Project {name}"
 
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 <b>Status: {sg_status}<br>
                 {[Start Date: ]start_date[<br>]}
                 {[End Date: ]end_date[<br>]}
@@ -381,9 +359,7 @@ class ShotgunFields(HookBaseClass):
         elif entity_type == "Note":
             values["title"] = "{subject}"
 
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 Note by {created_by} {[(Task ]tasks[)]}<br>
                 Written on {created_at}<br>
                 {[Addressed to: ]addressings_to}{[, CC: ]addressings_cc}<br>
@@ -394,9 +370,7 @@ class ShotgunFields(HookBaseClass):
         elif entity_type == "PublishedFile":
             values["title"] = "{code}"
 
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 <big>{published_file_type}, Version {version_number}</big><br>
                 For {entity::showtype}{[, Task ]task} <br>
                 Created by {created_by} on {created_at}<br>
@@ -411,9 +385,7 @@ class ShotgunFields(HookBaseClass):
         elif entity_type == "Version":
             values["title"] = "{code}"
 
-            values[
-                "body"
-            ] = """
+            values["body"] = """
                 {entity::showtype}{[, Task ]sg_task} <br>
                 Status: {sg_status_list}<br>
                 Created by {user|created_by} on {created_at}<br>

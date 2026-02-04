@@ -20,7 +20,7 @@ class ShotgunPanelApp(Application):
     """
 
     # window launch mode constants used by the navigate() method
-    (PANEL, DIALOG, NEW_DIALOG) = range(3)
+    PANEL, DIALOG, NEW_DIALOG = range(3)
 
     documentation_url = (
         "https://developer.shotgridsoftware.com/c0b0ce05/?title=ShotGrid+Panel"

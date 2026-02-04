@@ -198,7 +198,7 @@ class ShotgunTypeFormatter(object):
             if "::" in processed_token:
                 # we have a special formatting directive
                 # e.g. created_at::ago
-                (sg_field_str, directive) = processed_token.split("::")
+                sg_field_str, directive = processed_token.split("::")
             else:
                 sg_field_str = processed_token
 
@@ -290,7 +290,7 @@ class ShotgunTypeFormatter(object):
 
         elif sg_field in ["created_at", "updated_at"]:
             created_datetime = datetime.datetime.fromtimestamp(value)
-            (str_val, _) = utils.create_human_readable_timestamp(created_datetime)
+            str_val, _ = utils.create_human_readable_timestamp(created_datetime)
 
         elif sg_field == "sg_status_list":
             str_val = shotgun_globals.get_status_display_name(value)
