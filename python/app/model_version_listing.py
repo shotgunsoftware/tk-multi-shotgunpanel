@@ -73,7 +73,7 @@ class SgVersionModel(SgEntityListingModel):
             item.setToolTip(self.tooltip)
 
         else:
-            super(SgVersionModel, self)._set_tooltip(item, sg_item)
+            super()._set_tooltip(item, sg_item)
 
     ############################################################################################
     # public interface

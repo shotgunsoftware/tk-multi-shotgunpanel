@@ -591,7 +591,7 @@ class ShotgunEntityFormatter(ShotgunTypeFormatter):
         """
         Constructor
         """
-        super(ShotgunEntityFormatter, self).__init__(entity_type)
+        super().__init__(entity_type)
         self._entity_id = entity_id
 
     def __repr__(self):
