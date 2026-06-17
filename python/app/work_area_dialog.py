@@ -32,7 +32,7 @@ class WorkAreaDialog(QtGui.QDialog):
         :param parent: The model parent.
         :type parent: :class:`~PySide.QtGui.QObject`
         """
-        super(WorkAreaDialog, self).__init__(parent)
+        super().__init__(parent)
 
         # now load in the UI that was created in the UI designer
         self.ui = Ui_WorkAreaDialog()

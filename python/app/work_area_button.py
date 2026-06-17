@@ -54,7 +54,7 @@ class WorkAreaButton(QtGui.QToolButton):
         :param parent: The model parent.
         :type parent: :class:`~PySide.QtGui.QObject`
         """
-        super(WorkAreaButton, self).__init__(parent)
+        super().__init__(parent)
 
         # an icon to represent all items which
         # aren't the current work area
@@ -186,7 +186,7 @@ class WorkAreaButton(QtGui.QToolButton):
             self.style().unpolish(self)
             self.style().polish(self)
 
-        return super(WorkAreaButton, self).enterEvent(evt)
+        return super().enterEvent(evt)
 
     def leaveEvent(self, evt):
         """
@@ -196,7 +196,7 @@ class WorkAreaButton(QtGui.QToolButton):
             # collapse button after a delay
             QtCore.QTimer.singleShot(300, self._init_default_state)
 
-        return super(WorkAreaButton, self).leaveEvent(evt)
+        return super().leaveEvent(evt)
 
 
 class FloatingWorkAreaButton(WorkAreaButton):
@@ -224,7 +224,7 @@ class FloatingWorkAreaButton(WorkAreaButton):
         :param parent: The model parent.
         :type parent: :class:`~PySide.QtGui.QObject`
         """
-        super(FloatingWorkAreaButton, self).__init__(parent)
+        super().__init__(parent)
 
         # hook up a listener to the parent window so this widget
         # follows along when the parent window changes size
@@ -244,7 +244,7 @@ class FloatingWorkAreaButton(WorkAreaButton):
             self.setVisible(False)
         else:
             # base class implementation
-            super(FloatingWorkAreaButton, self).set_up(entity_type, entity_id)
+            super().set_up(entity_type, entity_id)
 
     def __position_widget(self):
         """
@@ -259,14 +259,14 @@ class FloatingWorkAreaButton(WorkAreaButton):
         """
         Sets up the default collapsed state of the button
         """
-        super(FloatingWorkAreaButton, self)._init_default_state()
+        super()._init_default_state()
         self.__position_widget()
 
     def enterEvent(self, evt):
         """
         QT Mouse enter event
         """
-        status = super(FloatingWorkAreaButton, self).enterEvent(evt)
+        status = super().enterEvent(evt)
 
         if not self._is_static:
             self.__position_widget()
