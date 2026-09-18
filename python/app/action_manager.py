@@ -171,8 +171,12 @@ class ActionManager(QtCore.QObject):
 
             action = QtGui.QAction(caption, None)
             action.setToolTip(description)
-            action.triggered[()].connect(
-                lambda n=name, sg=sg_data, p=params: self._execute_hook(n, sg, p)
+            # QAction.triggered emits an optional checked bool in Qt 6 / PySide6.
+            # Accept and ignore it so the action name is not overwritten.
+            action.triggered.connect(
+                lambda checked=False, n=name, sg=sg_data, p=params: self._execute_hook(
+                    n, sg, p
+                )
             )
 
             if "group" in action_def:
@@ -191,16 +195,16 @@ class ActionManager(QtCore.QObject):
         :param sg_data: Shotgun data directory
         """
         refresh = QtGui.QAction("Refresh", None)
-        refresh.triggered[()].connect(lambda: self._refresh(sg_data))
+        refresh.triggered.connect(lambda checked=False: self._refresh(sg_data))
 
         view_in_sg = QtGui.QAction("View in Flow Production Tracking", None)
-        view_in_sg.triggered[()].connect(lambda: self._show_in_sg(sg_data))
+        view_in_sg.triggered.connect(lambda checked=False: self._show_in_sg(sg_data))
 
         copy_url = QtGui.QAction("Copy PTR url to clipboard", None)
-        copy_url.triggered[()].connect(lambda: self._copy_to_clipboard(sg_data))
+        copy_url.triggered.connect(lambda checked=False: self._copy_to_clipboard(sg_data))
 
         show_docs = QtGui.QAction("Documentation", None)
-        show_docs.triggered[()].connect(self._show_docs)
+        show_docs.triggered.connect(lambda checked=False: self._show_docs())
 
         separator = QtGui.QAction(None)
         separator.setSeparator(True)
